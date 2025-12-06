@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Link from "next/link";
+import dynamic from 'next/dynamic';
 import { createPageUrl } from "@/utils";
 import { base44, type Vendor } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
@@ -26,29 +27,36 @@ import {
   List,
   Map
 } from "lucide-react";
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/i18n/LanguageContext";
+
+// Dynamically import the map component with SSR disabled
+const StoreMapDynamic = dynamic(
+  () => import('@/components/vendors/StoreMapComponent'),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-full flex items-center justify-center bg-slate-50">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-teal-600 mx-auto mb-2" />
+          <p className="text-sm text-slate-500">Loading map...</p>
+        </div>
+      </div>
+    ),
+  }
+);
 
 function useSafeLanguage() {
   try {
     return useLanguage();
   } catch (e) {
-    return { t: (key: string) => key, language: 'en', setLanguage: () => { } };
+    return {
+      t: (key: string, _params?: Record<string, string | number>) => key,
+      language: 'en' as const,
+      setLanguage: () => { }
+    };
   }
 }
-
-
-
-// Fix for default marker icons in Leaflet
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
 
 const statusColors: Record<string, string> = {
   active: "bg-emerald-100 text-emerald-700",
@@ -163,45 +171,18 @@ export default function StoreLocations() {
             <Card className="overflow-hidden">
               <div className="h-[600px]">
                 {vendorsWithLocation.length > 0 ? (
-                  <MapContainer
-                    center={mapCenter}
-                    zoom={4}
-                    style={{ height: '100%', width: '100%' }}
-                  >
-                    <TileLayer
-                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    />
-                    {vendorsWithLocation.filter(v => {
+                  <StoreMapDynamic
+                    vendors={vendorsWithLocation.filter(v => {
                       const matchesSearch = !searchTerm ||
                         v.store_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
                         v.city?.toLowerCase().includes(searchTerm.toLowerCase());
                       const matchesStatus = statusFilter === "all" || v.status === statusFilter;
                       return matchesSearch && matchesStatus;
-                    }).map(vendor => (
-                      <Marker
-                        key={vendor.id}
-                        position={[vendor.latitude, vendor.longitude]}
-                        eventHandlers={{
-                          click: () => setSelectedVendor(vendor)
-                        }}
-                      >
-                        <Popup>
-                          <div className="p-2">
-                            <h3 className="font-semibold">{vendor.store_name}</h3>
-                            <p className="text-sm text-slate-600">{vendor.name}</p>
-                            <p className="text-sm text-slate-500">{vendor.store_address}</p>
-                            <p className="text-sm text-slate-500">{vendor.city}, {vendor.country}</p>
-                            <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)}>
-                              <Button size="sm" className="mt-2 w-full bg-teal-600 hover:bg-teal-700">
-                                {t('viewDetails')}
-                              </Button>
-                            </Link>
-                          </div>
-                        </Popup>
-                      </Marker>
-                    ))}
-                  </MapContainer>
+                    })}
+                    center={mapCenter}
+                    onVendorSelect={setSelectedVendor}
+                    t={t as (key: string, params?: Record<string, string | number>) => string}
+                  />
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full bg-slate-50">
                     <MapPin className="h-12 w-12 text-slate-300 mb-3" />
