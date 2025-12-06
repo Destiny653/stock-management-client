@@ -1,0 +1,51 @@
+{
+  "name": "StockMovement",
+  "type": "object",
+  "properties": {
+    "product_id": {
+      "type": "string"
+    },
+    "product_name": {
+      "type": "string"
+    },
+    "sku": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "received",
+        "dispatched",
+        "adjusted",
+        "transferred",
+        "returned"
+      ],
+      "description": "Type of movement"
+    },
+    "quantity": {
+      "type": "number",
+      "description": "Quantity moved (positive for in, negative for out)"
+    },
+    "from_location": {
+      "type": "string"
+    },
+    "to_location": {
+      "type": "string"
+    },
+    "reference": {
+      "type": "string",
+      "description": "PO number or reference"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "performed_by": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "product_id",
+    "type",
+    "quantity"
+  ]
+}

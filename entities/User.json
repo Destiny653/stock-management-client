@@ -1,0 +1,164 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "User",
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "description": "Unique identifier for the user"
+        },
+        "organizationId": {
+            "type": "string",
+            "description": "ID of the organization this user belongs to"
+        },
+        "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User email address"
+        },
+        "username": {
+            "type": "string",
+            "description": "Username for login"
+        },
+        "firstName": {
+            "type": "string",
+            "description": "User's first name"
+        },
+        "lastName": {
+            "type": "string",
+            "description": "User's last name"
+        },
+        "phone": {
+            "type": "string",
+            "description": "User's phone number"
+        },
+        "avatar": {
+            "type": "string",
+            "description": "URL to user's avatar image"
+        },
+        "role": {
+            "type": "string",
+            "enum": [
+                "owner",
+                "admin",
+                "manager",
+                "staff",
+                "viewer"
+            ],
+            "description": "User role within the organization"
+        },
+        "permissions": {
+            "type": "array",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "view_inventory",
+                    "edit_inventory",
+                    "delete_inventory",
+                    "view_purchase_orders",
+                    "create_purchase_orders",
+                    "approve_purchase_orders",
+                    "view_sales",
+                    "create_sales",
+                    "view_suppliers",
+                    "manage_suppliers",
+                    "view_vendors",
+                    "manage_vendors",
+                    "view_warehouses",
+                    "manage_warehouses",
+                    "view_reports",
+                    "manage_users",
+                    "manage_settings",
+                    "manage_organization"
+                ]
+            },
+            "description": "Specific permissions granted to the user"
+        },
+        "warehouseAccess": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "IDs of warehouses this user can access (empty = all)"
+        },
+        "status": {
+            "type": "string",
+            "enum": [
+                "active",
+                "inactive",
+                "suspended",
+                "pending"
+            ],
+            "default": "pending",
+            "description": "User account status"
+        },
+        "lastLogin": {
+            "type": "string",
+            "format": "date-time",
+            "description": "Last login timestamp"
+        },
+        "emailVerified": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether email is verified"
+        },
+        "twoFactorEnabled": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether two-factor authentication is enabled"
+        },
+        "preferences": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "type": "string",
+                    "default": "en"
+                },
+                "timezone": {
+                    "type": "string",
+                    "default": "UTC"
+                },
+                "notifications": {
+                    "type": "object",
+                    "properties": {
+                        "email": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "sms": {
+                            "type": "boolean",
+                            "default": false
+                        },
+                        "push": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                }
+            }
+        },
+        "invitedBy": {
+            "type": "string",
+            "description": "User ID who invited this user"
+        },
+        "invitedAt": {
+            "type": "string",
+            "format": "date-time",
+            "description": "When the user was invited"
+        },
+        "createdAt": {
+            "type": "string",
+            "format": "date-time"
+        },
+        "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+        }
+    },
+    "required": [
+        "id",
+        "organizationId",
+        "email",
+        "role"
+    ]
+}

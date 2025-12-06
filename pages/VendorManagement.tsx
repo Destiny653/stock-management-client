@@ -1,0 +1,823 @@
+import React, { useState, useMemo } from 'react';
+import Link from "next/link";
+import { createPageUrl } from "@/utils";
+import { base44, type Vendor } from "@/api/base44Client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import VendorLocationPicker from "@/components/vendors/VendorLocationPicker";
+import {
+  Plus,
+  Search,
+  MoreHorizontal,
+  Eye,
+  Edit,
+  Store,
+  Users,
+  DollarSign,
+  MapPin,
+  Phone,
+  Mail,
+  Calendar,
+  CheckCircle,
+  XCircle,
+  Clock,
+  AlertTriangle,
+  Loader2,
+  Grid3X3,
+  List,
+  Filter,
+  TrendingUp
+} from "lucide-react";
+import { format } from "date-fns";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { useLanguage } from "@/components/i18n/LanguageContext";
+
+function useSafeLanguage() {
+  try {
+    return useLanguage();
+  } catch (e) {
+    return { t: (key: string) => key, language: 'en', setLanguage: () => { } };
+  }
+}
+
+const statusColors: Record<string, string> = {
+  active: "bg-emerald-100 text-emerald-700",
+  inactive: "bg-slate-100 text-slate-600",
+  pending: "bg-amber-100 text-amber-700",
+  suspended: "bg-rose-100 text-rose-700"
+};
+
+const paymentStatusColors: Record<string, string> = {
+  paid: "bg-emerald-100 text-emerald-700",
+  pending: "bg-amber-100 text-amber-700",
+  overdue: "bg-rose-100 text-rose-700",
+  grace_period: "bg-orange-100 text-orange-700"
+};
+
+
+
+interface VendorFormData {
+  name: string;
+  owner_name: string;
+  email: string;
+  phone: string;
+  store_name: string;
+  store_address: string;
+  city: string;
+  country: string;
+  latitude?: number;
+  longitude?: number;
+  status: 'active' | 'inactive' | 'pending' | 'suspended';
+  subscription_plan: string;
+  monthly_fee: number;
+  commission_rate: number;
+  notes: string;
+  organization_id?: string;
+}
+
+interface Organization {
+  id: string;
+  name: string;
+  code: string;
+}
+
+interface Sale {
+  id: string;
+  vendor_email: string;
+  total: number;
+}
+
+export default function VendorManagement() {
+  const { t } = useSafeLanguage();
+  const queryClient = useQueryClient();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [paymentFilter, setPaymentFilter] = useState("all");
+  const [viewMode, setViewMode] = useState("grid");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
+  const [formData, setFormData] = useState<VendorFormData>({
+    name: '',
+    owner_name: '',
+    email: '',
+    phone: '',
+    store_name: '',
+    store_address: '',
+    city: '',
+    country: '',
+    latitude: undefined,
+    longitude: undefined,
+    status: 'pending',
+    subscription_plan: 'basic',
+    monthly_fee: 0,
+    commission_rate: 5,
+    notes: '',
+    organization_id: ''
+  });
+
+  const { data: organizations = [] } = useQuery({
+    queryKey: ['organizations'],
+    queryFn: () => base44.entities.Organization.list(),
+  });
+
+  const { data: vendors = [], isLoading } = useQuery({
+    queryKey: ['vendors'],
+    queryFn: () => base44.entities.Vendor.list(),
+    initialData: [] as Vendor[],
+  });
+
+  const { data: sales = [] } = useQuery({
+    queryKey: ['sales'],
+    queryFn: () => base44.entities.Sale.list(),
+  });
+
+  const createVendorMutation = useMutation({
+    mutationFn: (data: any) => base44.entities.Vendor.create({
+      ...data,
+      join_date: new Date().toISOString().split('T')[0],
+      total_sales: 0,
+      total_orders: 0
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      toast.success("Vendor created successfully");
+      setIsAddDialogOpen(false);
+      resetForm();
+    },
+  });
+
+  const updateVendorMutation = useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) => base44.entities.Vendor.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendors'] });
+      toast.success("Vendor updated successfully");
+      setEditingVendor(null);
+      resetForm();
+    },
+  });
+
+  const resetForm = () => {
+    setFormData({
+      name: '',
+      owner_name: '',
+      email: '',
+      phone: '',
+      store_name: '',
+      store_address: '',
+      city: '',
+      country: '',
+      latitude: undefined,
+      longitude: undefined,
+      status: 'pending',
+      subscription_plan: 'basic',
+      monthly_fee: 0,
+      commission_rate: 5,
+      notes: '',
+      organization_id: ''
+    });
+  };
+
+  const handleEdit = (vendor: Vendor) => {
+    setEditingVendor(vendor);
+    setFormData({
+      name: vendor.name || '',
+      owner_name: vendor.owner_name || '',
+      email: vendor.email || '',
+      phone: vendor.phone || '',
+      store_name: vendor.store_name || '',
+      store_address: vendor.store_address || '',
+      city: vendor.city || '',
+      country: vendor.country || '',
+      latitude: vendor.latitude,
+      longitude: vendor.longitude,
+      status: (vendor.status as any) || 'pending',
+      subscription_plan: vendor.subscription_plan || 'basic',
+      monthly_fee: vendor.monthly_fee || 0,
+      commission_rate: vendor.commission_rate || 5,
+      notes: vendor.notes || '',
+      organization_id: vendor.organization_id || ''
+    });
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.name || !formData.email || !formData.store_name) {
+      toast.error("Please fill in required fields");
+      return;
+    }
+
+    if (editingVendor) {
+      await updateVendorMutation.mutateAsync({ id: editingVendor.id, data: formData });
+    } else {
+      await createVendorMutation.mutateAsync(formData);
+    }
+  };
+
+  const handleStatusChange = async (vendorId: string, newStatus: string) => {
+    await updateVendorMutation.mutateAsync({ id: vendorId, data: { status: newStatus } });
+  };
+
+  // Calculate vendor stats from sales
+  const vendorStats = useMemo(() => {
+    const stats: Record<string, { totalSales: number; totalOrders: number }> = {};
+    (sales as Sale[]).forEach(sale => {
+      const vendorEmail = sale.vendor_email;
+      if (!stats[vendorEmail]) {
+        stats[vendorEmail] = { totalSales: 0, totalOrders: 0 };
+      }
+      stats[vendorEmail].totalSales += sale.total || 0;
+      stats[vendorEmail].totalOrders += 1;
+    });
+    return stats;
+  }, [sales]);
+
+  const filteredVendors = useMemo(() => {
+    let result = [...(vendors as Vendor[])];
+
+    if (searchTerm) {
+      const search = searchTerm.toLowerCase();
+      result = result.filter(v =>
+        v.name?.toLowerCase().includes(search) ||
+        v.store_name?.toLowerCase().includes(search) ||
+        v.email?.toLowerCase().includes(search) ||
+        v.city?.toLowerCase().includes(search)
+      );
+    }
+
+    if (statusFilter !== "all") {
+      result = result.filter(v => v.status === statusFilter);
+    }
+
+    if (paymentFilter !== "all") {
+      result = result.filter(v => v.payment_status === paymentFilter);
+    }
+
+    return result;
+  }, [vendors, searchTerm, statusFilter, paymentFilter]);
+
+  // Stats
+  const stats = {
+    total: vendors.length,
+    active: (vendors as Vendor[]).filter(v => v.status === 'active').length,
+    pending: (vendors as Vendor[]).filter(v => v.status === 'pending').length,
+    overdue: (vendors as Vendor[]).filter(v => v.payment_status === 'overdue').length,
+  };
+
+  const VendorForm = () => (
+    <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+      {/* Organization Selection */}
+      {organizations.length > 0 && (
+        <div className="space-y-2">
+          <Label>Organization</Label>
+          <Select value={formData.organization_id || "none"} onValueChange={(v) => setFormData(prev => ({ ...prev, organization_id: v === "none" ? "" : v }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select organization (optional)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">No Organization</SelectItem>
+              {organizations.map(org => (
+                <SelectItem key={org.id} value={org.id}>{org.name} ({org.code})</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>{t('businessNameRequired')}</Label>
+          <Input
+            value={formData.name}
+            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+            placeholder={t('businessName')}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>{t('ownerNameLabel')}</Label>
+          <Input
+            value={formData.owner_name}
+            onChange={(e) => setFormData(prev => ({ ...prev, owner_name: e.target.value }))}
+            placeholder={t('ownerName')}
+          />
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>{t('emailRequired')}</Label>
+          <Input
+            type="email"
+            value={formData.email}
+            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+            placeholder="email@example.com"
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>{t('phone')}</Label>
+          <Input
+            value={formData.phone}
+            onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+            placeholder="+1 234 567 890"
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>{t('storeNameRequired')}</Label>
+        <Input
+          value={formData.store_name}
+          onChange={(e) => setFormData(prev => ({ ...prev, store_name: e.target.value }))}
+          placeholder={t('storeName')}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label>{t('storeAddress')}</Label>
+        <Input
+          value={formData.store_address}
+          onChange={(e) => setFormData(prev => ({ ...prev, store_address: e.target.value }))}
+          placeholder={t('storeAddress')}
+        />
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>{t('city')}</Label>
+          <Input
+            value={formData.city}
+            onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+            placeholder={t('city')}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>{t('country')}</Label>
+          <Input
+            value={formData.country}
+            onChange={(e) => setFormData(prev => ({ ...prev, country: e.target.value }))}
+            placeholder={t('country')}
+          />
+        </div>
+      </div>
+
+      {/* Location Picker with Map */}
+      <VendorLocationPicker
+        latitude={formData.latitude}
+        longitude={formData.longitude}
+        onLocationChange={(lat: number, lng: number) => setFormData(prev => ({
+          ...prev,
+          latitude: lat,
+          longitude: lng
+        }))}
+        onAddressChange={(addressData: { address?: string; city?: string; country?: string }) => setFormData(prev => ({
+          ...prev,
+          store_address: addressData.address?.split(',').slice(0, 2).join(',') || prev.store_address,
+          city: addressData.city || prev.city,
+          country: addressData.country || prev.country
+        }))}
+      />
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>{t('status')}</Label>
+          <Select value={formData.status} onValueChange={(v) => setFormData(prev => ({ ...prev, status: v as any }))}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="pending">{t('pending')}</SelectItem>
+              <SelectItem value="active">{t('active')}</SelectItem>
+              <SelectItem value="inactive">{t('inactive')}</SelectItem>
+              <SelectItem value="suspended">{t('suspended')}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label>{t('subscriptionPlan')}</Label>
+          <Select value={formData.subscription_plan} onValueChange={(v) => setFormData(prev => ({ ...prev, subscription_plan: v }))}>
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="basic">{t('basic')}</SelectItem>
+              <SelectItem value="standard">{t('standard')}</SelectItem>
+              <SelectItem value="premium">{t('premium')}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>{t('monthlyFee')} ($)</Label>
+          <Input
+            type="number"
+            min="0"
+            value={formData.monthly_fee}
+            onChange={(e) => setFormData(prev => ({ ...prev, monthly_fee: parseFloat(e.target.value) || 0 }))}
+          />
+        </div>
+        <div className="space-y-2">
+          <Label>{t('commissionRate')} (%)</Label>
+          <Input
+            type="number"
+            min="0"
+            max="100"
+            value={formData.commission_rate}
+            onChange={(e) => setFormData(prev => ({ ...prev, commission_rate: parseFloat(e.target.value) || 0 }))}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>{t('notes')}</Label>
+        <Textarea
+          value={formData.notes}
+          onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+          placeholder={t('notes')}
+          rows={3}
+        />
+      </div>
+
+      <div className="flex justify-end gap-3 pt-4">
+        <Button variant="outline" onClick={() => { setEditingVendor(null); setIsAddDialogOpen(false); resetForm(); }}>
+          {t('cancel')}
+        </Button>
+        <Button
+          className="bg-teal-600 hover:bg-teal-700"
+          onClick={handleSubmit}
+          disabled={createVendorMutation.isPending || updateVendorMutation.isPending}
+        >
+          {(createVendorMutation.isPending || updateVendorMutation.isPending) && (
+            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          )}
+          {editingVendor ? t('updateVendor') : t('addVendor')}
+        </Button>
+      </div>
+    </div>
+  );
+
+  const VendorCard = ({ vendor }: { vendor: Vendor }) => {
+    const stats = vendorStats[vendor.email] || { totalSales: 0, totalOrders: 0 };
+
+    return (
+      <Card className="hover:shadow-lg transition-shadow">
+        <CardContent className="p-5">
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-xl bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-bold text-lg">
+                {vendor.store_name?.charAt(0) || 'V'}
+              </div>
+              <div>
+                <h3 className="font-semibold text-slate-900">{vendor.store_name}</h3>
+                <p className="text-sm text-slate-500">{vendor.name}</p>
+              </div>
+            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-8 w-8">
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)}>
+                    <Eye className="h-4 w-4 mr-2" /> {t('viewDetails')}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleEdit(vendor)}>
+                  <Edit className="h-4 w-4 mr-2" /> {t('edit')}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {vendor.status !== 'active' && (
+                  <DropdownMenuItem onClick={() => handleStatusChange(vendor.id, 'active')}>
+                    <CheckCircle className="h-4 w-4 mr-2" /> {t('activate')}
+                  </DropdownMenuItem>
+                )}
+                {vendor.status === 'active' && (
+                  <DropdownMenuItem onClick={() => handleStatusChange(vendor.id, 'suspended')} className="text-rose-600">
+                    <XCircle className="h-4 w-4 mr-2" /> {t('suspend')}
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+
+          <div className="space-y-2 mb-4">
+            <div className="flex items-center gap-2 text-sm text-slate-600">
+              <Mail className="h-4 w-4 text-slate-400" />
+              {vendor.email}
+            </div>
+            {vendor.phone && (
+              <div className="flex items-center gap-2 text-sm text-slate-600">
+                <Phone className="h-4 w-4 text-slate-400" />
+                {vendor.phone}
+              </div>
+            )}
+            {vendor.city && (
+              <div className="flex items-center gap-2 text-sm text-slate-600">
+                <MapPin className="h-4 w-4 text-slate-400" />
+                {vendor.city}, {vendor.country}
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center justify-between mb-4">
+            <Badge className={statusColors[vendor.status]}>
+              {vendor.status}
+            </Badge>
+            <Badge className={paymentStatusColors[vendor.payment_status || 'pending']}>
+              {vendor.payment_status || 'pending'}
+            </Badge>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3 pt-3 border-t">
+            <div className="text-center">
+              <p className="text-lg font-bold text-slate-900">${(stats.totalSales || vendor.total_sales || 0).toLocaleString()}</p>
+              <p className="text-xs text-slate-500">{t('totalSales')}</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold text-slate-900">{stats.totalOrders || vendor.total_orders || 0}</p>
+              <p className="text-xs text-slate-500">{t('orders')}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('vendorManagement')}</h1>
+          <p className="text-slate-500 mt-1">{t('manageVendorsSubscriptions')}</p>
+        </div>
+        <div className="flex gap-3">
+          <Link href={createPageUrl("StoreLocations")}>
+            <Button variant="outline">
+              <MapPin className="h-4 w-4 mr-2" />
+              {t('viewMap')}
+            </Button>
+          </Link>
+          <Dialog open={isAddDialogOpen || editingVendor !== null} onOpenChange={(open) => {
+            if (!open) { setEditingVendor(null); resetForm(); }
+            setIsAddDialogOpen(open);
+          }}>
+            <DialogTrigger asChild>
+              <Button className="bg-teal-600 hover:bg-teal-700">
+                <Plus className="h-4 w-4 mr-2" />
+                {t('addVendor')}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl">
+              <DialogHeader>
+                <DialogTitle>{editingVendor ? t('editVendor') : t('addVendor')}</DialogTitle>
+              </DialogHeader>
+              <VendorForm />
+            </DialogContent>
+          </Dialog>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-500">{t('totalVendors')}</p>
+                <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center">
+                <Store className="h-5 w-5 text-teal-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-500">{t('active')}</p>
+                <p className="text-2xl font-bold text-emerald-600">{stats.active}</p>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                <CheckCircle className="h-5 w-5 text-emerald-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-500">{t('pendingApprovalShort')}</p>
+                <p className="text-2xl font-bold text-amber-600">{stats.pending}</p>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
+                <Clock className="h-5 w-5 text-amber-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-slate-500">{t('paymentOverdue')}</p>
+                <p className="text-2xl font-bold text-rose-600">{stats.overdue}</p>
+              </div>
+              <div className="h-10 w-10 rounded-full bg-rose-100 flex items-center justify-center">
+                <AlertTriangle className="h-5 w-5 text-rose-600" />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white rounded-2xl border border-slate-200 p-4">
+        <div className="flex flex-col lg:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder={t('searchVendors')}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 bg-slate-50"
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-40 bg-slate-50">
+              <SelectValue placeholder={t('status')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t('allStatus')}</SelectItem>
+              <SelectItem value="active">{t('active')}</SelectItem>
+              <SelectItem value="pending">{t('pending')}</SelectItem>
+              <SelectItem value="inactive">{t('inactive')}</SelectItem>
+              <SelectItem value="suspended">{t('suspended')}</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select value={paymentFilter} onValueChange={setPaymentFilter}>
+            <SelectTrigger className="w-40 bg-slate-50">
+              <SelectValue placeholder={t('paymentStatus')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t('allPayments')}</SelectItem>
+              <SelectItem value="paid">{t('paid')}</SelectItem>
+              <SelectItem value="pending">{t('pending')}</SelectItem>
+              <SelectItem value="overdue">{t('overdue')}</SelectItem>
+            </SelectContent>
+          </Select>
+          <div className="flex gap-1 border rounded-lg p-1">
+            <Button
+              variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setViewMode('grid')}
+            >
+              <Grid3X3 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => setViewMode('list')}
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Vendors Display */}
+      {isLoading ? (
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+        </div>
+      ) : viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filteredVendors.map(vendor => (
+            <VendorCard key={vendor.id} vendor={vendor} />
+          ))}
+          {filteredVendors.length === 0 && (
+            <div className="col-span-full text-center py-12">
+              <Store className="h-12 w-12 text-slate-300 mx-auto mb-3" />
+              <p className="text-slate-600">{t('noVendorsFound')}</p>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-slate-50/50">
+                <TableHead>Vendor</TableHead>
+                <TableHead>Contact</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Payment</TableHead>
+                <TableHead>Sales</TableHead>
+                <TableHead className="w-12"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredVendors.map(vendor => {
+                const stats = vendorStats[vendor.email] || { totalSales: 0, totalOrders: 0 };
+                return (
+                  <TableRow key={vendor.id} className="hover:bg-slate-50">
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className="h-10 w-10 rounded-lg bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-semibold">
+                          {vendor.store_name?.charAt(0) || 'V'}
+                        </div>
+                        <div>
+                          <p className="font-medium text-slate-900">{vendor.store_name}</p>
+                          <p className="text-sm text-slate-500">{vendor.name}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm">{vendor.email}</p>
+                      <p className="text-sm text-slate-500">{vendor.phone}</p>
+                    </TableCell>
+                    <TableCell className="text-slate-600">
+                      {vendor.city ? `${vendor.city}, ${vendor.country}` : '-'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={statusColors[vendor.status]}>{vendor.status}</Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={paymentStatusColors[vendor.payment_status || 'pending']}>
+                        {vendor.payment_status || 'pending'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      ${(stats.totalSales || vendor.total_sales || 0).toLocaleString()}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem asChild>
+                            <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)}>
+                              <Eye className="h-4 w-4 mr-2" /> View
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEdit(vendor)}>
+                            <Edit className="h-4 w-4 mr-2" /> Edit
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+    </div>
+  );
+}

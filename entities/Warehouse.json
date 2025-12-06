@@ -1,0 +1,48 @@
+{
+  "name": "Warehouse",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Warehouse name"
+    },
+    "code": {
+      "type": "string",
+      "description": "Warehouse code"
+    },
+    "address": {
+      "type": "string"
+    },
+    "city": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "manager": {
+      "type": "string",
+      "description": "Warehouse manager name"
+    },
+    "capacity": {
+      "type": "number",
+      "description": "Total capacity in units"
+    },
+    "current_utilization": {
+      "type": "number",
+      "description": "Current utilization percentage"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "maintenance"
+      ],
+      "default": "active"
+    }
+  },
+  "required": [
+    "name",
+    "code"
+  ]
+}

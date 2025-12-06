@@ -1,0 +1,74 @@
+{
+  "name": "VendorPayment",
+  "type": "object",
+  "properties": {
+    "vendor_id": {
+      "type": "string",
+      "description": "Reference to vendor"
+    },
+    "vendor_name": {
+      "type": "string"
+    },
+    "amount": {
+      "type": "number",
+      "description": "Payment amount"
+    },
+    "payment_type": {
+      "type": "string",
+      "enum": [
+        "subscription",
+        "commission",
+        "other"
+      ],
+      "default": "subscription"
+    },
+    "period_start": {
+      "type": "string",
+      "format": "date"
+    },
+    "period_end": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "confirmed",
+        "failed",
+        "refunded"
+      ],
+      "default": "pending"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "bank_transfer",
+        "cash",
+        "card",
+        "mobile_money",
+        "other"
+      ],
+      "default": "bank_transfer"
+    },
+    "reference_number": {
+      "type": "string"
+    },
+    "confirmed_by": {
+      "type": "string",
+      "description": "Admin who confirmed the payment"
+    },
+    "confirmed_date": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "vendor_id",
+    "amount",
+    "payment_type"
+  ]
+}

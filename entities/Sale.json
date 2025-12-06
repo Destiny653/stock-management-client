@@ -1,0 +1,100 @@
+{
+  "name": "Sale",
+  "type": "object",
+  "properties": {
+    "sale_number": {
+      "type": "string",
+      "description": "Unique sale identifier"
+    },
+    "vendor_name": {
+      "type": "string",
+      "description": "Name of the vendor who made the sale"
+    },
+    "vendor_email": {
+      "type": "string",
+      "description": "Email of the vendor"
+    },
+    "client_name": {
+      "type": "string",
+      "description": "Customer name (optional)"
+    },
+    "client_email": {
+      "type": "string",
+      "description": "Customer email (optional)"
+    },
+    "client_phone": {
+      "type": "string",
+      "description": "Customer phone (optional)"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "product_id": {
+            "type": "string"
+          },
+          "product_name": {
+            "type": "string"
+          },
+          "sku": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit_price": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "subtotal": {
+      "type": "number"
+    },
+    "tax": {
+      "type": "number"
+    },
+    "discount": {
+      "type": "number"
+    },
+    "total": {
+      "type": "number"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "cash",
+        "card",
+        "transfer",
+        "other"
+      ],
+      "default": "cash"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "completed",
+        "refunded",
+        "cancelled"
+      ],
+      "default": "completed"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string",
+      "description": "Store/warehouse location"
+    }
+  },
+  "required": [
+    "sale_number",
+    "vendor_name",
+    "items",
+    "total"
+  ]
+}

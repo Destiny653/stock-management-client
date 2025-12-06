@@ -1,0 +1,67 @@
+{
+  "name": "Supplier",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Supplier company name"
+    },
+    "contact_name": {
+      "type": "string",
+      "description": "Primary contact person"
+    },
+    "email": {
+      "type": "string",
+      "description": "Contact email"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Contact phone"
+    },
+    "address": {
+      "type": "string",
+      "description": "Business address"
+    },
+    "city": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "payment_terms": {
+      "type": "string",
+      "enum": [
+        "Net 15",
+        "Net 30",
+        "Net 45",
+        "Net 60",
+        "COD"
+      ],
+      "default": "Net 30"
+    },
+    "lead_time_days": {
+      "type": "number",
+      "description": "Average lead time in days"
+    },
+    "rating": {
+      "type": "number",
+      "description": "Supplier rating 1-5"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "blocked"
+      ],
+      "default": "active"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "email"
+  ]
+}

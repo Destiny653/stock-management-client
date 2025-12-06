@@ -1,0 +1,106 @@
+{
+  "name": "Product",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Product name"
+    },
+    "sku": {
+      "type": "string",
+      "description": "Stock Keeping Unit"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Electronics",
+        "Clothing",
+        "Food & Beverage",
+        "Home & Garden",
+        "Sports",
+        "Beauty",
+        "Office Supplies",
+        "Other"
+      ],
+      "description": "Product category"
+    },
+    "description": {
+      "type": "string",
+      "description": "Product description"
+    },
+    "unit_price": {
+      "type": "number",
+      "description": "Price per unit"
+    },
+    "cost_price": {
+      "type": "number",
+      "description": "Cost per unit"
+    },
+    "quantity": {
+      "type": "number",
+      "description": "Current stock quantity"
+    },
+    "reorder_point": {
+      "type": "number",
+      "description": "Minimum quantity before reorder"
+    },
+    "reorder_quantity": {
+      "type": "number",
+      "description": "Default quantity to reorder"
+    },
+    "location": {
+      "type": "string",
+      "description": "Primary warehouse location"
+    },
+    "supplier_id": {
+      "type": "string",
+      "description": "Primary supplier ID"
+    },
+    "supplier_name": {
+      "type": "string",
+      "description": "Primary supplier name"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "low_stock",
+        "out_of_stock",
+        "discontinued"
+      ],
+      "default": "active"
+    },
+    "image_url": {
+      "type": "string",
+      "description": "Product image URL"
+    },
+    "barcode": {
+      "type": "string",
+      "description": "Product barcode"
+    },
+    "weight": {
+      "type": "number",
+      "description": "Product weight in kg"
+    },
+    "dimensions": {
+      "type": "string",
+      "description": "Product dimensions (LxWxH)"
+    },
+    "expiry_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Expiry date for perishable items"
+    },
+    "last_restocked": {
+      "type": "string",
+      "format": "date",
+      "description": "Last restock date"
+    }
+  },
+  "required": [
+    "name",
+    "sku",
+    "category",
+    "quantity"
+  ]
+}

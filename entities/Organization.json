@@ -1,0 +1,80 @@
+{
+  "name": "Organization",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Organization name"
+    },
+    "code": {
+      "type": "string",
+      "description": "Unique organization code"
+    },
+    "description": {
+      "type": "string",
+      "description": "Organization description"
+    },
+    "address": {
+      "type": "string",
+      "description": "Headquarters address"
+    },
+    "city": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Headquarters latitude"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Headquarters longitude"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "website": {
+      "type": "string"
+    },
+    "logo_url": {
+      "type": "string"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "suspended"
+      ],
+      "default": "active"
+    },
+    "subscription_plan": {
+      "type": "string",
+      "enum": [
+        "starter",
+        "business",
+        "enterprise"
+      ],
+      "default": "starter"
+    },
+    "max_vendors": {
+      "type": "number",
+      "description": "Maximum number of vendors allowed",
+      "default": 10
+    },
+    "max_users": {
+      "type": "number",
+      "description": "Maximum number of users allowed",
+      "default": 5
+    }
+  },
+  "required": [
+    "name",
+    "code"
+  ]
+}

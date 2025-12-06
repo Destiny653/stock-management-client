@@ -1,0 +1,120 @@
+{
+  "name": "Vendor",
+  "type": "object",
+  "properties": {
+    "organization_id": {
+      "type": "string",
+      "description": "Parent organization ID"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Linked user account ID"
+    },
+    "name": {
+      "type": "string",
+      "description": "Vendor business name"
+    },
+    "owner_name": {
+      "type": "string",
+      "description": "Owner full name"
+    },
+    "email": {
+      "type": "string",
+      "description": "Contact email"
+    },
+    "phone": {
+      "type": "string",
+      "description": "Contact phone"
+    },
+    "store_name": {
+      "type": "string",
+      "description": "Store display name"
+    },
+    "store_address": {
+      "type": "string",
+      "description": "Physical store address"
+    },
+    "city": {
+      "type": "string"
+    },
+    "country": {
+      "type": "string"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Store latitude for map"
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Store longitude for map"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "inactive",
+        "pending",
+        "suspended"
+      ],
+      "default": "pending"
+    },
+    "subscription_plan": {
+      "type": "string",
+      "enum": [
+        "basic",
+        "standard",
+        "premium"
+      ],
+      "default": "basic"
+    },
+    "monthly_fee": {
+      "type": "number",
+      "description": "Monthly subscription fee"
+    },
+    "commission_rate": {
+      "type": "number",
+      "description": "Commission percentage on sales"
+    },
+    "join_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "last_payment_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "next_payment_due": {
+      "type": "string",
+      "format": "date"
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "paid",
+        "pending",
+        "overdue",
+        "grace_period"
+      ],
+      "default": "pending"
+    },
+    "total_sales": {
+      "type": "number",
+      "default": 0
+    },
+    "total_orders": {
+      "type": "number",
+      "default": 0
+    },
+    "logo_url": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name",
+    "email",
+    "store_name"
+  ]
+}
