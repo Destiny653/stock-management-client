@@ -25,6 +25,7 @@ interface VendorLocationPickerProps {
   longitude?: number;
   onLocationChange: (lat: number, lng: number) => void;
   onAddressChange?: (address: { address: string; city: string; country: string }) => void;
+  label?: string;
 }
 
 export default function VendorLocationPicker(props: VendorLocationPickerProps) {

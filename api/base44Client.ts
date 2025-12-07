@@ -192,6 +192,7 @@ export interface User {
     weekly_reports?: boolean;
     dark_mode?: boolean;
     compact_view?: boolean;
+    organization_id?: string | null;
     created_date: string;
 }
 
@@ -199,9 +200,19 @@ export interface Organization {
     id: string;
     name: string;
     code?: string;
+    description?: string;
     address?: string;
+    city?: string;
+    country?: string;
+    latitude?: number;
+    longitude?: number;
     phone?: string;
     email?: string;
+    website?: string;
+    status: 'active' | 'inactive' | 'suspended';
+    subscription_plan?: string;
+    max_vendors?: number;
+    max_users?: number;
     currency: string;
     created_date: string;
 }

@@ -70,6 +70,7 @@ interface VendorLocationPickerMapProps {
     longitude?: number;
     onLocationChange: (lat: number, lng: number) => void;
     onAddressChange?: (address: { address: string; city: string; country: string }) => void;
+    label?: string;
 }
 
 interface NominatimResult {
@@ -88,7 +89,8 @@ export default function VendorLocationPickerMap({
     latitude,
     longitude,
     onLocationChange,
-    onAddressChange
+    onAddressChange,
+    label
 }: VendorLocationPickerMapProps) {
     const [position, setPosition] = useState<{ lat: number; lng: number } | null>(
         latitude && longitude ? { lat: latitude, lng: longitude } : null
@@ -206,7 +208,7 @@ export default function VendorLocationPickerMap({
 
     return (
         <div className="space-y-4">
-            <Label className="text-sm font-medium">Store Location</Label>
+            <Label className="text-sm font-medium">{label || "Store Location"}</Label>
 
             {/* Search Bar */}
             <div className="flex gap-2">

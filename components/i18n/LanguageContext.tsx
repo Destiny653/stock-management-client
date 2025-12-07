@@ -49,6 +49,7 @@ const translations = {
     export: "Export",
     columns: "Columns",
     active: "Active",
+    noProductsFound: "No products found",
 
     // Product
     productName: "Product Name",
@@ -460,6 +461,7 @@ const translations = {
     export: "Exportar",
     columns: "Columnas",
     active: "Activo",
+    noProductsFound: "No se encontraron productos",
 
     // Product
     productName: "Nombre del Producto",
@@ -870,6 +872,7 @@ const translations = {
     export: "Exporter",
     columns: "Colonnes",
     active: "Actif",
+    noProductsFound: "Aucun produit trouvé",
 
     // Product
     productName: "Nom du Produit",
