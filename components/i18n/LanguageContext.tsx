@@ -1247,16 +1247,25 @@ interface LanguageContextType {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguage] = useState<string>(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('app_language') || 'en';
-    }
-    return 'en';
-  });
+  // Always start with default language to avoid hydration mismatch
+  const [language, setLanguage] = useState<string>('en');
+  const [isHydrated, setIsHydrated] = useState(false);
 
+  // Load saved language preference after hydration
   useEffect(() => {
-    localStorage.setItem('app_language', language);
-  }, [language]);
+    const savedLanguage = localStorage.getItem('app_language');
+    if (savedLanguage) {
+      setLanguage(savedLanguage);
+    }
+    setIsHydrated(true);
+  }, []);
+
+  // Save language preference when it changes (but only after hydration)
+  useEffect(() => {
+    if (isHydrated) {
+      localStorage.setItem('app_language', language);
+    }
+  }, [language, isHydrated]);
 
   const t = (key: TranslationKey, params: Record<string, string | number> = {}) => {
     const currentLang = language as keyof typeof translations;

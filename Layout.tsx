@@ -19,6 +19,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   LayoutDashboard,
   Package,
   FileText,
@@ -28,6 +34,8 @@ import {
   Settings,
   Menu,
   ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   LogOut,
   User,
   Building2,
@@ -36,7 +44,9 @@ import {
   ShoppingCart,
   Store,
   CreditCard,
-  MapPin
+  MapPin,
+  PanelLeftClose,
+  PanelLeft
 } from "lucide-react";
 import { LanguageProvider, useLanguage } from "@/components/i18n/LanguageContext";
 import LanguageSelector from "@/components/ui/LanguageSelector";
@@ -85,12 +95,13 @@ interface NavItem {
   icon: React.ComponentType<{ className?: string }>;
 }
 
-function NavLink({ item, currentPage, mobile = false }: { item: NavItem; currentPage: string; mobile?: boolean }) {
+function NavLink({ item, currentPage, mobile = false, collapsed = false }: { item: NavItem; currentPage: string; mobile?: boolean; collapsed?: boolean }) {
   const { t } = useLanguage();
   const isActive = currentPage === item.href;
   const Icon = item.icon;
+  const translatedName = t(item.name as any);
 
-  return (
+  const linkContent = (
     <Link
       href={createPageUrl(item.href)}
       className={cn(
@@ -98,13 +109,31 @@ function NavLink({ item, currentPage, mobile = false }: { item: NavItem; current
         isActive
           ? "bg-teal-50 text-teal-700"
           : "text-slate-600 hover:bg-slate-100 hover:text-slate-900",
-        mobile && "text-base py-3"
+        mobile && "text-base py-3",
+        collapsed && "justify-center px-2"
       )}
     >
-      <Icon className={cn("h-5 w-5", isActive ? "text-teal-600" : "text-slate-400")} />
-      {t(item.name)}
+      <Icon className={cn("h-5 w-5 flex-shrink-0", isActive ? "text-teal-600" : "text-slate-400")} />
+      {!collapsed && (
+        <span className="truncate">{translatedName}</span>
+      )}
     </Link>
   );
+
+  if (collapsed) {
+    return (
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>
+          {linkContent}
+        </TooltipTrigger>
+        <TooltipContent side="right" className="font-medium">
+          {translatedName}
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return linkContent;
 }
 
 interface LayoutProps {
@@ -114,7 +143,23 @@ interface LayoutProps {
 
 function LayoutContent({ children, currentPageName }: LayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const router = useRouter();
+
+  // Load sidebar state from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem('sidebarCollapsed');
+    if (saved !== null) {
+      setSidebarCollapsed(JSON.parse(saved));
+    }
+  }, []);
+
+  // Save sidebar state to localStorage when it changes
+  const toggleSidebar = () => {
+    const newState = !sidebarCollapsed;
+    setSidebarCollapsed(newState);
+    localStorage.setItem('sidebarCollapsed', JSON.stringify(newState));
+  };
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -265,26 +310,58 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
       </header>
 
       {/* Desktop Sidebar */}
-      <aside className="hidden lg:flex fixed left-0 top-16 bottom-0 w-64 bg-white border-r border-slate-200 flex-col">
-        <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          {navigation.map((item) => (
-            <NavLink key={item.name} item={item} currentPage={currentPageName} />
-          ))}
-        </nav>
+      <aside className={cn(
+        "hidden lg:flex fixed left-0 top-16 bottom-0 bg-white border-r border-slate-200 flex-col transition-all duration-300 ease-in-out",
+        sidebarCollapsed ? "w-[72px]" : "w-64"
+      )}>
+        {/* Toggle Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={toggleSidebar}
+          className="absolute -right-3 top-6 h-6 w-6 rounded-full border border-slate-200 bg-white shadow-sm hover:bg-slate-100 z-10"
+        >
+          {sidebarCollapsed ? (
+            <ChevronRight className="h-3 w-3 text-slate-600" />
+          ) : (
+            <ChevronLeft className="h-3 w-3 text-slate-600" />
+          )}
+        </Button>
 
-        <div className="p-4 border-t border-slate-200">
-          <div className="rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 p-4 text-white">
-            <p className="font-semibold text-sm">Need Help?</p>
-            <p className="text-xs text-teal-100 mt-1">Check our documentation or contact support.</p>
-            <Button size="sm" variant="secondary" className="mt-3 w-full bg-white text-teal-700 hover:bg-teal-50">
-              View Docs
-            </Button>
+        <TooltipProvider>
+          <nav className={cn(
+            "flex-1 space-y-1 overflow-y-auto transition-all duration-300",
+            sidebarCollapsed ? "p-2" : "p-4"
+          )}>
+            {navigation.map((item) => (
+              <NavLink
+                key={item.name}
+                item={item}
+                currentPage={currentPageName}
+                collapsed={sidebarCollapsed}
+              />
+            ))}
+          </nav>
+        </TooltipProvider>
+
+        {!sidebarCollapsed && (
+          <div className="p-4 border-t border-slate-200">
+            <div className="rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 p-4 text-white">
+              <p className="font-semibold text-sm">Need Help?</p>
+              <p className="text-xs text-teal-100 mt-1">Check our documentation or contact support.</p>
+              <Button size="sm" variant="secondary" className="mt-3 w-full bg-white text-teal-700 hover:bg-teal-50">
+                View Docs
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </aside>
 
       {/* Main Content */}
-      <main className="lg:pl-64 pt-16 min-h-screen">
+      <main className={cn(
+        "pt-16 min-h-screen transition-all duration-300 ease-in-out",
+        sidebarCollapsed ? "lg:pl-[72px]" : "lg:pl-64"
+      )}>
         <div className="p-4 lg:p-8">
           {children}
         </div>
