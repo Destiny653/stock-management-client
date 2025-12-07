@@ -111,6 +111,41 @@ export interface Sale {
     created_date: string;
 }
 
+export interface Order {
+    id: string;
+    order_number: string;
+    client_name: string;
+    client_email?: string;
+    client_phone?: string;
+    items: Array<{
+        product_id: string;
+        product_name: string;
+        sku?: string;
+        quantity: number;
+        unit_price: number;
+        specifications?: {
+            size?: string;
+            color?: string;
+            other_details?: string;
+        };
+        availability_status?: 'in_stock' | 'low_stock' | 'out_of_stock' | 'on_order';
+        total?: number;
+    }>;
+    subtotal?: number;
+    tax?: number;
+    shipping?: number;
+    discount?: number;
+    total: number;
+    status: 'pending' | 'confirmed' | 'processing' | 'ready' | 'shipped' | 'delivered' | 'cancelled';
+    payment_status: 'unpaid' | 'partial' | 'paid' | 'refunded';
+    payment_method?: 'cash' | 'card' | 'transfer' | 'other';
+    shipping_address?: string;
+    notes?: string;
+    assigned_to?: string;
+    expected_delivery?: string;
+    created_date: string;
+}
+
 export interface StockMovement {
     id: string;
     product_id: string;
@@ -369,6 +404,66 @@ const initializeSampleData = () => {
         ];
         saveToStorage('Warehouse', warehouses);
     }
+
+    // Sample Orders
+    if (getFromStorage<Order>('Order').length === 0) {
+        const orders: Order[] = [
+            {
+                id: generateId(),
+                order_number: 'ORD-2024-001',
+                client_name: 'Alice Johnson',
+                client_email: 'alice@example.com',
+                client_phone: '+1-555-0123',
+                items: [
+                    {
+                        product_id: 'prod-1',
+                        product_name: 'Wireless Mouse',
+                        sku: 'ELEC-001',
+                        quantity: 2,
+                        unit_price: 29.99,
+                        total: 59.98,
+                        availability_status: 'in_stock'
+                    }
+                ],
+                subtotal: 59.98,
+                tax: 5.00,
+                shipping: 10.00,
+                discount: 0,
+                total: 74.98,
+                status: 'pending',
+                payment_status: 'unpaid',
+                shipping_address: '123 Maple Ave, Springfield',
+                created_date: new Date().toISOString(),
+            },
+            {
+                id: generateId(),
+                order_number: 'ORD-2024-002',
+                client_name: 'Bob Smith',
+                client_email: 'bob@example.com',
+                items: [
+                    {
+                        product_id: 'prod-2',
+                        product_name: 'USB-C Hub',
+                        sku: 'ELEC-002',
+                        quantity: 1,
+                        unit_price: 49.99,
+                        total: 49.99,
+                        availability_status: 'in_stock'
+                    }
+                ],
+                subtotal: 49.99,
+                tax: 4.00,
+                shipping: 0,
+                discount: 5.00,
+                total: 48.99,
+                status: 'processing',
+                payment_status: 'paid',
+                payment_method: 'card',
+                created_date: new Date(Date.now() - 86400000).toISOString(),
+            }
+        ];
+        saveToStorage('Order', orders);
+    }
 };
 
 // Entity methods factory
@@ -508,6 +603,7 @@ export const base44 = {
     entities: {
         Alert: createEntityMethods<Alert>('Alert'),
         Organization: createEntityMethods<Organization>('Organization'),
+        Order: createEntityMethods<Order>('Order'),
         Product: createEntityMethods<Product>('Product'),
         PurchaseOrder: createEntityMethods<PurchaseOrder>('PurchaseOrder'),
         Sale: createEntityMethods<Sale>('Sale'),
