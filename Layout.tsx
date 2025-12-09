@@ -4,6 +4,8 @@ import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -163,10 +165,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
     localStorage.setItem('sidebarCollapsed', JSON.stringify(newState));
   };
 
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-  });
+  const { user, logout } = useAuth();
 
   const { data: alerts = [] } = useQuery({
     queryKey: ['alerts'],
@@ -301,7 +300,10 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-rose-600"
-                  onClick={() => base44.auth.logout()}
+                  onClick={() => {
+                    logout();
+                    router.push('/login');
+                  }}
                 >
                   <LogOut className="h-4 w-4 mr-2" /> Sign Out
                 </DropdownMenuItem>

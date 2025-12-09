@@ -464,6 +464,146 @@ const initializeSampleData = () => {
         ];
         saveToStorage('Order', orders);
     }
+
+    // Sample Organizations
+    if (getFromStorage<Organization>('Organization').length === 0) {
+        const organizations: Organization[] = [
+            {
+                id: generateId(),
+                name: 'Acme Corp',
+                code: 'ACME',
+                description: 'Global supplier of everything',
+                city: 'New York',
+                country: 'USA',
+                status: 'active',
+                currency: 'USD',
+                created_date: new Date().toISOString(),
+            },
+            {
+                id: generateId(),
+                name: 'Globex Corporation',
+                code: 'GLBX',
+                city: 'Springfield',
+                country: 'USA',
+                status: 'active',
+                currency: 'USD',
+                created_date: new Date().toISOString(),
+            }
+        ];
+        saveToStorage('Organization', organizations);
+    }
+
+    // Sample Purchase Orders
+    if (getFromStorage<PurchaseOrder>('PurchaseOrder').length === 0) {
+        const pos: PurchaseOrder[] = [
+            {
+                id: generateId(),
+                po_number: 'PO-2024-001',
+                supplier_id: 'sup-1',
+                supplier_name: 'Tech Supplies Inc.',
+                status: 'pending',
+                items: [
+                    { product_id: 'prod-1', product_name: 'Wireless Mouse', quantity: 50, unit_price: 15.00, sku: 'ELEC-001' }
+                ],
+                total_amount: 750.00,
+                total: 750.00,
+                created_date: new Date().toISOString(),
+            }
+        ];
+        saveToStorage('PurchaseOrder', pos);
+    }
+
+    // Sample Sales
+    if (getFromStorage<Sale>('Sale').length === 0) {
+        const sales: Sale[] = [
+            {
+                id: generateId(),
+                sale_number: 'SALE-001',
+                items: [
+                    { product_id: 'prod-1', product_name: 'Wireless Mouse', quantity: 1, unit_price: 29.99, total: 29.99 }
+                ],
+                total: 29.99,
+                payment_method: 'card',
+                client_name: 'Walk-in Customer',
+                created_date: new Date().toISOString(),
+            }
+        ];
+        saveToStorage('Sale', sales);
+    }
+
+    // Sample Stock Movements
+    if (getFromStorage<StockMovement>('StockMovement').length === 0) {
+        const movements: StockMovement[] = [
+            {
+                id: generateId(),
+                product_id: 'prod-1',
+                product_name: 'Wireless Mouse',
+                type: 'in',
+                quantity: 50,
+                reason: 'Initial Stock',
+                created_date: new Date(Date.now() - 7 * 86400000).toISOString(),
+            }
+        ];
+        saveToStorage('StockMovement', movements);
+    }
+
+    // Sample Vendors
+    if (getFromStorage<Vendor>('Vendor').length === 0) {
+        const vendors: Vendor[] = [
+            {
+                id: generateId(),
+                name: 'John Doe',
+                email: 'john.doe@example.com',
+                store_name: 'John\'s Electronics',
+                status: 'active',
+                balance: 1500.00,
+                total_sales: 5000.00,
+                city: 'San Francisco',
+                country: 'USA',
+                created_date: new Date().toISOString(),
+            }
+        ];
+        saveToStorage('Vendor', vendors);
+    }
+
+    // Sample Vendor Payments
+    if (getFromStorage<VendorPayment>('VendorPayment').length === 0) {
+        const payments: VendorPayment[] = [
+            {
+                id: generateId(),
+                vendor_id: 'vend-1',
+                amount: 500.00,
+                status: 'completed',
+                created_date: new Date().toISOString(),
+            }
+        ];
+        saveToStorage('VendorPayment', payments);
+    }
+
+    // Sample Users
+    if (getFromStorage<User>('User').length === 0) {
+        const users: User[] = [
+            {
+                id: 'user-1',
+                name: 'Admin User',
+                full_name: 'Admin User',
+                email: 'admin@example.com',
+                role: 'admin',
+                status: 'active',
+                created_date: new Date().toISOString(),
+            },
+            {
+                id: 'user-2',
+                name: 'Manager User',
+                full_name: 'Manager User',
+                email: 'manager@example.com',
+                role: 'manager',
+                status: 'active',
+                created_date: new Date().toISOString(),
+            }
+        ];
+        saveToStorage('User', users);
+    }
 };
 
 // Entity methods factory
