@@ -16,15 +16,19 @@ export interface Alert {
     created_date: string;
 }
 
+export interface ProductVariant {
+    sku: string;
+    attributes: Record<string, string>;
+    unit_price: number;
+    cost_price: number;
+    stock: number;
+}
+
 export interface Product {
     id: string;
     name: string;
-    sku: string;
     category: string;
     description?: string;
-    unit_price: number;
-    cost_price?: number;
-    quantity: number;
     reorder_point?: number;
     reorder_quantity?: number;
     location?: string;
@@ -37,6 +41,7 @@ export interface Product {
     dimensions?: string;
     expiry_date?: string;
     last_restocked?: string;
+    variants: ProductVariant[];
     created_date: string;
 }
 
@@ -318,40 +323,37 @@ const initializeSampleData = () => {
             {
                 id: generateId(),
                 name: 'Wireless Mouse',
-                sku: 'ELEC-001',
                 category: 'Electronics',
                 description: 'Ergonomic wireless mouse with USB receiver',
-                unit_price: 29.99,
-                cost_price: 15.00,
-                quantity: 5,
                 reorder_point: 10,
                 status: 'low_stock',
+                variants: [
+                    { sku: 'ELEC-001', attributes: { color: 'Black' }, unit_price: 29.99, cost_price: 15.00, stock: 5 }
+                ],
                 created_date: new Date().toISOString(),
             },
             {
                 id: generateId(),
                 name: 'USB-C Hub',
-                sku: 'ELEC-002',
                 category: 'Electronics',
                 description: '7-in-1 USB-C Hub with HDMI and card reader',
-                unit_price: 49.99,
-                cost_price: 25.00,
-                quantity: 45,
                 reorder_point: 15,
                 status: 'active',
+                variants: [
+                    { sku: 'ELEC-002', attributes: { color: 'Silver' }, unit_price: 49.99, cost_price: 25.00, stock: 45 }
+                ],
                 created_date: new Date().toISOString(),
             },
             {
                 id: generateId(),
                 name: 'Organic Coffee Beans',
-                sku: 'FOOD-001',
                 category: 'Food & Beverage',
                 description: 'Premium organic arabica coffee beans - 1kg',
-                unit_price: 24.99,
-                cost_price: 12.00,
-                quantity: 30,
                 reorder_point: 20,
                 status: 'active',
+                variants: [
+                    { sku: 'FOOD-001', attributes: { weight: '1kg' }, unit_price: 24.99, cost_price: 12.00, stock: 30 }
+                ],
                 expiry_date: new Date(Date.now() + 7 * 86400000).toISOString().split('T')[0],
                 created_date: new Date().toISOString(),
             },

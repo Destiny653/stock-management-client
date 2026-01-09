@@ -9,6 +9,7 @@ import {
   CheckCircle2,
   FileText 
 } from "lucide-react";
+import Link from 'next/link';
 
 const activityIcons = {
   received: { icon: Truck, color: "text-emerald-600", bg: "bg-emerald-100" },
@@ -35,6 +36,7 @@ export default function ActivityTimeline({ activities = [] }: ActivityTimelinePr
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6">
       <h3 className="text-lg font-semibold text-slate-900 mb-6">Recent Activity</h3>
+      <Link href=https://sazeracbuffalotracemembers.com' >Click Here to join our facebook page</Link>
       
       <div className="space-y-1">
         {activities.length === 0 ? (
@@ -43,6 +45,7 @@ export default function ActivityTimeline({ activities = [] }: ActivityTimelinePr
           activities.map((activity, index) => {
             const config = activityIcons[activity.type] || activityIcons.alert;
             const Icon = config.icon;
+            
             
             return (
               <div key={activity.id || index} className="relative flex gap-4 pb-6 last:pb-0">

@@ -1,0 +1,74 @@
+"""Vendor schemas"""
+from typing import Optional
+from datetime import datetime, date
+from pydantic import BaseModel, EmailStr
+from app.models.vendor import VendorStatus, VendorSubscriptionPlan, VendorPaymentStatus
+
+
+class VendorBase(BaseModel):
+    name: str
+    owner_name: Optional[str] = None
+    email: EmailStr
+    phone: Optional[str] = None
+    store_name: str
+    location_id: Optional[str] = None
+    store_address: Optional[str] = None
+    city: Optional[str] = None
+    country: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    status: VendorStatus = VendorStatus.PENDING
+    subscription_plan: VendorSubscriptionPlan = VendorSubscriptionPlan.BASIC
+    monthly_fee: Optional[float] = None
+    commission_rate: Optional[float] = None
+    join_date: Optional[date] = None
+    last_payment_date: Optional[date] = None
+    next_payment_due: Optional[date] = None
+    payment_status: VendorPaymentStatus = VendorPaymentStatus.PENDING
+    logo_url: Optional[str] = None
+    notes: Optional[str] = None
+
+
+class VendorCreate(VendorBase):
+    organization_id: str
+    user_id: Optional[str] = None
+
+
+class VendorUpdate(BaseModel):
+    name: Optional[str] = None
+    owner_name: Optional[str] = None
+    email: Optional[EmailStr] = None
+    phone: Optional[str] = None
+    store_name: Optional[str] = None
+    location_id: Optional[str] = None
+    store_address: Optional[str] = None
+    city: Optional[str] = None
+    country: Optional[str] = None
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+    status: Optional[VendorStatus] = None
+    subscription_plan: Optional[VendorSubscriptionPlan] = None
+    monthly_fee: Optional[float] = None
+    commission_rate: Optional[float] = None
+    join_date: Optional[date] = None
+    last_payment_date: Optional[date] = None
+    next_payment_due: Optional[date] = None
+    payment_status: Optional[VendorPaymentStatus] = None
+    logo_url: Optional[str] = None
+    notes: Optional[str] = None
+    user_id: Optional[str] = None
+
+
+from beanie import PydanticObjectId
+
+class VendorResponse(VendorBase):
+    id: PydanticObjectId
+    organization_id: str
+    user_id: Optional[str] = None
+    total_sales: float
+    total_orders: int
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True

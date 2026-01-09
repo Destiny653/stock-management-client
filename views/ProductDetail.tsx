@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createPageUrl } from "@/utils";
-import { base44, Product, StockMovement, Supplier, Warehouse } from "@/api/base44Client";
+import { base44, Product, StockMovement, Supplier, Warehouse, ProductVariant } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -39,6 +39,7 @@ import {
   Loader2,
   Upload,
   Plus,
+  Grid3X3,
   Edit2
 } from "lucide-react";
 import { format } from "date-fns";
@@ -63,12 +64,8 @@ export default function ProductDetail() {
   const [isEditing, setIsEditing] = useState(mode === 'new' || mode === 'edit');
   const [formData, setFormData] = useState({
     name: '',
-    sku: '',
     category: 'Other',
     description: '',
-    unit_price: 0,
-    cost_price: 0,
-    quantity: 0,
     reorder_point: 10,
     reorder_quantity: 50,
     location: '',
@@ -77,7 +74,8 @@ export default function ProductDetail() {
     weight: 0,
     dimensions: '',
     image_url: '',
-    status: 'active' as Product['status']
+    status: 'active' as Product['status'],
+    variants: [] as ProductVariant[]
   });
 
   const { data: product, isLoading } = useQuery({
@@ -111,12 +109,8 @@ export default function ProductDetail() {
     if (productData) {
       setFormData({
         name: productData.name,
-        sku: productData.sku,
         category: productData.category,
         description: productData.description || '',
-        unit_price: productData.unit_price,
-        cost_price: productData.cost_price || 0,
-        quantity: productData.quantity,
         reorder_point: productData.reorder_point || 0,
         reorder_quantity: productData.reorder_quantity || 0,
         location: productData.location || '',
@@ -125,7 +119,8 @@ export default function ProductDetail() {
         weight: productData.weight || 0,
         dimensions: productData.dimensions || '',
         image_url: productData.image_url || '',
-        status: productData.status || 'active'
+        status: productData.status || 'active',
+        variants: productData.variants || []
       });
     }
   }, [productData]);
@@ -165,15 +160,23 @@ export default function ProductDetail() {
   });
 
   const handleSave = async () => {
-    if (!formData.name || !formData.sku) {
-      toast.error("Name and SKU are required");
+    if (!formData.name) {
+      toast.error("Name is required");
       return;
     }
 
-    // Calculate status based on quantity
+    if (formData.variants.length === 0) {
+      toast.error("At least one variant is required");
+      return;
+    }
+
+    // Calculate total quantity across variants
+    const totalQuantity = formData.variants.reduce((acc, v) => acc + (v.stock || 0), 0);
+
+    // Calculate status based on total quantity
     let status: Product['status'] = 'active';
-    if (formData.quantity === 0) status = 'out_of_stock';
-    else if (formData.quantity <= formData.reorder_point) status = 'low_stock';
+    if (totalQuantity === 0) status = 'out_of_stock';
+    else if (totalQuantity <= formData.reorder_point) status = 'low_stock';
 
     const dataToSave = { ...formData, status };
 
@@ -228,8 +231,8 @@ export default function ProductDetail() {
             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
               {mode === 'new' ? 'Add New Product' : formData.name || 'Product Details'}
             </h1>
-            {productId && (
-              <p className="text-slate-500 mt-1">SKU: {formData.sku}</p>
+            {productId && formData.variants?.[0]?.sku && (
+              <p className="text-slate-500 mt-1">SKU: {formData.variants[0].sku}</p>
             )}
           </div>
         </div>
@@ -281,29 +284,15 @@ export default function ProductDetail() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Product Name *</Label>
+                  <Label htmlFor="name">Product Name</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                     disabled={!isEditing}
-                    placeholder="Enter product name"
+                    placeholder="e.g. Wireless Mouse"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="sku">SKU *</Label>
-                  <Input
-                    id="sku"
-                    value={formData.sku}
-                    onChange={(e) => setFormData(prev => ({ ...prev, sku: e.target.value }))}
-                    disabled={!isEditing}
-                    placeholder="e.g., PRD-001"
-                    className="font-mono"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="category">Category</Label>
                   <Select
@@ -356,50 +345,7 @@ export default function ProductDetail() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="unit_price">Selling Price</Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
-                    <Input
-                      id="unit_price"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={formData.unit_price}
-                      onChange={(e) => setFormData(prev => ({ ...prev, unit_price: parseFloat(e.target.value) || 0 }))}
-                      disabled={!isEditing}
-                      className="pl-7"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="cost_price">Cost Price</Label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">$</span>
-                    <Input
-                      id="cost_price"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={formData.cost_price}
-                      onChange={(e) => setFormData(prev => ({ ...prev, cost_price: parseFloat(e.target.value) || 0 }))}
-                      disabled={!isEditing}
-                      className="pl-7"
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="quantity">Current Quantity</Label>
-                  <Input
-                    id="quantity"
-                    type="number"
-                    min="0"
-                    value={formData.quantity}
-                    onChange={(e) => setFormData(prev => ({ ...prev, quantity: parseInt(e.target.value) || 0 }))}
-                    disabled={!isEditing}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="reorder_point">Reorder Point</Label>
+                  <Label htmlFor="reorder_point">Product Reorder Point</Label>
                   <Input
                     id="reorder_point"
                     type="number"
@@ -411,11 +357,11 @@ export default function ProductDetail() {
                 </div>
               </div>
 
-              {formData.quantity <= formData.reorder_point && formData.quantity > 0 && (
+              {formData.variants.reduce((acc, v) => acc + v.stock, 0) <= formData.reorder_point && formData.variants.reduce((acc, v) => acc + v.stock, 0) > 0 && (
                 <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                   <AlertTriangle className="h-5 w-5 text-amber-600" />
                   <p className="text-sm text-amber-800">
-                    Stock is below reorder point. Consider creating a purchase order.
+                    Total stock is below reorder point. Consider creating a purchase order.
                   </p>
                 </div>
               )}
@@ -529,6 +475,199 @@ export default function ProductDetail() {
               </CardContent>
             </Card>
           )}
+
+          {/* Product Variants Section */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Grid3X3 className="h-5 w-5 text-slate-400" />
+                Product Variants
+              </CardTitle>
+              {isEditing && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setFormData(prev => ({
+                      ...prev,
+                      variants: [
+                        ...prev.variants,
+                        { attributes: {}, sku: '', unit_price: 0, cost_price: 0, stock: 0 }
+                      ]
+                    }));
+                  }}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Variant
+                </Button>
+              )}
+            </CardHeader>
+            <CardContent>
+              {formData.variants.length === 0 ? (
+                <div className="text-center py-8 border-2 border-dashed rounded-xl">
+                  <p className="text-slate-500">No variants defined for this product</p>
+                  {isEditing && (
+                    <Button
+                      variant="link"
+                      type="button"
+                      onClick={() => {
+                        setFormData(prev => ({
+                          ...prev,
+                          variants: [{ attributes: {}, sku: '', unit_price: 0, cost_price: 0, stock: 0 }]
+                        }));
+                      }}
+                    >
+                      Create first variant
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {formData.variants.map((variant, vIdx) => (
+                    <div key={vIdx} className="p-4 border rounded-xl bg-slate-50/50 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium">Variant #{vIdx + 1}</h4>
+                        {isEditing && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-rose-500 hover:text-rose-600 h-8 w-8"
+                            onClick={() => {
+                              setFormData(prev => ({
+                                ...prev,
+                                variants: prev.variants.filter((_, i) => i !== vIdx)
+                              }));
+                            }}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="space-y-2">
+                          <Label>Variant SKU</Label>
+                          <Input
+                            value={variant.sku}
+                            onChange={(e) => {
+                              const newVariants = [...formData.variants];
+                              newVariants[vIdx].sku = e.target.value;
+                              setFormData(prev => ({ ...prev, variants: newVariants }));
+                            }}
+                            disabled={!isEditing}
+                            placeholder="e.g. SKU-XL"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Unit Price</Label>
+                          <Input
+                            type="number"
+                            value={variant.unit_price}
+                            onChange={(e) => {
+                              const newVariants = [...formData.variants];
+                              newVariants[vIdx].unit_price = parseFloat(e.target.value) || 0;
+                              setFormData(prev => ({ ...prev, variants: newVariants }));
+                            }}
+                            disabled={!isEditing}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Cost Price</Label>
+                          <Input
+                            type="number"
+                            value={variant.cost_price}
+                            onChange={(e) => {
+                              const newVariants = [...formData.variants];
+                              newVariants[vIdx].cost_price = parseFloat(e.target.value) || 0;
+                              setFormData(prev => ({ ...prev, variants: newVariants }));
+                            }}
+                            disabled={!isEditing}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Stock</Label>
+                          <Input
+                            type="number"
+                            value={variant.stock}
+                            onChange={(e) => {
+                              const newVariants = [...formData.variants];
+                              newVariants[vIdx].stock = parseInt(e.target.value) || 0;
+                              setFormData(prev => ({ ...prev, variants: newVariants }));
+                            }}
+                            disabled={!isEditing}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Attributes</Label>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                          {Object.entries(variant.attributes).map(([key, value], attrIdx) => (
+                            <div key={key} className="flex gap-2">
+                              <Input
+                                value={key}
+                                readOnly
+                                className="w-1/3 bg-slate-100"
+                              />
+                              <Input
+                                value={value}
+                                onChange={(e) => {
+                                  const newVariants = [...formData.variants];
+                                  newVariants[vIdx].attributes[key] = e.target.value;
+                                  setFormData(prev => ({ ...prev, variants: newVariants }));
+                                }}
+                                disabled={!isEditing}
+                                className="flex-1"
+                              />
+                              {isEditing && (
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => {
+                                    const newVariants = [...formData.variants];
+                                    delete newVariants[vIdx].attributes[key];
+                                    setFormData(prev => ({ ...prev, variants: newVariants }));
+                                  }}
+                                >
+                                  <Trash2 className="h-4 w-4 text-slate-400" />
+                                </Button>
+                              )}
+                            </div>
+                          ))}
+                          {isEditing && (
+                            <div className="flex gap-2">
+                              <Input
+                                placeholder="New Attribute (e.g. Size)"
+                                id={`new-attr-key-${vIdx}`}
+                                className="flex-1"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                onClick={() => {
+                                  const keyInput = document.getElementById(`new-attr-key-${vIdx}`) as HTMLInputElement;
+                                  const key = keyInput.value.trim();
+                                  if (key) {
+                                    const newVariants = [...formData.variants];
+                                    newVariants[vIdx].attributes[key] = '';
+                                    setFormData(prev => ({ ...prev, variants: newVariants }));
+                                    keyInput.value = '';
+                                  }
+                                }}
+                              >
+                                Add Attribute
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Sidebar */}
@@ -583,14 +722,14 @@ export default function ProductDetail() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-slate-600">Stock Value</span>
                   <span className="font-semibold">
-                    ${((formData.unit_price || 0) * (formData.quantity || 0)).toFixed(2)}
+                    ${formData.variants.reduce((acc, v) => acc + (v.unit_price * v.stock), 0).toFixed(2)}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-600">Margin</span>
+                  <span className="text-sm text-slate-600">Margin (Avg)</span>
                   <span className="font-semibold text-emerald-600">
-                    {formData.cost_price > 0
-                      ? `${(((formData.unit_price - formData.cost_price) / formData.cost_price) * 100).toFixed(1)}%`
+                    {formData.variants?.[0]?.cost_price > 0
+                      ? `${(((formData.variants[0].unit_price - formData.variants[0].cost_price) / formData.variants[0].cost_price) * 100).toFixed(1)}%`
                       : '-'
                     }
                   </span>

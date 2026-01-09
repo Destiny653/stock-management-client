@@ -42,14 +42,16 @@ const statusStyles = {
 interface Product {
   id: string;
   name: string;
-  sku: string;
   category: string;
-  quantity: number;
-  unit_price: number;
   status: 'active' | 'low_stock' | 'out_of_stock' | 'discontinued';
   location?: string;
   image_url?: string;
   supplier_name?: string;
+  variants?: Array<{
+    sku: string;
+    stock: number;
+    unit_price: number;
+  }>;
 }
 
 interface InventoryTableProps {
@@ -95,7 +97,8 @@ export default function InventoryTable({
   const handleStartEdit = (product: Product) => {
     if (readOnly) return;
     setEditingId(product.id);
-    setEditQuantity(product.quantity.toString());
+    const totalQuantity = product.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0;
+    setEditQuantity(totalQuantity.toString());
   };
 
   const handleSaveEdit = async (productId: string) => {
@@ -212,7 +215,10 @@ export default function InventoryTable({
                     )}
                   </TableCell>
                   <TableCell className="font-mono text-sm text-slate-600">
-                    {product.sku}
+                    {product.variants?.[0]?.sku || '-'}
+                    {product.variants && product.variants.length > 1 && (
+                      <span className="ml-1 text-[10px] text-slate-400">+{product.variants.length - 1}</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <span className="text-sm text-slate-600">{product.category}</span>
@@ -244,19 +250,24 @@ export default function InventoryTable({
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
-                    ) : readOnly ? (
-                      <span className="font-medium text-slate-900">{product.quantity}</span>
                     ) : (
-                      <button
-                        onClick={() => handleStartEdit(product)}
-                        className="font-medium text-slate-900 hover:text-teal-600 transition-colors px-2 py-1 -mx-2 rounded hover:bg-slate-100"
-                      >
-                        {product.quantity}
-                      </button>
+                      (() => {
+                        const totalQuantity = product.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0;
+                        return readOnly ? (
+                          <span className="font-medium text-slate-900">{totalQuantity}</span>
+                        ) : (
+                          <button
+                            onClick={() => handleStartEdit(product)}
+                            className="font-medium text-slate-900 hover:text-teal-600 transition-colors px-2 py-1 -mx-2 rounded hover:bg-slate-100"
+                          >
+                            {totalQuantity}
+                          </button>
+                        );
+                      })()
                     )}
                   </TableCell>
                   <TableCell className="font-medium text-slate-900">
-                    ${product.unit_price?.toFixed(2) || '0.00'}
+                    ${product.variants?.[0]?.unit_price?.toFixed(2) || '0.00'}
                   </TableCell>
                   <TableCell>
                     <Badge variant="outline" className={cn("font-medium", status.class)}>

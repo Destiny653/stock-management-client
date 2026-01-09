@@ -100,7 +100,7 @@ export default function Inventory() {
       const search = searchTerm.toLowerCase();
       result = result.filter(p =>
         p.name?.toLowerCase().includes(search) ||
-        p.sku?.toLowerCase().includes(search) ||
+        p.variants?.some(v => v.sku?.toLowerCase().includes(search)) ||
         p.barcode?.toLowerCase().includes(search)
       );
     }
@@ -127,8 +127,21 @@ export default function Inventory() {
 
     // Sort
     result.sort((a, b) => {
-      const aVal = a[sortConfig.key as keyof Product] || "";
-      const bVal = b[sortConfig.key as keyof Product] || "";
+      let aVal: any = a[sortConfig.key as keyof Product];
+      let bVal: any = b[sortConfig.key as keyof Product];
+
+      // Handle variant fields
+      if (sortConfig.key === 'sku') {
+        aVal = a.variants?.[0]?.sku || "";
+        bVal = b.variants?.[0]?.sku || "";
+      } else if (sortConfig.key === 'quantity') {
+        aVal = a.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0;
+        bVal = b.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0;
+      } else if (sortConfig.key === 'price') {
+        aVal = a.variants?.[0]?.unit_price || 0;
+        bVal = b.variants?.[0]?.unit_price || 0;
+      }
+
       const comparison = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
       return sortConfig.direction === "asc" ? comparison : -comparison;
     });
@@ -145,13 +158,21 @@ export default function Inventory() {
 
   const handleQuantityUpdate = async (productId: string, quantity: number) => {
     const product = products.find(p => p.id === productId);
+    if (!product) return;
+
     let status: Product['status'] = "active";
     if (quantity === 0) status = "out_of_stock";
-    else if (quantity <= (product?.reorder_point || 10)) status = "low_stock";
+    else if (quantity <= (product.reorder_point || 10)) status = "low_stock";
+
+    // Update the first variant's stock if it exists
+    const variants = [...(product.variants || [])];
+    if (variants.length > 0) {
+      variants[0] = { ...variants[0], stock: quantity };
+    }
 
     await updateProductMutation.mutateAsync({
       id: productId,
-      data: { quantity, status }
+      data: { variants, status }
     });
   };
 
@@ -172,11 +193,11 @@ export default function Inventory() {
 
   const handleExport = () => {
     const exportData = filteredProducts.map(p => ({
-      SKU: p.sku,
+      SKU: p.variants?.[0]?.sku || 'N/A',
       Name: p.name,
       Category: p.category,
-      Quantity: p.quantity,
-      "Unit Price": p.unit_price,
+      Quantity: p.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0,
+      "Unit Price": p.variants?.[0]?.unit_price || 0,
       Status: p.status,
       Location: p.location,
       Supplier: p.supplier_name
@@ -351,7 +372,10 @@ export default function Inventory() {
                       >
                         {product.name}
                       </Link>
-                      <p className="text-sm text-slate-500 font-mono">{product.sku}</p>
+                      <p className="text-sm text-slate-500 font-mono">
+                        {product.variants?.[0]?.sku || 'No SKU'}
+                        {product.variants && product.variants.length > 1 && ` (+${product.variants.length - 1} more)`}
+                      </p>
                     </div>
 
                     <div className="flex items-center justify-between mb-3">
@@ -363,11 +387,15 @@ export default function Inventory() {
 
                     <div className="grid grid-cols-2 gap-3 pt-3 border-t">
                       <div className="text-center">
-                        <p className="text-lg font-bold text-slate-900">{product.quantity}</p>
+                        <p className="text-lg font-bold text-slate-900">
+                          {product.variants?.reduce((acc, v) => acc + v.stock, 0) || 0}
+                        </p>
                         <p className="text-xs text-slate-500">{t('quantity') || 'Quantity'}</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-lg font-bold text-teal-600">${product.unit_price?.toFixed(2) || '0.00'}</p>
+                        <p className="text-lg font-bold text-teal-600">
+                          ${product.variants?.[0]?.unit_price?.toFixed(2) || '0.00'}
+                        </p>
                         <p className="text-xs text-slate-500">{t('price') || 'Price'}</p>
                       </div>
                     </div>
