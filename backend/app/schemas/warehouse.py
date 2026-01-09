@@ -9,9 +9,6 @@ class WarehouseBase(BaseModel):
     name: str
     code: str
     location_id: Optional[str] = None
-    address: Optional[str] = None
-    city: Optional[str] = None
-    country: Optional[str] = None
     manager: Optional[str] = None
     capacity: Optional[int] = None
     current_utilization: Optional[float] = None
@@ -26,9 +23,6 @@ class WarehouseUpdate(BaseModel):
     name: Optional[str] = None
     code: Optional[str] = None
     location_id: Optional[str] = None
-    address: Optional[str] = None
-    city: Optional[str] = None
-    country: Optional[str] = None
     manager: Optional[str] = None
     capacity: Optional[int] = None
     current_utilization: Optional[float] = None

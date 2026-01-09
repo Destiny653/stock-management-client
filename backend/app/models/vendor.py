@@ -35,11 +35,6 @@ class Vendor(Document):
     phone: Optional[str] = None
     store_name: str
     location_id: Optional[str] = None
-    store_address: Optional[str] = None
-    city: Optional[str] = None
-    country: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
     status: VendorStatus = VendorStatus.PENDING
     subscription_plan: VendorSubscriptionPlan = VendorSubscriptionPlan.BASIC
     monthly_fee: Optional[float] = None

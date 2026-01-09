@@ -23,11 +23,6 @@ class Organization(Document):
     code: Indexed(str, unique=True)
     description: Optional[str] = None
     location_id: Optional[str] = None
-    address: Optional[str] = None
-    city: Optional[str] = None
-    country: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
     phone: Optional[str] = None
     email: Optional[EmailStr] = None
     website: Optional[str] = None

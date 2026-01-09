@@ -27,9 +27,6 @@ class Supplier(Document):
     email: EmailStr
     phone: Optional[str] = None
     location_id: Optional[str] = None
-    address: Optional[str] = None
-    city: Optional[str] = None
-    country: Optional[str] = None
     payment_terms: PaymentTerms = PaymentTerms.NET_30
     lead_time_days: Optional[int] = None
     rating: Optional[float] = None

@@ -10,11 +10,6 @@ class OrganizationBase(BaseModel):
     code: str
     description: Optional[str] = None
     location_id: Optional[str] = None
-    address: Optional[str] = None
-    city: Optional[str] = None
-    country: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
     phone: Optional[str] = None
     email: Optional[EmailStr] = None
     website: Optional[str] = None
@@ -33,11 +28,6 @@ class OrganizationUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None
     location_id: Optional[str] = None
-    address: Optional[str] = None
-    city: Optional[str] = None
-    country: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
     phone: Optional[str] = None
     email: Optional[EmailStr] = None
     website: Optional[str] = None

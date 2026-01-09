@@ -12,11 +12,6 @@ class VendorBase(BaseModel):
     phone: Optional[str] = None
     store_name: str
     location_id: Optional[str] = None
-    store_address: Optional[str] = None
-    city: Optional[str] = None
-    country: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
     status: VendorStatus = VendorStatus.PENDING
     subscription_plan: VendorSubscriptionPlan = VendorSubscriptionPlan.BASIC
     monthly_fee: Optional[float] = None
@@ -41,11 +36,6 @@ class VendorUpdate(BaseModel):
     phone: Optional[str] = None
     store_name: Optional[str] = None
     location_id: Optional[str] = None
-    store_address: Optional[str] = None
-    city: Optional[str] = None
-    country: Optional[str] = None
-    latitude: Optional[float] = None
-    longitude: Optional[float] = None
     status: Optional[VendorStatus] = None
     subscription_plan: Optional[VendorSubscriptionPlan] = None
     monthly_fee: Optional[float] = None

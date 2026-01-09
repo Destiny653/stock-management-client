@@ -36,7 +36,6 @@ export default function ActivityTimeline({ activities = [] }: ActivityTimelinePr
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6">
       <h3 className="text-lg font-semibold text-slate-900 mb-6">Recent Activity</h3>
-      <Link href=https://sazeracbuffalotracemembers.com' >Click Here to join our facebook page</Link>
       
       <div className="space-y-1">
         {activities.length === 0 ? (

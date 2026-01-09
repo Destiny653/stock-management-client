@@ -17,9 +17,6 @@ class Warehouse(Document):
     name: Indexed(str)
     code: str
     location_id: Optional[str] = None
-    address: Optional[str] = None
-    city: Optional[str] = None
-    country: Optional[str] = None
     manager: Optional[str] = None
     capacity: Optional[int] = None
     current_utilization: Optional[float] = None

@@ -40,7 +40,6 @@ class Product(Document):
     reorder_point: Optional[int] = None
     reorder_quantity: Optional[int] = None
     location_id: Optional[str] = None
-    location: Optional[str] = None
     supplier_id: Optional[str] = None
     supplier_name: Optional[str] = None
     status: ProductStatus = ProductStatus.ACTIVE
