@@ -142,18 +142,34 @@ export default function DirectSales() {
     });
   };
 
-  // Filter products by search
+  // Filter products by search - Flattens products into variants
   const filteredProducts = useMemo(() => {
-    if (!searchTerm) return products.filter(p => getProductStock(p) > 0);
+    const flattened: any[] = [];
+    products.forEach(p => {
+      if (p.variants && p.variants.length > 0) {
+        p.variants.forEach(v => {
+          flattened.push({
+            ...p,
+            displayName: `${p.name}${Object.values(v.attributes).length > 0 ? ` (${Object.values(v.attributes).join(', ')})` : ''}`,
+            displaySku: v.sku,
+            displayPrice: v.unit_price,
+            displayStock: v.stock,
+            variant: v
+          });
+        });
+      }
+    });
+
+    if (!searchTerm) return flattened.filter(p => p.displayStock > 0);
     const search = searchTerm.toLowerCase();
-    return products.filter(p =>
-      getProductStock(p) > 0 && (
-        p.name?.toLowerCase().includes(search) ||
-        p.variants?.some(v => v.sku?.toLowerCase().includes(search)) ||
-        p.barcode?.toLowerCase().includes(search)
+    return flattened.filter(p =>
+      p.displayStock > 0 && (
+        p.displayName?.toLowerCase().includes(search) ||
+        p.displaySku?.toLowerCase().includes(search) ||
+        p.variant.barcode?.toLowerCase().includes(search)
       )
     );
-  }, [products, searchTerm, getProductStock]);
+  }, [products, searchTerm]);
 
   // Cart calculations
   const cartSubtotal = cart.reduce((sum, item) => sum + item.total, 0);
@@ -167,12 +183,12 @@ export default function DirectSales() {
   const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
   const todayItems = todaySales.reduce((sum, s) => sum + (s.items?.reduce((iSum, i) => iSum + i.quantity, 0) || 0), 0);
 
-  const addToCart = (product: any) => {
-    const existingIndex = cart.findIndex(item => item.product_id === product.id);
+  const addToCart = (item: any) => {
+    const existingIndex = cart.findIndex(c => c.product_id === item.id && c.sku === item.displaySku);
 
     if (existingIndex >= 0) {
       const newCart = [...cart];
-      if (newCart[existingIndex].quantity < getProductStock(product)) {
+      if (newCart[existingIndex].quantity < item.displayStock) {
         newCart[existingIndex].quantity += 1;
         newCart[existingIndex].total = newCart[existingIndex].quantity * newCart[existingIndex].unit_price;
         setCart(newCart);
@@ -180,15 +196,14 @@ export default function DirectSales() {
         toast.error("Not enough stock available");
       }
     } else {
-      const price = getProductPrice(product);
       setCart([...cart, {
-        product_id: product.id,
-        product_name: product.name,
-        sku: getProductSKU(product),
+        product_id: item.id,
+        product_name: item.displayName,
+        sku: item.displaySku,
         quantity: 1,
-        unit_price: price,
-        total: price,
-        max_quantity: getProductStock(product)
+        unit_price: item.displayPrice,
+        total: item.displayPrice,
+        max_quantity: item.displayStock
       }]);
     }
   };
@@ -365,32 +380,32 @@ export default function DirectSales() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3">
-                  {filteredProducts.map((product) => (
+                  {filteredProducts.map((item, idx) => (
                     <Card
-                      key={product.id}
+                      key={`${item.id}-${item.displaySku}`}
                       className={cn(
                         "cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5",
-                        cart.some(c => c.product_id === product.id) && "ring-2 ring-teal-500"
+                        cart.some(c => c.product_id === item.id && c.sku === item.displaySku) && "ring-2 ring-teal-500"
                       )}
-                      onClick={() => addToCart(product)}
+                      onClick={() => addToCart(item)}
                     >
                       <CardContent className="p-3">
                         <div className="aspect-square rounded-lg bg-slate-100 flex items-center justify-center mb-2 overflow-hidden">
-                          {product.image_url ? (
-                            <img src={product.image_url} alt={product.name} className="h-full w-full object-cover" />
+                          {item.image_url ? (
+                            <img src={item.image_url} alt={item.displayName} className="h-full w-full object-cover" />
                           ) : (
                             <Package className="h-8 w-8 text-slate-300" />
                           )}
                         </div>
-                        <h4 className="font-medium text-sm text-slate-900 truncate">{product.name}</h4>
-                        <p className="text-xs text-slate-500 truncate">{getProductSKU(product)}</p>
+                        <h4 className="font-medium text-sm text-slate-900 truncate">{item.displayName}</h4>
+                        <p className="text-xs text-slate-500 truncate">{item.displaySku}</p>
                         <div className="flex items-center justify-between mt-2">
-                          <span className="font-bold text-teal-600">${getProductPrice(product).toFixed(2)}</span>
+                          <span className="font-bold text-teal-600">${item.displayPrice.toFixed(2)}</span>
                           <Badge variant="outline" className={cn(
                             "text-xs",
-                            getProductStock(product) <= 10 ? "bg-amber-50 text-amber-700" : "bg-slate-50"
+                            item.displayStock <= 10 ? "bg-amber-50 text-amber-700" : "bg-slate-50"
                           )}>
-                            {getProductStock(product)} left
+                            {item.displayStock} left
                           </Badge>
                         </div>
                       </CardContent>
@@ -423,6 +438,7 @@ export default function DirectSales() {
                           <div key={index} className="flex items-center gap-3 p-2 bg-slate-50 rounded-lg">
                             <div className="flex-1 min-w-0">
                               <p className="text-sm font-medium truncate">{item.product_name}</p>
+                              <p className="text-[10px] text-slate-400 font-mono truncate">{item.sku}</p>
                               <p className="text-xs text-slate-500">${item.unit_price?.toFixed(2)} each</p>
                             </div>
                             <div className="flex items-center gap-1">

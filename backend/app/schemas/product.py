@@ -11,6 +11,9 @@ class ProductVariant(BaseModel):
     unit_price: float
     cost_price: float
     stock: int
+    barcode: Optional[str] = None
+    weight: Optional[float] = None
+    dimensions: Optional[str] = None
 
 
 class ProductBase(BaseModel):
@@ -24,9 +27,6 @@ class ProductBase(BaseModel):
     location_id: Optional[str] = None
     status: ProductStatus = ProductStatus.ACTIVE
     image_url: Optional[str] = None
-    barcode: Optional[str] = None
-    weight: Optional[float] = None
-    dimensions: Optional[str] = None
     expiry_date: Optional[date] = None
     last_restocked: Optional[date] = None
     variants: List[ProductVariant] = []
@@ -47,9 +47,6 @@ class ProductUpdate(BaseModel):
     location_id: Optional[str] = None
     status: Optional[ProductStatus] = None
     image_url: Optional[str] = None
-    barcode: Optional[str] = None
-    weight: Optional[float] = None
-    dimensions: Optional[str] = None
     expiry_date: Optional[date] = None
     last_restocked: Optional[date] = None
     variants: Optional[List[ProductVariant]] = None

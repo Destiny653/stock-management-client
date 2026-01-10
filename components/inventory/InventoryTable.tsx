@@ -29,7 +29,9 @@ import {
   Package,
   ArrowUpDown,
   Check,
-  X
+  X,
+  ChevronRight,
+  ChevronDown
 } from "lucide-react";
 
 const statusStyles = {
@@ -39,26 +41,22 @@ const statusStyles = {
   discontinued: { label: "Discontinued", class: "bg-slate-100 text-slate-600 border-slate-200" }
 };
 
-interface Product {
-  id: string;
-  name: string;
-  category: string;
-  status: 'active' | 'low_stock' | 'out_of_stock' | 'discontinued';
-  location?: string;
-  image_url?: string;
-  supplier_name?: string;
-  variants?: Array<{
-    sku: string;
-    stock: number;
-    unit_price: number;
-  }>;
+description ?: string;
+reorder_point ?: number;
+variants ?: Array<{
+  sku: string;
+  stock: number;
+  unit_price: number;
+  cost_price: number;
+  attributes: Record<string, string>;
+}>;
 }
 
 interface InventoryTableProps {
   products?: Product[];
   selectedIds?: string[];
   onSelectionChange: (ids: string[]) => void;
-  onQuantityUpdate: (id: string, quantity: number) => Promise<void>;
+  onQuantityUpdate: (id: string, quantity: number, sku?: string) => Promise<void>;
   onDelete?: (id: string) => void;
   sortConfig: { key: string; direction: 'asc' | 'desc' } | null;
   onSort: (column: string) => void;
@@ -76,7 +74,18 @@ export default function InventoryTable({
   readOnly = false
 }: InventoryTableProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingSku, setEditingSku] = useState<string | null>(null);
   const [editQuantity, setEditQuantity] = useState("");
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
+
+  const toggleExpand = (id: string) => {
+    setExpandedIds(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -94,21 +103,24 @@ export default function InventoryTable({
     }
   };
 
-  const handleStartEdit = (product: Product) => {
+  const handleStartEdit = (product: Product, sku?: string, stock?: number) => {
     if (readOnly) return;
     setEditingId(product.id);
-    const totalQuantity = product.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0;
-    setEditQuantity(totalQuantity.toString());
+    setEditingSku(sku || null);
+    const initialQuantity = stock !== undefined ? stock : (product.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0);
+    setEditQuantity(initialQuantity.toString());
   };
 
   const handleSaveEdit = async (productId: string) => {
-    await onQuantityUpdate(productId, parseInt(editQuantity));
+    await onQuantityUpdate(productId, parseInt(editQuantity), editingSku || undefined);
     setEditingId(null);
+    setEditingSku(null);
     setEditQuantity("");
   };
 
   const handleCancelEdit = () => {
     setEditingId(null);
+    setEditingSku(null);
     setEditQuantity("");
   };
 
@@ -126,7 +138,8 @@ export default function InventoryTable({
     <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+          <TableRow className="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 hover:bg-slate-50">
+            <TableHead className="w-12 text-center"></TableHead>
             {!readOnly && (
               <TableHead className="w-12">
                 <Checkbox
@@ -135,25 +148,12 @@ export default function InventoryTable({
                 />
               </TableHead>
             )}
-            <TableHead className="w-16"></TableHead>
-            <TableHead>
-              <SortableHeader column="name">Product</SortableHeader>
-            </TableHead>
-            <TableHead>
-              <SortableHeader column="sku">SKU</SortableHeader>
-            </TableHead>
-            <TableHead>
-              <SortableHeader column="category">Category</SortableHeader>
-            </TableHead>
-            <TableHead>
-              <SortableHeader column="stock">Stock</SortableHeader>
-            </TableHead>
-            <TableHead>
-              <SortableHeader column="unit_price">Price</SortableHeader>
-            </TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Location</TableHead>
-            <TableHead className="w-12"></TableHead>
+            <th className="px-6 py-4">Product Details</th>
+            <th className="px-6 py-4">Category</th>
+            <th className="px-6 py-4">Variants</th>
+            <th className="px-6 py-4">Total Stock</th>
+            <th className="px-6 py-4">Status</th>
+            <th className="px-6 py-4 text-right">Actions</th>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -167,21 +167,34 @@ export default function InventoryTable({
                 </div>
               </TableCell>
             </TableRow>
-          ) : (
-            products.map((product) => {
-              const status = statusStyles[product.status] || statusStyles.active;
-              const isSelected = selectedIds.includes(product.id);
-              const isEditing = editingId === product.id;
+          ) : products.map((product) => {
+            const status = statusStyles[product.status] || statusStyles.active;
+            const isSelected = selectedIds.includes(product.id);
+            const isEditing = editingId === product.id;
+            const isExpanded = expandedIds.has(product.id);
+            const hasVariants = product.variants && product.variants.length > 1;
 
-              return (
+            return (
+              <React.Fragment key={product.id}>
                 <TableRow
-                  key={product.id}
                   className={cn(
                     "transition-colors",
                     isSelected && "bg-teal-50/50",
-                    isEditing && "bg-amber-50/30"
+                    isEditing && !editingSku && "bg-amber-50/30"
                   )}
                 >
+                  <TableCell className="w-8 p-0">
+                    {hasVariants && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 text-slate-400 hover:text-slate-600"
+                        onClick={() => toggleExpand(product.id)}
+                      >
+                        {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                      </Button>
+                    )}
+                  </TableCell>
                   {!readOnly && (
                     <TableCell>
                       <Checkbox
@@ -224,7 +237,7 @@ export default function InventoryTable({
                     <span className="text-sm text-slate-600">{product.category}</span>
                   </TableCell>
                   <TableCell>
-                    {isEditing && !readOnly ? (
+                    {isEditing && !editingSku && !readOnly ? (
                       <div className="flex items-center gap-2">
                         <Input
                           type="number"
@@ -310,9 +323,80 @@ export default function InventoryTable({
                     </DropdownMenu>
                   </TableCell>
                 </TableRow>
-              );
-            })
-          )}
+
+                {/* Variant Sub-table */}
+                {isExpanded && product.variants && product.variants.length > 0 && (
+                  <TableRow className="bg-slate-50/30">
+                    <TableCell colSpan={readOnly ? 8 : 11} className="py-0 px-12">
+                      <div className="border-l-2 border-slate-200 pl-4 py-3 space-y-2">
+                        <h5 className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider mb-2">Variants for {product.name}</h5>
+                        <Table>
+                          <TableHeader>
+                            <TableRow className="bg-transparent hover:bg-transparent border-b border-slate-200">
+                              <TableHead className="h-8 text-[10px] text-slate-500">SKU</TableHead>
+                              <TableHead className="h-8 text-[10px] text-slate-500">Attributes</TableHead>
+                              <TableHead className="h-8 text-[10px] text-slate-500 text-right">Stock</TableHead>
+                              <TableHead className="h-8 text-[10px] text-slate-500 text-right">Price</TableHead>
+                              <TableHead className="w-10"></TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {product.variants.map((variant) => {
+                              const isVariantEditing = editingId === product.id && editingSku === variant.sku;
+
+                              return (
+                                <TableRow key={variant.sku} className="hover:bg-slate-100/50 transition-colors border-none group">
+                                  <TableCell className="py-2 text-xs font-mono text-slate-600">{variant.sku}</TableCell>
+                                  <TableCell className="py-2 text-xs text-slate-500">
+                                    {Object.entries(variant.attributes).map(([k, v]) => (
+                                      <Badge key={k} variant="secondary" className="mr-1 py-0 px-1 text-[10px] font-normal capitalize">
+                                        <span className="text-slate-400 mr-1">{k}:</span> {v}
+                                      </Badge>
+                                    ))}
+                                  </TableCell>
+                                  <TableCell className="py-2 text-right">
+                                    {isVariantEditing ? (
+                                      <div className="flex items-center justify-end gap-1">
+                                        <Input
+                                          type="number"
+                                          value={editQuantity}
+                                          onChange={(e) => setEditQuantity(e.target.value)}
+                                          className="w-16 h-7 text-[10px] px-1"
+                                          autoFocus
+                                        />
+                                        <Button size="icon" variant="ghost" className="h-7 w-7 text-emerald-600" onClick={() => handleSaveEdit(product.id)}>
+                                          <Check className="h-3 w-3" />
+                                        </Button>
+                                        <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-400" onClick={handleCancelEdit}>
+                                          <X className="h-3 w-3" />
+                                        </Button>
+                                      </div>
+                                    ) : (
+                                      <button
+                                        onClick={() => handleStartEdit(product, variant.sku, variant.stock)}
+                                        className="text-xs font-medium text-slate-900 hover:text-teal-600 px-2 py-1 rounded hover:bg-slate-200 transition-colors"
+                                      >
+                                        {variant.stock}
+                                      </button>
+                                    )}
+                                  </TableCell>
+                                  <TableCell className="py-2 text-xs font-medium text-slate-900 text-right">
+                                    ${variant.unit_price.toFixed(2)}
+                                  </TableCell>
+                                  <TableCell></TableCell>
+                                </TableRow>
+                              );
+                            })}
+                          </TableBody>
+                        </Table>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                )}
+              </React.Fragment>
+            );
+          })
+          }
         </TableBody>
       </Table>
     </div>

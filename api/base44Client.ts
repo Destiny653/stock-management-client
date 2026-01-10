@@ -36,6 +36,9 @@ export interface ProductVariant {
     unit_price: number;
     cost_price: number;
     stock: number;
+    barcode?: string;
+    weight?: number;
+    dimensions?: string;
 }
 
 export interface Product {
@@ -50,9 +53,6 @@ export interface Product {
     supplier_name?: string;
     status: 'active' | 'low_stock' | 'out_of_stock' | 'discontinued';
     image_url?: string;
-    barcode?: string;
-    weight?: number;
-    dimensions?: string;
     expiry_date?: string;
     last_restocked?: string;
     variants: ProductVariant[];

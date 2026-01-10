@@ -70,9 +70,6 @@ export default function ProductDetail() {
     reorder_quantity: 50,
     location_id: '',
     supplier_name: '',
-    barcode: '',
-    weight: 0,
-    dimensions: '',
     image_url: '',
     status: 'active' as Product['status'],
     variants: [] as ProductVariant[]
@@ -113,9 +110,6 @@ export default function ProductDetail() {
         reorder_quantity: productData.reorder_quantity || 0,
         location_id: productData.location_id || '',
         supplier_name: productData.supplier_name || '',
-        barcode: productData.barcode || '',
-        weight: productData.weight || 0,
-        dimensions: productData.dimensions || '',
         image_url: productData.image_url || '',
         status: productData.status || 'active',
         variants: productData.variants || []
@@ -308,17 +302,6 @@ export default function ProductDetail() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="barcode">Barcode</Label>
-                  <Input
-                    id="barcode"
-                    value={formData.barcode}
-                    onChange={(e) => setFormData(prev => ({ ...prev, barcode: e.target.value }))}
-                    disabled={!isEditing}
-                    placeholder="Scan or enter barcode"
-                    className="font-mono"
-                  />
-                </div>
               </div>
 
               <div className="space-y-2">
@@ -482,7 +465,7 @@ export default function ProductDetail() {
                       ...prev,
                       variants: [
                         ...prev.variants,
-                        { attributes: {}, sku: '', unit_price: 0, cost_price: 0, stock: 0 }
+                        { attributes: {}, sku: '', unit_price: 0, cost_price: 0, stock: 0, barcode: '', weight: 0, dimensions: '' }
                       ]
                     }));
                   }}
@@ -503,7 +486,7 @@ export default function ProductDetail() {
                       onClick={() => {
                         setFormData(prev => ({
                           ...prev,
-                          variants: [{ attributes: {}, sku: '', unit_price: 0, cost_price: 0, stock: 0 }]
+                          variants: [{ attributes: {}, sku: '', unit_price: 0, cost_price: 0, stock: 0, barcode: '', weight: 0, dimensions: '' }]
                         }));
                       }}
                     >
@@ -585,6 +568,46 @@ export default function ProductDetail() {
                               setFormData(prev => ({ ...prev, variants: newVariants }));
                             }}
                             disabled={!isEditing}
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Barcode</Label>
+                          <Input
+                            value={variant.barcode || ''}
+                            onChange={(e) => {
+                              const newVariants = [...formData.variants];
+                              newVariants[vIdx].barcode = e.target.value;
+                              setFormData(prev => ({ ...prev, variants: newVariants }));
+                            }}
+                            disabled={!isEditing}
+                            placeholder="Variant Barcode"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Weight</Label>
+                          <Input
+                            type="number"
+                            value={variant.weight || 0}
+                            onChange={(e) => {
+                              const newVariants = [...formData.variants];
+                              newVariants[vIdx].weight = parseFloat(e.target.value) || 0;
+                              setFormData(prev => ({ ...prev, variants: newVariants }));
+                            }}
+                            disabled={!isEditing}
+                            placeholder="Weight"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label>Dimensions</Label>
+                          <Input
+                            value={variant.dimensions || ''}
+                            onChange={(e) => {
+                              const newVariants = [...formData.variants];
+                              newVariants[vIdx].dimensions = e.target.value;
+                              setFormData(prev => ({ ...prev, variants: newVariants }));
+                            }}
+                            disabled={!isEditing}
+                            placeholder="L x W x H"
                           />
                         </div>
                       </div>

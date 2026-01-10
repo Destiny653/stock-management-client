@@ -109,8 +109,10 @@ export default function Inventory() {
       const search = searchTerm.toLowerCase();
       result = result.filter(p =>
         p.name?.toLowerCase().includes(search) ||
-        p.variants?.some(v => v.sku?.toLowerCase().includes(search)) ||
-        p.barcode?.toLowerCase().includes(search)
+        p.variants?.some(v =>
+          v.sku?.toLowerCase().includes(search) ||
+          v.barcode?.toLowerCase().includes(search)
+        )
       );
     }
 
@@ -165,21 +167,26 @@ export default function Inventory() {
     }));
   };
 
-  const handleStockUpdate = async (productId: string, stock: number) => {
+  const handleStockUpdate = async (productId: string, stock: number, sku?: string) => {
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
-    let status: Product['status'] = "active";
-    if (stock === 0) status = "out_of_stock";
-    else if (product.reorder_point && stock <= product.reorder_point) status = "low_stock";
-
-    // Update the first variant's stock if it exists
     const variants = [...(product.variants || [])];
-    if (variants.length > 0) {
-      variants[0] = { ...variants[0], stock: stock };
+    if (sku) {
+      const vIdx = variants.findIndex(v => v.sku === sku);
+      if (vIdx >= 0) {
+        variants[vIdx] = { ...variants[vIdx], stock };
+      }
+    } else if (variants.length > 0) {
+      variants[0] = { ...variants[0], stock };
     } else {
-      variants.push({ attributes: {}, sku: `${product.name}-1`, unit_price: 0, cost_price: 0, stock: stock });
+      variants.push({ attributes: {}, sku: `${product.name}-1`, unit_price: 0, cost_price: 0, stock: stock, barcode: '', weight: 0, dimensions: '' });
     }
+
+    const totalStock = variants.reduce((sum, v) => sum + (v.stock || 0), 0);
+    let status: Product['status'] = "active";
+    if (totalStock === 0) status = "out_of_stock";
+    else if (product.reorder_point && totalStock <= product.reorder_point) status = "low_stock";
 
     try {
       await updateProductMutation.mutateAsync({

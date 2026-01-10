@@ -30,6 +30,9 @@ class ProductVariant(BaseModel):
     unit_price: float
     cost_price: float
     stock: int
+    barcode: Optional[str] = None
+    weight: Optional[float] = None
+    dimensions: Optional[str] = None
 
 
 class Product(Document):
@@ -44,9 +47,6 @@ class Product(Document):
     supplier_name: Optional[str] = None
     status: ProductStatus = ProductStatus.ACTIVE
     image_url: Optional[str] = None
-    barcode: Optional[str] = None
-    weight: Optional[float] = None
-    dimensions: Optional[str] = None
     expiry_date: Optional[date] = None
     last_restocked: Optional[date] = None
     variants: List[ProductVariant] = Field(default_factory=list)
