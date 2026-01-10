@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { base44, Warehouse, Supplier } from "@/api/base44Client";
+import React, { useState, useMemo } from 'react';
+import { base44, Warehouse, Supplier, Location } from "@/api/base44Client";
+import LocationPicker from "@/components/vendors/VendorLocationPicker";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,24 +66,62 @@ export default function Settings() {
   // Warehouses
   const [warehouseDialogOpen, setWarehouseDialogOpen] = useState(false);
   const [editingWarehouse, setEditingWarehouse] = useState<Warehouse | null>(null);
-  const [warehouseForm, setWarehouseForm] = useState<Partial<Warehouse>>({ name: '', code: '', address: '', city: '', manager: '', status: 'active' });
+  const [warehouseForm, setWarehouseForm] = useState({
+    name: '',
+    code: '',
+    location_id: '',
+    manager: '',
+    status: 'active' as Warehouse['status'],
+    // Address fields for the sub-location
+    address: '',
+    city: '',
+    country: '',
+    latitude: null as number | null,
+    longitude: null as number | null,
+  });
 
   // Suppliers
   const [supplierDialogOpen, setSupplierDialogOpen] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState<Supplier | null>(null);
-  const [supplierForm, setSupplierForm] = useState<Partial<Supplier>>({ name: '', contact_name: '', email: '', phone: '', address: '', payment_terms: 'Net 30', lead_time_days: 7, status: 'active' });
+  const [supplierForm, setSupplierForm] = useState({
+    name: '',
+    contact_name: '',
+    email: '',
+    phone: '',
+    payment_terms: 'Net 30',
+    lead_time_days: 7,
+    status: 'active' as Supplier['status'],
+    location_id: '',
+    // Address fields for the sub-location
+    address: '',
+    city: '',
+    country: '',
+    latitude: null as number | null,
+    longitude: null as number | null,
+  });
 
   const { data: warehouses = [], isLoading: loadingWarehouses } = useQuery({
     queryKey: ['warehouses'],
     queryFn: () => base44.entities.Warehouse.list(),
-    initialData: [],
   });
 
   const { data: suppliers = [], isLoading: loadingSuppliers } = useQuery({
     queryKey: ['suppliers'],
     queryFn: () => base44.entities.Supplier.list(),
-    initialData: [],
   });
+
+  const { data: locations = [] } = useQuery({
+    queryKey: ['locations'],
+    queryFn: () => base44.entities.Location.list(),
+  });
+
+  // Create a map for location names
+  const locationMap = useMemo(() => {
+    return locations.reduce((acc, loc) => {
+      acc[loc.id] = loc;
+      return acc;
+    }, {} as Record<string, Location>);
+  }, [locations]);
 
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
@@ -148,24 +187,76 @@ export default function Settings() {
   });
 
   const resetWarehouseForm = () => {
-    setWarehouseForm({ name: '', code: '', address: '', city: '', manager: '', status: 'active' });
+    setWarehouseForm({
+      name: '',
+      code: '',
+      location_id: '',
+      manager: '',
+      status: 'active',
+      address: '',
+      city: '',
+      country: '',
+      latitude: null,
+      longitude: null
+    });
     setEditingWarehouse(null);
   };
 
   const resetSupplierForm = () => {
-    setSupplierForm({ name: '', contact_name: '', email: '', phone: '', address: '', payment_terms: 'Net 30', lead_time_days: 7, status: 'active' });
+    setSupplierForm({
+      name: '',
+      contact_name: '',
+      email: '',
+      phone: '',
+      payment_terms: 'Net 30',
+      lead_time_days: 7,
+      status: 'active',
+      location_id: '',
+      address: '',
+      city: '',
+      country: '',
+      latitude: null,
+      longitude: null
+    });
     setEditingSupplier(null);
   };
 
   const handleEditWarehouse = (warehouse: Warehouse) => {
+    const loc = warehouse.location_id ? locationMap[warehouse.location_id] : null;
     setEditingWarehouse(warehouse);
-    setWarehouseForm(warehouse);
+    setWarehouseForm({
+      name: warehouse.name || '',
+      code: warehouse.code || '',
+      location_id: warehouse.location_id || '',
+      manager: warehouse.manager || '',
+      status: warehouse.status || 'active',
+      address: loc?.address || '',
+      city: loc?.city || '',
+      country: loc?.country || '',
+      latitude: loc?.latitude || null,
+      longitude: loc?.longitude || null,
+    });
     setWarehouseDialogOpen(true);
   };
 
   const handleEditSupplier = (supplier: Supplier) => {
+    const loc = supplier.location_id ? locationMap[supplier.location_id] : null;
     setEditingSupplier(supplier);
-    setSupplierForm(supplier);
+    setSupplierForm({
+      name: supplier.name || '',
+      contact_name: supplier.contact_name || '',
+      email: supplier.email || '',
+      phone: supplier.phone || '',
+      payment_terms: supplier.payment_terms || 'Net 30',
+      lead_time_days: supplier.lead_time_days || 7,
+      status: supplier.status || 'active',
+      location_id: supplier.location_id || '',
+      address: loc?.address || '',
+      city: loc?.city || '',
+      country: loc?.country || '',
+      latitude: loc?.latitude || null,
+      longitude: loc?.longitude || null,
+    });
     setSupplierDialogOpen(true);
   };
 
@@ -174,10 +265,44 @@ export default function Settings() {
       toast.error("Name and code are required");
       return;
     }
-    if (editingWarehouse) {
-      await updateWarehouseMutation.mutateAsync({ id: editingWarehouse.id, data: warehouseForm });
-    } else {
-      await createWarehouseMutation.mutateAsync(warehouseForm);
+
+    try {
+      let locationId = warehouseForm.location_id;
+
+      // Create/Update location
+      if (warehouseForm.address || warehouseForm.latitude) {
+        const locationData = {
+          name: `${warehouseForm.name} Location`,
+          address: warehouseForm.address,
+          city: warehouseForm.city,
+          country: warehouseForm.country,
+          latitude: warehouseForm.latitude as number,
+          longitude: warehouseForm.longitude as number,
+        };
+
+        if (locationId) {
+          await base44.entities.Location.update(locationId, locationData);
+        } else {
+          const loc = await base44.entities.Location.create(locationData);
+          locationId = loc.id;
+        }
+      }
+
+      const data = {
+        name: warehouseForm.name,
+        code: warehouseForm.code,
+        location_id: locationId,
+        manager: warehouseForm.manager,
+        status: warehouseForm.status
+      };
+
+      if (editingWarehouse) {
+        await updateWarehouseMutation.mutateAsync({ id: editingWarehouse.id, data });
+      } else {
+        await createWarehouseMutation.mutateAsync(data);
+      }
+    } catch (e: any) {
+      toast.error(e.response?.data?.detail || "Error saving warehouse");
     }
   };
 
@@ -186,10 +311,47 @@ export default function Settings() {
       toast.error("Name and email are required");
       return;
     }
-    if (editingSupplier) {
-      await updateSupplierMutation.mutateAsync({ id: editingSupplier.id, data: supplierForm });
-    } else {
-      await createSupplierMutation.mutateAsync(supplierForm);
+
+    try {
+      let locationId = supplierForm.location_id;
+
+      // Create/Update location
+      if (supplierForm.address || supplierForm.latitude) {
+        const locationData = {
+          name: `${supplierForm.name} Office`,
+          address: supplierForm.address,
+          city: supplierForm.city,
+          country: supplierForm.country,
+          latitude: supplierForm.latitude as number,
+          longitude: supplierForm.longitude as number,
+        };
+
+        if (locationId) {
+          await base44.entities.Location.update(locationId, locationData);
+        } else {
+          const loc = await base44.entities.Location.create(locationData);
+          locationId = loc.id;
+        }
+      }
+
+      const data = {
+        name: supplierForm.name,
+        contact_name: supplierForm.contact_name,
+        email: supplierForm.email,
+        phone: supplierForm.phone,
+        payment_terms: supplierForm.payment_terms,
+        lead_time_days: supplierForm.lead_time_days,
+        status: supplierForm.status,
+        location_id: locationId
+      };
+
+      if (editingSupplier) {
+        await updateSupplierMutation.mutateAsync({ id: editingSupplier.id, data });
+      } else {
+        await createSupplierMutation.mutateAsync(data);
+      }
+    } catch (e: any) {
+      toast.error(e.response?.data?.detail || "Error saving supplier");
     }
   };
 
@@ -254,10 +416,6 @@ export default function Settings() {
                       <Input value={warehouseForm.code} onChange={(e) => setWarehouseForm(p => ({ ...p, code: e.target.value }))} placeholder="WH-001" />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label>{t('storeAddress')}</Label>
-                    <Input value={warehouseForm.address} onChange={(e) => setWarehouseForm(p => ({ ...p, address: e.target.value }))} placeholder={t('storeAddress')} />
-                  </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>{t('city')}</Label>
@@ -268,6 +426,19 @@ export default function Settings() {
                       <Input value={warehouseForm.manager} onChange={(e) => setWarehouseForm(p => ({ ...p, manager: e.target.value }))} placeholder={t('manager')} />
                     </div>
                   </div>
+
+                  <LocationPicker
+                    latitude={warehouseForm.latitude || undefined}
+                    longitude={warehouseForm.longitude || undefined}
+                    onLocationChange={(lat, lng) => setWarehouseForm(p => ({ ...p, latitude: lat, longitude: lng }))}
+                    onAddressChange={(data) => setWarehouseForm(p => ({
+                      ...p,
+                      address: data.address || p.address,
+                      city: data.city || p.city,
+                      country: data.country || p.country
+                    }))}
+                  />
+
                   <div className="space-y-2">
                     <Label>{t('status')}</Label>
                     <Select value={warehouseForm.status} onValueChange={(v: any) => setWarehouseForm(p => ({ ...p, status: v }))}>
@@ -312,7 +483,7 @@ export default function Settings() {
                     <TableRow key={w.id}>
                       <TableCell className="font-medium">{w.name}</TableCell>
                       <TableCell className="font-mono text-sm">{w.code}</TableCell>
-                      <TableCell>{w.city || '-'}</TableCell>
+                      <TableCell>{w.location_id ? locationMap[w.location_id]?.city : '-'}</TableCell>
                       <TableCell>{w.manager || '-'}</TableCell>
                       <TableCell>
                         <Badge variant="outline" className={cn(
@@ -392,10 +563,18 @@ export default function Settings() {
                       </Select>
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label>{t('storeAddress')}</Label>
-                    <Input value={supplierForm.address} onChange={(e) => setSupplierForm(p => ({ ...p, address: e.target.value }))} placeholder={t('storeAddress')} />
-                  </div>
+                  <LocationPicker
+                    latitude={supplierForm.latitude || undefined}
+                    longitude={supplierForm.longitude || undefined}
+                    onLocationChange={(lat, lng) => setSupplierForm(p => ({ ...p, latitude: lat, longitude: lng }))}
+                    onAddressChange={(data) => setSupplierForm(p => ({
+                      ...p,
+                      address: data.address || p.address,
+                      city: data.city || p.city,
+                      country: data.country || p.country
+                    }))}
+                  />
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label>{t('leadTime')}</Label>

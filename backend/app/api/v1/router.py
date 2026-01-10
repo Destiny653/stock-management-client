@@ -14,6 +14,7 @@ from app.api.v1.endpoints import (
     alerts,
     vendor_payments,
     locations,
+    search,
 )
 
 api_router = APIRouter()
@@ -56,3 +57,6 @@ api_router.include_router(vendor_payments.router, prefix="/vendor-payments", tag
 
 # Locations
 api_router.include_router(locations.router, prefix="/locations", tags=["Locations"])
+
+# Search
+api_router.include_router(search.router, prefix="/search", tags=["Global Search"])

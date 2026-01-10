@@ -10,9 +10,11 @@ interface LowStockAlertProps {
   products?: Product[];
 }
 
+const getProductStock = (p: Product) => p.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || 0;
+
 export default function LowStockAlert({ products = [] }: LowStockAlertProps) {
   const lowStockItems = products.filter(p =>
-    p.status === 'low_stock' || p.quantity <= (p.reorder_point || 10)
+    p.status === 'low_stock' || getProductStock(p) <= (p.reorder_point || 10)
   ).slice(0, 5);
 
   if (lowStockItems.length === 0) {
@@ -45,8 +47,9 @@ export default function LowStockAlert({ products = [] }: LowStockAlertProps) {
 
       <div className="space-y-3">
         {lowStockItems.map((item) => {
-          const percentRemaining = ((item.quantity / (item.reorder_point || 10)) * 100);
-          const isOutOfStock = item.quantity === 0;
+          const itemStock = getProductStock(item);
+          const percentRemaining = ((itemStock / (item.reorder_point || 10)) * 100);
+          const isOutOfStock = itemStock === 0;
 
           return (
             <Link
@@ -59,11 +62,11 @@ export default function LowStockAlert({ products = [] }: LowStockAlertProps) {
                   "h-10 w-10 rounded-lg flex items-center justify-center text-xs font-bold",
                   isOutOfStock ? "bg-rose-100 text-rose-600" : "bg-amber-100 text-amber-600"
                 )}>
-                  {item.quantity}
+                  {itemStock}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-900 truncate">{item.name}</p>
-                  <p className="text-xs text-slate-500">SKU: {item.sku}</p>
+                  <p className="text-xs text-slate-500">SKU: {item.variants?.[0]?.sku || 'N/A'}</p>
                 </div>
                 <div className="text-right">
                   <p className={cn(

@@ -98,17 +98,19 @@ interface VendorFormData {
   email: string;
   phone: string;
   store_name: string;
-  store_address: string;
-  city: string;
-  country: string;
-  latitude?: number;
-  longitude?: number;
   status: 'active' | 'inactive' | 'pending' | 'suspended';
   subscription_plan: string;
   monthly_fee: number;
   commission_rate: number;
   notes: string;
   organization_id?: string;
+  location_id?: string;
+  // Address fields for the sub-location
+  address: string;
+  city: string;
+  country: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 interface Organization {
@@ -121,6 +123,7 @@ interface Sale {
   id: string;
   vendor_email: string;
   total: number;
+  organization_id: string;
 }
 
 export default function VendorManagement() {
@@ -138,7 +141,7 @@ export default function VendorManagement() {
     email: '',
     phone: '',
     store_name: '',
-    store_address: '',
+    address: '',
     city: '',
     country: '',
     latitude: undefined,
@@ -148,7 +151,8 @@ export default function VendorManagement() {
     monthly_fee: 0,
     commission_rate: 5,
     notes: '',
-    organization_id: ''
+    organization_id: '',
+    location_id: ''
   });
 
   const { data: organizations = [] } = useQuery({
@@ -159,13 +163,25 @@ export default function VendorManagement() {
   const { data: vendors = [], isLoading } = useQuery({
     queryKey: ['vendors'],
     queryFn: () => base44.entities.Vendor.list(),
-    initialData: [] as Vendor[],
+  });
+
+  const { data: locations = [] } = useQuery({
+    queryKey: ['locations'],
+    queryFn: () => base44.entities.Location.list(),
   });
 
   const { data: sales = [] } = useQuery({
     queryKey: ['sales'],
     queryFn: () => base44.entities.Sale.list(),
   });
+
+  // Create a map for location display
+  const locationMap = useMemo(() => {
+    return locations.reduce((acc, loc) => {
+      acc[loc.id] = loc;
+      return acc;
+    }, {} as Record<string, any>);
+  }, [locations]);
 
   const createVendorMutation = useMutation({
     mutationFn: (data: any) => base44.entities.Vendor.create({
@@ -199,7 +215,7 @@ export default function VendorManagement() {
       email: '',
       phone: '',
       store_name: '',
-      store_address: '',
+      address: '',
       city: '',
       country: '',
       latitude: undefined,
@@ -209,11 +225,13 @@ export default function VendorManagement() {
       monthly_fee: 0,
       commission_rate: 5,
       notes: '',
-      organization_id: ''
+      organization_id: '',
+      location_id: ''
     });
   };
 
   const handleEdit = (vendor: Vendor) => {
+    const loc = vendor.location_id ? locationMap[vendor.location_id] : null;
     setEditingVendor(vendor);
     setFormData({
       name: vendor.name || '',
@@ -221,17 +239,18 @@ export default function VendorManagement() {
       email: vendor.email || '',
       phone: vendor.phone || '',
       store_name: vendor.store_name || '',
-      store_address: vendor.store_address || '',
-      city: vendor.city || '',
-      country: vendor.country || '',
-      latitude: vendor.latitude,
-      longitude: vendor.longitude,
+      address: loc?.address || '',
+      city: loc?.city || '',
+      country: loc?.country || '',
+      latitude: loc?.latitude,
+      longitude: loc?.longitude,
       status: (vendor.status as any) || 'pending',
       subscription_plan: vendor.subscription_plan || 'basic',
       monthly_fee: vendor.monthly_fee || 0,
       commission_rate: vendor.commission_rate || 5,
       notes: vendor.notes || '',
-      organization_id: vendor.organization_id || ''
+      organization_id: vendor.organization_id || '',
+      location_id: vendor.location_id || ''
     });
   };
 
@@ -241,10 +260,40 @@ export default function VendorManagement() {
       return;
     }
 
-    if (editingVendor) {
-      await updateVendorMutation.mutateAsync({ id: editingVendor.id, data: formData });
-    } else {
-      await createVendorMutation.mutateAsync(formData);
+    try {
+      let locationId = formData.location_id;
+
+      // 1. Create/Update Location first if we have address info
+      if (formData.address || formData.latitude) {
+        const locationData = {
+          name: `${formData.store_name} Store`,
+          address: formData.address,
+          city: formData.city,
+          country: formData.country,
+          latitude: formData.latitude as number,
+          longitude: formData.longitude as number,
+        };
+
+        if (locationId) {
+          await base44.entities.Location.update(locationId, locationData);
+        } else {
+          const loc = await base44.entities.Location.create(locationData);
+          locationId = loc.id;
+        }
+      }
+
+      const vendorData = {
+        ...formData,
+        location_id: locationId
+      };
+
+      if (editingVendor) {
+        await updateVendorMutation.mutateAsync({ id: editingVendor.id, data: vendorData });
+      } else {
+        await createVendorMutation.mutateAsync(vendorData);
+      }
+    } catch (e: any) {
+      toast.error(e.response?.data?.detail || "Error saving vendor");
     }
   };
 
@@ -271,12 +320,13 @@ export default function VendorManagement() {
 
     if (searchTerm) {
       const search = searchTerm.toLowerCase();
-      result = result.filter(v =>
-        v.name?.toLowerCase().includes(search) ||
-        v.store_name?.toLowerCase().includes(search) ||
-        v.email?.toLowerCase().includes(search) ||
-        v.city?.toLowerCase().includes(search)
-      );
+      result = result.filter(v => {
+        const loc = v.location_id ? locationMap[v.location_id] : null;
+        return v.name?.toLowerCase().includes(search) ||
+          v.store_name?.toLowerCase().includes(search) ||
+          v.email?.toLowerCase().includes(search) ||
+          loc?.city?.toLowerCase().includes(search);
+      });
     }
 
     if (statusFilter !== "all") {
@@ -288,7 +338,7 @@ export default function VendorManagement() {
     }
 
     return result;
-  }, [vendors, searchTerm, statusFilter, paymentFilter]);
+  }, [vendors, searchTerm, statusFilter, paymentFilter, locationMap]);
 
   // Stats
   const stats = {
@@ -369,8 +419,8 @@ export default function VendorManagement() {
       <div className="space-y-2">
         <Label>{t('storeAddress')}</Label>
         <Input
-          value={formData.store_address}
-          onChange={(e) => setFormData(prev => ({ ...prev, store_address: e.target.value }))}
+          value={formData.address}
+          onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
           placeholder={t('storeAddress')}
         />
       </div>
@@ -405,7 +455,7 @@ export default function VendorManagement() {
         }))}
         onAddressChange={(addressData: { address?: string; city?: string; country?: string }) => setFormData(prev => ({
           ...prev,
-          store_address: addressData.address?.split(',').slice(0, 2).join(',') || prev.store_address,
+          address: addressData.address?.split(',').slice(0, 2).join(',') || prev.address,
           city: addressData.city || prev.city,
           country: addressData.country || prev.country
         }))}
@@ -548,10 +598,10 @@ export default function VendorManagement() {
                 {vendor.phone}
               </div>
             )}
-            {vendor.city && (
+            {vendor.location_id && locationMap[vendor.location_id] && (
               <div className="flex items-center gap-2 text-sm text-slate-600">
                 <MapPin className="h-4 w-4 text-slate-400" />
-                {vendor.city}, {vendor.country}
+                {locationMap[vendor.location_id].city}, {locationMap[vendor.location_id].country}
               </div>
             )}
           </div>
@@ -779,7 +829,9 @@ export default function VendorManagement() {
                       <p className="text-sm text-slate-500">{vendor.phone}</p>
                     </TableCell>
                     <TableCell className="text-slate-600">
-                      {vendor.city ? `${vendor.city}, ${vendor.country}` : '-'}
+                      {vendor.location_id && locationMap[vendor.location_id]
+                        ? `${locationMap[vendor.location_id].city}, ${locationMap[vendor.location_id].country}`
+                        : '-'}
                     </TableCell>
                     <TableCell>
                       <Badge className={statusColors[vendor.status]}>{vendor.status}</Badge>

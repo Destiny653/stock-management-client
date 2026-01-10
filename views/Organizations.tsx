@@ -186,16 +186,67 @@ export default function Organizations() {
             return;
         }
 
-        if (editingOrg) {
-            await updateOrgMutation.mutateAsync({ id: editingOrg.id, data: formData });
-        } else {
-            await createOrgMutation.mutateAsync(formData);
+        try {
+            // 1. Create/Update Location first if we have address info
+            let locationId = editingOrg?.location_id || null;
+
+            if (formData.address || formData.latitude) {
+                const locationData = {
+                    name: `${formData.name} HQ`,
+                    address: formData.address,
+                    city: formData.city,
+                    country: formData.country,
+                    latitude: formData.latitude as number,
+                    longitude: formData.longitude as number,
+                };
+
+                if (locationId) {
+                    await base44.entities.Location.update(locationId, locationData);
+                } else {
+                    const loc = await base44.entities.Location.create(locationData);
+                    locationId = loc.id;
+                }
+            }
+
+            // 2. Prepare organization data
+            const orgData = {
+                name: formData.name,
+                code: formData.code,
+                description: formData.description,
+                location_id: locationId,
+                phone: formData.phone,
+                email: formData.email,
+                website: formData.website,
+                status: formData.status as any,
+                subscription_plan: formData.subscription_plan as any,
+                max_vendors: formData.max_vendors,
+                max_users: formData.max_users
+            };
+
+            if (editingOrg) {
+                await updateOrgMutation.mutateAsync({ id: editingOrg.id, data: orgData });
+                toast.success("Organization updated successfully");
+            } else {
+                await createOrgMutation.mutateAsync(orgData);
+                toast.success("Organization created successfully");
+            }
+
+            setDialogOpen(false);
+            resetForm();
+        } catch (error: any) {
+            console.error("Save error:", error);
+            toast.error(error.response?.data?.detail || "Error saving organization");
         }
     };
 
     const handleDelete = async (id: string) => {
         if (confirm("Delete this organization? This will not delete associated vendors or users.")) {
-            await deleteOrgMutation.mutateAsync(id);
+            try {
+                await deleteOrgMutation.mutateAsync(id);
+                toast.success("Organization deleted");
+            } catch (error: any) {
+                toast.error(error.response?.data?.detail || "Error deleting organization");
+            }
         }
     };
 
@@ -482,7 +533,7 @@ export default function Organizations() {
                                     <TableRow key={org.id} className="hover:bg-slate-50">
                                         <TableCell>
                                             <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-semibold">
+                                                <div className="h-10 w-10 rounded-lg bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-semibold">
                                                     {org.name?.charAt(0) || 'O'}
                                                 </div>
                                                 <div>

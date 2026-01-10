@@ -49,7 +49,7 @@ class Product(Document):
     dimensions: Optional[str] = None
     expiry_date: Optional[date] = None
     last_restocked: Optional[date] = None
-    variants: List[ProductVariant] = []
+    variants: List[ProductVariant] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
 

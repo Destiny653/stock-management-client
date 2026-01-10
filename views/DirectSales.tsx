@@ -83,6 +83,10 @@ function useSafeLanguage() {
 export default function DirectSales() {
   const { t } = useSafeLanguage();
   const queryClient = useQueryClient();
+
+  const getProductStock = (p: Product) => p.variants?.reduce((sum, v) => sum + (v.stock || 0), 0) || 0;
+  const getProductPrice = (p: Product) => p.variants?.[0]?.unit_price || 0;
+  const getProductSKU = (p: Product) => p.variants?.[0]?.sku || 'N/A';
   const [searchTerm, setSearchTerm] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [saleDialogOpen, setSaleDialogOpen] = useState(false);
@@ -105,7 +109,7 @@ export default function DirectSales() {
 
   const { data: sales = [], isLoading: loadingSales } = useQuery({
     queryKey: ['sales'],
-    queryFn: () => base44.entities.Sale.list('-created_date'),
+    queryFn: () => base44.entities.Sale.list({ sort: '-created_at' }),
     initialData: [],
   });
 
@@ -140,16 +144,16 @@ export default function DirectSales() {
 
   // Filter products by search
   const filteredProducts = useMemo(() => {
-    if (!searchTerm) return products.filter(p => p.quantity > 0);
+    if (!searchTerm) return products.filter(p => getProductStock(p) > 0);
     const search = searchTerm.toLowerCase();
     return products.filter(p =>
-      p.quantity > 0 && (
+      getProductStock(p) > 0 && (
         p.name?.toLowerCase().includes(search) ||
-        p.sku?.toLowerCase().includes(search) ||
+        p.variants?.some(v => v.sku?.toLowerCase().includes(search)) ||
         p.barcode?.toLowerCase().includes(search)
       )
     );
-  }, [products, searchTerm]);
+  }, [products, searchTerm, getProductStock]);
 
   // Cart calculations
   const cartSubtotal = cart.reduce((sum, item) => sum + item.total, 0);
@@ -159,8 +163,8 @@ export default function DirectSales() {
 
   // Today's sales stats
   const today = new Date().toDateString();
-  const todaySales = sales.filter(s => new Date(s.created_date).toDateString() === today);
-  const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total || 0), 0);
+  const todaySales = sales.filter(s => new Date(s.created_at).toDateString() === today);
+  const todayRevenue = todaySales.reduce((sum, s) => sum + (s.total_amount || 0), 0);
   const todayItems = todaySales.reduce((sum, s) => sum + (s.items?.reduce((iSum, i) => iSum + i.quantity, 0) || 0), 0);
 
   const addToCart = (product: any) => {
@@ -168,7 +172,7 @@ export default function DirectSales() {
 
     if (existingIndex >= 0) {
       const newCart = [...cart];
-      if (newCart[existingIndex].quantity < product.quantity) {
+      if (newCart[existingIndex].quantity < getProductStock(product)) {
         newCart[existingIndex].quantity += 1;
         newCart[existingIndex].total = newCart[existingIndex].quantity * newCart[existingIndex].unit_price;
         setCart(newCart);
@@ -176,14 +180,15 @@ export default function DirectSales() {
         toast.error("Not enough stock available");
       }
     } else {
+      const price = getProductPrice(product);
       setCart([...cart, {
         product_id: product.id,
         product_name: product.name,
-        sku: product.sku,
+        sku: getProductSKU(product),
         quantity: 1,
-        unit_price: product.unit_price,
-        total: product.unit_price,
-        max_quantity: product.quantity
+        unit_price: price,
+        total: price,
+        max_quantity: getProductStock(product)
       }]);
     }
   };
@@ -246,12 +251,19 @@ export default function DirectSales() {
     for (const item of cart) {
       const product = products.find(p => p.id === item.product_id);
       if (product) {
-        const newQuantity = product.quantity - item.quantity;
+        const currentStock = getProductStock(product);
+        const newQuantity = currentStock - item.quantity;
         let status: Product['status'] = 'active';
         if (newQuantity === 0) status = 'out_of_stock';
         else if (newQuantity <= (product.reorder_point || 10)) status = 'low_stock';
 
-        await base44.entities.Product.update(item.product_id, { quantity: newQuantity, status });
+        // Update the first variant's stock
+        const variants = [...(product.variants || [])];
+        if (variants.length > 0) {
+          variants[0] = { ...variants[0], stock: variants[0].stock - item.quantity };
+        }
+
+        await base44.entities.Product.update(item.product_id, { variants, status } as any);
 
         // Create stock movement
         await base44.entities.StockMovement.create({
@@ -371,14 +383,14 @@ export default function DirectSales() {
                           )}
                         </div>
                         <h4 className="font-medium text-sm text-slate-900 truncate">{product.name}</h4>
-                        <p className="text-xs text-slate-500 truncate">{product.sku}</p>
+                        <p className="text-xs text-slate-500 truncate">{getProductSKU(product)}</p>
                         <div className="flex items-center justify-between mt-2">
-                          <span className="font-bold text-teal-600">${product.unit_price?.toFixed(2)}</span>
+                          <span className="font-bold text-teal-600">${getProductPrice(product).toFixed(2)}</span>
                           <Badge variant="outline" className={cn(
                             "text-xs",
-                            product.quantity <= 10 ? "bg-amber-50 text-amber-700" : "bg-slate-50"
+                            getProductStock(product) <= 10 ? "bg-amber-50 text-amber-700" : "bg-slate-50"
                           )}>
-                            {product.quantity} left
+                            {getProductStock(product)} left
                           </Badge>
                         </div>
                       </CardContent>
@@ -510,8 +522,7 @@ export default function DirectSales() {
                     return (
                       <TableRow key={sale.id}>
                         <TableCell className="font-medium">{sale.sale_number}</TableCell>
-                        <TableCell>{format(new Date(sale.created_date), "MMM d, h:mm a")}</TableCell>
-                        <TableCell>{sale.vendor_name}</TableCell>
+                        <TableCell>{format(new Date(sale.created_at), "MMM d, h:mm a")}</TableCell>
                         <TableCell>{sale.client_name || '-'}</TableCell>
                         <TableCell>{sale.items?.length || 0} items</TableCell>
                         <TableCell>
@@ -520,7 +531,7 @@ export default function DirectSales() {
                             {sale.payment_method}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right font-bold">${sale.total?.toFixed(2)}</TableCell>
+                        <TableCell className="text-right font-bold">${sale.total_amount?.toFixed(2)}</TableCell>
                       </TableRow>
                     );
                   })

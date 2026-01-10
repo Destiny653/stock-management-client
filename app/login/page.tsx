@@ -65,7 +65,7 @@ export default function LoginPage() {
         setIsSubmitting(true);
 
         const credentials = type === 'admin'
-            ? { username: 'Alpha', password: 'alpha123' }
+            ? { username: 'Destiny', password: 'fokundem653@' }
             : { username: 'Employee', password: 'employee123' };
 
         setUsername(credentials.username);
@@ -282,7 +282,7 @@ export default function LoginPage() {
                                 </div>
                                 <div className="text-center">
                                     <p className="font-semibold text-slate-900 group-hover:text-teal-700">Admin</p>
-                                    <p className="text-xs text-slate-500">Alpha / alpha123</p>
+                                    <p className="text-xs text-slate-500">Destiny / fokundem653@</p>
                                 </div>
                             </button>
 

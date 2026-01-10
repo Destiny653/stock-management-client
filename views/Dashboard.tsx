@@ -43,14 +43,21 @@ export default function Dashboard() {
 
   const { data: movements = [] } = useQuery<StockMovement[]>({
     queryKey: ['recentMovements'],
-    queryFn: () => base44.entities.StockMovement.list('-created_date', 10),
+    queryFn: () => base44.entities.StockMovement.list({ limit: 10 }),
     initialData: [],
   });
 
   // Calculate KPIs
   const totalSKUs = products.length;
-  const totalValue = products.reduce((sum, p) => sum + ((p.unit_price || 0) * (p.quantity || 0)), 0);
-  const lowStockCount = products.filter(p => p.status === 'low_stock' || p.quantity <= (p.reorder_point || 10)).length;
+  const totalValue = products.reduce((sum, p) => {
+    const pStock = p.variants?.reduce((s, v) => s + (v.stock || 0), 0) || 0;
+    const pPrice = p.variants?.[0]?.unit_price || 0;
+    return sum + (pPrice * pStock);
+  }, 0);
+  const lowStockCount = products.filter(p => {
+    const pStock = p.variants?.reduce((s, v) => s + (v.stock || 0), 0) || 0;
+    return p.status === 'low_stock' || pStock <= (p.reorder_point || 10);
+  }).length;
   const incomingPOs = purchaseOrders.filter(po => ['ordered', 'approved', 'pending_approval'].includes(po.status)).length;
 
   // Format activities for timeline
@@ -65,14 +72,16 @@ export default function Dashboard() {
       type,
       title: `${m.type.charAt(0).toUpperCase() + m.type.slice(1)}: ${m.product_name || 'Product'}`,
       description: `${Math.abs(m.quantity)} units ${m.type === 'in' ? 'added' : m.type === 'out' ? 'removed' : 'adjusted'}`,
-      timestamp: m.created_date
+      timestamp: m.created_at
     };
   });
 
   // Calculate category distribution
   const categoryData: CategoryData[] = products.reduce((acc: CategoryData[], p) => {
     const cat = p.category || 'Other';
-    const value = (p.unit_price || 0) * (p.quantity || 0);
+    const pStock = p.variants?.reduce((s, v) => s + (v.stock || 0), 0) || 0;
+    const pPrice = p.variants?.[0]?.unit_price || 0;
+    const value = pPrice * pStock;
     const existing = acc.find(a => a.name === cat);
     if (existing) {
       existing.value += value;

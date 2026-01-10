@@ -6,10 +6,6 @@
       "type": "string",
       "description": "Product name"
     },
-    "sku": {
-      "type": "string",
-      "description": "Stock Keeping Unit"
-    },
     "category": {
       "type": "string",
       "enum": [
@@ -28,21 +24,9 @@
       "type": "string",
       "description": "Product description"
     },
-    "unit_price": {
-      "type": "number",
-      "description": "Price per unit"
-    },
-    "cost_price": {
-      "type": "number",
-      "description": "Cost per unit"
-    },
-    "quantity": {
-      "type": "number",
-      "description": "Current stock quantity"
-    },
     "reorder_point": {
       "type": "number",
-      "description": "Minimum quantity before reorder"
+      "description": "Minimum stock level before reorder (applies per variant)"
     },
     "reorder_quantity": {
       "type": "number",
@@ -50,7 +34,7 @@
     },
     "location": {
       "type": "string",
-      "description": "Primary warehouse location"
+      "description": "Primary warehouse or storage location"
     },
     "supplier_id": {
       "type": "string",
@@ -64,8 +48,6 @@
       "type": "string",
       "enum": [
         "active",
-        "low_stock",
-        "out_of_stock",
         "discontinued"
       ],
       "default": "active"
@@ -74,33 +56,58 @@
       "type": "string",
       "description": "Product image URL"
     },
-    "barcode": {
-      "type": "string",
-      "description": "Product barcode"
-    },
-    "weight": {
-      "type": "number",
-      "description": "Product weight in kg"
-    },
-    "dimensions": {
-      "type": "string",
-      "description": "Product dimensions (LxWxH)"
-    },
-    "expiry_date": {
-      "type": "string",
-      "format": "date",
-      "description": "Expiry date for perishable items"
-    },
-    "last_restocked": {
-      "type": "string",
-      "format": "date",
-      "description": "Last restock date"
+    "variants": {
+      "type": "array",
+      "description": "Sellable product variants",
+      "items": {
+        "type": "object",
+        "properties": {
+          "sku": {
+            "type": "string",
+            "description": "Variant Stock Keeping Unit"
+          },
+          "attributes": {
+            "type": "object",
+            "description": "Variant attributes such as size, model, color, storage",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "unit_price": {
+            "type": "number",
+            "description": "Selling price for this variant"
+          },
+          "cost_price": {
+            "type": "number",
+            "description": "Cost price for this variant"
+          },
+          "stock": {
+            "type": "number",
+            "description": "Current stock quantity for this variant"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "active",
+              "low_stock",
+              "out_of_stock",
+              "discontinued"
+            ],
+            "default": "active"
+          }
+        },
+        "required": [
+          "sku",
+          "attributes",
+          "unit_price",
+          "stock"
+        ]
+      }
     }
   },
   "required": [
     "name",
-    "sku",
     "category",
-    "quantity"
+    "variants"
   ]
 }

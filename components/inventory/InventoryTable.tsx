@@ -146,7 +146,7 @@ export default function InventoryTable({
               <SortableHeader column="category">Category</SortableHeader>
             </TableHead>
             <TableHead>
-              <SortableHeader column="quantity">Quantity</SortableHeader>
+              <SortableHeader column="stock">Stock</SortableHeader>
             </TableHead>
             <TableHead>
               <SortableHeader column="unit_price">Price</SortableHeader>

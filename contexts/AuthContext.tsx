@@ -1,40 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-
-// Dummy users for simulation
-const DUMMY_USERS = [
-    {
-        id: '1',
-        username: 'Alpha',
-        password: 'alpha123',
-        full_name: 'Alpha Administrator',
-        email: 'alpha@stockflow.com',
-        role: 'admin',
-        user_type: 'admin',
-        avatar: null,
-    },
-    {
-        id: '2',
-        username: 'Employee',
-        password: 'employee123',
-        full_name: 'Employee Vendor',
-        email: 'employee@stockflow.com',
-        role: 'user',
-        user_type: 'vendor',
-        avatar: null,
-    },
-];
-
-export interface User {
-    id: string;
-    username: string;
-    full_name: string;
-    email: string;
-    role: 'admin' | 'user';
-    user_type: 'admin' | 'vendor' | 'manager' | 'staff';
-    avatar: string | null;
-}
+import { base44, User } from '@/api/base44Client';
 
 interface AuthContextType {
     user: User | null;
@@ -52,40 +19,57 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Check for existing session on mount
     useEffect(() => {
-        const storedUser = localStorage.getItem('stockflow_user');
-        if (storedUser) {
-            try {
-                const parsedUser = JSON.parse(storedUser);
-                setUser(parsedUser);
-            } catch {
-                localStorage.removeItem('stockflow_user');
+        const checkAuth = async () => {
+            const storedUser = localStorage.getItem('base44_currentUser');
+            const token = localStorage.getItem('base44_access_token');
+
+            if (storedUser && token) {
+                try {
+                    const parsedUser = JSON.parse(storedUser);
+                    setUser(parsedUser);
+
+                    // Verify token with backend
+                    const freshUser = await base44.auth.me();
+                    if (freshUser) {
+                        setUser(freshUser);
+                    } else {
+                        // Token invalid/expired
+                        setUser(null);
+                        localStorage.removeItem('base44_currentUser');
+                        localStorage.removeItem('base44_access_token');
+                    }
+                } catch {
+                    setUser(null);
+                    localStorage.removeItem('base44_currentUser');
+                    localStorage.removeItem('base44_access_token');
+                }
             }
-        }
-        setIsLoading(false);
+            setIsLoading(false);
+        };
+
+        checkAuth();
     }, []);
 
     const login = async (username: string, password: string): Promise<{ success: boolean; error?: string }> => {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 800));
-
-        const foundUser = DUMMY_USERS.find(
-            u => u.username.toLowerCase() === username.toLowerCase() && u.password === password
-        );
-
-        if (foundUser) {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-            const { password: _, ...userWithoutPassword } = foundUser;
-            setUser(userWithoutPassword as User);
-            localStorage.setItem('stockflow_user', JSON.stringify(userWithoutPassword));
-            return { success: true };
+        try {
+            const loggedInUser = await base44.auth.login(username, password);
+            if (loggedInUser) {
+                setUser(loggedInUser);
+                return { success: true };
+            }
+            return { success: false, error: 'Login failed: Could not retrieve user profile' };
+        } catch (err: any) {
+            console.error('Login error:', err);
+            return {
+                success: false,
+                error: err.response?.data?.detail || 'Invalid username or password'
+            };
         }
-
-        return { success: false, error: 'Invalid username or password' };
     };
 
     const logout = () => {
         setUser(null);
-        localStorage.removeItem('stockflow_user');
+        base44.auth.logout();
     };
 
     return (

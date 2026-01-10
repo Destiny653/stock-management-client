@@ -55,7 +55,7 @@ interface InventoryFiltersProps {
     visibleColumns: string[];
     onColumnsChange: (columns: string[]) => void;
     suppliers?: any[];
-    warehouses?: any[];
+    locations?: any[];
 }
 
 export default function InventoryFilters({
@@ -66,7 +66,7 @@ export default function InventoryFilters({
     visibleColumns,
     onColumnsChange,
     suppliers = [],
-    warehouses = []
+    locations = []
 }: InventoryFiltersProps) {
     const activeFilterCount = Object.values(filters).filter((v: any) => v && v !== "all").length;
 
@@ -142,7 +142,7 @@ export default function InventoryFilters({
                         </Select>
                     )}
 
-                    {warehouses.length > 0 && (
+                    {locations.length > 0 && (
                         <Select
                             value={filters.location || "all"}
                             onValueChange={(value) => onFilterChange({ ...filters, location: value })}
@@ -152,8 +152,8 @@ export default function InventoryFilters({
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="all">All Locations</SelectItem>
-                                {warehouses.map((w: any) => (
-                                    <SelectItem key={w.id} value={w.name}>{w.name}</SelectItem>
+                                {locations.map((l: any) => (
+                                    <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>

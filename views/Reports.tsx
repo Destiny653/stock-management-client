@@ -71,6 +71,11 @@ export default function Reports() {
     const { t } = useSafeLanguage();
     const [dateRange, setDateRange] = useState('30');
 
+    const getProductStock = (p: any) => p.variants?.reduce((sum: number, v: any) => sum + (v.stock || 0), 0) || 0;
+    const getProductPrice = (p: any) => p.variants?.[0]?.unit_price || 0;
+    const getProductCost = (p: any) => p.variants?.[0]?.cost_price || 0;
+    const getProductSKU = (p: any) => p.variants?.[0]?.sku || 'N/A';
+
     const { data: products = [], isLoading: loadingProducts } = useQuery({
         queryKey: ['products'],
         queryFn: () => base44.entities.Product.list(),
@@ -79,7 +84,7 @@ export default function Reports() {
 
     const { data: movements = [] } = useQuery({
         queryKey: ['movements'],
-        queryFn: () => base44.entities.StockMovement.list('-created_date', 500),
+        queryFn: () => base44.entities.StockMovement.list({ sort: '-created_at', limit: 500 }),
         initialData: [],
     });
 
@@ -90,22 +95,23 @@ export default function Reports() {
     });
 
     // Calculate stats
-    const totalValue = products.reduce((sum: number, p: any) => sum + ((p.unit_price || 0) * (p.quantity || 0)), 0);
-    const totalCost = products.reduce((sum: number, p: any) => sum + ((p.cost_price || 0) * (p.quantity || 0)), 0);
-    const totalUnits = products.reduce((sum: number, p: any) => sum + (p.quantity || 0), 0);
-    const lowStockCount = products.filter((p: any) => p.quantity <= (p.reorder_point || 10)).length;
+    const totalValue = products.reduce((sum: number, p: any) => sum + (getProductPrice(p) * getProductStock(p)), 0);
+    const totalCost = products.reduce((sum: number, p: any) => sum + (getProductCost(p) * getProductStock(p)), 0);
+    const totalUnits = products.reduce((sum: number, p: any) => sum + getProductStock(p), 0);
+    const lowStockCount = products.filter((p: any) => getProductStock(p) <= (p.reorder_point || 10)).length;
 
     // Category distribution
     const categoryData = useMemo(() => {
         const data: any[] = products.reduce((acc: any[], p: any) => {
             const cat = p.category || 'Other';
-            const value = (p.unit_price || 0) * (p.quantity || 0);
+            const stock = getProductStock(p);
+            const value = getProductPrice(p) * stock;
             const existing = acc.find((a: any) => a.name === cat);
             if (existing) {
                 existing.value += value;
-                existing.units += p.quantity || 0;
+                existing.units += stock;
             } else {
-                acc.push({ name: cat, value, units: p.quantity || 0 });
+                acc.push({ name: cat, value, units: stock });
             }
             return acc;
         }, []);
@@ -121,7 +127,7 @@ export default function Reports() {
         for (let i = days; i >= 0; i--) {
             const date = subDays(new Date(), i);
             const dayMovements = movements.filter((m: any) => {
-                const movementDate = new Date(m.created_date);
+                const movementDate = new Date(m.created_at);
                 return format(movementDate, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd');
             });
 
@@ -170,9 +176,11 @@ export default function Reports() {
         };
 
         products.forEach((p: any) => {
+            const stock = getProductStock(p);
+            const price = getProductPrice(p);
             if (p.last_restocked) {
                 const days = differenceInDays(now, new Date(p.last_restocked));
-                const value = (p.unit_price || 0) * (p.quantity || 0);
+                const value = price * stock;
 
                 if (days <= 30) aging['0-30 days'] += value;
                 else if (days <= 60) aging['31-60 days'] += value;
@@ -180,7 +188,7 @@ export default function Reports() {
                 else aging['90+ days'] += value;
             } else {
                 // Assume old if no restock date
-                aging['90+ days'] += (p.unit_price || 0) * (p.quantity || 0);
+                aging['90+ days'] += price * stock;
             }
         });
 
@@ -190,17 +198,21 @@ export default function Reports() {
     // Export functions
     const exportInventoryCSV = () => {
         const headers = ['SKU', 'Name', 'Category', 'Quantity', 'Unit Price', 'Total Value', 'Status', 'Location', 'Supplier'];
-        const rows = products.map((p: any) => [
-            p.sku,
-            p.name,
-            p.category,
-            p.quantity,
-            p.unit_price?.toFixed(2),
-            ((p.unit_price || 0) * (p.quantity || 0)).toFixed(2),
-            p.status,
-            p.location,
-            p.supplier_name
-        ]);
+        const rows = products.map((p: any) => {
+            const stock = getProductStock(p);
+            const price = getProductPrice(p);
+            return [
+                getProductSKU(p),
+                p.name,
+                p.category,
+                stock,
+                price.toFixed(2),
+                (price * stock).toFixed(2),
+                p.status,
+                p.location,
+                p.supplier_name
+            ];
+        });
 
         const csv = [headers.join(','), ...rows.map((r: any) => r.map((v: any) => `"${v || ''}"`).join(','))].join('\n');
         const blob = new Blob([csv], { type: 'text/csv' });
@@ -215,7 +227,7 @@ export default function Reports() {
     const exportMovementsCSV = () => {
         const headers = ['Date', 'Product', 'SKU', 'Type', 'Quantity', 'Reference', 'Performed By'];
         const rows = movements.map((m: any) => [
-            format(new Date(m.created_date), 'yyyy-MM-dd HH:mm'),
+            format(new Date(m.created_at), 'yyyy-MM-dd HH:mm'),
             m.product_name,
             m.sku,
             m.type,

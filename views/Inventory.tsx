@@ -52,7 +52,7 @@ export default function Inventory() {
   });
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [visibleColumns, setVisibleColumns] = useState([
-    "image", "name", "sku", "category", "quantity", "price", "status", "location"
+    "image", "name", "sku", "category", "stock", "price", "status", "location"
   ]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ key: "name", direction: "asc" });
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
@@ -60,20 +60,25 @@ export default function Inventory() {
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['products'],
     queryFn: () => base44.entities.Product.list(),
-    initialData: [],
+  });
+
+  const { data: locations = [] } = useQuery({
+    queryKey: ['locations'],
+    queryFn: () => base44.entities.Location.list(),
   });
 
   const { data: suppliers = [] } = useQuery({
     queryKey: ['suppliers'],
     queryFn: () => base44.entities.Supplier.list(),
-    initialData: [],
   });
 
-  const { data: warehouses = [] } = useQuery({
-    queryKey: ['warehouses'],
-    queryFn: () => base44.entities.Warehouse.list(),
-    initialData: [],
-  });
+  // Create a map for location names
+  const locationNameMap = useMemo(() => {
+    return locations.reduce((acc, loc) => {
+      acc[loc.id] = loc.name;
+      return acc;
+    }, {} as Record<string, string>);
+  }, [locations]);
 
   const updateProductMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Partial<Product> }) => base44.entities.Product.update(id, data),
@@ -93,7 +98,11 @@ export default function Inventory() {
 
   // Filter and sort products
   const filteredProducts = useMemo(() => {
-    let result = [...products];
+    let result = products.map(p => ({
+      ...p,
+      // Ensure location displays name not ID
+      location: p.location_id ? locationNameMap[p.location_id] : p.location
+    }));
 
     // Search filter
     if (searchTerm) {
@@ -122,7 +131,7 @@ export default function Inventory() {
 
     // Location filter
     if (filters.location && filters.location !== "all") {
-      result = result.filter(p => p.location === filters.location);
+      result = result.filter(p => p.location_id === filters.location);
     }
 
     // Sort
@@ -134,7 +143,7 @@ export default function Inventory() {
       if (sortConfig.key === 'sku') {
         aVal = a.variants?.[0]?.sku || "";
         bVal = b.variants?.[0]?.sku || "";
-      } else if (sortConfig.key === 'quantity') {
+      } else if (sortConfig.key === 'stock') {
         aVal = a.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0;
         bVal = b.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0;
       } else if (sortConfig.key === 'price') {
@@ -147,7 +156,7 @@ export default function Inventory() {
     });
 
     return result;
-  }, [products, searchTerm, filters, sortConfig]);
+  }, [products, searchTerm, filters, sortConfig, locationNameMap]);
 
   const handleSort = (key: string) => {
     setSortConfig(prev => ({
@@ -156,24 +165,31 @@ export default function Inventory() {
     }));
   };
 
-  const handleQuantityUpdate = async (productId: string, quantity: number) => {
+  const handleStockUpdate = async (productId: string, stock: number) => {
     const product = products.find(p => p.id === productId);
     if (!product) return;
 
     let status: Product['status'] = "active";
-    if (quantity === 0) status = "out_of_stock";
-    else if (quantity <= (product.reorder_point || 10)) status = "low_stock";
+    if (stock === 0) status = "out_of_stock";
+    else if (product.reorder_point && stock <= product.reorder_point) status = "low_stock";
 
     // Update the first variant's stock if it exists
     const variants = [...(product.variants || [])];
     if (variants.length > 0) {
-      variants[0] = { ...variants[0], stock: quantity };
+      variants[0] = { ...variants[0], stock: stock };
+    } else {
+      variants.push({ attributes: {}, sku: `${product.name}-1`, unit_price: 0, cost_price: 0, stock: stock });
     }
 
-    await updateProductMutation.mutateAsync({
-      id: productId,
-      data: { variants, status }
-    });
+    try {
+      await updateProductMutation.mutateAsync({
+        id: productId,
+        data: { variants, status } as any
+      });
+      toast.success("Stock updated");
+    } catch (e) {
+      toast.error("Failed to update stock");
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -196,7 +212,7 @@ export default function Inventory() {
       SKU: p.variants?.[0]?.sku || 'N/A',
       Name: p.name,
       Category: p.category,
-      Quantity: p.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0,
+      Stock: p.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0,
       "Unit Price": p.variants?.[0]?.unit_price || 0,
       Status: p.status,
       Location: p.location,
@@ -269,7 +285,7 @@ export default function Inventory() {
               visibleColumns={visibleColumns}
               onColumnsChange={setVisibleColumns}
               suppliers={suppliers}
-              warehouses={warehouses}
+              locations={locations}
             />
           </div>
           <div className="flex gap-1 border rounded-lg p-1 h-fit self-start">
@@ -388,9 +404,9 @@ export default function Inventory() {
                     <div className="grid grid-cols-2 gap-3 pt-3 border-t">
                       <div className="text-center">
                         <p className="text-lg font-bold text-slate-900">
-                          {product.variants?.reduce((acc, v) => acc + v.stock, 0) || 0}
+                          {product.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0}
                         </p>
-                        <p className="text-xs text-slate-500">{t('quantity') || 'Quantity'}</p>
+                        <p className="text-xs text-slate-500">Stock</p>
                       </div>
                       <div className="text-center">
                         <p className="text-lg font-bold text-teal-600">
@@ -417,7 +433,7 @@ export default function Inventory() {
           products={filteredProducts}
           selectedIds={canEdit ? selectedIds : []}
           onSelectionChange={canEdit ? setSelectedIds : () => { }}
-          onQuantityUpdate={canEdit ? handleQuantityUpdate : async () => { }}
+          onQuantityUpdate={canEdit ? handleStockUpdate : async () => { }}
           onDelete={canEdit ? handleDelete : undefined}
           sortConfig={sortConfig}
           onSort={handleSort}

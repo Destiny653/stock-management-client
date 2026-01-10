@@ -147,12 +147,12 @@ export default function CreatePurchaseOrder() {
       // Add new item
       const newItem = {
         product_id: product.id,
-        sku: product.sku,
+        sku: product.variants?.[0]?.sku || 'N/A',
         product_name: product.name,
         quantity_ordered: product.reorder_quantity || 10,
         quantity_received: 0,
-        unit_cost: product.cost_price || 0,
-        total: (product.reorder_quantity || 10) * (product.cost_price || 0)
+        unit_cost: product.variants?.[0]?.cost_price || 0,
+        total: (product.reorder_quantity || 10) * (product.variants?.[0]?.cost_price || 0)
       };
       setFormData(prev => ({ ...prev, items: [...prev.items, newItem] }));
     }
@@ -312,11 +312,14 @@ export default function CreatePurchaseOrder() {
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="text-sm font-medium truncate">{product.name}</p>
-                                <p className="text-xs text-slate-500">{product.sku} • ${product.cost_price?.toFixed(2) || '0.00'}</p>
+                                <p className="text-xs text-slate-500">{product.variants?.[0]?.sku || 'N/A'} • ${product.variants?.[0]?.cost_price?.toFixed(2) || '0.00'}</p>
                               </div>
-                              {product.quantity <= (product.reorder_point || 10) && (
-                                <span className="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded">Low</span>
-                              )}
+                              {(() => {
+                                const stock = product.variants?.reduce((acc: number, v: any) => acc + (v.stock || 0), 0) || 0;
+                                return stock <= (product.reorder_point || 10) && (
+                                  <span className="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded">Low</span>
+                                );
+                              })()}
                             </div>
                           </CommandItem>
                         ))}

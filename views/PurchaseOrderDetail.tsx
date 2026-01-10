@@ -34,8 +34,7 @@ export default function PurchaseOrderDetail() {
   const { data: purchaseOrder, isLoading } = useQuery({
     queryKey: ['purchaseOrder', poId],
     queryFn: async () => {
-      const results = await base44.entities.PurchaseOrder.filter({ id: poId });
-      return results[0];
+      return base44.entities.PurchaseOrder.get(poId as string);
     },
     enabled: !!poId,
   });
@@ -50,55 +49,26 @@ export default function PurchaseOrderDetail() {
   });
 
   const handleStatusChange = async (newStatus: string) => {
-    await updatePOMutation.mutateAsync({ status: newStatus });
+    if (newStatus === 'approved') {
+      await base44.entities.PurchaseOrder.approve(poId!, purchaseOrder!.organization_id);
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrder', poId] });
+      toast.success("Purchase order approved");
+    } else {
+      await updatePOMutation.mutateAsync({ status: newStatus });
+    }
   };
 
   const handleReceiveAll = async () => {
     if (!purchaseOrder) return;
 
-    // Update all items as received and update product quantities
-    const updatedItems = purchaseOrder.items.map(item => ({
-      ...item,
-      quantity_received: item.quantity_ordered
-    }));
-
-    await updatePOMutation.mutateAsync({
-      status: 'received',
-      items: updatedItems,
-      received_date: new Date().toISOString().split('T')[0]
-    });
-
-    // Update product quantities
-    for (const item of purchaseOrder.items) {
-      if (item.product_id && item.quantity_ordered) {
-        const products = await base44.entities.Product.filter({ id: item.product_id });
-        if (products.length > 0) {
-          const product = products[0];
-          const newQuantity = (product.quantity || 0) + item.quantity_ordered;
-          let status = 'active';
-          if (newQuantity === 0) status = 'out_of_stock';
-          else if (newQuantity <= (product.reorder_point || 10)) status = 'low_stock';
-
-          await base44.entities.Product.update(item.product_id, {
-            quantity: newQuantity,
-            status: status as any,
-            last_restocked: new Date().toISOString().split('T')[0]
-          });
-
-          // Create stock movement record
-          await base44.entities.StockMovement.create({
-            product_id: item.product_id,
-            product_name: item.product_name,
-            type: 'in' as any,
-            quantity: item.quantity_ordered,
-            reference_id: purchaseOrder.po_number
-          });
-        }
-      }
+    try {
+      await base44.entities.PurchaseOrder.receive(poId!, purchaseOrder.organization_id);
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrder', poId] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      toast.success("All items received and inventory updated");
+    } catch (e) {
+      toast.error("Failed to receive items");
     }
-
-    queryClient.invalidateQueries({ queryKey: ['products'] });
-    toast.success("All items received and inventory updated");
   };
 
   if (isLoading || !purchaseOrder) {
@@ -124,7 +94,7 @@ export default function PurchaseOrderDetail() {
               <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{purchaseOrder.po_number}</h1>
               <POStatusBadge status={purchaseOrder.status} size="lg" />
             </div>
-            <p className="text-slate-500 mt-1">Created {format(new Date(purchaseOrder.created_date), "MMM d, yyyy")}</p>
+            <p className="text-slate-500 mt-1">Created {format(new Date(purchaseOrder.created_at), "MMM d, yyyy")}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">

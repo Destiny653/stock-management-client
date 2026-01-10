@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { createPageUrl } from "@/utils";
-import { base44, Product, StockMovement, Supplier, Warehouse, ProductVariant } from "@/api/base44Client";
+import { base44, Product, StockMovement, Supplier, Location, ProductVariant } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,7 +68,7 @@ export default function ProductDetail() {
     description: '',
     reorder_point: 10,
     reorder_quantity: 50,
-    location: '',
+    location_id: '',
     supplier_name: '',
     barcode: '',
     weight: 0,
@@ -78,17 +78,15 @@ export default function ProductDetail() {
     variants: [] as ProductVariant[]
   });
 
-  const { data: product, isLoading } = useQuery({
+  const { data: productData, isLoading } = useQuery({
     queryKey: ['product', productId],
-    queryFn: () => base44.entities.Product.filter({ id: productId }),
+    queryFn: () => base44.entities.Product.get(productId as string),
     enabled: !!productId,
   });
 
-  const productData = (product as Product[])?.[0];
-
   const { data: movements = [] } = useQuery({
     queryKey: ['movements', productId],
-    queryFn: () => base44.entities.StockMovement.filter({ product_id: productId }),
+    queryFn: () => base44.entities.StockMovement.list({ product_id: productId }),
     enabled: !!productId,
     initialData: [] as StockMovement[],
   });
@@ -99,10 +97,10 @@ export default function ProductDetail() {
     initialData: [] as Supplier[],
   });
 
-  const { data: warehouses = [] } = useQuery({
-    queryKey: ['warehouses'],
-    queryFn: () => base44.entities.Warehouse.list(),
-    initialData: [] as Warehouse[],
+  const { data: locations = [] } = useQuery({
+    queryKey: ['locations'],
+    queryFn: () => base44.entities.Location.list(),
+    initialData: [] as Location[],
   });
 
   useEffect(() => {
@@ -113,7 +111,7 @@ export default function ProductDetail() {
         description: productData.description || '',
         reorder_point: productData.reorder_point || 0,
         reorder_quantity: productData.reorder_quantity || 0,
-        location: productData.location || '',
+        location_id: productData.location_id || '',
         supplier_name: productData.supplier_name || '',
         barcode: productData.barcode || '',
         weight: productData.weight || 0,
@@ -126,7 +124,7 @@ export default function ProductDetail() {
   }, [productData]);
 
   const createMutation = useMutation({
-    mutationFn: (data: typeof formData) => base44.entities.Product.create(data),
+    mutationFn: (data: typeof formData) => base44.entities.Product.create(data as any),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success("Product created successfully");
@@ -137,7 +135,7 @@ export default function ProductDetail() {
   const updateMutation = useMutation({
     mutationFn: (data: typeof formData) => {
       if (!productId) throw new Error("Product ID is required");
-      return base44.entities.Product.update(productId, data);
+      return base44.entities.Product.update(productId, data as any);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -170,13 +168,13 @@ export default function ProductDetail() {
       return;
     }
 
-    // Calculate total quantity across variants
-    const totalQuantity = formData.variants.reduce((acc, v) => acc + (v.stock || 0), 0);
+    // Calculate total stock across variants
+    const totalStock = formData.variants.reduce((acc, v) => acc + (v.stock || 0), 0);
 
-    // Calculate status based on total quantity
+    // Calculate status based on total stock
     let status: Product['status'] = 'active';
-    if (totalQuantity === 0) status = 'out_of_stock';
-    else if (totalQuantity <= formData.reorder_point) status = 'low_stock';
+    if (totalStock === 0) status = 'out_of_stock';
+    else if (totalStock <= (formData.reorder_point || 0)) status = 'low_stock';
 
     const dataToSave = { ...formData, status };
 
@@ -343,18 +341,10 @@ export default function ProductDetail() {
               <CardTitle>Pricing & Inventory</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="reorder_point">Product Reorder Point</Label>
-                  <Input
-                    id="reorder_point"
-                    type="number"
-                    min="0"
-                    value={formData.reorder_point}
-                    onChange={(e) => setFormData(prev => ({ ...prev, reorder_point: parseInt(e.target.value) || 0 }))}
-                    disabled={!isEditing}
-                  />
-                </div>
+              <div className="flex items-center gap-2 p-3 bg-teal-50 border border-teal-200 rounded-lg">
+                <p className="text-sm text-teal-800">
+                  Pricing and stock are managed per variant below.
+                </p>
               </div>
 
               {formData.variants.reduce((acc, v) => acc + v.stock, 0) <= formData.reorder_point && formData.variants.reduce((acc, v) => acc + v.stock, 0) > 0 && (
@@ -379,20 +369,19 @@ export default function ProductDetail() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="location">Warehouse Location</Label>
+                  <Label htmlFor="location">Inventory Location</Label>
                   <Select
-                    value={formData.location}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, location: value }))}
+                    value={formData.location_id}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, location_id: value }))}
                     disabled={!isEditing}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Select location" />
                     </SelectTrigger>
                     <SelectContent>
-                      {warehouses.map(w => (
-                        <SelectItem key={w.id} value={w.name}>{w.name}</SelectItem>
+                      {locations.map(l => (
+                        <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>
                       ))}
-                      <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -444,7 +433,7 @@ export default function ProductDetail() {
                       {movements.slice(0, 10).map((m) => (
                         <TableRow key={m.id}>
                           <TableCell className="text-sm">
-                            {format(new Date(m.created_date), "MMM d, yyyy")}
+                            {m.created_at ? format(new Date(m.created_at), "MMM d, yyyy") : '-'}
                           </TableCell>
                           <TableCell>
                             <Badge variant="outline" className={cn(
@@ -465,7 +454,7 @@ export default function ProductDetail() {
                             {m.reference_id || '-'}
                           </TableCell>
                           <TableCell className="text-sm text-slate-600">
-                            {m.created_by || '-'}
+                            {m.performed_by || '-'}
                           </TableCell>
                         </TableRow>
                       ))}
