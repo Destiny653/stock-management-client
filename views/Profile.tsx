@@ -87,7 +87,6 @@ export default function Profile() {
   const { data: vendors = [] } = useQuery({
     queryKey: ['vendors'],
     queryFn: () => base44.entities.Vendor.list(),
-    initialData: [],
   });
 
   const { data: sales = [] } = useQuery({

@@ -3,6 +3,7 @@ import uuid
 from typing import List, Any, Optional
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Query, UploadFile, File
+from beanie import PydanticObjectId
 from app.api import deps
 from app.models.user import User
 from app.models.product import Product
@@ -23,6 +24,7 @@ async def upload_product_image(
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
     
+
     # Create directory if not exists
     upload_dir = "uploads/products"
     
@@ -102,8 +104,13 @@ async def read_product(
     """
     Get product by ID within an organization.
     """
+    try:
+        obj_id = PydanticObjectId(product_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid product ID format")
+    
     product = await Product.find_one({
-        "_id": product_id,
+        "_id": obj_id,
         "organization_id": organization_id
     })
     if not product:
@@ -121,8 +128,13 @@ async def update_product(
     """
     Update a product within an organization.
     """
+    try:
+        obj_id = PydanticObjectId(product_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid product ID format")
+    
     product = await Product.find_one({
-        "_id": product_id,
+        "_id": obj_id,
         "organization_id": organization_id
     })
     if not product:
@@ -136,7 +148,7 @@ async def update_product(
         if variant_skus:
             existing_product = await Product.find_one({
                 "organization_id": organization_id,
-                "_id": {"$ne": product_id},
+                "_id": {"$ne": obj_id},
                 "variants.sku": {"$in": variant_skus}
             })
             if existing_product:
@@ -150,7 +162,7 @@ async def update_product(
         setattr(product, key, value)
     
     # Recalculate status
-    total_stock = sum(v.stock for v in product.variants)
+    total_stock = sum(v.stock if hasattr(v, "stock") else v.get("stock", 0) for v in product.variants)
     if total_stock == 0:
         product.status = "out_of_stock"
     elif total_stock <= (product.reorder_point or 0):
@@ -172,8 +184,13 @@ async def delete_product(
     """
     Delete a product within an organization.
     """
+    try:
+        obj_id = PydanticObjectId(product_id)
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid product ID format")
+    
     product = await Product.find_one({
-        "_id": product_id,
+        "_id": obj_id,
         "organization_id": organization_id
     })
     if not product:

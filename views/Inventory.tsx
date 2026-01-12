@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import Link from "next/link";
-import { createPageUrl } from "@/utils";
+import { createPageUrl, getImageUrl } from "@/utils";
 import { base44, Product } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -348,7 +348,7 @@ export default function Inventory() {
                       <div className="h-16 w-16 rounded-xl bg-slate-100 flex items-center justify-center overflow-hidden">
                         {product.image_url ? (
                           <img
-                            src={product.image_url}
+                            src={getImageUrl(product.image_url)}
                             alt={product.name}
                             className="h-full w-full object-cover"
                           />

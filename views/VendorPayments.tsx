@@ -60,16 +60,14 @@ export default function VendorPayments() {
     const [statusFilter, setStatusFilter] = useState("all");
     const [typeFilter, setTypeFilter] = useState("all");
 
-    const { data: payments = [], isLoading } = useQuery({
-        queryKey: ['allPayments'],
-        queryFn: () => base44.entities.VendorPayment.list('-created_date'),
-        initialData: [],
+    const { data: payments = [], isLoading: loadingPayments } = useQuery<VendorPayment[]>({
+        queryKey: ['payments'],
+        queryFn: () => base44.entities.VendorPayment.list(),
     });
 
-    const { data: vendors = [] } = useQuery({
+    const { data: vendors = [], isLoading: loadingVendors } = useQuery<Vendor[]>({
         queryKey: ['vendors'],
         queryFn: () => base44.entities.Vendor.list(),
-        initialData: [],
     });
 
     const { data: user } = useQuery({

@@ -75,7 +75,6 @@ export default function StoreLocations() {
   const { data: vendors = [], isLoading } = useQuery({
     queryKey: ['vendors'],
     queryFn: () => base44.entities.Vendor.list(),
-    initialData: [],
   });
 
   // Filter vendors with location data

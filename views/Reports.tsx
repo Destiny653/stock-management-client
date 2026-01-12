@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { base44 } from "@/api/base44Client";
+import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -69,7 +70,7 @@ const CustomTooltip = ({ active, payload, label, valuePrefix = '', valueSuffix =
 
 export default function Reports() {
     const { t } = useSafeLanguage();
-    const [dateRange, setDateRange] = useState('30');
+    const [dateRange, setDateRange] = useState<string>('30');
 
     const getProductStock = (p: any) => p.variants?.reduce((sum: number, v: any) => sum + (v.stock || 0), 0) || 0;
     const getProductPrice = (p: any) => p.variants?.[0]?.unit_price || 0;
@@ -79,19 +80,22 @@ export default function Reports() {
     const { data: products = [], isLoading: loadingProducts } = useQuery({
         queryKey: ['products'],
         queryFn: () => base44.entities.Product.list(),
-        initialData: [],
     });
 
     const { data: movements = [] } = useQuery({
         queryKey: ['movements'],
-        queryFn: () => base44.entities.StockMovement.list({ sort: '-created_at', limit: 500 }),
-        initialData: [],
+        queryFn: () => base44.entities.StockMovement.list({ sort: '-created_at', limit: 1000 }),
     });
 
     const { data: purchaseOrders = [] } = useQuery({
         queryKey: ['purchaseOrders'],
         queryFn: () => base44.entities.PurchaseOrder.list(),
         initialData: [],
+    });
+
+    const { data: sales = [] } = useQuery({
+        queryKey: ['sales'],
+        queryFn: () => base44.entities.Sale.list(),
     });
 
     // Calculate stats
@@ -118,32 +122,74 @@ export default function Reports() {
         return data.sort((a: any, b: any) => b.value - a.value);
     }, [products]);
 
-    // Inventory trend (simulated based on movements)
+    // Inventory trend (calculated backward from current total)
     const inventoryTrend = useMemo(() => {
         const days = parseInt(dateRange);
         const data = [];
-        let runningValue = totalValue;
+        const now = new Date();
+
+        // Sort movements by date descending
+        const sortedMovements = [...movements].sort((a: any, b: any) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
 
         for (let i = days; i >= 0; i--) {
-            const date = subDays(new Date(), i);
-            const dayMovements = movements.filter((m: any) => {
-                const movementDate = new Date(m.created_at);
-                return format(movementDate, 'yyyy-MM-dd') === format(date, 'yyyy-MM-dd');
-            });
+            const date = subDays(now, i);
+            const label = format(date, 'MMM d');
 
-            const dayChange = dayMovements.reduce((sum: number, m: any) => {
-                return sum + (m.quantity * (m.type === 'received' ? 1 : -1) * 10); // Simplified value change
-            }, 0);
+            // Current state
+            let totalStockAtDate = totalUnits;
+            let totalValueAtDate = totalValue;
+
+            // Reverse movements that happened AFTER this date
+            for (const m of sortedMovements) {
+                const mDate = new Date(m.created_at);
+                if (mDate > date) {
+                    const product = products.find((p: any) => p.id === m.product_id);
+                    const price = product?.variants?.find((v: any) => v.sku === m.sku)?.unit_price ||
+                        product?.variants?.[0]?.unit_price || 0;
+
+                    totalStockAtDate -= m.quantity;
+                    totalValueAtDate -= (m.quantity * price);
+                } else {
+                    break;
+                }
+            }
 
             data.push({
-                date: format(date, 'MMM d'),
-                value: Math.max(0, runningValue + dayChange),
-                units: Math.max(0, totalUnits + Math.floor(dayChange / 10))
+                date: label,
+                value: Math.max(0, totalValueAtDate),
+                units: Math.max(0, totalStockAtDate)
             });
         }
 
         return data;
-    }, [movements, dateRange, totalValue, totalUnits]);
+    }, [movements, products, dateRange, totalValue, totalUnits]);
+
+    // Trend calculation for summary cards
+    const calculateTrend = (current: number, daysBack: number) => {
+        const targetDate = subDays(new Date(), daysBack);
+        let previousValue = current;
+
+        for (const m of movements) {
+            const mDate = new Date(m.created_at);
+            if (mDate > targetDate) {
+                const product = products.find((p: any) => p.id === m.product_id);
+                const price = product?.variants?.find((v: any) => v.sku === m.sku)?.unit_price ||
+                    product?.variants?.[0]?.unit_price || 0;
+                previousValue -= m.quantity * (daysBack === 30 ? price : 1); // price if value, 1 if units
+            }
+        }
+
+        if (previousValue <= 0) return { trend: "up", value: "100%" };
+        const diff = ((current - previousValue) / previousValue) * 100;
+        return {
+            trend: diff >= 0 ? "up" : "down",
+            value: `${Math.abs(diff).toFixed(1)}%`
+        };
+    };
+
+    const valueTrend = calculateTrend(totalValue, 30);
 
     // Top movers
     const topMovers = useMemo(() => {
@@ -169,10 +215,10 @@ export default function Reports() {
     const agingData = useMemo(() => {
         const now = new Date();
         const aging: any = {
-            '0-30 days': 0,
-            '31-60 days': 0,
-            '61-90 days': 0,
-            '90+ days': 0
+            [t('0_30_days')]: 0,
+            [t('31_60_days')]: 0,
+            [t('61_90_days')]: 0,
+            [t('90_plus_days')]: 0
         };
 
         products.forEach((p: any) => {
@@ -182,13 +228,13 @@ export default function Reports() {
                 const days = differenceInDays(now, new Date(p.last_restocked));
                 const value = price * stock;
 
-                if (days <= 30) aging['0-30 days'] += value;
-                else if (days <= 60) aging['31-60 days'] += value;
-                else if (days <= 90) aging['61-90 days'] += value;
-                else aging['90+ days'] += value;
+                if (days <= 30) aging[t('0_30_days')] += value;
+                else if (days <= 60) aging[t('31_60_days')] += value;
+                else if (days <= 90) aging[t('61_90_days')] += value;
+                else aging[t('90_plus_days')] += value;
             } else {
                 // Assume old if no restock date
-                aging['90+ days'] += price * stock;
+                aging[t('90_plus_days')] += price * stock;
             }
         });
 
@@ -197,7 +243,7 @@ export default function Reports() {
 
     // Export functions
     const exportInventoryCSV = () => {
-        const headers = ['SKU', 'Name', 'Category', 'Quantity', 'Unit Price', 'Total Value', 'Status', 'Location', 'Supplier'];
+        const headers = [t('sku'), t('name'), t('category'), t('quantity'), t('unitPrice'), t('totalValue'), t('status'), t('location'), t('supplier')];
         const rows = products.map((p: any) => {
             const stock = getProductStock(p);
             const price = getProductPrice(p);
@@ -225,7 +271,7 @@ export default function Reports() {
     };
 
     const exportMovementsCSV = () => {
-        const headers = ['Date', 'Product', 'SKU', 'Type', 'Quantity', 'Reference', 'Performed By'];
+        const headers = [t('date'), t('product'), t('sku'), t('type'), t('quantity'), t('reference'), t('performedBy')];
         const rows = movements.map((m: any) => [
             format(new Date(m.created_at), 'yyyy-MM-dd HH:mm'),
             m.product_name,
@@ -288,9 +334,12 @@ export default function Reports() {
                             <div>
                                 <p className="text-sm text-slate-500">{t('totalStockValue')}</p>
                                 <p className="text-2xl font-bold text-slate-900 mt-1">${(totalValue / 1000).toFixed(1)}k</p>
-                                <div className="flex items-center gap-1 mt-1 text-emerald-600">
-                                    <ArrowUpRight className="h-4 w-4" />
-                                    <span className="text-xs">+12.5%</span>
+                                <div className={cn(
+                                    "flex items-center gap-1 mt-1",
+                                    valueTrend.trend === "up" ? "text-emerald-600" : "text-rose-600"
+                                )}>
+                                    {valueTrend.trend === "up" ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
+                                    <span className="text-xs">{valueTrend.trend === "up" ? '+' : '-'}{valueTrend.value}</span>
                                 </div>
                             </div>
                             <div className="h-12 w-12 rounded-xl bg-teal-100 flex items-center justify-center">
@@ -368,7 +417,7 @@ export default function Reports() {
                                     <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} />
                                     <Tooltip content={<CustomTooltip valuePrefix="$" />} />
-                                    <Area type="monotone" dataKey="value" stroke="#0d9488" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" name="Value" />
+                                    <Area type="monotone" dataKey="value" stroke="#0d9488" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" name={t('value')} />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
@@ -404,103 +453,97 @@ export default function Reports() {
                                 </ResponsiveContainer>
                             </div>
                             <div className="w-1/2 space-y-2">
-                                {categoryData.slice(0, 5).map((item: any, index: number) => (
-                                    <div key={item.name} className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2">
-                                            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: COLORS[index] }} />
-                                            <span className="text-sm text-slate-600 truncate">{item.name}</span>
-                                        </div>
-                                        <span className="text-sm font-medium">${(item.value / 1000).toFixed(1)}k</span>
-                                    </div>
-                                ))}
+                                <span className="text-sm font-medium">${(item.value / 1000).toFixed(1)}k</span>
                             </div>
+                                ))}
                         </div>
-                    </CardContent>
-                </Card>
+                    </div>
+                </CardContent>
+            </Card>
 
-                {/* Top Movers */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{t('topMovingProducts')}</CardTitle>
-                        <CardDescription>{t('productsWithMostMovements')}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="h-72">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={topMovers} layout="vertical">
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={true} vertical={false} />
-                                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} width={100} />
-                                    <Tooltip content={<CustomTooltip valueSuffix=" units" />} />
-                                    <Bar dataKey="received" fill="#10b981" name="Received" radius={[0, 4, 4, 0]} />
-                                    <Bar dataKey="dispatched" fill="#3b82f6" name="Dispatched" radius={[0, 4, 4, 0]} />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </CardContent>
-                </Card>
-
-                {/* Aging Inventory */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>{t('agingInventory')}</CardTitle>
-                        <CardDescription>{t('stockValueByAge')}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="h-72">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={agingData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} />
-                                    <Tooltip content={<CustomTooltip valuePrefix="$" />} />
-                                    <Bar dataKey="value" name="Value" radius={[4, 4, 0, 0]}>
-                                        {agingData.map((entry: any, index: number) => (
-                                            <Cell
-                                                key={`cell-${index}`}
-                                                fill={index === 3 ? '#ef4444' : index === 2 ? '#f59e0b' : index === 1 ? '#3b82f6' : '#10b981'}
-                                            />
-                                        ))}
-                                    </Bar>
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Export Section */}
+            {/* Top Movers */}
             <Card>
                 <CardHeader>
-                    <CardTitle>{t('exportReports')}</CardTitle>
-                    <CardDescription>{t('downloadDetailedReports')}</CardDescription>
+                    <CardTitle>{t('topMovingProducts')}</CardTitle>
+                    <CardDescription>{t('productsWithMostMovements')}</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <Button variant="outline" className="h-auto p-4 justify-start" onClick={exportInventoryCSV}>
-                            <FileSpreadsheet className="h-8 w-8 mr-4 text-emerald-600" />
-                            <div className="text-left">
-                                <p className="font-medium">{t('inventoryValuation')}</p>
-                                <p className="text-xs text-slate-500">{t('fullStockListValues')}</p>
-                            </div>
-                        </Button>
-                        <Button variant="outline" className="h-auto p-4 justify-start" onClick={exportMovementsCSV}>
-                            <FileSpreadsheet className="h-8 w-8 mr-4 text-blue-600" />
-                            <div className="text-left">
-                                <p className="font-medium">{t('stockMovements')}</p>
-                                <p className="text-xs text-slate-500">{t('allInventoryTransactions')}</p>
-                            </div>
-                        </Button>
-                        <Button variant="outline" className="h-auto p-4 justify-start" onClick={() => toast.info(t('comingSoon'))}>
-                            <FileSpreadsheet className="h-8 w-8 mr-4 text-violet-600" />
-                            <div className="text-left">
-                                <p className="font-medium">{t('purchaseOrders')}</p>
-                                <p className="text-xs text-slate-500">{t('poHistoryStatus')}</p>
-                            </div>
-                        </Button>
+                    <div className="h-72">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={topMovers} layout="vertical">
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={true} vertical={false} />
+                                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                                <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} width={100} />
+                                <Tooltip content={<CustomTooltip valueSuffix={` ${t('units')}`} />} />
+                                <Bar dataKey="received" fill="#10b981" name={t('received')} radius={[0, 4, 4, 0]} />
+                                <Bar dataKey="dispatched" fill="#3b82f6" name={t('dispatched')} radius={[0, 4, 4, 0]} />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
+                </CardContent>
+            </Card>
+
+            {/* Aging Inventory */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>{t('agingInventory')}</CardTitle>
+                    <CardDescription>{t('stockValueByAge')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="h-72">
+                        <ResponsiveContainer width="100%" height="100%">
+                            <BarChart data={agingData}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} />
+                                <Tooltip content={<CustomTooltip valuePrefix="$" />} />
+                                <Bar dataKey="value" name={t('value')} radius={[4, 4, 0, 0]}>
+                                    {agingData.map((entry: any, index: number) => (
+                                        <Cell
+                                            key={`cell-${index}`}
+                                            fill={index === 3 ? '#ef4444' : index === 2 ? '#f59e0b' : index === 1 ? '#3b82f6' : '#10b981'}
+                                        />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        </ResponsiveContainer>
                     </div>
                 </CardContent>
             </Card>
         </div>
+
+            {/* Export Section */ }
+    <Card>
+        <CardHeader>
+            <CardTitle>{t('exportReports')}</CardTitle>
+            <CardDescription>{t('downloadDetailedReports')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Button variant="outline" className="h-auto p-4 justify-start" onClick={exportInventoryCSV}>
+                    <FileSpreadsheet className="h-8 w-8 mr-4 text-emerald-600" />
+                    <div className="text-left">
+                        <p className="font-medium">{t('inventoryValuation')}</p>
+                        <p className="text-xs text-slate-500">{t('fullStockListValues')}</p>
+                    </div>
+                </Button>
+                <Button variant="outline" className="h-auto p-4 justify-start" onClick={exportMovementsCSV}>
+                    <FileSpreadsheet className="h-8 w-8 mr-4 text-blue-600" />
+                    <div className="text-left">
+                        <p className="font-medium">{t('stockMovements')}</p>
+                        <p className="text-xs text-slate-500">{t('allInventoryTransactions')}</p>
+                    </div>
+                </Button>
+                <Button variant="outline" className="h-auto p-4 justify-start" onClick={() => toast.info(t('comingSoon'))}>
+                    <FileSpreadsheet className="h-8 w-8 mr-4 text-violet-600" />
+                    <div className="text-left">
+                        <p className="font-medium">{t('purchaseOrders')}</p>
+                        <p className="text-xs text-slate-500">{t('poHistoryStatus')}</p>
+                    </div>
+                </Button>
+            </div>
+        </CardContent>
+    </Card>
+        </div >
     );
 }

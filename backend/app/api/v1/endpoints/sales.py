@@ -2,10 +2,12 @@
 from typing import List, Any, Optional
 from datetime import datetime
 from fastapi import APIRouter, Depends, HTTPException, Query
+from beanie import PydanticObjectId
 from app.api import deps
 from app.models.user import User
 from app.models.sale import Sale, SaleItem
 from app.models.product import Product
+from app.models.stock_movement import StockMovement, MovementType
 from app.schemas.sale import SaleCreate, SaleUpdate, SaleResponse
 
 router = APIRouter()
@@ -61,10 +63,16 @@ async def create_sale(
     
     for item in sale_data["items"]:
         # Update product quantity
+        try:
+            prod_id = PydanticObjectId(item["product_id"])
+        except:
+            prod_id = item["product_id"]
+            
         product = await Product.find_one({
-            "_id": item["product_id"],
+            "_id": prod_id,
             "organization_id": sale_in.organization_id
         })
+        
         if product:
             # Find the variant by SKU
             variant_idx = -1
@@ -105,6 +113,24 @@ async def create_sale(
 
             product.updated_at = datetime.utcnow()
             await product.save()
+
+            # Create stock movement
+            movement = StockMovement(
+                organization_id=sale_in.organization_id,
+                product_id=item["product_id"],
+                product_name=item["product_name"],
+                sku=item.get("sku"),
+                type=MovementType.DISPATCHED,
+                quantity=-item["quantity"],
+                reference=sale_in.sale_number,
+                notes=f"Direct sale to {sale_in.client_name or 'Walk-in customer'}"
+            )
+            await movement.create()
+        else:
+            raise HTTPException(
+                status_code=404,
+                detail=f"Product {item['product_name']} (ID: {item['product_id']}) not found"
+            )
         sale_items.append(SaleItem(**item))
     
     sale_data["items"] = sale_items

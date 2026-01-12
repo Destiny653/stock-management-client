@@ -45,15 +45,7 @@ interface CategoryDistributionProps {
 }
 
 export default function CategoryDistribution({ data = [] }: CategoryDistributionProps) {
-  // Sample data if none provided
-  const chartData = data.length > 0 ? data : [
-    { name: 'Electronics', value: 35000 },
-    { name: 'Clothing', value: 22000 },
-    { name: 'Food & Beverage', value: 18000 },
-    { name: 'Home & Garden', value: 12000 },
-    { name: 'Office Supplies', value: 8000 },
-    { name: 'Other', value: 5000 },
-  ];
+  const chartData = data;
 
   const total = chartData.reduce((sum, item) => sum + item.value, 0);
   const dataWithTotal = chartData.map(item => ({ ...item, total }));

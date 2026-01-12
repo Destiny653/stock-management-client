@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createPageUrl } from "@/utils";
+import { createPageUrl, getImageUrl } from "@/utils";
 import { base44, Product, StockMovement, Supplier, Location, ProductVariant } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -85,19 +85,16 @@ export default function ProductDetail() {
     queryKey: ['movements', productId],
     queryFn: () => base44.entities.StockMovement.list({ product_id: productId }),
     enabled: !!productId,
-    initialData: [] as StockMovement[],
   });
 
   const { data: suppliers = [] } = useQuery({
     queryKey: ['suppliers'],
     queryFn: () => base44.entities.Supplier.list(),
-    initialData: [] as Supplier[],
   });
 
   const { data: locations = [] } = useQuery({
     queryKey: ['locations'],
     queryFn: () => base44.entities.Location.list(),
-    initialData: [] as Location[],
   });
 
   useEffect(() => {
@@ -318,136 +315,6 @@ export default function ProductDetail() {
             </CardContent>
           </Card>
 
-          {/* Pricing & Inventory */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Pricing & Inventory</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-2 p-3 bg-teal-50 border border-teal-200 rounded-lg">
-                <p className="text-sm text-teal-800">
-                  Pricing and stock are managed per variant below.
-                </p>
-              </div>
-
-              {formData.variants.reduce((acc, v) => acc + v.stock, 0) <= formData.reorder_point && formData.variants.reduce((acc, v) => acc + v.stock, 0) > 0 && (
-                <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                  <AlertTriangle className="h-5 w-5 text-amber-600" />
-                  <p className="text-sm text-amber-800">
-                    Total stock is below reorder point. Consider creating a purchase order.
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Location & Supplier */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5 text-slate-400" />
-                Location & Supplier
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="location">Inventory Location</Label>
-                  <Select
-                    value={formData.location_id}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, location_id: value }))}
-                    disabled={!isEditing}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select location" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {locations.map(l => (
-                        <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="supplier">Primary Supplier</Label>
-                  <Select
-                    value={formData.supplier_name}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, supplier_name: value }))}
-                    disabled={!isEditing}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select supplier" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {suppliers.map(s => (
-                        <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Movement History */}
-          {productId && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <History className="h-5 w-5 text-slate-400" />
-                  Stock Movement History
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {movements.length === 0 ? (
-                  <p className="text-center text-slate-500 py-8">No stock movements recorded</p>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Quantity</TableHead>
-                        <TableHead>Reference</TableHead>
-                        <TableHead>By</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {movements.slice(0, 10).map((m) => (
-                        <TableRow key={m.id}>
-                          <TableCell className="text-sm">
-                            {m.created_at ? format(new Date(m.created_at), "MMM d, yyyy") : '-'}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className={cn(
-                              m.type === 'in' && "bg-emerald-50 text-emerald-700",
-                              m.type === 'out' && "bg-blue-50 text-blue-700",
-                              m.type === 'adjustment' && "bg-amber-50 text-amber-700"
-                            )}>
-                              {m.type}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className={cn(
-                            "font-medium",
-                            m.quantity > 0 ? "text-emerald-600" : "text-rose-600"
-                          )}>
-                            {m.quantity > 0 ? '+' : ''}{m.quantity}
-                          </TableCell>
-                          <TableCell className="text-sm text-slate-600">
-                            {m.reference_id || '-'}
-                          </TableCell>
-                          <TableCell className="text-sm text-slate-600">
-                            {m.performed_by || '-'}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
-          )}
-
           {/* Product Variants Section */}
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
@@ -476,6 +343,15 @@ export default function ProductDetail() {
               )}
             </CardHeader>
             <CardContent>
+              {formData.variants.reduce((acc, v) => acc + v.stock, 0) <= formData.reorder_point && formData.variants.reduce((acc, v) => acc + v.stock, 0) > 0 && (
+                <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg mb-4">
+                  <AlertTriangle className="h-5 w-5 text-amber-600" />
+                  <p className="text-sm text-amber-800">
+                    Total stock is below reorder point. Consider creating a purchase order.
+                  </p>
+                </div>
+              )}
+
               {formData.variants.length === 0 ? (
                 <div className="text-center py-8 border-2 border-dashed rounded-xl">
                   <p className="text-slate-500">No variants defined for this product</p>
@@ -680,6 +556,115 @@ export default function ProductDetail() {
               )}
             </CardContent>
           </Card>
+
+          {/* Location & Supplier */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5 text-slate-400" />
+                Location & Supplier
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="location">Inventory Location</Label>
+                  <Select
+                    value={formData.location_id}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, location_id: value }))}
+                    disabled={!isEditing}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select location" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {locations.map(l => (
+                        <SelectItem key={l.id} value={l.id}>{l.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="supplier">Primary Supplier</Label>
+                  <Select
+                    value={formData.supplier_name}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, supplier_name: value }))}
+                    disabled={!isEditing}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select supplier" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {suppliers.map(s => (
+                        <SelectItem key={s.id} value={s.name}>{s.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Movement History */}
+          {productId && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <History className="h-5 w-5 text-slate-400" />
+                  Stock Movement History
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {movements.length === 0 ? (
+                  <p className="text-center text-slate-500 py-8">No stock movements recorded</p>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead>Quantity</TableHead>
+                        <TableHead>Reference</TableHead>
+                        <TableHead>By</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {movements.slice(0, 10).map((m) => (
+                        <TableRow key={m.id}>
+                          <TableCell className="text-sm">
+                            {m.created_at ? format(new Date(m.created_at), "MMM d, yyyy") : '-'}
+                          </TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={cn(
+                              m.type === 'in' && "bg-emerald-50 text-emerald-700",
+                              m.type === 'out' && "bg-blue-50 text-blue-700",
+                              m.type === 'adjustment' && "bg-amber-50 text-amber-700"
+                            )}>
+                              {m.type}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className={cn(
+                            "font-medium",
+                            m.quantity > 0 ? "text-emerald-600" : "text-rose-600"
+                          )}>
+                            {m.quantity > 0 ? '+' : ''}{m.quantity}
+                          </TableCell>
+                          <TableCell className="text-sm text-slate-600">
+                            {m.reference_id || '-'}
+                          </TableCell>
+                          <TableCell className="text-sm text-slate-600">
+                            {m.performed_by || '-'}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+
         </div>
 
         {/* Sidebar */}
@@ -693,7 +678,7 @@ export default function ProductDetail() {
               <div className="aspect-square rounded-xl bg-slate-100 flex items-center justify-center overflow-hidden relative group">
                 {formData.image_url ? (
                   <img
-                    src={formData.image_url}
+                    src={getImageUrl(formData.image_url)}
                     alt={formData.name}
                     className="w-full h-full object-cover"
                   />

@@ -27,7 +27,10 @@ export interface Alert {
     is_read: boolean;
     is_dismissed: boolean;
     action_url?: string;
+    organization_id: string;
     created_at: string;
+    // For frontend compatibility
+    created_date?: string;
 }
 
 export interface ProductVariant {
@@ -104,20 +107,29 @@ export interface PurchaseOrder {
     po_number: string;
     supplier_id: string;
     supplier_name: string;
-    status: 'draft' | 'pending' | 'approved' | 'ordered' | 'received' | 'cancelled' | 'pending_approval' | 'partially_received';
-    items: Array<{ product_id: string; product_name: string; quantity: number; quantity_ordered?: number; quantity_received?: number; unit_price: number; sku?: string }>;
-    total_amount: number;
-    subtotal?: number;
-    tax?: number;
-    shipping?: number;
-    total?: number;
+    status: 'draft' | 'pending_approval' | 'approved' | 'ordered' | 'received' | 'cancelled' | 'partially_received';
+    items: Array<{
+        product_id: string;
+        product_name: string;
+        sku?: string;
+        quantity_ordered: number;
+        quantity_received: number;
+        unit_cost: number;
+        total: number;
+    }>;
+    subtotal: number;
+    tax: number;
+    shipping: number;
+    total: number;
     expected_date?: string;
     received_date?: string;
-    warehouse_id?: string;
     warehouse?: string;
     approved_by?: string;
     notes?: string;
     created_at: string;
+    updated_at: string;
+    // For frontend compatibility
+    created_date: string;
 }
 
 export interface Sale {
@@ -126,12 +138,15 @@ export interface Sale {
     sale_number: string;
     items: Array<{ product_id: string; product_name: string; quantity: number; unit_price: number; total?: number; sku?: string }>;
     total_amount?: number;
+    total?: number;
     payment_method: 'cash' | 'card' | 'mobile' | 'credit' | 'transfer' | 'other';
     client_name?: string;
     client_email?: string;
     client_phone?: string;
     vendor_id?: string;
+    vendor_email?: string;
     notes?: string;
+    status: 'completed' | 'refunded' | 'cancelled';
     created_at: string;
 }
 
@@ -242,20 +257,20 @@ interface EntityMethods<T> {
 
 const getEntityEndpoint = (entityName: string): string => {
     const endpoints: Record<string, string> = {
-        'Alert': '/alerts/',
-        'Organization': '/organizations/',
-        'Product': '/products/',
-        'PurchaseOrder': '/purchase-orders/',
-        'Sale': '/sales/',
-        'StockMovement': '/stock-movements/',
-        'Supplier': '/suppliers/',
-        'User': '/users/',
-        'Vendor': '/vendors/',
-        'VendorPayment': '/vendor-payments/',
-        'Warehouse': '/warehouses/',
-        'Location': '/locations/'
+        'Alert': 'alerts/',
+        'Organization': 'organizations/',
+        'Product': 'products/',
+        'PurchaseOrder': 'purchase-orders/',
+        'Sale': 'sales/',
+        'StockMovement': 'stock-movements/',
+        'Supplier': 'suppliers/',
+        'User': 'users/',
+        'Vendor': 'vendors/',
+        'VendorPayment': 'vendor-payments/',
+        'Warehouse': 'warehouses/',
+        'Location': 'locations/'
     };
-    return endpoints[entityName] || `/${entityName.toLowerCase()}s/`;
+    return endpoints[entityName] || `${entityName.toLowerCase()}s/`;
 };
 
 const createEntityMethods = <T extends { id: string }>(entityName: string): EntityMethods<T> => {
@@ -298,7 +313,12 @@ const createEntityMethods = <T extends { id: string }>(entityName: string): Enti
             return response.data;
         },
         update: async (id, data) => {
-            const response = await apiClient.put<T>(`${endpoint}${id}`, data);
+            const orgId = getOrgId();
+            const response = await apiClient.put<T>(`${endpoint}${id}`, data, {
+                params: {
+                    ...(orgId && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
+                }
+            });
             return response.data;
         },
         delete: async (id, params = {}) => {
@@ -316,7 +336,7 @@ const createEntityMethods = <T extends { id: string }>(entityName: string): Enti
 const authMethods = {
     me: async (): Promise<User | null> => {
         try {
-            const response = await apiClient.get<User>('/auth/me');
+            const response = await apiClient.get<User>('auth/me');
             localStorage.setItem('base44_currentUser', JSON.stringify(response.data));
             return response.data;
         } catch (error) {
@@ -337,7 +357,7 @@ const authMethods = {
         formData.append('password', password);
         formData.append('grant_type', 'password');
 
-        const response = await apiClient.post('/auth/login/access-token', formData, {
+        const response = await apiClient.post('auth/login/access-token', formData, {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
 
@@ -350,7 +370,7 @@ const authMethods = {
     },
 
     updateMe: async (data: Partial<User>): Promise<User> => {
-        const response = await apiClient.put<User>('/auth/me', data);
+        const response = await apiClient.put<User>('auth/me', data);
         localStorage.setItem('base44_currentUser', JSON.stringify(response.data));
         return response.data;
     },
@@ -359,19 +379,33 @@ const authMethods = {
 // Main base44 client object
 export const base44 = {
     entities: {
-        Alert: createEntityMethods<Alert>('Alert'),
+        Alert: {
+            ...createEntityMethods<Alert>('Alert'),
+            markAllRead: async (organizationId: string) => {
+                const response = await apiClient.post('alerts/mark-all-read', null, {
+                    params: { organization_id: organizationId }
+                });
+                return response.data;
+            },
+            getUnreadCount: async (organizationId: string) => {
+                const response = await apiClient.get<{ unread_count: number }>('alerts/unread/count', {
+                    params: { organization_id: organizationId }
+                });
+                return response.data;
+            }
+        },
         Organization: createEntityMethods<Organization>('Organization'),
         Product: createEntityMethods<Product>('Product'),
         PurchaseOrder: {
             ...createEntityMethods<PurchaseOrder>('PurchaseOrder'),
             approve: async (id: string, organizationId: string) => {
-                const response = await apiClient.post<PurchaseOrder>(`/purchaseorders/${id}/approve`, null, {
+                const response = await apiClient.post<PurchaseOrder>(`purchase-orders/${id}/approve`, null, {
                     params: { organization_id: organizationId }
                 });
                 return response.data;
             },
             receive: async (id: string, organizationId: string) => {
-                const response = await apiClient.post<PurchaseOrder>(`/purchaseorders/${id}/receive`, null, {
+                const response = await apiClient.post<PurchaseOrder>(`purchase-orders/${id}/receive`, null, {
                     params: { organization_id: organizationId }
                 });
                 return response.data;
@@ -389,7 +423,7 @@ export const base44 = {
     auth: authMethods,
     search: {
         general: async (q: string, organizationId?: string) => {
-            const response = await apiClient.get('/search/', {
+            const response = await apiClient.get('search/', {
                 params: { q, organization_id: organizationId }
             });
             return response.data;
@@ -400,7 +434,7 @@ export const base44 = {
             UploadFile: async ({ file }: { file: File }): Promise<{ file_url: string }> => {
                 const formData = new FormData();
                 formData.append('file', file);
-                const response = await apiClient.post('/products/upload-image', formData, {
+                const response = await apiClient.post('products/upload-image', formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 return { file_url: response.data.url };

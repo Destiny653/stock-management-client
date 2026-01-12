@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { base44, type Vendor } from "@/api/base44Client";
+import { base44, type Vendor, type Sale } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -119,12 +119,8 @@ interface Organization {
   code: string;
 }
 
-interface Sale {
-  id: string;
-  vendor_email: string;
-  total: number;
-  organization_id: string;
-}
+
+
 
 export default function VendorManagement() {
   const { t } = useSafeLanguage();
@@ -306,6 +302,7 @@ export default function VendorManagement() {
     const stats: Record<string, { totalSales: number; totalOrders: number }> = {};
     (sales as Sale[]).forEach(sale => {
       const vendorEmail = sale.vendor_email;
+      if (!vendorEmail) return; // Skip sales without a vendor_email
       if (!stats[vendorEmail]) {
         stats[vendorEmail] = { totalSales: 0, totalOrders: 0 };
       }

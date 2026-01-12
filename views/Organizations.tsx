@@ -91,10 +91,14 @@ export default function Organizations() {
         max_users: 5
     });
 
-    const { data: organizations = [], isLoading } = useQuery({
+    const { data: organizations = [], isLoading: loadingOrgs } = useQuery<Organization[]>({
         queryKey: ['organizations'],
         queryFn: () => base44.entities.Organization.list(),
-        initialData: [],
+    });
+
+    const { data: locations = [] } = useQuery<Location[]>({
+        queryKey: ['locations'],
+        queryFn: () => base44.entities.Location.list(),
     });
 
     const { data: vendors = [] } = useQuery({
@@ -103,11 +107,12 @@ export default function Organizations() {
         initialData: [],
     });
 
-    const { data: users = [] } = useQuery({
+    const { data: users = [], isLoading: loadingUsers } = useQuery<User[]>({
         queryKey: ['users'],
         queryFn: () => base44.entities.User.list(),
-        initialData: [],
     });
+
+    const isLoading = loadingOrgs || loadingUsers;
 
     const createOrgMutation = useMutation({
         mutationFn: (data: any) => base44.entities.Organization.create(data),

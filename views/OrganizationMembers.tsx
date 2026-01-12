@@ -100,7 +100,6 @@ export default function OrganizationMembers() {
     const { data: users = [] } = useQuery({
         queryKey: ['users'],
         queryFn: () => base44.entities.User.list(),
-        initialData: [],
     });
 
     // Filter by organization

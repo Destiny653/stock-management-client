@@ -34,17 +34,8 @@ const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   return null;
 };
 
-export default function InventoryChart({ data = [] }) {
-  // Sample data if none provided
-  const chartData = data.length > 0 ? data : [
-    { name: 'Jan', value: 45000, units: 1200 },
-    { name: 'Feb', value: 52000, units: 1350 },
-    { name: 'Mar', value: 48000, units: 1280 },
-    { name: 'Apr', value: 61000, units: 1520 },
-    { name: 'May', value: 55000, units: 1400 },
-    { name: 'Jun', value: 67000, units: 1680 },
-    { name: 'Jul', value: 72000, units: 1800 },
-  ];
+export default function InventoryChart({ data = [] }: { data: any[] }) {
+  const chartData = data;
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6">

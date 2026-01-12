@@ -94,19 +94,16 @@ export default function CreatePurchaseOrder() {
   const { data: suppliers = [] } = useQuery({
     queryKey: ['suppliers'],
     queryFn: () => base44.entities.Supplier.list(),
-    initialData: [],
   });
 
   const { data: products = [] } = useQuery({
     queryKey: ['products'],
     queryFn: () => base44.entities.Product.list(),
-    initialData: [],
   });
 
   const { data: warehouses = [] } = useQuery({
     queryKey: ['warehouses'],
     queryFn: () => base44.entities.Warehouse.list(),
-    initialData: [],
   });
 
   const createPOMutation = useMutation({
@@ -134,25 +131,23 @@ export default function CreatePurchaseOrder() {
     }));
   };
 
-  const handleAddProduct = (product: any) => {
-    const existingIndex = formData.items.findIndex(i => i.product_id === product.id);
+  const handleAddProduct = (product: any, variant: any) => {
+    const existingIndex = formData.items.findIndex(i => i.product_id === product.id && i.sku === variant.sku);
 
     if (existingIndex >= 0) {
-      // Update quantity if already exists
       const newItems = [...formData.items];
       newItems[existingIndex].quantity_ordered += 1;
       newItems[existingIndex].total = newItems[existingIndex].quantity_ordered * newItems[existingIndex].unit_cost;
       setFormData(prev => ({ ...prev, items: newItems }));
     } else {
-      // Add new item
       const newItem = {
         product_id: product.id,
-        sku: product.variants?.[0]?.sku || 'N/A',
+        sku: variant.sku || 'N/A',
         product_name: product.name,
         quantity_ordered: product.reorder_quantity || 10,
         quantity_received: 0,
-        unit_cost: product.variants?.[0]?.cost_price || 0,
-        total: (product.reorder_quantity || 10) * (product.variants?.[0]?.cost_price || 0)
+        unit_cost: variant.cost_price || 0,
+        total: (product.reorder_quantity || 10) * (variant.cost_price || 0)
       };
       setFormData(prev => ({ ...prev, items: [...prev.items, newItem] }));
     }
@@ -299,30 +294,39 @@ export default function CreatePurchaseOrder() {
                     <CommandList>
                       <CommandEmpty>No products found.</CommandEmpty>
                       <CommandGroup>
-                        {products.map(product => (
-                          <CommandItem
-                            key={product.id}
-                            value={product.name}
-                            onSelect={() => handleAddProduct(product)}
-                            className="cursor-pointer"
-                          >
-                            <div className="flex items-center gap-3 w-full">
-                              <div className="h-8 w-8 rounded bg-slate-100 flex items-center justify-center">
-                                <Package className="h-4 w-4 text-slate-400" />
+                        {products.flatMap(product =>
+                          (product.variants || []).map(variant => (
+                            <CommandItem
+                              key={`${product.id}-${variant.sku}`}
+                              value={`${product.name} ${variant.sku}`}
+                              onSelect={() => handleAddProduct(product, variant)}
+                              className="cursor-pointer"
+                            >
+                              <div className="flex items-center gap-3 w-full">
+                                <div className="h-8 w-8 rounded bg-slate-100 flex items-center justify-center">
+                                  <Package className="h-4 w-4 text-slate-400" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium truncate">{product.name}</p>
+                                  <div className="flex items-center gap-2">
+                                    <span className="text-xs font-mono text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">{variant.sku}</span>
+                                    <span className="text-xs text-slate-500">• ${variant.cost_price?.toFixed(2) || '0.00'}</span>
+                                  </div>
+                                  <div className="flex flex-wrap gap-1 mt-1">
+                                    {Object.entries(variant.attributes || {}).map(([k, v]: [string, any]) => (
+                                      <span key={k} className="text-[9px] text-slate-400 bg-slate-50 px-1 rounded uppercase tracking-tighter">
+                                        {v}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                                {variant.stock <= (product.reorder_point || 10) && (
+                                  <span className="text-[10px] text-rose-600 bg-rose-50 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Low</span>
+                                )}
                               </div>
-                              <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium truncate">{product.name}</p>
-                                <p className="text-xs text-slate-500">{product.variants?.[0]?.sku || 'N/A'} • ${product.variants?.[0]?.cost_price?.toFixed(2) || '0.00'}</p>
-                              </div>
-                              {(() => {
-                                const stock = product.variants?.reduce((acc: number, v: any) => acc + (v.stock || 0), 0) || 0;
-                                return stock <= (product.reorder_point || 10) && (
-                                  <span className="text-xs text-amber-600 bg-amber-50 px-2 py-0.5 rounded">Low</span>
-                                );
-                              })()}
-                            </div>
-                          </CommandItem>
-                        ))}
+                            </CommandItem>
+                          ))
+                        )}
                       </CommandGroup>
                     </CommandList>
                   </Command>

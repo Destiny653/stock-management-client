@@ -25,7 +25,7 @@ interface VendorLocationPickerMapProps {
     label?: string;
 }
 
-const libraries: ("places" | "drawing" | "geometry" | "localContext" | "visualization")[] = ["places"];
+const libraries: ("places" | "drawing" | "geometry" | "visualization")[] = ["places"];
 
 export default function VendorLocationPickerMap({
     latitude,

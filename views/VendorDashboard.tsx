@@ -36,22 +36,19 @@ export default function VendorDashboard() {
     queryFn: () => base44.auth.me(),
   });
 
-  const { data: vendors = [] } = useQuery({
-    queryKey: ['vendors'],
-    queryFn: () => base44.entities.Vendor.list(),
-    initialData: [] as Vendor[],
+  const { data: vendors = [] } = useQuery<Vendor[]>({
+    queryKey: ['vendors', user?.organization_id],
+    queryFn: () => base44.entities.Vendor.list({ organization_id: user?.organization_id }),
   });
 
-  const { data: allSales = [] } = useQuery({
-    queryKey: ['sales'],
-    queryFn: () => base44.entities.Sale.list('-created_date'),
-    initialData: [] as Sale[],
+  const { data: sales = [] } = useQuery<Sale[]>({
+    queryKey: ['sales', user?.organization_id],
+    queryFn: () => base44.entities.Sale.list({ organization_id: user?.organization_id, sort: '-created_at' }),
   });
 
-  const { data: payments = [] } = useQuery({
-    queryKey: ['vendorPayments'],
-    queryFn: () => base44.entities.VendorPayment.list('-created_date'),
-    initialData: [] as VendorPayment[],
+  const { data: payments = [] } = useQuery<VendorPayment[]>({
+    queryKey: ['payments', user?.organization_id],
+    queryFn: () => base44.entities.VendorPayment.list({ organization_id: user?.organization_id }),
   });
 
   // Find vendor for current user
@@ -60,8 +57,8 @@ export default function VendorDashboard() {
   // Filter sales for this vendor
   const mySales = useMemo(() => {
     if (!user) return [];
-    return (allSales as Sale[]).filter(s => s.vendor_email === user.email);
-  }, [allSales, user]);
+    return (sales as Sale[]).filter(s => s.vendor_email === user.email);
+  }, [sales, user]);
 
   // My payments
   const myPayments = useMemo(() => {

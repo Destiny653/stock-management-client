@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { base44, Order } from "@/api/base44Client";
+import { base44, Order, Product } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -87,17 +87,17 @@ export default function Orders() {
     const [paymentFilter, setPaymentFilter] = useState("all");
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
-    const { data: orders = [], isLoading } = useQuery({
+    const { data: orders = [], isLoading: loadingOrders } = useQuery<Order[]>({
         queryKey: ['orders'],
-        queryFn: () => base44.entities.Order.list('-created_date'),
-        initialData: [],
+        queryFn: () => base44.entities.Order.list(),
     });
 
-    const { data: products = [] } = useQuery({
+    const { data: products = [], isLoading: loadingProducts } = useQuery<Product[]>({
         queryKey: ['products'],
         queryFn: () => base44.entities.Product.list(),
-        initialData: [],
     });
+
+    const isLoading = loadingOrders || loadingProducts;
 
     const updateOrderMutation = useMutation({
         mutationFn: ({ id, data }: { id: string, data: Partial<Order> }) => base44.entities.Order.update(id, data),

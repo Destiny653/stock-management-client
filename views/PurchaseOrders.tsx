@@ -62,10 +62,9 @@ export default function PurchaseOrders() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  const { data: purchaseOrders = [], isLoading } = useQuery({
+  const { data: purchaseOrders = [], isLoading } = useQuery<PurchaseOrder[]>({
     queryKey: ['purchaseOrders'],
-    queryFn: () => base44.entities.PurchaseOrder.list('-created_date'),
-    initialData: [],
+    queryFn: () => base44.entities.PurchaseOrder.list(),
   });
 
   const updatePOMutation = useMutation({
