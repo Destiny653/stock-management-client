@@ -97,7 +97,7 @@ export default function Profile() {
 
   const { data: activityLogs = [] } = useQuery({
     queryKey: ['stockMovements'],
-    queryFn: () => base44.entities.StockMovement.list('-created_date', 20),
+    queryFn: () => base44.entities.StockMovement.list({ sort: '-created_at', limit: 20 }),
     initialData: [],
   });
 
@@ -106,9 +106,9 @@ export default function Profile() {
   const isVendor = user?.user_type === 'vendor';
 
   // Calculate user stats
-  const userSales = sales.filter(s => s.vendor_email === user?.email || s.created_by === user?.email);
+  const userSales = sales.filter(s => s.vendor_email === user?.email);
   const totalSalesAmount = userSales.reduce((sum, s) => sum + (s.total || 0), 0);
-  const userActivities = activityLogs.filter(a => a.performed_by === user?.email || a.created_by === user?.email);
+  const userActivities = activityLogs.filter(a => a.performed_by === user?.email);
 
   useEffect(() => {
     if (user) {
@@ -118,17 +118,21 @@ export default function Profile() {
         department: user.department || '',
         job_title: user.job_title || '',
         bio: user.bio || '',
-        timezone: user.timezone || 'UTC',
-        avatar_url: user.avatar_url || ''
+        timezone: user.preferences?.timezone || user.timezone || 'UTC',
+        avatar_url: user.avatar || user.avatar_url || ''
       });
+
+      const prefs = user.preferences;
+      const notifs = prefs?.notifications;
+
       setPreferences({
-        email_notifications: user.email_notifications !== false,
-        push_notifications: user.push_notifications !== false,
-        low_stock_alerts: user.low_stock_alerts !== false,
-        order_updates: user.order_updates !== false,
-        weekly_reports: user.weekly_reports !== false,
-        dark_mode: user.dark_mode || false,
-        compact_view: user.compact_view || false
+        email_notifications: notifs?.email ?? true,
+        push_notifications: notifs?.push ?? true,
+        low_stock_alerts: notifs?.low_stock_alerts ?? true,
+        order_updates: notifs?.order_updates ?? true,
+        weekly_reports: notifs?.weekly_reports ?? true,
+        dark_mode: prefs?.dark_mode ?? false,
+        compact_view: prefs?.compact_view ?? false
       });
     }
   }, [user]);
@@ -147,9 +151,29 @@ export default function Profile() {
   });
 
   const handleSaveProfile = async () => {
+    const nestedPreferences = {
+      language: language,
+      timezone: profileData.timezone,
+      notifications: {
+        email: preferences.email_notifications,
+        sms: false,
+        push: preferences.push_notifications,
+        low_stock_alerts: preferences.low_stock_alerts,
+        order_updates: preferences.order_updates,
+        weekly_reports: preferences.weekly_reports
+      },
+      dark_mode: preferences.dark_mode,
+      compact_view: preferences.compact_view
+    };
+
     await updateProfileMutation.mutateAsync({
-      ...profileData,
-      ...preferences
+      full_name: profileData.full_name,
+      phone: profileData.phone,
+      department: profileData.department,
+      job_title: profileData.job_title,
+      bio: profileData.bio,
+      avatar: profileData.avatar_url,
+      preferences: nestedPreferences
     });
   };
 
@@ -159,7 +183,7 @@ export default function Profile() {
       try {
         const { file_url } = await base44.integrations.Core.UploadFile({ file });
         setProfileData(prev => ({ ...prev, avatar_url: file_url }));
-        await updateProfileMutation.mutateAsync({ avatar_url: file_url });
+        await updateProfileMutation.mutateAsync({ avatar: file_url });
       } catch (error) {
         toast.error(t('failedUploadImage'));
       }
@@ -218,7 +242,7 @@ export default function Profile() {
                 <div className="flex items-center justify-center sm:justify-start gap-4 mt-4 text-sm text-slate-500">
                   <span className="flex items-center gap-1">
                     <Calendar className="h-4 w-4" />
-                    {t('joined')} {user?.created_date ? format(new Date(user.created_date), 'MMM yyyy') : 'N/A'}
+                    {t('joined')} {user?.created_at ? format(new Date(user.created_at), 'MMM yyyy') : 'N/A'}
                   </span>
                 </div>
               </div>
@@ -602,7 +626,7 @@ export default function Profile() {
                         </p>
                       </div>
                       <span className="text-sm text-slate-400 flexshrink-0">
-                        {format(new Date(activity.created_date), 'MMM d, HH:mm')}
+                        {format(new Date(activity.created_at), 'MMM d, HH:mm')}
                       </span>
                     </div>
                   ))}

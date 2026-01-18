@@ -20,29 +20,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Check for existing session on mount
     useEffect(() => {
         const checkAuth = async () => {
-            const storedUser = localStorage.getItem('base44_currentUser');
-            const token = localStorage.getItem('base44_access_token');
-
-            if (storedUser && token) {
-                try {
-                    const parsedUser = JSON.parse(storedUser);
-                    setUser(parsedUser);
-
-                    // Verify token with backend
-                    const freshUser = await base44.auth.me();
-                    if (freshUser) {
-                        setUser(freshUser);
-                    } else {
-                        // Token invalid/expired
-                        setUser(null);
-                        localStorage.removeItem('base44_currentUser');
-                        localStorage.removeItem('base44_access_token');
-                    }
-                } catch {
+            try {
+                // Verify session with backend (cookies sent automatically)
+                const freshUser = await base44.auth.me();
+                if (freshUser) {
+                    setUser(freshUser);
+                } else {
+                    // Session invalid
                     setUser(null);
                     localStorage.removeItem('base44_currentUser');
-                    localStorage.removeItem('base44_access_token');
                 }
+            } catch {
+                setUser(null);
+                localStorage.removeItem('base44_currentUser');
             }
             setIsLoading(false);
         };

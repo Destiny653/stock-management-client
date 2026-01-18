@@ -34,6 +34,11 @@ class Vendor(Document):
     email: EmailStr
     phone: Optional[str] = None
     store_name: str
+    store_address: Optional[str] = None  # Physical store address
+    city: Optional[str] = None
+    country: Optional[str] = None
+    latitude: Optional[float] = None  # For map display
+    longitude: Optional[float] = None  # For map display
     location_id: Optional[str] = None
     status: VendorStatus = VendorStatus.PENDING
     subscription_plan: VendorSubscriptionPlan = VendorSubscriptionPlan.BASIC

@@ -16,6 +16,7 @@ async def read_stock_movements(
     organization_id: str = Query(..., description="Organization ID to filter by"),
     skip: int = 0,
     limit: int = 100,
+    sort: Optional[str] = None,
     product_id: Optional[str] = None,
     movement_type: Optional[str] = None,
     current_user: User = Depends(deps.get_current_active_user),
@@ -30,7 +31,11 @@ async def read_stock_movements(
     if movement_type:
         query["type"] = movement_type
     
-    movements = await StockMovement.find(query).skip(skip).limit(limit).to_list()
+    q = StockMovement.find(query)
+    if sort:
+        q = q.sort(sort)
+    
+    movements = await q.skip(skip).limit(limit).to_list()
     return movements
 
 

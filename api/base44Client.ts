@@ -220,16 +220,42 @@ export interface VendorPayment {
     created_at: string;
 }
 
+export interface NotificationPreferences {
+    email: boolean;
+    sms: boolean;
+    push: boolean;
+    low_stock_alerts: boolean;
+    order_updates: boolean;
+    weekly_reports: boolean;
+}
+
+export interface UserPreferences {
+    language: string;
+    timezone: string;
+    notifications: NotificationPreferences;
+    dark_mode: boolean;
+    compact_view: boolean;
+}
+
 export interface User {
     id: string;
     organization_id?: string | null;
     email: string;
     username: string;
     full_name?: string;
+    phone?: string;
     role: 'owner' | 'admin' | 'manager' | 'staff' | 'viewer';
     user_type: 'admin' | 'vendor' | 'manager' | 'staff';
     status: 'active' | 'inactive' | 'suspended' | 'pending';
     created_at: string;
+    // Extended profile fields
+    department?: string;
+    job_title?: string;
+    bio?: string;
+    avatar?: string;
+    avatar_url?: string; // For compatibility
+    preferences?: UserPreferences;
+    timezone?: string; // Root level for easy access if needed
 }
 
 export interface Organization {
@@ -238,8 +264,13 @@ export interface Organization {
     code: string;
     description?: string;
     location_id?: string;
+    phone?: string;
+    email?: string;
+    website?: string;
     status: 'active' | 'inactive' | 'suspended';
     subscription_plan?: string;
+    max_vendors?: number;
+    max_users?: number;
     created_at: string;
 }
 
@@ -339,14 +370,21 @@ const authMethods = {
             const response = await apiClient.get<User>('auth/me');
             localStorage.setItem('base44_currentUser', JSON.stringify(response.data));
             return response.data;
-        } catch (error) {
-            console.error('Failed to fetch current user', error);
+        } catch (error: any) {
+            // Silence 401 errors as they just mean not logged in
+            if (error?.response?.status !== 401) {
+                console.error('Failed to fetch current user', error);
+            }
             return null;
         }
     },
 
     logout: async () => {
-        localStorage.removeItem('base44_access_token');
+        try {
+            await apiClient.post('auth/logout');
+        } catch (e) {
+            console.error('Logout failed', e);
+        }
         localStorage.removeItem('base44_currentUser');
         window.location.href = '/login';
     },
@@ -357,12 +395,11 @@ const authMethods = {
         formData.append('password', password);
         formData.append('grant_type', 'password');
 
-        const response = await apiClient.post('auth/login/access-token', formData, {
+        await apiClient.post('auth/login/access-token', formData, {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
 
-        const { access_token } = response.data;
-        localStorage.setItem('base44_access_token', access_token);
+        // Cookies are set by backend automatically
 
         // Fetch and return the user profile
         const user = await authMethods.me();

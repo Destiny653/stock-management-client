@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { base44 } from "@/api/base44Client";
+import { base44, Organization, Location, User } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -164,16 +164,17 @@ export default function Organizations() {
     };
 
     const handleEdit = (org: any) => {
+        const loc = locations.find(l => l.id === org.location_id);
         setEditingOrg(org);
         setFormData({
             name: org.name || '',
             code: org.code || '',
             description: org.description || '',
-            address: org.address || '',
-            city: org.city || '',
-            country: org.country || '',
-            latitude: org.latitude || null,
-            longitude: org.longitude || null,
+            address: loc?.address || '',
+            city: loc?.city || '',
+            country: loc?.country || '',
+            latitude: loc?.latitude || null,
+            longitude: loc?.longitude || null,
             phone: org.phone || '',
             email: org.email || '',
             website: org.website || '',
@@ -272,11 +273,14 @@ export default function Organizations() {
 
         if (searchTerm) {
             const search = searchTerm.toLowerCase();
-            result = result.filter(o =>
-                o.name?.toLowerCase().includes(search) ||
-                o.code?.toLowerCase().includes(search) ||
-                o.city?.toLowerCase().includes(search)
-            );
+            result = result.filter(o => {
+                const loc = locations.find(l => l.id === o.location_id);
+                return (
+                    o.name?.toLowerCase().includes(search) ||
+                    o.code?.toLowerCase().includes(search) ||
+                    loc?.city?.toLowerCase().includes(search)
+                );
+            });
         }
 
         if (statusFilter !== "all") {
@@ -284,7 +288,7 @@ export default function Organizations() {
         }
 
         return result;
-    }, [organizations, searchTerm, statusFilter]);
+    }, [organizations, searchTerm, statusFilter, locations]);
 
     return (
         <div className="space-y-6">
@@ -542,13 +546,18 @@ export default function Organizations() {
                                                     {org.name?.charAt(0) || 'O'}
                                                 </div>
                                                 <div>
-                                                    <p className="font-medium text-slate-900">{org.name}</p>
+                                                    <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="font-medium text-slate-900 hover:text-teal-600 hover:underline">
+                                                        {org.name}
+                                                    </Link>
                                                     <p className="text-sm text-slate-500 font-mono">{org.code}</p>
                                                 </div>
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-slate-600">
-                                            {org.city ? `${org.city}, ${org.country}` : '-'}
+                                            {(() => {
+                                                const loc = locations.find(l => l.id === org.location_id);
+                                                return loc?.city ? `${loc.city}, ${loc.country}` : '-';
+                                            })()}
                                         </TableCell>
                                         <TableCell>
                                             <div className="text-sm">

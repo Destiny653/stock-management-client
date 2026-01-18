@@ -816,7 +816,9 @@ export default function VendorManagement() {
                           {vendor.store_name?.charAt(0) || 'V'}
                         </div>
                         <div>
-                          <p className="font-medium text-slate-900">{vendor.store_name}</p>
+                          <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)} className="font-medium text-slate-900 hover:text-teal-600 hover:underline">
+                            {vendor.store_name}
+                          </Link>
                           <p className="text-sm text-slate-500">{vendor.name}</p>
                         </div>
                       </div>

@@ -453,97 +453,104 @@ export default function Reports() {
                                 </ResponsiveContainer>
                             </div>
                             <div className="w-1/2 space-y-2">
-                                <span className="text-sm font-medium">${(item.value / 1000).toFixed(1)}k</span>
-                            </div>
+                                {categoryData.map((item: any, index: number) => (
+                                    <div key={index} className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-3 w-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
+                                            <span className="text-sm text-slate-600">{item.name}</span>
+                                        </div>
+                                        <span className="text-sm font-medium">${(item.value / 1000).toFixed(1)}k</span>
+                                    </div>
                                 ))}
+                            </div>
                         </div>
-                    </div>
-                </CardContent>
-            </Card>
 
-            {/* Top Movers */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t('topMovingProducts')}</CardTitle>
-                    <CardDescription>{t('productsWithMostMovements')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="h-72">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={topMovers} layout="vertical">
-                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={true} vertical={false} />
-                                <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                                <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} width={100} />
-                                <Tooltip content={<CustomTooltip valueSuffix={` ${t('units')}`} />} />
-                                <Bar dataKey="received" fill="#10b981" name={t('received')} radius={[0, 4, 4, 0]} />
-                                <Bar dataKey="dispatched" fill="#3b82f6" name={t('dispatched')} radius={[0, 4, 4, 0]} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                </CardContent>
-            </Card>
+                    </CardContent>
+                </Card>
 
-            {/* Aging Inventory */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>{t('agingInventory')}</CardTitle>
-                    <CardDescription>{t('stockValueByAge')}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <div className="h-72">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={agingData}>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                                <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} />
-                                <Tooltip content={<CustomTooltip valuePrefix="$" />} />
-                                <Bar dataKey="value" name={t('value')} radius={[4, 4, 0, 0]}>
-                                    {agingData.map((entry: any, index: number) => (
-                                        <Cell
-                                            key={`cell-${index}`}
-                                            fill={index === 3 ? '#ef4444' : index === 2 ? '#f59e0b' : index === 1 ? '#3b82f6' : '#10b981'}
-                                        />
-                                    ))}
-                                </Bar>
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </div>
-                </CardContent>
-            </Card>
-        </div>
+                {/* Top Movers */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>{t('topMovingProducts')}</CardTitle>
+                        <CardDescription>{t('productsWithMostMovements')}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="h-72">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={topMovers} layout="vertical">
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={true} vertical={false} />
+                                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} width={100} />
+                                    <Tooltip content={<CustomTooltip valueSuffix={` ${t('units')}`} />} />
+                                    <Bar dataKey="received" fill="#10b981" name={t('received')} radius={[0, 4, 4, 0]} />
+                                    <Bar dataKey="dispatched" fill="#3b82f6" name={t('dispatched')} radius={[0, 4, 4, 0]} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </CardContent>
+                </Card>
 
-            {/* Export Section */ }
-    <Card>
-        <CardHeader>
-            <CardTitle>{t('exportReports')}</CardTitle>
-            <CardDescription>{t('downloadDetailedReports')}</CardDescription>
-        </CardHeader>
-        <CardContent>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Button variant="outline" className="h-auto p-4 justify-start" onClick={exportInventoryCSV}>
-                    <FileSpreadsheet className="h-8 w-8 mr-4 text-emerald-600" />
-                    <div className="text-left">
-                        <p className="font-medium">{t('inventoryValuation')}</p>
-                        <p className="text-xs text-slate-500">{t('fullStockListValues')}</p>
-                    </div>
-                </Button>
-                <Button variant="outline" className="h-auto p-4 justify-start" onClick={exportMovementsCSV}>
-                    <FileSpreadsheet className="h-8 w-8 mr-4 text-blue-600" />
-                    <div className="text-left">
-                        <p className="font-medium">{t('stockMovements')}</p>
-                        <p className="text-xs text-slate-500">{t('allInventoryTransactions')}</p>
-                    </div>
-                </Button>
-                <Button variant="outline" className="h-auto p-4 justify-start" onClick={() => toast.info(t('comingSoon'))}>
-                    <FileSpreadsheet className="h-8 w-8 mr-4 text-violet-600" />
-                    <div className="text-left">
-                        <p className="font-medium">{t('purchaseOrders')}</p>
-                        <p className="text-xs text-slate-500">{t('poHistoryStatus')}</p>
-                    </div>
-                </Button>
+                {/* Aging Inventory */}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>{t('agingInventory')}</CardTitle>
+                        <CardDescription>{t('stockValueByAge')}</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <div className="h-72">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart data={agingData}>
+                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} />
+                                    <Tooltip content={<CustomTooltip valuePrefix="$" />} />
+                                    <Bar dataKey="value" name={t('value')} radius={[4, 4, 0, 0]}>
+                                        {agingData.map((entry: any, index: number) => (
+                                            <Cell
+                                                key={`cell-${index}`}
+                                                fill={index === 3 ? '#ef4444' : index === 2 ? '#f59e0b' : index === 1 ? '#3b82f6' : '#10b981'}
+                                            />
+                                        ))}
+                                    </Bar>
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </CardContent>
+                </Card>
             </div>
-        </CardContent>
-    </Card>
+
+            {/* Export Section */}
+            <Card>
+                <CardHeader>
+                    <CardTitle>{t('exportReports')}</CardTitle>
+                    <CardDescription>{t('downloadDetailedReports')}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <Button variant="outline" className="h-auto p-4 justify-start" onClick={exportInventoryCSV}>
+                            <FileSpreadsheet className="h-8 w-8 mr-4 text-emerald-600" />
+                            <div className="text-left">
+                                <p className="font-medium">{t('inventoryValuation')}</p>
+                                <p className="text-xs text-slate-500">{t('fullStockListValues')}</p>
+                            </div>
+                        </Button>
+                        <Button variant="outline" className="h-auto p-4 justify-start" onClick={exportMovementsCSV}>
+                            <FileSpreadsheet className="h-8 w-8 mr-4 text-blue-600" />
+                            <div className="text-left">
+                                <p className="font-medium">{t('stockMovements')}</p>
+                                <p className="text-xs text-slate-500">{t('allInventoryTransactions')}</p>
+                            </div>
+                        </Button>
+                        <Button variant="outline" className="h-auto p-4 justify-start" onClick={() => toast.info(t('comingSoon'))}>
+                            <FileSpreadsheet className="h-8 w-8 mr-4 text-violet-600" />
+                            <div className="text-left">
+                                <p className="font-medium">{t('purchaseOrders')}</p>
+                                <p className="text-xs text-slate-500">{t('poHistoryStatus')}</p>
+                            </div>
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
         </div >
     );
 }

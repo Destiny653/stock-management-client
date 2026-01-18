@@ -7,35 +7,41 @@ export const apiClient = axios.create({
     headers: {
         'Content-Type': 'application/json',
     },
+    withCredentials: true
 });
-
-// Add a request interceptor to add the auth token
-apiClient.interceptors.request.use(
-    (config) => {
-        if (typeof window !== 'undefined') {
-            const token = localStorage.getItem('base44_access_token');
-            if (token) {
-                config.headers.Authorization = `Bearer ${token}`;
-            }
-        }
-        return config;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
-);
 
 // Add a response interceptor to handle errors
 apiClient.interceptors.response.use(
     (response) => {
         return response;
     },
-    (error) => {
-        if (error.response && error.response.status === 401) {
-            // Unauthorized - clear session
+    async (error) => {
+        const originalRequest = error.config;
+
+        // Prevent infinite loops
+        if (error.response?.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
+
             if (typeof window !== 'undefined') {
-                localStorage.removeItem('base44_access_token');
-                localStorage.removeItem('base44_currentUser');
+                try {
+                    // Refresh token is in HttpOnly cookie, so we just make the request
+                    await axios.post(
+                        `${API_URL}/auth/refresh-token`,
+                        null,
+                        { withCredentials: true }
+                    );
+
+                    // retry original request
+                    return apiClient(originalRequest);
+
+                } catch (refreshError) {
+                    // Refresh failed - logout
+                    localStorage.removeItem('base44_currentUser');
+                    // Only redirect if not already on login
+                    if (!window.location.pathname.includes('/login')) {
+                        window.location.href = '/login';
+                    }
+                }
             }
         }
         return Promise.reject(error);

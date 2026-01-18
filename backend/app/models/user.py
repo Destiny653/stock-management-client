@@ -33,12 +33,17 @@ class NotificationPreferences(BaseModel):
     email: bool = True
     sms: bool = False
     push: bool = True
+    low_stock_alerts: bool = True
+    order_updates: bool = True
+    weekly_reports: bool = True
 
 
 class UserPreferences(BaseModel):
     language: str = "en"
     timezone: str = "UTC"
     notifications: NotificationPreferences = NotificationPreferences()
+    dark_mode: bool = False
+    compact_view: bool = False
 
 
 class User(Document):
@@ -50,6 +55,9 @@ class User(Document):
     last_name: Optional[str] = None
     full_name: Optional[str] = None
     phone: Optional[str] = None
+    department: Optional[str] = None  # Added
+    job_title: Optional[str] = None   # Added
+    bio: Optional[str] = None         # Added
     avatar: Optional[str] = None
     role: UserRole = UserRole.STAFF
     user_type: UserType = UserType.STAFF

@@ -459,6 +459,8 @@ const translations = {
     failedUpdateProfile: "Failed to update profile",
     failedUploadImage: "Failed to upload image",
     payment: "Payment",
+    manualEntry: "Manual Entry",
+    totalValue: "Total Value",
   },
   es: {
     // Navigation
@@ -918,6 +920,7 @@ const translations = {
     profileUpdated: "Perfil actualizado exitosamente",
     failedUpdateProfile: "Error al actualizar perfil",
     failedUploadImage: "Error al subir imagen",
+    totalValue: "Valor Total",
   },
   fr: {
     // Navigation
@@ -1374,7 +1377,8 @@ const translations = {
     profileUpdated: "Profil mis à jour avec succès",
     failedUpdateProfile: "Échec de la mise à jour du profil",
     failedUploadImage: "Échec du téléchargement de l'image",
-  }
+    totalValue: "Valeur Totale",
+  },
 };
 
 export type Translation = typeof translations.en;

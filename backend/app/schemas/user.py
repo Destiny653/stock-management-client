@@ -13,6 +13,9 @@ class UserBase(BaseModel):
     last_name: Optional[str] = None
     full_name: Optional[str] = None
     phone: Optional[str] = None
+    department: Optional[str] = None # Added
+    job_title: Optional[str] = None  # Added
+    bio: Optional[str] = None        # Added
     avatar: Optional[str] = None
     role: UserRole = UserRole.STAFF
     user_type: UserType = UserType.STAFF
@@ -33,6 +36,9 @@ class UserUpdate(BaseModel):
     last_name: Optional[str] = None
     full_name: Optional[str] = None
     phone: Optional[str] = None
+    department: Optional[str] = None # Added
+    job_title: Optional[str] = None  # Added
+    bio: Optional[str] = None        # Added
     avatar: Optional[str] = None
     role: Optional[UserRole] = None
     user_type: Optional[UserType] = None
@@ -40,6 +46,7 @@ class UserUpdate(BaseModel):
     warehouse_access: Optional[List[str]] = None
     status: Optional[UserStatus] = None
     is_active: Optional[bool] = None
+    preferences: Optional[UserPreferences] = None # Added
 
 
 from beanie import PydanticObjectId
