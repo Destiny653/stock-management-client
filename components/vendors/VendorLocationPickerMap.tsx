@@ -148,7 +148,7 @@ export default function VendorLocationPickerMap({
 
     if (!isLoaded) {
         return (
-            <div className="h-64 rounded-xl border border-slate-200 flex items-center justify-center bg-slate-50">
+            <div className="h-48 rounded-xl border border-slate-200 flex items-center justify-center bg-slate-50">
                 <div className="text-center">
                     <Loader2 className="h-8 w-8 animate-spin text-teal-600 mx-auto mb-2" />
                     <p className="text-sm text-slate-500">Loading Google Maps...</p>
@@ -158,7 +158,7 @@ export default function VendorLocationPickerMap({
     }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-2">
             <Label className="text-sm font-medium">{label || "Store Location"}</Label>
 
             {/* Search Bar - Autocomplete */}
@@ -191,7 +191,7 @@ export default function VendorLocationPickerMap({
             </div>
 
             {/* Map */}
-            <div className="h-64 rounded-xl overflow-hidden border border-slate-200">
+            <div className="h-48 rounded-xl overflow-hidden border border-slate-200">
                 <GoogleMap
                     mapContainerStyle={containerStyle}
                     center={position}

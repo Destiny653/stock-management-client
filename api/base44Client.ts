@@ -142,7 +142,11 @@ export interface Sale {
     client_email?: string;
     client_phone?: string;
     vendor_id?: string;
+    vendor_name?: string;
     vendor_email?: string;
+    subtotal?: number;
+    tax?: number;
+    discount?: number;
     notes?: string;
     status: 'completed' | 'refunded' | 'cancelled';
     created_at: string;
@@ -153,6 +157,10 @@ export interface Order {
     organization_id: string;
     order_number: string;
     client_name: string;
+    client_email?: string;
+    client_phone?: string;
+    shipping_address?: string;
+    notes?: string;
     items: Array<{
         product_id: string;
         product_name: string;
@@ -160,7 +168,17 @@ export interface Order {
         quantity: number;
         unit_price: number;
         total?: number;
+        availability_status?: 'in_stock' | 'low_stock' | 'out_of_stock' | 'on_order';
+        specifications?: {
+            size?: string;
+            color?: string;
+            other_details?: string;
+        };
     }>;
+    subtotal?: number;
+    discount?: number;
+    tax?: number;
+    shipping?: number;
     total: number;
     status: 'pending' | 'confirmed' | 'processing' | 'ready' | 'shipped' | 'delivered' | 'cancelled';
     payment_status: 'unpaid' | 'partial' | 'paid' | 'refunded';
@@ -192,20 +210,37 @@ export interface Vendor {
     subscription_plan?: string;
     monthly_fee?: number;
     commission_rate?: number;
+    join_date?: string;
+    last_payment_date?: string;
+    next_payment_due?: string;
     payment_status?: 'paid' | 'pending' | 'overdue' | 'grace_period';
+    total_sales: number;
+    total_orders: number;
+    logo_url?: string;
     notes?: string;
     balance: number;
-    total_sales: number;
-    total_orders?: number;
     created_at: string;
+    // For compatibility and flattened access
+    name?: string;
+    email?: string;
+    phone?: string;
+    city?: string;
+    country?: string;
 }
 
 export interface VendorPayment {
     id: string;
     organization_id: string;
     vendor_id: string;
+    vendor_name?: string;
     amount: number;
+    payment_type?: 'subscription' | 'commission' | 'other';
+    payment_method?: 'bank_transfer' | 'cash' | 'card' | 'mobile_money' | 'other';
+    reference_number?: string;
     status: 'pending' | 'completed' | 'cancelled' | 'confirmed' | 'failed';
+    confirmed_by?: string;
+    confirmed_date?: string;
+    notes?: string;
     created_at: string;
 }
 
@@ -231,12 +266,13 @@ export interface User {
     organization_id?: string | null;
     email: string;
     username: string;
+    password?: string;
     first_name?: string;
     last_name?: string;
     full_name?: string;
     phone?: string;
     role: 'owner' | 'admin' | 'manager' | 'staff' | 'viewer';
-    user_type: 'admin' | 'vendor' | 'manager' | 'staff';
+    user_type: 'admin' | 'vendor' | 'manager' | 'staff' | 'viewer' | 'owner';
     status: 'active' | 'inactive' | 'suspended' | 'pending';
     created_at: string;
     // Extended profile fields
@@ -461,6 +497,7 @@ export const base44 = {
                 return response.data;
             }
         },
+        Order: createEntityMethods<Order>('Order'),
         Sale: createEntityMethods<Sale>('Sale'),
         StockMovement: createEntityMethods<StockMovement>('StockMovement'),
         Supplier: createEntityMethods<Supplier>('Supplier'),

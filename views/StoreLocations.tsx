@@ -115,9 +115,19 @@ export default function StoreLocations() {
         longitude: loc?.longitude,
         address: loc?.address,
         city: loc?.city,
-        country: loc?.country
+        country: loc?.country,
+        email: v.user_id ? userMap[v.user_id]?.email : '',
+        phone: v.user_id ? userMap[v.user_id]?.phone : ''
       };
-    }).filter((v): v is Vendor & { latitude: number; longitude: number } =>
+    }).filter((v): v is Vendor & {
+      latitude: number;
+      longitude: number;
+      address: any;
+      city: any;
+      country: any;
+      email: any;
+      phone: any
+    } =>
       typeof v.latitude === 'number' && typeof v.longitude === 'number'
     );
   }, [vendors, locationMap]);
@@ -131,7 +141,9 @@ export default function StoreLocations() {
         longitude: loc?.longitude,
         address: loc?.address,
         city: loc?.city,
-        country: loc?.country
+        country: loc?.country,
+        email: (v.user_id ? userMap[v.user_id]?.email : '') || '',
+        phone: (v.user_id ? userMap[v.user_id]?.phone : '') || ''
       };
     }).filter(v => {
       const matchesSearch = !searchTerm ||
@@ -322,7 +334,7 @@ export default function StoreLocations() {
                   )}
                   <div className="flex items-center gap-2 text-sm text-slate-600">
                     <Mail className="h-4 w-4 text-slate-400" />
-                    {vendor.email}
+                    {vendor.email || 'No email'}
                   </div>
                   {vendor.phone && (
                     <div className="flex items-center gap-2 text-sm text-slate-600">

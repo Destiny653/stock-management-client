@@ -102,6 +102,7 @@ interface VendorFormData {
   organization_id?: string;
   location_id?: string;
   user_id?: string;
+  name: string;
   // Address fields for the sub-location
   address: string;
   city: string;
@@ -142,7 +143,8 @@ export default function VendorManagement() {
     notes: '',
     organization_id: '',
     location_id: '',
-    user_id: ''
+    user_id: '',
+    name: ''
   });
 
   const { data: organizations = [] } = useQuery({
@@ -225,7 +227,8 @@ export default function VendorManagement() {
       notes: '',
       organization_id: '',
       location_id: '',
-      user_id: ''
+      user_id: '',
+      name: ''
     });
   };
 
@@ -246,7 +249,8 @@ export default function VendorManagement() {
       notes: vendor.notes || '',
       organization_id: vendor.organization_id || '',
       location_id: vendor.location_id || '',
-      user_id: vendor.user_id || ''
+      user_id: vendor.user_id || '',
+      name: vendor.name || ''
     });
   };
 
@@ -539,7 +543,7 @@ export default function VendorManagement() {
   );
 
   const VendorCard = ({ vendor }: { vendor: Vendor }) => {
-    const stats = vendorStats[vendor.email] || { totalSales: 0, totalOrders: 0 };
+    const stats = vendorStats[vendor.id] || { totalSales: 0, totalOrders: 0 };
 
     return (
       <Card className="hover:shadow-lg transition-shadow">
@@ -807,7 +811,7 @@ export default function VendorManagement() {
             </TableHeader>
             <TableBody>
               {filteredVendors.map(vendor => {
-                const stats = vendorStats[vendor.email] || { totalSales: 0, totalOrders: 0 };
+                const stats = vendorStats[vendor.id] || { totalSales: 0, totalOrders: 0 };
                 return (
                   <TableRow key={vendor.id} className="hover:bg-slate-50">
                     <TableCell>
@@ -824,8 +828,8 @@ export default function VendorManagement() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <p className="text-sm">{vendor.email}</p>
-                      <p className="text-sm text-slate-500">{vendor.phone}</p>
+                      <p className="text-sm">{userMap[vendor.user_id!]?.email || 'No email'}</p>
+                      <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.phone || ''}</p>
                     </TableCell>
                     <TableCell className="text-slate-600">
                       {vendor.location_id && locationMap[vendor.location_id]

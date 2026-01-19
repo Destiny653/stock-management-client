@@ -194,8 +194,7 @@ export default function OrganizationMembers() {
             const search = searchTerm.toLowerCase();
             result = result.filter(v => {
                 const linkedUser = v.user_id ? userMap[v.user_id] : null;
-                return v.name?.toLowerCase().includes(search) ||
-                    v.store_name?.toLowerCase().includes(search) ||
+                return v.store_name?.toLowerCase().includes(search) ||
                     linkedUser?.email?.toLowerCase().includes(search) ||
                     linkedUser?.full_name?.toLowerCase().includes(search);
             });
@@ -217,7 +216,7 @@ export default function OrganizationMembers() {
 
     const createMemberMutation = useMutation({
         mutationFn: async (data: any) => {
-            const organizationId = orgId || currentUser?.organization_id;
+            const organizationId = (orgId || currentUser?.organization_id) as string;
 
             if (memberType === 'user') {
                 return base44.entities.User.create({
@@ -225,7 +224,7 @@ export default function OrganizationMembers() {
                     organization_id: organizationId,
                     username: data.email,
                     status: 'active',
-                    user_type: data.role // Set user_type based on role for staff/managers
+                    user_type: (data.role === 'viewer' ? 'staff' : data.role) as any // Map role to user_type appropriately
                 });
             } else {
                 // For vendors, create a User account first (stores contact info)
@@ -236,7 +235,7 @@ export default function OrganizationMembers() {
                     phone: data.phone,
                     organization_id: organizationId,
                     username: data.email,
-                    role: 'vendor',
+                    role: 'staff',
                     user_type: 'vendor',
                     status: 'active'
                 });

@@ -507,14 +507,14 @@ export default function Settings() {
         }
       }
 
-      const data = {
+      const data: Partial<Supplier> = {
         name: supplierForm.name,
         payment_terms: supplierForm.payment_terms,
         lead_time_days: supplierForm.lead_time_days,
         status: supplierForm.status,
         location_id: locationId,
-        user_id: supplierForm.user_id || null,
-        organization_id: user?.organization_id
+        user_id: supplierForm.user_id || undefined,
+        organization_id: user?.organization_id || undefined
       };
 
       if (editingSupplier) {
@@ -592,50 +592,52 @@ export default function Settings() {
                 <DialogHeader>
                   <DialogTitle>{editingWarehouse ? t('edit') : t('addWarehouse')}</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>{t('warehouseName')} *</Label>
-                      <Input value={warehouseForm.name} onChange={(e) => setWarehouseForm(p => ({ ...p, name: e.target.value }))} placeholder={t('warehouseName')} />
+                <div className="max-h-[80vh] overflow-y-auto pr-2 -mr-2">
+                  <div className="space-y-4 py-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>{t('warehouseName')} *</Label>
+                        <Input value={warehouseForm.name} onChange={(e) => setWarehouseForm(p => ({ ...p, name: e.target.value }))} placeholder={t('warehouseName')} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>{t('warehouseCode')} *</Label>
+                        <Input value={warehouseForm.code} onChange={(e) => setWarehouseForm(p => ({ ...p, code: e.target.value }))} placeholder="WH-001" />
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <Label>{t('warehouseCode')} *</Label>
-                      <Input value={warehouseForm.code} onChange={(e) => setWarehouseForm(p => ({ ...p, code: e.target.value }))} placeholder="WH-001" />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>{t('city')}</Label>
+                        <Input value={warehouseForm.city} onChange={(e) => setWarehouseForm(p => ({ ...p, city: e.target.value }))} placeholder={t('city')} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>{t('manager')}</Label>
+                        <Input value={warehouseForm.manager} onChange={(e) => setWarehouseForm(p => ({ ...p, manager: e.target.value }))} placeholder={t('manager')} />
+                      </div>
                     </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>{t('city')}</Label>
-                      <Input value={warehouseForm.city} onChange={(e) => setWarehouseForm(p => ({ ...p, city: e.target.value }))} placeholder={t('city')} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>{t('manager')}</Label>
-                      <Input value={warehouseForm.manager} onChange={(e) => setWarehouseForm(p => ({ ...p, manager: e.target.value }))} placeholder={t('manager')} />
-                    </div>
-                  </div>
 
-                  <LocationPicker
-                    latitude={warehouseForm.latitude || undefined}
-                    longitude={warehouseForm.longitude || undefined}
-                    onLocationChange={(lat, lng) => setWarehouseForm(p => ({ ...p, latitude: lat, longitude: lng }))}
-                    onAddressChange={(data) => setWarehouseForm(p => ({
-                      ...p,
-                      address: data.address || p.address,
-                      city: data.city || p.city,
-                      country: data.country || p.country
-                    }))}
-                  />
+                    <LocationPicker
+                      latitude={warehouseForm.latitude || undefined}
+                      longitude={warehouseForm.longitude || undefined}
+                      onLocationChange={(lat, lng) => setWarehouseForm(p => ({ ...p, latitude: lat, longitude: lng }))}
+                      onAddressChange={(data) => setWarehouseForm(p => ({
+                        ...p,
+                        address: data.address || p.address,
+                        city: data.city || p.city,
+                        country: data.country || p.country
+                      }))}
+                    />
 
-                  <div className="space-y-2">
-                    <Label>{t('status')}</Label>
-                    <Select value={warehouseForm.status} onValueChange={(v: any) => setWarehouseForm(p => ({ ...p, status: v }))}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="active">{t('active')}</SelectItem>
-                        <SelectItem value="inactive">{t('inactive')}</SelectItem>
-                        <SelectItem value="maintenance">{t('maintenance')}</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="space-y-2">
+                      <Label>{t('status')}</Label>
+                      <Select value={warehouseForm.status} onValueChange={(v: any) => setWarehouseForm(p => ({ ...p, status: v }))}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">{t('active')}</SelectItem>
+                          <SelectItem value="inactive">{t('inactive')}</SelectItem>
+                          <SelectItem value="maintenance">{t('maintenance')}</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                 </div>
                 <DialogFooter>
@@ -716,69 +718,71 @@ export default function Settings() {
                 <DialogHeader>
                   <DialogTitle>{editingSupplier ? t('edit') : t('add')} {t('supplier')}</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
-                  <div className="space-y-2">
-                    <Label>{t('businessName')} *</Label>
-                    <Input value={supplierForm.name} onChange={(e) => setSupplierForm(p => ({ ...p, name: e.target.value }))} placeholder={t('businessName')} />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2 col-span-2">
-                      <Label>Linked Contact Person</Label>
-                      <Select value={supplierForm.user_id || "none"} onValueChange={(v) => setSupplierForm(p => ({ ...p, user_id: v === "none" ? "" : v }))}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Link to user" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="none">No User Account</SelectItem>
-                          {users.map((u: any) => (
-                            <SelectItem key={u.id} value={u.id}>{u.full_name} ({u.email})</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                <div className="max-h-[80vh] overflow-y-auto pr-2 -mr-2">
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Label>{t('businessName')} *</Label>
+                      <Input value={supplierForm.name} onChange={(e) => setSupplierForm(p => ({ ...p, name: e.target.value }))} placeholder={t('businessName')} />
                     </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2 col-span-2">
-                      <Label>{t('paymentTerms')}</Label>
-                      <Select value={supplierForm.payment_terms} onValueChange={(v: any) => setSupplierForm(p => ({ ...p, payment_terms: v }))}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Net 15">Net 15</SelectItem>
-                          <SelectItem value="Net 30">Net 30</SelectItem>
-                          <SelectItem value="Net 45">Net 45</SelectItem>
-                          <SelectItem value="Net 60">Net 60</SelectItem>
-                          <SelectItem value="COD">COD</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2 col-span-2">
+                        <Label>Linked Contact Person</Label>
+                        <Select value={supplierForm.user_id || "none"} onValueChange={(v) => setSupplierForm(p => ({ ...p, user_id: v === "none" ? "" : v }))}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Link to user" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">No User Account</SelectItem>
+                            {users.map((u: any) => (
+                              <SelectItem key={u.id} value={u.id}>{u.full_name} ({u.email})</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
-                  </div>
-                  <LocationPicker
-                    latitude={supplierForm.latitude || undefined}
-                    longitude={supplierForm.longitude || undefined}
-                    onLocationChange={(lat, lng) => setSupplierForm(p => ({ ...p, latitude: lat, longitude: lng }))}
-                    onAddressChange={(data) => setSupplierForm(p => ({
-                      ...p,
-                      address: data.address || p.address,
-                      city: data.city || p.city,
-                      country: data.country || p.country
-                    }))}
-                  />
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2 col-span-2">
+                        <Label>{t('paymentTerms')}</Label>
+                        <Select value={supplierForm.payment_terms} onValueChange={(v: any) => setSupplierForm(p => ({ ...p, payment_terms: v }))}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Net 15">Net 15</SelectItem>
+                            <SelectItem value="Net 30">Net 30</SelectItem>
+                            <SelectItem value="Net 45">Net 45</SelectItem>
+                            <SelectItem value="Net 60">Net 60</SelectItem>
+                            <SelectItem value="COD">COD</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                    <LocationPicker
+                      latitude={supplierForm.latitude || undefined}
+                      longitude={supplierForm.longitude || undefined}
+                      onLocationChange={(lat, lng) => setSupplierForm(p => ({ ...p, latitude: lat, longitude: lng }))}
+                      onAddressChange={(data) => setSupplierForm(p => ({
+                        ...p,
+                        address: data.address || p.address,
+                        city: data.city || p.city,
+                        country: data.country || p.country
+                      }))}
+                    />
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>{t('leadTime')}</Label>
-                      <Input type="number" value={supplierForm.lead_time_days} onChange={(e) => setSupplierForm(p => ({ ...p, lead_time_days: parseInt(e.target.value) || 0 }))} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label>{t('status')}</Label>
-                      <Select value={supplierForm.status} onValueChange={(v: any) => setSupplierForm(p => ({ ...p, status: v }))}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="active">{t('active')}</SelectItem>
-                          <SelectItem value="inactive">{t('inactive')}</SelectItem>
-                          <SelectItem value="blocked">{t('blocked')}</SelectItem>
-                        </SelectContent>
-                      </Select>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label>{t('leadTime')}</Label>
+                        <Input type="number" value={supplierForm.lead_time_days} onChange={(e) => setSupplierForm(p => ({ ...p, lead_time_days: parseInt(e.target.value) || 0 }))} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label>{t('status')}</Label>
+                        <Select value={supplierForm.status} onValueChange={(v: any) => setSupplierForm(p => ({ ...p, status: v }))}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="active">{t('active')}</SelectItem>
+                            <SelectItem value="inactive">{t('inactive')}</SelectItem>
+                            <SelectItem value="blocked">{t('blocked')}</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                   </div>
                 </div>

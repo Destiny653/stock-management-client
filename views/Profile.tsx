@@ -95,6 +95,11 @@ export default function Profile() {
     initialData: [],
   });
 
+  const { data: locations = [] } = useQuery({
+    queryKey: ['locations'],
+    queryFn: () => base44.entities.Location.list(),
+  });
+
   const { data: activityLogs = [] } = useQuery({
     queryKey: ['stockMovements'],
     queryFn: () => base44.entities.StockMovement.list({ sort: '-created_at', limit: 20 }),
@@ -103,6 +108,7 @@ export default function Profile() {
 
   // Find vendor profile if user is a vendor
   const myVendor = vendors.find(v => v.user_id === user?.id);
+  const myLocation = (myVendor && locations) ? locations.find(l => l.id === myVendor.location_id) : null;
   const isVendor = user?.user_type === 'vendor';
 
   // Calculate user stats
@@ -426,11 +432,13 @@ export default function Profile() {
                   </div>
                   <div>
                     <Label className="text-slate-500">{t('businessName')}</Label>
-                    <p className="font-medium">{myVendor.name}</p>
+                    <p className="font-medium">{myVendor.name || myVendor.store_name}</p>
                   </div>
                   <div>
                     <Label className="text-slate-500">{t('location')}</Label>
-                    <p className="font-medium">{myVendor.city}, {myVendor.country}</p>
+                    <p className="font-medium">
+                      {myLocation ? `${myLocation.city}, ${myLocation.country}` : t('noLocationData')}
+                    </p>
                   </div>
                   <div>
                     <Label className="text-slate-500">{t('subscription')}</Label>

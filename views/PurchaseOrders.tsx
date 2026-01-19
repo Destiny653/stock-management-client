@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { createPageUrl } from "@/utils";
-import { base44 } from "@/api/base44Client";
+import { base44, PurchaseOrder } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,7 +68,7 @@ export default function PurchaseOrders() {
   });
 
   const updatePOMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string | number; data: Record<string, unknown> }) => base44.entities.PurchaseOrder.update(id, data),
+    mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) => base44.entities.PurchaseOrder.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
       toast.success("Purchase order updated");
@@ -94,13 +94,13 @@ export default function PurchaseOrders() {
   }, [purchaseOrders, searchTerm, statusFilter]);
 
   const handleStatusChange = async (poId: string | number, newStatus: string) => {
-    await updatePOMutation.mutateAsync({ id: poId, data: { status: newStatus } });
+    await updatePOMutation.mutateAsync({ id: poId as string, data: { status: newStatus } });
   };
 
   // Stats
   const stats = {
     draft: purchaseOrders.filter(p => p.status === 'draft').length,
-    pending: purchaseOrders.filter(p => p.status === 'pending').length,
+    pending: purchaseOrders.filter(p => p.status === 'pending_approval').length,
     ordered: purchaseOrders.filter(p => ['approved', 'ordered'].includes(p.status)).length,
     received: purchaseOrders.filter(p => p.status === 'received').length,
   };
@@ -136,7 +136,7 @@ export default function PurchaseOrders() {
             </div>
           </CardContent>
         </Card>
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter("pending")}>
+        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter("pending_approval")}>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -196,7 +196,7 @@ export default function PurchaseOrders() {
             <SelectContent>
               <SelectItem value="all">{t('allStatus')}</SelectItem>
               <SelectItem value="draft">{t('draft')}</SelectItem>
-              <SelectItem value="pending">{t('pendingApproval')}</SelectItem>
+              <SelectItem value="pending_approval">{t('pendingApproval')}</SelectItem>
               <SelectItem value="approved">{t('approved')}</SelectItem>
               <SelectItem value="ordered">{t('ordered')}</SelectItem>
               <SelectItem value="partially_received">{t('partiallyReceived')}</SelectItem>
@@ -288,11 +288,11 @@ export default function PurchaseOrders() {
                             </Link>
                           </DropdownMenuItem>
                           {po.status === 'draft' && (
-                            <DropdownMenuItem onClick={() => handleStatusChange(po.id, 'pending')}>
+                            <DropdownMenuItem onClick={() => handleStatusChange(po.id, 'pending_approval')}>
                               <CheckCircle className="h-4 w-4 mr-2" /> {t('submit')}
                             </DropdownMenuItem>
                           )}
-                          {po.status === 'pending' && (
+                          {po.status === 'pending_approval' && (
                             <DropdownMenuItem onClick={() => handleStatusChange(po.id, 'approved')}>
                               <CheckCircle className="h-4 w-4 mr-2" /> {t('approved')}
                             </DropdownMenuItem>

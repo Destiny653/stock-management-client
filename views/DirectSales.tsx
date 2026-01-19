@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { base44, Sale, Product, ProductVariant } from "@/api/base44Client";
+import { base44, Sale, Product, ProductVariant, Vendor } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -395,7 +395,7 @@ export default function DirectSales() {
       vendor_id: myVendor?.id,
       vendor_name: saleForm.vendor_name || user?.full_name || 'System',
       vendor_email: user?.email || '',
-      organization_id: user?.organization_id,
+      organization_id: user?.organization_id ?? undefined,
       client_name: saleForm.client_name || undefined,
       client_email: saleForm.client_email || undefined,
       client_phone: saleForm.client_phone || undefined,

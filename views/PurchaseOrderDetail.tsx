@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -28,8 +28,8 @@ import { toast } from "sonner";
 export default function PurchaseOrderDetail() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const urlParams = new URLSearchParams(window.location.search);
-  const poId = urlParams.get('id');
+  const searchParams = useSearchParams();
+  const poId = searchParams?.get('id');
 
   const { data: purchaseOrder, isLoading } = useQuery({
     queryKey: ['purchaseOrder', poId],

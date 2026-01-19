@@ -59,7 +59,6 @@ const StoreMapComponent: React.FC<StoreMapComponentProps> = ({ vendors, center, 
                     <Popup>
                         <div className="p-2">
                             <h3 className="font-semibold">{vendor.store_name}</h3>
-                            <p className="text-sm text-slate-600">{vendor.name}</p>
                             <p className="text-sm text-slate-500">{vendor.address}</p>
                             <p className="text-sm text-slate-500">{vendor.city}, {vendor.country}</p>
                             <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)}>

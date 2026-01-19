@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { createPageUrl } from "@/utils";
@@ -105,6 +105,18 @@ export default function CreatePurchaseOrder() {
     queryKey: ['warehouses'],
     queryFn: () => base44.entities.Warehouse.list(),
   });
+
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
+  const userMap = useMemo(() => {
+    return users.reduce((acc, u) => {
+      acc[u.id] = u;
+      return acc;
+    }, {} as Record<string, any>);
+  }, [users]);
 
   const createPOMutation = useMutation({
     mutationFn: (data: any) => base44.entities.PurchaseOrder.create(data),
@@ -259,7 +271,7 @@ export default function CreatePurchaseOrder() {
                     <SelectItem key={s.id} value={s.id}>
                       <div className="flex flex-col">
                         <span>{s.name}</span>
-                        <span className="text-xs text-slate-500">{s.email}</span>
+                        <span className="text-xs text-slate-500">{userMap[s.user_id || '']?.email || 'No email'}</span>
                       </div>
                     </SelectItem>
                   ))}
