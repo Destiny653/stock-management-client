@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
-import { base44 } from "@/api/base44Client";
+import { base44, type Vendor, type VendorPayment } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,10 +75,12 @@ export default function VendorPayments() {
         queryFn: () => base44.auth.me(),
     });
 
+    const isLoading = loadingPayments || loadingVendors;
+
     const confirmPaymentMutation = useMutation({
         mutationFn: ({ paymentId, data }: { paymentId: string; data: any }) => base44.entities.VendorPayment.update(paymentId, data),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['allPayments'] });
+            queryClient.invalidateQueries({ queryKey: ['payments'] });
             toast.success("Payment confirmed");
         },
     });
@@ -281,7 +283,7 @@ export default function VendorPayments() {
                                 filteredPayments.map((payment: any) => (
                                     <TableRow key={payment.id} className="hover:bg-slate-50">
                                         <TableCell className="text-sm">
-                                            {format(new Date(payment.created_date), 'MMM d, yyyy')}
+                                            {format(new Date(payment.created_at), 'MMM d, yyyy')}
                                         </TableCell>
                                         <TableCell>
                                             <Link

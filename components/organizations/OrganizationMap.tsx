@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,7 @@ interface Vendor {
     longitude?: number;
     store_name?: string;
     name?: string;
-    store_address?: string;
+    address?: string;
     city?: string;
     country?: string;
     total_sales?: number;
@@ -45,6 +45,16 @@ interface OrganizationMapProps {
     onVendorClick?: (vendor: Vendor) => void;
 }
 
+const MapUpdater: React.FC<{ center: [number, number]; zoom?: number }> = ({ center, zoom }) => {
+    const map = useMap();
+    React.useEffect(() => {
+        if (center[0] !== 0 || center[1] !== 0) {
+            map.setView(center, zoom || map.getZoom());
+        }
+    }, [center, zoom, map]);
+    return null;
+};
+
 export default function OrganizationMap({ vendors, center, zoom, onVendorClick }: OrganizationMapProps) {
     return (
         <MapContainer
@@ -52,6 +62,7 @@ export default function OrganizationMap({ vendors, center, zoom, onVendorClick }
             zoom={zoom}
             style={{ height: '100%', width: '100%' }}
         >
+            <MapUpdater center={center} zoom={zoom} />
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -69,7 +80,7 @@ export default function OrganizationMap({ vendors, center, zoom, onVendorClick }
                             <div className="p-2 min-w-48">
                                 <h3 className="font-semibold">{vendor.store_name}</h3>
                                 <p className="text-sm text-slate-600">{vendor.name}</p>
-                                <p className="text-sm text-slate-500">{vendor.store_address}</p>
+                                <p className="text-sm text-slate-500">{vendor.address}</p>
                                 <p className="text-sm text-slate-500">{vendor.city}, {vendor.country}</p>
                                 <div className="mt-2 pt-2 border-t flex justify-between text-sm">
                                     <span>Sales: ${(vendor.total_sales || 0).toLocaleString()}</span>

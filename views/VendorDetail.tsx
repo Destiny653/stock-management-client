@@ -111,10 +111,22 @@ export default function VendorDetail() {
     queryFn: () => base44.auth.me(),
   });
 
+  const { data: linkedUser } = useQuery({
+    queryKey: ['user', vendor?.user_id],
+    queryFn: () => base44.entities.User.get(vendor!.user_id!),
+    enabled: !!vendor?.user_id,
+  });
+
+  const { data: location } = useQuery({
+    queryKey: ['location', vendor?.location_id],
+    queryFn: () => base44.entities.Location.get(vendor!.location_id!),
+    enabled: !!vendor?.location_id,
+  });
+
   // Filter sales for this vendor
   const vendorSales = useMemo(() => {
     if (!vendor) return [];
-    return (allSales as Sale[]).filter(s => s.vendor_email === vendor.email);
+    return (allSales as Sale[]).filter(s => s.vendor_id === vendor.id);
   }, [allSales, vendor]);
 
   // Calculate sales by period
@@ -123,25 +135,25 @@ export default function VendorDetail() {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
     const dailySales = vendorSales.filter(s => {
-      const saleDate = new Date(s.created_date);
+      const saleDate = new Date(s.created_at);
       return saleDate >= today;
     });
 
     const weekStart = startOfWeek(now);
     const weeklySales = vendorSales.filter(s => {
-      const saleDate = new Date(s.created_date);
+      const saleDate = new Date(s.created_at);
       return saleDate >= weekStart;
     });
 
     const monthStart = startOfMonth(now);
     const monthlySales = vendorSales.filter(s => {
-      const saleDate = new Date(s.created_date);
+      const saleDate = new Date(s.created_at);
       return saleDate >= monthStart;
     });
 
     const yearStart = startOfYear(now);
     const yearlySales = vendorSales.filter(s => {
-      const saleDate = new Date(s.created_date);
+      const saleDate = new Date(s.created_at);
       return saleDate >= yearStart;
     });
 
@@ -176,7 +188,7 @@ export default function VendorDetail() {
       const date = subDays(new Date(), i);
       const dayStr = format(date, 'yyyy-MM-dd');
       const daySales = vendorSales.filter(s =>
-        s.created_date && s.created_date.startsWith(dayStr)
+        s.created_at && s.created_at.startsWith(dayStr)
       );
       last30Days.push({
         date: format(date, 'MMM d'),
@@ -227,7 +239,7 @@ export default function VendorDetail() {
 
     await createPaymentMutation.mutateAsync({
       vendor_id: vendorId,
-      vendor_name: vendor.name,
+      vendor_name: vendor.store_name,
       ...paymentForm,
       status: 'pending',
       period_start: startOfMonth(new Date()).toISOString().split('T')[0],
@@ -287,7 +299,7 @@ export default function VendorDetail() {
             </div>
             <div>
               <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{vendor.store_name}</h1>
-              <p className="text-slate-500">{vendor.name}</p>
+              <p className="text-slate-500">{linkedUser?.full_name || 'No contact'}</p>
             </div>
           </div>
         </div>
@@ -450,18 +462,18 @@ export default function VendorDetail() {
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3">
               <Mail className="h-4 w-4 text-slate-400" />
-              <span className="text-sm">{vendor.email}</span>
+              <span className="text-sm">{linkedUser?.email || 'No email linked'}</span>
             </div>
-            {vendor.phone && (
+            {linkedUser?.phone && (
               <div className="flex items-center gap-3">
                 <Phone className="h-4 w-4 text-slate-400" />
-                <span className="text-sm">{vendor.phone}</span>
+                <span className="text-sm">{linkedUser.phone}</span>
               </div>
             )}
-            {vendor.store_address && (
+            {vendor.location_id && location && (
               <div className="flex items-start gap-3">
                 <MapPin className="h-4 w-4 text-slate-400 mt-0.5" />
-                <span className="text-sm">{vendor.store_address}, {vendor.city}, {vendor.country}</span>
+                <span className="text-sm">{location.address}, {location.city}, {location.country}</span>
               </div>
             )}
             <div className="flex items-center gap-3">
@@ -519,7 +531,7 @@ export default function VendorDetail() {
               <TableBody>
                 {(payments as VendorPayment[]).map(payment => (
                   <TableRow key={payment.id}>
-                    <TableCell>{format(new Date(payment.created_date), 'MMM d, yyyy')}</TableCell>
+                    <TableCell>{format(new Date(payment.created_at), 'MMM d, yyyy')}</TableCell>
                     <TableCell className="capitalize">{payment.payment_type}</TableCell>
                     <TableCell className="font-medium">${payment.amount}</TableCell>
                     <TableCell className="capitalize">{payment.payment_method?.replace('_', ' ')}</TableCell>
@@ -578,7 +590,7 @@ export default function VendorDetail() {
                 {(vendorSales as Sale[]).slice(0, 10).map(sale => (
                   <TableRow key={sale.id}>
                     <TableCell className="font-medium">{sale.sale_number}</TableCell>
-                    <TableCell>{format(new Date(sale.created_date), 'MMM d, yyyy HH:mm')}</TableCell>
+                    <TableCell>{format(new Date(sale.created_at), 'MMM d, yyyy HH:mm')}</TableCell>
                     <TableCell>{sale.items?.length || 0} items</TableCell>
                     <TableCell className="font-medium">${sale.total?.toFixed(2)}</TableCell>
                     <TableCell className="capitalize">{sale.payment_method}</TableCell>

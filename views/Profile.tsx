@@ -102,11 +102,11 @@ export default function Profile() {
   });
 
   // Find vendor profile if user is a vendor
-  const myVendor = vendors.find(v => v.email === user?.email);
+  const myVendor = vendors.find(v => v.user_id === user?.id);
   const isVendor = user?.user_type === 'vendor';
 
   // Calculate user stats
-  const userSales = sales.filter(s => s.vendor_email === user?.email);
+  const userSales = sales.filter(s => s.vendor_id === myVendor?.id);
   const totalSalesAmount = userSales.reduce((sum, s) => sum + (s.total || 0), 0);
   const userActivities = activityLogs.filter(a => a.performed_by === user?.email);
 

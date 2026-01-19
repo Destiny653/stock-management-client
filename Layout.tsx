@@ -73,6 +73,7 @@ const superAdminNavigation = [
 // Organization admin navigation - can manage vendors but not other orgs
 const adminNavigation = [
   { name: "dashboard", href: "Dashboard", icon: LayoutDashboard },
+  { name: "Team", href: "OrganizationMembers", icon: Users },
   { name: "inventory", href: "Inventory", icon: Package },
   { name: "directSales", href: "DirectSales", icon: ShoppingCart },
   { name: "purchaseOrders", href: "PurchaseOrders", icon: FileText },
@@ -83,6 +84,24 @@ const adminNavigation = [
   { name: "reports", href: "Reports", icon: BarChart3 },
   { name: "Profile", href: "Profile", icon: User },
   { name: "settings", href: "Settings", icon: Settings },
+];
+
+const managerNavigation = [
+  { name: "dashboard", href: "Dashboard", icon: LayoutDashboard },
+  { name: "Team", href: "OrganizationMembers", icon: Users },
+  { name: "inventory", href: "Inventory", icon: Package },
+  { name: "directSales", href: "DirectSales", icon: ShoppingCart },
+  { name: "purchaseOrders", href: "PurchaseOrders", icon: FileText },
+  { name: "Vendors", href: "VendorManagement", icon: Store },
+  { name: "reports", href: "Reports", icon: BarChart3 },
+  { name: "Profile", href: "Profile", icon: User },
+];
+
+const staffNavigation = [
+  { name: "dashboard", href: "Dashboard", icon: LayoutDashboard },
+  { name: "inventory", href: "Inventory", icon: Package },
+  { name: "directSales", href: "DirectSales", icon: ShoppingCart },
+  { name: "Profile", href: "Profile", icon: User },
 ];
 
 // Vendor navigation - limited access, view-only inventory
@@ -107,7 +126,7 @@ function NavLink({ item, currentPage, mobile = false, collapsed = false }: { ite
 
   const linkContent = (
     <Link
-      href={createPageUrl(item.href)}
+      href={item.href === 'OrganizationMembers' ? `${createPageUrl(item.href)}?id=${base44.auth.getOrganizationId()}` : createPageUrl(item.href)}
       className={cn(
         "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
         isActive
@@ -178,20 +197,26 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
   // Determine user role and type for navigation
   // role: 'admin' = super admin (full access), 'user' = regular
   // user_type: 'admin' = org admin, 'manager', 'vendor', 'staff'
-  const isSuperAdmin = user?.role === 'admin';
+  const isSuperAdmin = user?.role === 'admin' || user?.role === 'owner';
   const isOrgAdmin = user?.user_type === 'admin';
+  const isManager = user?.user_type === 'manager' || user?.role === 'manager';
   const isVendor = user?.user_type === 'vendor';
+  const isStaff = user?.user_type === 'staff' || user?.role === 'staff';
 
   let navigation;
   if (isSuperAdmin) {
     navigation = superAdminNavigation;
   } else if (isOrgAdmin) {
     navigation = adminNavigation;
+  } else if (isManager) {
+    navigation = managerNavigation;
   } else if (isVendor) {
     navigation = vendorNavigation;
+  } else if (isStaff) {
+    navigation = staffNavigation;
   } else {
-    // Default to vendor navigation for staff/other
-    navigation = vendorNavigation;
+    // Default to minimum safe navigation
+    navigation = staffNavigation;
   }
 
   return (

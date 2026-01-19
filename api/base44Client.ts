@@ -70,10 +70,8 @@ export interface Product {
 export interface Supplier {
     id: string;
     organization_id: string;
+    user_id?: string;
     name: string;
-    contact_name?: string;
-    email: string;
-    phone?: string;
     location_id?: string;
     payment_terms: 'Net 15' | 'Net 30' | 'Net 45' | 'Net 60' | 'COD';
     lead_time_days?: number;
@@ -187,11 +185,8 @@ export interface StockMovement {
 export interface Vendor {
     id: string;
     organization_id: string;
-    name: string;
-    email: string;
-    phone?: string;
-    store_name: string;
-    owner_name?: string;
+    user_id?: string;  // Linked user account (stores contact info: name, email, phone)
+    store_name: string;  // Trading/Display name for the vendor's store
     location_id?: string;
     status: 'active' | 'inactive' | 'pending' | 'suspended';
     subscription_plan?: string;
@@ -203,12 +198,6 @@ export interface Vendor {
     total_sales: number;
     total_orders?: number;
     created_at: string;
-    // For compatibility
-    address?: string;
-    city?: string;
-    country?: string;
-    latitude?: number;
-    longitude?: number;
 }
 
 export interface VendorPayment {
@@ -242,6 +231,8 @@ export interface User {
     organization_id?: string | null;
     email: string;
     username: string;
+    first_name?: string;
+    last_name?: string;
     full_name?: string;
     phone?: string;
     role: 'owner' | 'admin' | 'manager' | 'staff' | 'viewer';
@@ -256,6 +247,8 @@ export interface User {
     avatar_url?: string; // For compatibility
     preferences?: UserPreferences;
     timezone?: string; // Root level for easy access if needed
+    permissions?: string[];
+    warehouse_access?: string[];
 }
 
 export interface Organization {
@@ -267,6 +260,8 @@ export interface Organization {
     phone?: string;
     email?: string;
     website?: string;
+    city?: string;
+    country?: string;
     status: 'active' | 'inactive' | 'suspended';
     subscription_plan?: string;
     max_vendors?: number;
@@ -283,6 +278,7 @@ interface EntityMethods<T> {
     create: (data: Partial<T>) => Promise<T>;
     update: (id: string, data: Partial<T>) => Promise<T>;
     delete: (id: string, params?: Record<string, any>) => Promise<void>;
+    filter: (params: Record<string, any>) => Promise<T[]>;
     search?: (q: string, params?: Record<string, any>) => Promise<T[]>;
 }
 
@@ -359,6 +355,15 @@ const createEntityMethods = <T extends { id: string }>(entityName: string): Enti
                 ...(orgId && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
             };
             await apiClient.delete(`${endpoint}${id}`, { params: combinedParams });
+        },
+        filter: async (params) => {
+            const orgId = getOrgId();
+            const combinedParams = {
+                ...params,
+                ...(orgId && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
+            };
+            const response = await apiClient.get<T[]>(endpoint, { params: combinedParams });
+            return response.data;
         }
     };
 };
@@ -410,6 +415,14 @@ const authMethods = {
         const response = await apiClient.put<User>('auth/me', data);
         localStorage.setItem('base44_currentUser', JSON.stringify(response.data));
         return response.data;
+    },
+
+    getOrganizationId: (): string | null => {
+        if (typeof window === 'undefined') return null;
+        const userJson = localStorage.getItem('base44_currentUser');
+        if (!userJson) return null;
+        const user = JSON.parse(userJson);
+        return user.organization_id;
     },
 };
 

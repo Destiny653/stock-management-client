@@ -8,47 +8,84 @@ import {
   Truck,
   BarChart3,
   Package,
-  ArrowRight
+  ArrowRight,
+  UserPlus,
+  ShoppingBag
 } from "lucide-react";
-
-const actions = [
-  {
-    label: "Add Product",
-    description: "Create a new inventory item",
-    icon: Plus,
-    href: "ProductDetail?mode=new",
-    color: "bg-teal-600 hover:bg-teal-700 text-white"
-  },
-  {
-    label: "Create PO",
-    description: "Start a new purchase order",
-    icon: FileText,
-    href: "CreatePurchaseOrder",
-    color: "bg-slate-900 hover:bg-slate-800 text-white"
-  },
-  {
-    label: "Receive Shipment",
-    description: "Log incoming inventory",
-    icon: Truck,
-    href: "PurchaseOrders?filter=ordered",
-    color: "bg-white hover:bg-slate-50 text-slate-900 border border-slate-200"
-  },
-  {
-    label: "View Reports",
-    description: "Analytics and insights",
-    icon: BarChart3,
-    href: "Reports",
-    color: "bg-white hover:bg-slate-50 text-slate-900 border border-slate-200"
-  }
-];
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
 
 export default function QuickActions() {
+  const { data: user } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const orgId = user?.organization_id || base44.auth.getOrganizationId();
+
+  const allActions = [
+    {
+      label: "Add Product",
+      description: "Create a new inventory item",
+      icon: Plus,
+      href: "ProductDetail?mode=new",
+      color: "bg-teal-600 hover:bg-teal-700 text-white",
+      roles: ['owner', 'admin', 'manager']
+    },
+    {
+      label: "POS / New Sale",
+      description: "Record a new sale",
+      icon: ShoppingBag,
+      href: "DirectSales",
+      color: "bg-emerald-600 hover:bg-emerald-700 text-white",
+      roles: ['staff', 'manager', 'vendor']
+    },
+    {
+      label: "Manage Team",
+      description: "Manage organization members",
+      icon: UserPlus,
+      href: `OrganizationMembers?orgId=${orgId}`,
+      color: "bg-blue-600 hover:bg-blue-700 text-white",
+      roles: ['owner', 'admin', 'manager'],
+      requireOrg: true
+    },
+    {
+      label: "Create PO",
+      description: "Start a new purchase order",
+      icon: FileText,
+      href: "CreatePurchaseOrder",
+      color: "bg-slate-900 hover:bg-slate-800 text-white",
+      roles: ['owner', 'admin', 'manager']
+    },
+    {
+      label: "Receive Shipment",
+      description: "Log incoming inventory",
+      icon: Truck,
+      href: "PurchaseOrders?filter=ordered",
+      color: "bg-white hover:bg-slate-50 text-slate-900 border border-slate-200",
+      roles: ['owner', 'admin', 'manager', 'staff']
+    },
+    {
+      label: "View Reports",
+      description: "Analytics and insights",
+      icon: BarChart3,
+      href: "Reports",
+      color: "bg-white hover:bg-slate-50 text-slate-900 border border-slate-200",
+      roles: ['owner', 'admin', 'manager']
+    }
+  ];
+
+  const filteredActions = allActions.filter(action => {
+    if (action.requireOrg && !orgId) return false;
+    if (action.roles && user && !action.roles.includes(user.role)) return false;
+    return true;
+  }).slice(0, 4);
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-6">
       <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
 
       <div className="grid grid-cols-2 gap-3">
-        {actions.map((action) => {
+        {filteredActions.map((action) => {
           const Icon = action.icon;
           return (
             <Link

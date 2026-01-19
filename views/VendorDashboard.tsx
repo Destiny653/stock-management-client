@@ -52,13 +52,20 @@ export default function VendorDashboard() {
   });
 
   // Find vendor for current user
-  const myVendor = (vendors as Vendor[]).find(v => v.email === user?.email);
+  const myVendor = (vendors as Vendor[]).find(v => v.user_id === user?.id);
 
   // Filter sales for this vendor
   const mySales = useMemo(() => {
-    if (!user) return [];
-    return (sales as Sale[]).filter(s => s.vendor_email === user.email);
-  }, [sales, user]);
+    if (!myVendor) return [];
+    return (sales as Sale[]).filter(s => s.vendor_id === myVendor.id);
+  }, [sales, myVendor]);
+
+  // Fetch location for myVendor
+  const { data: myLocation } = useQuery({
+    queryKey: ['location', myVendor?.location_id],
+    queryFn: () => base44.entities.Location.get(myVendor!.location_id!),
+    enabled: !!myVendor?.location_id,
+  });
 
   // My payments
   const myPayments = useMemo(() => {
@@ -71,13 +78,13 @@ export default function VendorDashboard() {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
-    const dailySales = mySales.filter(s => new Date(s.created_date) >= today);
+    const dailySales = mySales.filter(s => new Date(s.created_at) >= today);
     const weekStart = startOfWeek(now);
-    const weeklySales = mySales.filter(s => new Date(s.created_date) >= weekStart);
+    const weeklySales = mySales.filter(s => new Date(s.created_at) >= weekStart);
     const monthStart = startOfMonth(now);
-    const monthlySales = mySales.filter(s => new Date(s.created_date) >= monthStart);
+    const monthlySales = mySales.filter(s => new Date(s.created_at) >= monthStart);
     const yearStart = startOfYear(now);
-    const yearlySales = mySales.filter(s => new Date(s.created_date) >= yearStart);
+    const yearlySales = mySales.filter(s => new Date(s.created_at) >= yearStart);
 
     return {
       daily: { total: dailySales.reduce((sum, s) => sum + (s.total || 0), 0), count: dailySales.length },
@@ -94,7 +101,7 @@ export default function VendorDashboard() {
     for (let i = 29; i >= 0; i--) {
       const date = subDays(new Date(), i);
       const dayStr = format(date, 'yyyy-MM-dd');
-      const daySales = mySales.filter(s => s.created_date && s.created_date.startsWith(dayStr));
+      const daySales = mySales.filter(s => s.created_at && s.created_at.startsWith(dayStr));
       last30Days.push({
         date: format(date, 'MMM d'),
         sales: daySales.reduce((sum, s) => sum + (s.total || 0), 0),
@@ -141,7 +148,7 @@ export default function VendorDashboard() {
                 </div>
                 <div>
                   <h2 className="text-xl font-bold">{myVendor.store_name}</h2>
-                  <p className="text-teal-100">{myVendor.city}, {myVendor.country}</p>
+                  <p className="text-teal-100">{myLocation ? `${myLocation.city}, ${myLocation.country}` : 'No location set'}</p>
                 </div>
               </div>
               <div className="text-right">
@@ -292,7 +299,7 @@ export default function VendorDashboard() {
                       {myPayments.slice(0, 3).map(payment => (
                         <div key={payment.id} className="flex justify-between items-center text-sm">
                           <span className="text-slate-600">
-                            {format(new Date(payment.created_date), 'MMM d, yyyy')}
+                            {format(new Date(payment.created_at), 'MMM d, yyyy')}
                           </span>
                           <div className="flex items-center gap-2">
                             <span className="font-medium">${payment.amount}</span>
@@ -352,7 +359,7 @@ export default function VendorDashboard() {
                 {mySales.slice(0, 5).map(sale => (
                   <TableRow key={sale.id}>
                     <TableCell className="font-medium">{sale.sale_number}</TableCell>
-                    <TableCell>{format(new Date(sale.created_date), 'MMM d, HH:mm')}</TableCell>
+                    <TableCell>{format(new Date(sale.created_at), 'MMM d, HH:mm')}</TableCell>
                     <TableCell>{sale.client_name || 'Walk-in'}</TableCell>
                     <TableCell>{sale.items?.length || 0} items</TableCell>
                     <TableCell className="font-semibold">${sale.total?.toFixed(2)}</TableCell>

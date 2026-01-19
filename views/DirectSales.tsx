@@ -127,14 +127,29 @@ export default function DirectSales() {
     queryFn: () => base44.entities.Product.list(),
   });
 
-  const { data: sales = [], isLoading: loadingSales } = useQuery({
-    queryKey: ['sales'],
-    queryFn: () => base44.entities.Sale.list({ sort: '-created_at' }),
-  });
-
   const { data: user } = useQuery({
     queryKey: ['currentUser'],
     queryFn: () => base44.auth.me(),
+  });
+
+  const isManagerOrAdmin = useMemo(() => {
+    if (!user) return false;
+    return ['owner', 'admin', 'manager'].includes(user.role) || user.user_type === 'admin' || user.user_type === 'manager';
+  }, [user]);
+
+  const { data: vendors = [] } = useQuery({
+    queryKey: ['vendors', user?.organization_id],
+    queryFn: () => base44.entities.Vendor.list({ organization_id: user?.organization_id }),
+    enabled: !!user?.organization_id,
+  });
+
+  const myVendor = useMemo(() => {
+    return vendors.find((v: Vendor) => v.user_id === user?.id);
+  }, [vendors, user]);
+
+  const { data: sales = [], isLoading: loadingSales } = useQuery({
+    queryKey: ['sales'],
+    queryFn: () => base44.entities.Sale.list({ sort: '-created_at' }),
   });
 
   const createSaleMutation = useMutation({
@@ -152,6 +167,33 @@ export default function DirectSales() {
       toast.error(t('saleFailed'));
     }
   });
+
+  const deleteSaleMutation = useMutation({
+    mutationFn: (id: string) => base44.entities.Sale.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['sales'] });
+      toast.success("Sale deleted successfully");
+    },
+    onError: () => {
+      toast.error("Failed to delete sale");
+    }
+  });
+
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+  const handleDeleteSale = (saleId: string) => {
+    setDeleteId(saleId);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteSale = () => {
+    if (deleteId) {
+      deleteSaleMutation.mutate(deleteId);
+      setIsDeleteDialogOpen(false);
+      setDeleteId(null);
+    }
+  };
 
   const resetSaleForm = () => {
     setSaleForm({
@@ -350,8 +392,10 @@ export default function DirectSales() {
 
     const saleData = {
       sale_number: `SALE-${Date.now().toString().slice(-8)}`,
-      vendor_name: saleForm.vendor_name,
+      vendor_id: myVendor?.id,
+      vendor_name: saleForm.vendor_name || user?.full_name || 'System',
       vendor_email: user?.email || '',
+      organization_id: user?.organization_id,
       client_name: saleForm.client_name || undefined,
       client_email: saleForm.client_email || undefined,
       client_phone: saleForm.client_phone || undefined,
@@ -845,6 +889,7 @@ export default function DirectSales() {
                   <TableHead>{t('items')}</TableHead>
                   <TableHead>{t('payment')}</TableHead>
                   <TableHead className="text-right">{t('total')}</TableHead>
+                  {isManagerOrAdmin && <TableHead className="w-12"></TableHead>}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -878,6 +923,13 @@ export default function DirectSales() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-right font-bold text-teal-600">${sale.total_amount?.toFixed(2)}</TableCell>
+                        {isManagerOrAdmin && (
+                          <TableCell>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-600 hover:text-rose-700" onClick={() => handleDeleteSale(sale.id)}>
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </TableCell>
+                        )}
                       </TableRow>
                     );
                   })
@@ -1034,6 +1086,29 @@ export default function DirectSales() {
                 <CheckCircle className="h-4 w-4 mr-2" />
               )}
               {t('completeSale')}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      {/* Delete Sale Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader className="flex flex-col items-center text-center space-y-3">
+            <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
+              <AlertTriangle className="h-6 w-6 text-rose-600" />
+            </div>
+            <DialogTitle className="text-xl">Void Transaction?</DialogTitle>
+            <p className="text-sm text-slate-500">
+              Are you sure you want to void this sale? This will remove the record and cannot be reversed.
+            </p>
+          </DialogHeader>
+          <DialogFooter className="grid grid-cols-2 gap-3 mt-4">
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteSale} disabled={deleteSaleMutation.isPending}>
+              {deleteSaleMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+              Confirm Void
             </Button>
           </DialogFooter>
         </DialogContent>

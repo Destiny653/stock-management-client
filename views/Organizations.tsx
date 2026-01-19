@@ -45,7 +45,8 @@ import {
     Save,
     Globe,
     Mail,
-    Phone
+    Phone,
+    AlertTriangle
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -90,6 +91,9 @@ export default function Organizations() {
         max_vendors: 10,
         max_users: 5
     });
+
+    const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+    const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
     const { data: organizations = [], isLoading: loadingOrgs } = useQuery<Organization[]>({
         queryKey: ['organizations'],
@@ -245,11 +249,17 @@ export default function Organizations() {
         }
     };
 
-    const handleDelete = async (id: string) => {
-        if (confirm("Delete this organization? This will not delete associated vendors or users.")) {
+    const handleDelete = (id: string) => {
+        setItemToDelete(id);
+        setDeleteConfirmOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (itemToDelete) {
             try {
-                await deleteOrgMutation.mutateAsync(id);
-                toast.success("Organization deleted");
+                await deleteOrgMutation.mutateAsync(itemToDelete);
+                setDeleteConfirmOpen(false);
+                setItemToDelete(null);
             } catch (error: any) {
                 toast.error(error.response?.data?.detail || "Error deleting organization");
             }
@@ -603,6 +613,29 @@ export default function Organizations() {
                     </Table>
                 )}
             </Card>
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+                <DialogContent className="max-w-sm">
+                    <DialogHeader className="flex flex-col items-center text-center space-y-3">
+                        <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
+                            <AlertTriangle className="h-6 w-6 text-rose-600" />
+                        </div>
+                        <DialogTitle className="text-xl">Delete Organization?</DialogTitle>
+                        <p className="text-sm text-slate-500">
+                            Are you sure you want to delete this organization? This will not delete associated vendors or users, but they will lose access to this organization's data.
+                        </p>
+                    </DialogHeader>
+                    <DialogFooter className="grid grid-cols-2 gap-3 mt-4">
+                        <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="destructive" onClick={confirmDelete} disabled={deleteOrgMutation.isPending}>
+                            {deleteOrgMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                            Delete
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

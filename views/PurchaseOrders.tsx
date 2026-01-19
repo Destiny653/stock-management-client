@@ -272,7 +272,7 @@ export default function PurchaseOrders() {
                       {po.expected_date ? format(new Date(po.expected_date), "MMM d, yyyy") : '-'}
                     </TableCell>
                     <TableCell className="text-slate-500 text-sm">
-                      {format(new Date(po.created_date), "MMM d")}
+                      {format(new Date(po.created_at), "MMM d")}
                     </TableCell>
                     <TableCell>
                       <DropdownMenu>

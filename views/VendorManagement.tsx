@@ -93,11 +93,7 @@ const paymentStatusColors: Record<string, string> = {
 
 
 interface VendorFormData {
-  name: string;
-  owner_name: string;
-  email: string;
-  phone: string;
-  store_name: string;
+  store_name: string;  // Trading/Display name for the vendor's store
   status: 'active' | 'inactive' | 'pending' | 'suspended';
   subscription_plan: string;
   monthly_fee: number;
@@ -105,6 +101,7 @@ interface VendorFormData {
   notes: string;
   organization_id?: string;
   location_id?: string;
+  user_id?: string;
   // Address fields for the sub-location
   address: string;
   city: string;
@@ -132,10 +129,6 @@ export default function VendorManagement() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [editingVendor, setEditingVendor] = useState<Vendor | null>(null);
   const [formData, setFormData] = useState<VendorFormData>({
-    name: '',
-    owner_name: '',
-    email: '',
-    phone: '',
     store_name: '',
     address: '',
     city: '',
@@ -148,7 +141,8 @@ export default function VendorManagement() {
     commission_rate: 5,
     notes: '',
     organization_id: '',
-    location_id: ''
+    location_id: '',
+    user_id: ''
   });
 
   const { data: organizations = [] } = useQuery({
@@ -171,6 +165,11 @@ export default function VendorManagement() {
     queryFn: () => base44.entities.Sale.list(),
   });
 
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
   // Create a map for location display
   const locationMap = useMemo(() => {
     return locations.reduce((acc, loc) => {
@@ -178,6 +177,13 @@ export default function VendorManagement() {
       return acc;
     }, {} as Record<string, any>);
   }, [locations]);
+
+  const userMap = useMemo(() => {
+    return users.reduce((acc, u) => {
+      acc[u.id] = u;
+      return acc;
+    }, {} as Record<string, any>);
+  }, [users]);
 
   const createVendorMutation = useMutation({
     mutationFn: (data: any) => base44.entities.Vendor.create({
@@ -206,10 +212,6 @@ export default function VendorManagement() {
 
   const resetForm = () => {
     setFormData({
-      name: '',
-      owner_name: '',
-      email: '',
-      phone: '',
       store_name: '',
       address: '',
       city: '',
@@ -222,7 +224,8 @@ export default function VendorManagement() {
       commission_rate: 5,
       notes: '',
       organization_id: '',
-      location_id: ''
+      location_id: '',
+      user_id: ''
     });
   };
 
@@ -230,10 +233,6 @@ export default function VendorManagement() {
     const loc = vendor.location_id ? locationMap[vendor.location_id] : null;
     setEditingVendor(vendor);
     setFormData({
-      name: vendor.name || '',
-      owner_name: vendor.owner_name || '',
-      email: vendor.email || '',
-      phone: vendor.phone || '',
       store_name: vendor.store_name || '',
       address: loc?.address || '',
       city: loc?.city || '',
@@ -246,13 +245,14 @@ export default function VendorManagement() {
       commission_rate: vendor.commission_rate || 5,
       notes: vendor.notes || '',
       organization_id: vendor.organization_id || '',
-      location_id: vendor.location_id || ''
+      location_id: vendor.location_id || '',
+      user_id: vendor.user_id || ''
     });
   };
 
   const handleSubmit = async () => {
-    if (!formData.name || !formData.email || !formData.store_name) {
-      toast.error("Please fill in required fields");
+    if (!formData.store_name) {
+      toast.error("Please fill in the store name");
       return;
     }
 
@@ -278,9 +278,20 @@ export default function VendorManagement() {
         }
       }
 
+      // 2. Destructure to remove location fields from vendor data
+      const {
+        address,
+        city,
+        country,
+        latitude,
+        longitude,
+        ...rest
+      } = formData;
+
       const vendorData = {
-        ...formData,
-        location_id: locationId
+        ...rest,
+        location_id: locationId,
+        user_id: rest.user_id || null
       };
 
       if (editingVendor) {
@@ -301,13 +312,13 @@ export default function VendorManagement() {
   const vendorStats = useMemo(() => {
     const stats: Record<string, { totalSales: number; totalOrders: number }> = {};
     (sales as Sale[]).forEach(sale => {
-      const vendorEmail = sale.vendor_email;
-      if (!vendorEmail) return; // Skip sales without a vendor_email
-      if (!stats[vendorEmail]) {
-        stats[vendorEmail] = { totalSales: 0, totalOrders: 0 };
+      const vendorId = sale.vendor_id;
+      if (!vendorId) return;
+      if (!stats[vendorId]) {
+        stats[vendorId] = { totalSales: 0, totalOrders: 0 };
       }
-      stats[vendorEmail].totalSales += sale.total || 0;
-      stats[vendorEmail].totalOrders += 1;
+      stats[vendorId].totalSales += sale.total || 0;
+      stats[vendorId].totalOrders += 1;
     });
     return stats;
   }, [sales]);
@@ -319,9 +330,11 @@ export default function VendorManagement() {
       const search = searchTerm.toLowerCase();
       result = result.filter(v => {
         const loc = v.location_id ? locationMap[v.location_id] : null;
+        const user = v.user_id ? userMap[v.user_id] : null;
         return v.name?.toLowerCase().includes(search) ||
           v.store_name?.toLowerCase().includes(search) ||
-          v.email?.toLowerCase().includes(search) ||
+          user?.email?.toLowerCase().includes(search) ||
+          user?.full_name?.toLowerCase().includes(search) ||
           loc?.city?.toLowerCase().includes(search);
       });
     }
@@ -348,58 +361,45 @@ export default function VendorManagement() {
   const VendorForm = () => (
     <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
       {/* Organization Selection */}
-      {organizations.length > 0 && (
+      <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Organization</Label>
           <Select value={formData.organization_id || "none"} onValueChange={(v) => setFormData(prev => ({ ...prev, organization_id: v === "none" ? "" : v }))}>
             <SelectTrigger>
-              <SelectValue placeholder="Select organization (optional)" />
+              <SelectValue placeholder="Select organization" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="none">No Organization</SelectItem>
               {organizations.map(org => (
-                <SelectItem key={org.id} value={org.id}>{org.name} ({org.code})</SelectItem>
+                <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
-      )}
+        <div className="space-y-2">
+          <Label>Linked User Account</Label>
+          <Select value={formData.user_id || "none"} onValueChange={(v) => setFormData(prev => ({ ...prev, user_id: v === "none" ? "" : v }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="Link to user" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">No User Account</SelectItem>
+              {users.map(u => (
+                <SelectItem key={u.id} value={u.id}>{u.full_name} ({u.email})</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <p className="text-[10px] text-slate-500">Linking allows the vendor to log in</p>
+        </div>
+      </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
+        <div className="space-y-2 col-span-2">
           <Label>{t('businessNameRequired')}</Label>
           <Input
             value={formData.name}
             onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
             placeholder={t('businessName')}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>{t('ownerNameLabel')}</Label>
-          <Input
-            value={formData.owner_name}
-            onChange={(e) => setFormData(prev => ({ ...prev, owner_name: e.target.value }))}
-            placeholder={t('ownerName')}
-          />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>{t('emailRequired')}</Label>
-          <Input
-            type="email"
-            value={formData.email}
-            onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-            placeholder="email@example.com"
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>{t('phone')}</Label>
-          <Input
-            value={formData.phone}
-            onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-            placeholder="+1 234 567 890"
           />
         </div>
       </div>
@@ -551,7 +551,7 @@ export default function VendorManagement() {
               </div>
               <div>
                 <h3 className="font-semibold text-slate-900">{vendor.store_name}</h3>
-                <p className="text-sm text-slate-500">{vendor.name}</p>
+                <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.full_name || 'No contact'}</p>
               </div>
             </div>
             <DropdownMenu>
@@ -587,12 +587,12 @@ export default function VendorManagement() {
           <div className="space-y-2 mb-4">
             <div className="flex items-center gap-2 text-sm text-slate-600">
               <Mail className="h-4 w-4 text-slate-400" />
-              {vendor.email}
+              {userMap[vendor.user_id!]?.email || 'No email linked'}
             </div>
-            {vendor.phone && (
+            {userMap[vendor.user_id!]?.phone && (
               <div className="flex items-center gap-2 text-sm text-slate-600">
                 <Phone className="h-4 w-4 text-slate-400" />
-                {vendor.phone}
+                {userMap[vendor.user_id!]?.phone}
               </div>
             )}
             {vendor.location_id && locationMap[vendor.location_id] && (
@@ -819,7 +819,7 @@ export default function VendorManagement() {
                           <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)} className="font-medium text-slate-900 hover:text-teal-600 hover:underline">
                             {vendor.store_name}
                           </Link>
-                          <p className="text-sm text-slate-500">{vendor.name}</p>
+                          <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.full_name || 'No contact'}</p>
                         </div>
                       </div>
                     </TableCell>

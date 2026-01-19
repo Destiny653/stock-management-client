@@ -72,23 +72,75 @@ export default function StoreLocations() {
   const [viewMode, setViewMode] = useState("map");
   const [selectedVendor, setSelectedVendor] = useState<Vendor | null>(null);
 
-  const { data: vendors = [], isLoading } = useQuery({
+  const { data: vendors = [], isLoading: loadingVendors } = useQuery({
     queryKey: ['vendors'],
     queryFn: () => base44.entities.Vendor.list(),
   });
 
-  // Filter vendors with location data
-  const vendorsWithLocation = vendors.filter((v): v is Vendor & { latitude: number; longitude: number } =>
-    typeof v.latitude === 'number' && typeof v.longitude === 'number'
-  );
-
-  const filteredVendors = (vendors as Vendor[]).filter(v => {
-    const matchesSearch = !searchTerm ||
-      v.store_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      v.city?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = statusFilter === "all" || v.status === statusFilter;
-    return matchesSearch && matchesStatus;
+  const { data: locations = [], isLoading: loadingLocations } = useQuery({
+    queryKey: ['locations'],
+    queryFn: () => base44.entities.Location.list(),
   });
+
+  const { data: users = [] } = useQuery({
+    queryKey: ['users'],
+    queryFn: () => base44.entities.User.list(),
+  });
+
+  const isLoading = loadingVendors || loadingLocations;
+
+  const locationMap = React.useMemo(() => {
+    const map: Record<string, any> = {};
+    locations.forEach((loc: any) => {
+      map[loc.id] = loc;
+    });
+    return map;
+  }, [locations]);
+
+  const userMap = React.useMemo(() => {
+    const map: Record<string, any> = {};
+    users.forEach((u: any) => {
+      map[u.id] = u;
+    });
+    return map;
+  }, [users]);
+
+  // Filter vendors with location data
+  const vendorsWithLocation = React.useMemo(() => {
+    return (vendors as Vendor[]).map(v => {
+      const loc = v.location_id ? locationMap[v.location_id] : null;
+      return {
+        ...v,
+        latitude: loc?.latitude,
+        longitude: loc?.longitude,
+        address: loc?.address,
+        city: loc?.city,
+        country: loc?.country
+      };
+    }).filter((v): v is Vendor & { latitude: number; longitude: number } =>
+      typeof v.latitude === 'number' && typeof v.longitude === 'number'
+    );
+  }, [vendors, locationMap]);
+
+  const filteredVendors = React.useMemo(() => {
+    return (vendors as Vendor[]).map(v => {
+      const loc = v.location_id ? locationMap[v.location_id] : null;
+      return {
+        ...v,
+        latitude: loc?.latitude,
+        longitude: loc?.longitude,
+        address: loc?.address,
+        city: loc?.city,
+        country: loc?.country
+      };
+    }).filter(v => {
+      const matchesSearch = !searchTerm ||
+        v.store_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        v.city?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus = statusFilter === "all" || v.status === statusFilter;
+      return matchesSearch && matchesStatus;
+    });
+  }, [vendors, searchTerm, statusFilter, locationMap]);
 
   // Calculate map center
   const mapCenter: [number, number] = vendorsWithLocation.length > 0
@@ -217,10 +269,10 @@ export default function StoreLocations() {
                     </div>
                     <Badge className={statusColors[vendor.status]}>{vendor.status}</Badge>
                   </div>
-                  {vendor.store_address && (
+                  {vendor.address && (
                     <div className="mt-3 flex items-start gap-2 text-sm text-slate-600">
                       <MapPin className="h-4 w-4 text-slate-400 mt-0.5" />
-                      {vendor.store_address}
+                      {vendor.address}
                     </div>
                   )}
                   <div className="mt-3 flex gap-2">
@@ -255,17 +307,17 @@ export default function StoreLocations() {
                     </div>
                     <div>
                       <h3 className="font-semibold text-slate-900">{vendor.store_name}</h3>
-                      <p className="text-sm text-slate-500">{vendor.name}</p>
+                      <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.full_name || 'No contact'}</p>
                     </div>
                   </div>
                   <Badge className={statusColors[vendor.status]}>{vendor.status}</Badge>
                 </div>
 
                 <div className="space-y-2 mb-4">
-                  {vendor.store_address && (
+                  {vendor.address && (
                     <div className="flex items-start gap-2 text-sm text-slate-600">
                       <MapPin className="h-4 w-4 text-slate-400 mt-0.5" />
-                      <span>{vendor.store_address}, {vendor.city}, {vendor.country}</span>
+                      <span>{vendor.address}, {vendor.city}, {vendor.country}</span>
                     </div>
                   )}
                   <div className="flex items-center gap-2 text-sm text-slate-600">

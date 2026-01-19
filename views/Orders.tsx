@@ -291,7 +291,7 @@ export default function Orders() {
                                         </div>
                                     </TableCell>
                                     <TableCell className="text-slate-600">
-                                        {format(new Date(order.created_date), 'MMM d, yyyy')}
+                                        {format(new Date(order.created_at), 'MMM d, yyyy')}
                                     </TableCell>
                                     <TableCell>{order.items?.length || 0} items</TableCell>
                                     <TableCell className="font-medium">${order.total?.toFixed(2)}</TableCell>
@@ -376,7 +376,7 @@ export default function Orders() {
                                 </div>
                                 <div>
                                     <Label className="text-xs text-slate-500">Order Date</Label>
-                                    <p className="font-medium">{format(new Date(selectedOrder.created_date), 'MMM d, yyyy HH:mm')}</p>
+                                    <p className="font-medium">{format(new Date(selectedOrder.created_at), 'MMM d, yyyy HH:mm')}</p>
                                 </div>
                             </div>
 

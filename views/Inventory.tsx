@@ -6,7 +6,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Download, Upload, Loader2, Grid3X3, List, Package, MoreHorizontal, Eye, Edit2, Trash2 } from "lucide-react";
+import { Plus, Download, Upload, Loader2, Grid3X3, List, Package, MoreHorizontal, Eye, Edit2, Trash2, AlertTriangle } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,7 +49,7 @@ export default function Inventory() {
 
   // Vendors can only view inventory, not edit
   const isVendor = user?.user_type === 'vendor';
-  const canEdit = user?.role === 'admin' || user?.user_type === 'admin' || user?.user_type === 'manager';
+  const canEdit = user && ['owner', 'admin', 'manager'].includes(user.role);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     category: "all",
@@ -56,6 +63,9 @@ export default function Inventory() {
   ]);
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' }>({ key: "name", direction: "asc" });
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isBulkDeleteDialogOpen, setIsBulkDeleteDialogOpen] = useState(false);
+  const [deleteProductItem, setDeleteProductItem] = useState<string | null>(null);
 
   const { data: products = [], isLoading } = useQuery({
     queryKey: ['products'],
@@ -200,18 +210,28 @@ export default function Inventory() {
   };
 
   const handleDelete = async (id: string) => {
-    if (confirm("Are you sure you want to delete this product?")) {
-      await deleteProductMutation.mutateAsync(id);
+    setDeleteProductItem(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (deleteProductItem) {
+      await deleteProductMutation.mutateAsync(deleteProductItem);
+      setIsDeleteDialogOpen(false);
+      setDeleteProductItem(null);
     }
   };
 
   const handleBulkDelete = async () => {
-    if (confirm(`Delete ${selectedIds.length} products?`)) {
-      for (const id of selectedIds) {
-        await deleteProductMutation.mutateAsync(id);
-      }
-      setSelectedIds([]);
+    setIsBulkDeleteDialogOpen(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    for (const id of selectedIds) {
+      await deleteProductMutation.mutateAsync(id);
     }
+    setSelectedIds([]);
+    setIsBulkDeleteDialogOpen(false);
   };
 
   const handleExport = () => {
@@ -459,6 +479,53 @@ export default function Inventory() {
           onArchive={() => toast.info("Archive feature coming soon")}
         />
       )}
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader className="flex flex-col items-center text-center space-y-3">
+            <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
+              <AlertTriangle className="h-6 w-6 text-rose-600" />
+            </div>
+            <DialogTitle className="text-xl">Delete Product?</DialogTitle>
+            <p className="text-sm text-slate-500">
+              Are you sure you want to delete this product? This action will remove all variants and cannot be undone.
+            </p>
+          </DialogHeader>
+          <DialogFooter className="grid grid-cols-2 gap-3 mt-4">
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete} disabled={deleteProductMutation.isPending}>
+              {deleteProductMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <Dialog open={isBulkDeleteDialogOpen} onOpenChange={setIsBulkDeleteDialogOpen}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader className="flex flex-col items-center text-center space-y-3">
+            <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
+              <AlertTriangle className="h-6 w-6 text-rose-600" />
+            </div>
+            <DialogTitle className="text-xl">Delete {selectedIds.length} Products?</DialogTitle>
+            <p className="text-sm text-slate-500">
+              This will permanently delete multiple products and all their variants. This action cannot be undone.
+            </p>
+          </DialogHeader>
+          <DialogFooter className="grid grid-cols-2 gap-3 mt-4">
+            <Button variant="outline" onClick={() => setIsBulkDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmBulkDelete} disabled={deleteProductMutation.isPending}>
+              {deleteProductMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+              Confirm Bulk Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
