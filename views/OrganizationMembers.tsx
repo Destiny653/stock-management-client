@@ -81,7 +81,7 @@ const statusColors: Record<string, string> = {
     suspended: "bg-rose-100 text-rose-700"
 };
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function OrganizationMembers() {
     const { t } = useSafeLanguage();
@@ -138,12 +138,14 @@ export default function OrganizationMembers() {
         queryFn: () => base44.auth.me(),
     });
 
+    const isSuperAdmin = currentUser?.role === 'admin' || currentUser?.role === 'owner';
     const isManagerOrAdmin = useMemo(() => {
         if (!currentUser) return false;
-        return ['owner', 'admin', 'manager'].includes(currentUser.role) ||
+        return isSuperAdmin ||
+            ['manager'].includes(currentUser.role) ||
             currentUser.user_type === 'admin' ||
             currentUser.user_type === 'manager';
-    }, [currentUser]);
+    }, [currentUser, isSuperAdmin]);
 
     const { data: organization, isLoading: loadingOrg } = useQuery({
         queryKey: ['organization', orgId],
@@ -156,14 +158,16 @@ export default function OrganizationMembers() {
     });
 
     const { data: vendors = [] } = useQuery({
-        queryKey: ['vendors'],
-        queryFn: () => base44.entities.Vendor.list(),
+        queryKey: ['vendors', orgId],
+        queryFn: () => base44.entities.Vendor.list({ organization_id: orgId || undefined }),
         initialData: [],
+        enabled: !!orgId || isSuperAdmin,
     });
 
     const { data: users = [] } = useQuery({
-        queryKey: ['users'],
-        queryFn: () => base44.entities.User.list(),
+        queryKey: ['users', orgId],
+        queryFn: () => base44.entities.User.list({ organization_id: orgId || undefined }),
+        enabled: !!orgId || isSuperAdmin,
     });
 
     const { data: locations = [] } = useQuery({
@@ -439,6 +443,14 @@ export default function OrganizationMembers() {
         setSelectedMember({ ...member, type });
         setDetailsOpen(true);
     };
+
+    const router = useRouter();
+    React.useEffect(() => {
+        if (currentUser && !isSuperAdmin && orgId && orgId !== currentUser.organization_id) {
+            toast.error("You don't have permission to access this organization");
+            router.push('/Dashboard');
+        }
+    }, [currentUser, isSuperAdmin, orgId, router]);
 
     if (loadingOrg) {
         return (

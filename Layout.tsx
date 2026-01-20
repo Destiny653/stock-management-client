@@ -65,9 +65,10 @@ const superAdminNavigation = [
   { name: "Vendors", href: "VendorManagement", icon: Store },
   { name: "Payments", href: "VendorPayments", icon: CreditCard },
   { name: "Store Map", href: "StoreLocations", icon: MapPin },
-  { name: "reports", href: "Reports", icon: BarChart3 },
+  { name: "Reports", href: "Reports", icon: BarChart3 },
+  { name: "Team", href: "OrganizationMembers", icon: Users },
   { name: "Profile", href: "Profile", icon: User },
-  { name: "settings", href: "Settings", icon: Settings },
+  { name: "Settings", href: "Settings", icon: Settings },
 ];
 
 // Organization admin navigation - can manage vendors but not other orgs
@@ -93,8 +94,9 @@ const managerNavigation = [
   { name: "directSales", href: "DirectSales", icon: ShoppingCart },
   { name: "purchaseOrders", href: "PurchaseOrders", icon: FileText },
   { name: "Vendors", href: "VendorManagement", icon: Store },
-  { name: "reports", href: "Reports", icon: BarChart3 },
+  { name: "Reports", href: "Reports", icon: BarChart3 },
   { name: "Profile", href: "Profile", icon: User },
+  { name: "Settings", href: "Settings", icon: Settings },
 ];
 
 const staffNavigation = [

@@ -114,12 +114,21 @@ export default function Profile() {
   // Calculate user stats
   const userSales = sales.filter(s => s.vendor_id === myVendor?.id);
   const totalSalesAmount = userSales.reduce((sum, s) => sum + (s.total || 0), 0);
-  const userActivities = activityLogs.filter(a => a.performed_by === user?.email);
+  // Activity logs
+  const userActivities = activityLogs.filter(a => a.performed_by === user?.id || a.performed_by === user?.email);
+
+  // Get organization details if not superadmin
+  const currentOrgId = user?.organization_id;
+  const { data: currentOrg } = useQuery({
+    queryKey: ['organization', currentOrgId],
+    queryFn: () => currentOrgId ? base44.entities.Organization.get(currentOrgId) : null,
+    enabled: !!currentOrgId,
+  });
 
   useEffect(() => {
     if (user) {
       setProfileData({
-        full_name: user.full_name || '',
+        full_name: user.full_name || user.username || '',
         phone: user.phone || '',
         department: user.department || '',
         job_title: user.job_title || '',
@@ -218,7 +227,7 @@ export default function Profile() {
                   {profileData.avatar_url ? (
                     <img src={profileData.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
                   ) : (
-                    user?.full_name?.charAt(0) || 'U'
+                    user?.full_name?.charAt(0) || user?.username?.charAt(0) || 'U'
                   )}
                 </div>
                 <label className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
@@ -229,27 +238,51 @@ export default function Profile() {
 
               {/* Info */}
               <div className="flex-1 text-center sm:text-left">
-                <h1 className="text-2xl font-bold text-slate-900">{user?.full_name || 'User'}</h1>
-                <p className="text-slate-500">{user?.email}</p>
-                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 mt-3">
-                  <Badge className={cn(
-                    "capitalize",
-                    user?.role === 'admin' ? 'bg-violet-100 text-violet-700' : 'bg-teal-100 text-teal-700'
-                  )}>
-                    {user?.role || 'user'}
-                  </Badge>
-                  {isVendor && myVendor && (
-                    <Badge variant="outline" className="capitalize">
-                      <Store className="h-3 w-3 mr-1" />
-                      {myVendor.store_name}
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div>
+                    <h1 className="text-2xl font-bold text-slate-900">{user?.full_name || user?.username || 'User'}</h1>
+                    <p className="text-slate-500">{user?.email}</p>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
+                    <Badge className={cn(
+                      "capitalize px-3 py-1",
+                      user?.role === 'admin' || user?.role === 'owner' ? 'bg-violet-100 text-violet-700' : 'bg-teal-100 text-teal-700'
+                    )}>
+                      <Shield className="h-3 w-3 mr-1" />
+                      {user?.role || 'user'}
                     </Badge>
-                  )}
+                    {currentOrg && (
+                      <Badge variant="outline" className="bg-slate-50 text-slate-700 border-slate-200">
+                        <Building2 className="h-3 w-3 mr-1" />
+                        {currentOrg.name}
+                      </Badge>
+                    )}
+                    {isVendor && myVendor && (
+                      <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                        <Store className="h-3 w-3 mr-1" />
+                        {myVendor.store_name}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
-                <div className="flex items-center justify-center sm:justify-start gap-4 mt-4 text-sm text-slate-500">
-                  <span className="flex items-center gap-1">
-                    <Calendar className="h-4 w-4" />
+
+                <div className="flex flex-wrap items-center justify-center sm:justify-start gap-6 mt-6 pt-6 border-t border-slate-100 text-sm text-slate-500">
+                  <span className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4 text-slate-400" />
                     {t('joined')} {user?.created_at ? format(new Date(user.created_at), 'MMM yyyy') : 'N/A'}
                   </span>
+                  {user?.phone && (
+                    <span className="flex items-center gap-2">
+                      <Phone className="h-4 w-4 text-slate-400" />
+                      {user.phone}
+                    </span>
+                  )}
+                  {user?.job_title && (
+                    <span className="flex items-center gap-2">
+                      <Shield className="h-4 w-4 text-slate-400" />
+                      {user.job_title}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

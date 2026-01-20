@@ -67,6 +67,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/i18n/LanguageContext";
+import { useAuth } from '@/contexts/AuthContext';
 
 function useSafeLanguage() {
   try {
@@ -147,14 +148,20 @@ export default function VendorManagement() {
     name: ''
   });
 
+  const { user: currentUser } = useAuth();
+  const isSuperAdmin = currentUser?.role === 'admin' || currentUser?.role === 'owner';
+
   const { data: organizations = [] } = useQuery({
     queryKey: ['organizations'],
     queryFn: () => base44.entities.Organization.list(),
+    enabled: isSuperAdmin, // Only superadmins can see all organizations
   });
 
   const { data: vendors = [], isLoading } = useQuery({
-    queryKey: ['vendors'],
-    queryFn: () => base44.entities.Vendor.list(),
+    queryKey: ['vendors', currentUser?.organization_id],
+    queryFn: () => base44.entities.Vendor.list({
+      organization_id: isSuperAdmin ? undefined : currentUser?.organization_id
+    }),
   });
 
   const { data: locations = [] } = useQuery({
@@ -168,8 +175,10 @@ export default function VendorManagement() {
   });
 
   const { data: users = [] } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => base44.entities.User.list(),
+    queryKey: ['users', currentUser?.organization_id],
+    queryFn: () => base44.entities.User.list({
+      organization_id: isSuperAdmin ? undefined : currentUser?.organization_id
+    }),
   });
 
   // Create a map for location display
@@ -294,12 +303,16 @@ export default function VendorManagement() {
 
       const vendorData = {
         ...rest,
+        organization_id: isSuperAdmin ? rest.organization_id : currentUser?.organization_id,
         location_id: locationId,
         user_id: rest.user_id || null
       };
 
       if (editingVendor) {
-        await updateVendorMutation.mutateAsync({ id: editingVendor.id, data: vendorData });
+        await updateVendorMutation.mutateAsync({
+          id: editingVendor.id,
+          data: { ...vendorData, organization_id: editingVendor.organization_id } // Don't allow org change on edit
+        });
       } else {
         await createVendorMutation.mutateAsync(vendorData);
       }
@@ -362,274 +375,9 @@ export default function VendorManagement() {
     overdue: (vendors as Vendor[]).filter(v => v.payment_status === 'overdue').length,
   };
 
-  const VendorForm = () => (
-    <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
-      {/* Organization Selection */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>Organization</Label>
-          <Select value={formData.organization_id || "none"} onValueChange={(v) => setFormData(prev => ({ ...prev, organization_id: v === "none" ? "" : v }))}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select organization" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">No Organization</SelectItem>
-              {organizations.map(org => (
-                <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label>Linked User Account</Label>
-          <Select value={formData.user_id || "none"} onValueChange={(v) => setFormData(prev => ({ ...prev, user_id: v === "none" ? "" : v }))}>
-            <SelectTrigger>
-              <SelectValue placeholder="Link to user" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">No User Account</SelectItem>
-              {users.map(u => (
-                <SelectItem key={u.id} value={u.id}>{u.full_name} ({u.email})</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <p className="text-[10px] text-slate-500">Linking allows the vendor to log in</p>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2 col-span-2">
-          <Label>{t('businessNameRequired')}</Label>
-          <Input
-            value={formData.name}
-            onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-            placeholder={t('businessName')}
-          />
-        </div>
-      </div>
 
-      <div className="space-y-2">
-        <Label>{t('storeNameRequired')}</Label>
-        <Input
-          value={formData.store_name}
-          onChange={(e) => setFormData(prev => ({ ...prev, store_name: e.target.value }))}
-          placeholder={t('storeName')}
-        />
-      </div>
 
-      <div className="space-y-2">
-        <Label>{t('storeAddress')}</Label>
-        <Input
-          value={formData.address}
-          onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
-          placeholder={t('storeAddress')}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>{t('city')}</Label>
-          <Input
-            value={formData.city}
-            onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
-            placeholder={t('city')}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>{t('country')}</Label>
-          <Input
-            value={formData.country}
-            onChange={(e) => setFormData(prev => ({ ...prev, country: e.target.value }))}
-            placeholder={t('country')}
-          />
-        </div>
-      </div>
-
-      {/* Location Picker with Map */}
-      <VendorLocationPicker
-        latitude={formData.latitude}
-        longitude={formData.longitude}
-        onLocationChange={(lat: number, lng: number) => setFormData(prev => ({
-          ...prev,
-          latitude: lat,
-          longitude: lng
-        }))}
-        onAddressChange={(addressData: { address?: string; city?: string; country?: string }) => setFormData(prev => ({
-          ...prev,
-          address: addressData.address?.split(',').slice(0, 2).join(',') || prev.address,
-          city: addressData.city || prev.city,
-          country: addressData.country || prev.country
-        }))}
-      />
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>{t('status')}</Label>
-          <Select value={formData.status} onValueChange={(v) => setFormData(prev => ({ ...prev, status: v as any }))}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="pending">{t('pending')}</SelectItem>
-              <SelectItem value="active">{t('active')}</SelectItem>
-              <SelectItem value="inactive">{t('inactive')}</SelectItem>
-              <SelectItem value="suspended">{t('suspended')}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        <div className="space-y-2">
-          <Label>{t('subscriptionPlan')}</Label>
-          <Select value={formData.subscription_plan} onValueChange={(v) => setFormData(prev => ({ ...prev, subscription_plan: v }))}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="basic">{t('basic')}</SelectItem>
-              <SelectItem value="standard">{t('standard')}</SelectItem>
-              <SelectItem value="premium">{t('premium')}</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label>{t('monthlyFee')} ($)</Label>
-          <Input
-            type="number"
-            min="0"
-            value={formData.monthly_fee}
-            onChange={(e) => setFormData(prev => ({ ...prev, monthly_fee: parseFloat(e.target.value) || 0 }))}
-          />
-        </div>
-        <div className="space-y-2">
-          <Label>{t('commissionRate')} (%)</Label>
-          <Input
-            type="number"
-            min="0"
-            max="100"
-            value={formData.commission_rate}
-            onChange={(e) => setFormData(prev => ({ ...prev, commission_rate: parseFloat(e.target.value) || 0 }))}
-          />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label>{t('notes')}</Label>
-        <Textarea
-          value={formData.notes}
-          onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
-          placeholder={t('notes')}
-          rows={3}
-        />
-      </div>
-
-      <div className="flex justify-end gap-3 pt-4">
-        <Button variant="outline" onClick={() => { setEditingVendor(null); setIsAddDialogOpen(false); resetForm(); }}>
-          {t('cancel')}
-        </Button>
-        <Button
-          className="bg-teal-600 hover:bg-teal-700"
-          onClick={handleSubmit}
-          disabled={createVendorMutation.isPending || updateVendorMutation.isPending}
-        >
-          {(createVendorMutation.isPending || updateVendorMutation.isPending) && (
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-          )}
-          {editingVendor ? t('updateVendor') : t('addVendor')}
-        </Button>
-      </div>
-    </div>
-  );
-
-  const VendorCard = ({ vendor }: { vendor: Vendor }) => {
-    const stats = vendorStats[vendor.id] || { totalSales: 0, totalOrders: 0 };
-
-    return (
-      <Card className="hover:shadow-lg transition-shadow">
-        <CardContent className="p-5">
-          <div className="flex items-start justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="h-12 w-12 rounded-xl bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-bold text-lg">
-                {vendor.store_name?.charAt(0) || 'V'}
-              </div>
-              <div>
-                <h3 className="font-semibold text-slate-900">{vendor.store_name}</h3>
-                <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.full_name || 'No contact'}</p>
-              </div>
-            </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-8 w-8">
-                  <MoreHorizontal className="h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)}>
-                    <Eye className="h-4 w-4 mr-2" /> {t('viewDetails')}
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => handleEdit(vendor)}>
-                  <Edit className="h-4 w-4 mr-2" /> {t('edit')}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                {vendor.status !== 'active' && (
-                  <DropdownMenuItem onClick={() => handleStatusChange(vendor.id, 'active')}>
-                    <CheckCircle className="h-4 w-4 mr-2" /> {t('activate')}
-                  </DropdownMenuItem>
-                )}
-                {vendor.status === 'active' && (
-                  <DropdownMenuItem onClick={() => handleStatusChange(vendor.id, 'suspended')} className="text-rose-600">
-                    <XCircle className="h-4 w-4 mr-2" /> {t('suspend')}
-                  </DropdownMenuItem>
-                )}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          <div className="space-y-2 mb-4">
-            <div className="flex items-center gap-2 text-sm text-slate-600">
-              <Mail className="h-4 w-4 text-slate-400" />
-              {userMap[vendor.user_id!]?.email || 'No email linked'}
-            </div>
-            {userMap[vendor.user_id!]?.phone && (
-              <div className="flex items-center gap-2 text-sm text-slate-600">
-                <Phone className="h-4 w-4 text-slate-400" />
-                {userMap[vendor.user_id!]?.phone}
-              </div>
-            )}
-            {vendor.location_id && locationMap[vendor.location_id] && (
-              <div className="flex items-center gap-2 text-sm text-slate-600">
-                <MapPin className="h-4 w-4 text-slate-400" />
-                {locationMap[vendor.location_id].city}, {locationMap[vendor.location_id].country}
-              </div>
-            )}
-          </div>
-
-          <div className="flex items-center justify-between mb-4">
-            <Badge className={statusColors[vendor.status]}>
-              {vendor.status}
-            </Badge>
-            <Badge className={paymentStatusColors[vendor.payment_status || 'pending']}>
-              {vendor.payment_status || 'pending'}
-            </Badge>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3 pt-3 border-t">
-            <div className="text-center">
-              <p className="text-lg font-bold text-slate-900">${(stats.totalSales || vendor.total_sales || 0).toLocaleString()}</p>
-              <p className="text-xs text-slate-500">{t('totalSales')}</p>
-            </div>
-            <div className="text-center">
-              <p className="text-lg font-bold text-slate-900">{stats.totalOrders || vendor.total_orders || 0}</p>
-              <p className="text-xs text-slate-500">{t('orders')}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  };
 
   return (
     <div className="space-y-6">
@@ -660,7 +408,202 @@ export default function VendorManagement() {
               <DialogHeader>
                 <DialogTitle>{editingVendor ? t('editVendor') : t('addVendor')}</DialogTitle>
               </DialogHeader>
-              <VendorForm />
+              <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+                {isSuperAdmin && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Organization</Label>
+                      <Select value={formData.organization_id || "none"} onValueChange={(v) => setFormData(prev => ({ ...prev, organization_id: v === "none" ? "" : v }))}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select organization" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">No Organization</SelectItem>
+                          {organizations.map(org => (
+                            <SelectItem key={org.id} value={org.id}>{org.name}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Linked User Account</Label>
+                      <Select value={formData.user_id || "none"} onValueChange={(v) => setFormData(prev => ({ ...prev, user_id: v === "none" ? "" : v }))}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Link to user" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">No User Account</SelectItem>
+                          {users.map(u => (
+                            <SelectItem key={u.id} value={u.id}>{u.full_name || u.username} ({u.email})</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-[10px] text-slate-500">Linking allows the vendor to log in</p>
+                    </div>
+                  </div>
+                )}
+
+                {!isSuperAdmin && (
+                  <div className="space-y-2">
+                    <Label>Linked User Account</Label>
+                    <Select value={formData.user_id || "none"} onValueChange={(v) => setFormData(prev => ({ ...prev, user_id: v === "none" ? "" : v }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Link to user" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">No User Account</SelectItem>
+                        {users.map(u => (
+                          <SelectItem key={u.id} value={u.id}>{u.full_name || u.username} ({u.email})</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-[10px] text-slate-500">Only team members from your organization are listed</p>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2 col-span-2">
+                    <Label>{t('businessNameRequired')}</Label>
+                    <Input
+                      value={formData.name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder={t('businessName')}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>{t('storeNameRequired')}</Label>
+                  <Input
+                    value={formData.store_name}
+                    onChange={(e) => setFormData(prev => ({ ...prev, store_name: e.target.value }))}
+                    placeholder={t('storeName')}
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>{t('storeAddress')}</Label>
+                  <Input
+                    value={formData.address}
+                    onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                    placeholder={t('storeAddress')}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>{t('city')}</Label>
+                    <Input
+                      value={formData.city}
+                      onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
+                      placeholder={t('city')}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t('country')}</Label>
+                    <Input
+                      value={formData.country}
+                      onChange={(e) => setFormData(prev => ({ ...prev, country: e.target.value }))}
+                      placeholder={t('country')}
+                    />
+                  </div>
+                </div>
+
+                {/* Location Picker with Map */}
+                <VendorLocationPicker
+                  latitude={formData.latitude}
+                  longitude={formData.longitude}
+                  onLocationChange={(lat: number, lng: number) => setFormData(prev => ({
+                    ...prev,
+                    latitude: lat,
+                    longitude: lng
+                  }))}
+                  onAddressChange={(addressData: { address?: string; city?: string; country?: string }) => setFormData(prev => ({
+                    ...prev,
+                    address: addressData.address?.split(',').slice(0, 2).join(',') || prev.address,
+                    city: addressData.city || prev.city,
+                    country: addressData.country || prev.country
+                  }))}
+                />
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>{t('status')}</Label>
+                    <Select value={formData.status} onValueChange={(v) => setFormData(prev => ({ ...prev, status: v as any }))}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">{t('pending')}</SelectItem>
+                        <SelectItem value="active">{t('active')}</SelectItem>
+                        <SelectItem value="inactive">{t('inactive')}</SelectItem>
+                        <SelectItem value="suspended">{t('suspended')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t('subscriptionPlan')}</Label>
+                    <Select value={formData.subscription_plan} onValueChange={(v) => setFormData(prev => ({ ...prev, subscription_plan: v }))}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="basic">{t('basic')}</SelectItem>
+                        <SelectItem value="standard">{t('standard')}</SelectItem>
+                        <SelectItem value="premium">{t('premium')}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>{t('monthlyFee')} ($)</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      value={formData.monthly_fee}
+                      onChange={(e) => setFormData(prev => ({ ...prev, monthly_fee: parseFloat(e.target.value) || 0 }))}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>{t('commissionRate')} (%)</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={formData.commission_rate}
+                      onChange={(e) => setFormData(prev => ({ ...prev, commission_rate: parseFloat(e.target.value) || 0 }))}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>{t('notes')}</Label>
+                  <Textarea
+                    value={formData.notes}
+                    onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
+                    placeholder={t('notes')}
+                    rows={3}
+                  />
+                </div>
+
+                <div className="flex justify-end gap-3 pt-4">
+                  <Button variant="outline" onClick={() => { setEditingVendor(null); setIsAddDialogOpen(false); resetForm(); }}>
+                    {t('cancel')}
+                  </Button>
+                  <Button
+                    className="bg-teal-600 hover:bg-teal-700"
+                    onClick={handleSubmit}
+                    disabled={createVendorMutation.isPending || updateVendorMutation.isPending}
+                  >
+                    {(createVendorMutation.isPending || updateVendorMutation.isPending) && (
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    )}
+                    {editingVendor ? t('updateVendor') : t('addVendor')}
+                  </Button>
+                </div>
+              </div>
             </DialogContent>
           </Dialog>
         </div>
@@ -785,9 +728,93 @@ export default function VendorManagement() {
         </div>
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredVendors.map(vendor => (
-            <VendorCard key={vendor.id} vendor={vendor} />
-          ))}
+          {filteredVendors.map(vendor => {
+            const stats = vendorStats[vendor.id] || { totalSales: 0, totalOrders: 0 };
+            return (
+              <Card key={vendor.id} className="hover:shadow-lg transition-shadow">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="h-12 w-12 rounded-xl bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-bold text-lg">
+                        {vendor.store_name?.charAt(0) || 'V'}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-slate-900">{vendor.store_name}</h3>
+                        <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.full_name || 'No contact'}</p>
+                      </div>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem asChild>
+                          <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)}>
+                            <Eye className="h-4 w-4 mr-2" /> {t('viewDetails')}
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleEdit(vendor)}>
+                          <Edit className="h-4 w-4 mr-2" /> {t('edit')}
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        {vendor.status !== 'active' && (
+                          <DropdownMenuItem onClick={() => handleStatusChange(vendor.id, 'active')}>
+                            <CheckCircle className="h-4 w-4 mr-2" /> {t('activate')}
+                          </DropdownMenuItem>
+                        )}
+                        {vendor.status === 'active' && (
+                          <DropdownMenuItem onClick={() => handleStatusChange(vendor.id, 'suspended')} className="text-rose-600">
+                            <XCircle className="h-4 w-4 mr-2" /> {t('suspend')}
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2 text-sm text-slate-600">
+                      <Mail className="h-4 w-4 text-slate-400" />
+                      {userMap[vendor.user_id!]?.email || 'No email linked'}
+                    </div>
+                    {userMap[vendor.user_id!]?.phone && (
+                      <div className="flex items-center gap-2 text-sm text-slate-600">
+                        <Phone className="h-4 w-4 text-slate-400" />
+                        {userMap[vendor.user_id!]?.phone}
+                      </div>
+                    )}
+                    {vendor.location_id && locationMap[vendor.location_id] && (
+                      <div className="flex items-center gap-2 text-sm text-slate-600">
+                        <MapPin className="h-4 w-4 text-slate-400" />
+                        {locationMap[vendor.location_id].city}, {locationMap[vendor.location_id].country}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex items-center justify-between mb-4">
+                    <Badge className={statusColors[vendor.status]}>
+                      {vendor.status}
+                    </Badge>
+                    <Badge className={paymentStatusColors[vendor.payment_status || 'pending']}>
+                      {vendor.payment_status || 'pending'}
+                    </Badge>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3 pt-3 border-t">
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-slate-900">${(stats.totalSales || vendor.total_sales || 0).toLocaleString()}</p>
+                      <p className="text-xs text-slate-500">{t('totalSales')}</p>
+                    </div>
+                    <div className="text-center">
+                      <p className="text-lg font-bold text-slate-900">{stats.totalOrders || vendor.total_orders || 0}</p>
+                      <p className="text-xs text-slate-500">{t('orders')}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
           {filteredVendors.length === 0 && (
             <div className="col-span-full text-center py-12">
               <Store className="h-12 w-12 text-slate-300 mx-auto mb-3" />

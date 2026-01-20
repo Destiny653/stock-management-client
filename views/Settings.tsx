@@ -156,19 +156,32 @@ export default function Settings() {
     password: '',
   });
 
+  const { data: currentUser } = useQuery({
+    queryKey: ['currentUser'],
+    queryFn: () => base44.auth.me(),
+  });
+
+  const isSuperAdmin = currentUser?.role === 'admin' || currentUser?.role === 'owner';
+
   const { data: warehouses = [], isLoading: loadingWarehouses } = useQuery({
-    queryKey: ['warehouses'],
-    queryFn: () => base44.entities.Warehouse.list(),
+    queryKey: ['warehouses', currentUser?.organization_id],
+    queryFn: () => base44.entities.Warehouse.list({
+      organization_id: isSuperAdmin ? undefined : currentUser?.organization_id
+    }),
   });
 
   const { data: suppliers = [], isLoading: loadingSuppliers } = useQuery({
-    queryKey: ['suppliers'],
-    queryFn: () => base44.entities.Supplier.list(),
+    queryKey: ['suppliers', currentUser?.organization_id],
+    queryFn: () => base44.entities.Supplier.list({
+      organization_id: isSuperAdmin ? undefined : currentUser?.organization_id
+    }),
   });
 
   const { data: users = [] } = useQuery({
-    queryKey: ['users'],
-    queryFn: () => base44.entities.User.list(),
+    queryKey: ['users', currentUser?.organization_id],
+    queryFn: () => base44.entities.User.list({
+      organization_id: isSuperAdmin ? undefined : currentUser?.organization_id
+    }),
   });
 
   const { data: locations = [] } = useQuery({
@@ -177,8 +190,10 @@ export default function Settings() {
   });
 
   const { data: vendors = [], isLoading: loadingVendors } = useQuery({
-    queryKey: ['vendors'],
-    queryFn: () => base44.entities.Vendor.list(),
+    queryKey: ['vendors', currentUser?.organization_id],
+    queryFn: () => base44.entities.Vendor.list({
+      organization_id: isSuperAdmin ? undefined : currentUser?.organization_id
+    }),
   });
 
   // Create a map for location names
@@ -196,10 +211,7 @@ export default function Settings() {
     }, {} as Record<string, any>);
   }, [users]);
 
-  const { data: user } = useQuery({
-    queryKey: ['currentUser'],
-    queryFn: () => base44.auth.me(),
-  });
+  const user = currentUser; // Use the one fetched with isSuperAdmin logic above
 
   // Warehouse mutations
   const createWarehouseMutation = useMutation({
@@ -263,7 +275,7 @@ export default function Settings() {
   const createUserMutation = useMutation({
     mutationFn: (data: any) => base44.entities.User.create({
       ...data,
-      organization_id: user?.organization_id,
+      organization_id: currentUser?.organization_id,
       status: 'active'
     }),
     onSuccess: () => {
@@ -466,7 +478,8 @@ export default function Settings() {
         code: warehouseForm.code,
         location_id: locationId,
         manager: warehouseForm.manager,
-        status: warehouseForm.status
+        status: warehouseForm.status,
+        organization_id: isSuperAdmin ? undefined : currentUser?.organization_id
       };
 
       if (editingWarehouse) {
@@ -514,7 +527,7 @@ export default function Settings() {
         status: supplierForm.status,
         location_id: locationId,
         user_id: supplierForm.user_id || undefined,
-        organization_id: user?.organization_id || undefined
+        organization_id: isSuperAdmin ? undefined : currentUser?.organization_id
       };
 
       if (editingSupplier) {
