@@ -479,7 +479,7 @@ export default function Settings() {
         location_id: locationId,
         manager: warehouseForm.manager,
         status: warehouseForm.status,
-        organization_id: isSuperAdmin ? undefined : currentUser?.organization_id
+        organization_id: (isSuperAdmin ? undefined : currentUser?.organization_id) ?? undefined
       };
 
       if (editingWarehouse) {
@@ -527,7 +527,7 @@ export default function Settings() {
         status: supplierForm.status,
         location_id: locationId,
         user_id: supplierForm.user_id || undefined,
-        organization_id: isSuperAdmin ? undefined : currentUser?.organization_id
+        organization_id: (isSuperAdmin ? undefined : currentUser?.organization_id) ?? undefined
       };
 
       if (editingSupplier) {

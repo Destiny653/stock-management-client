@@ -303,7 +303,7 @@ export default function VendorManagement() {
 
       const vendorData = {
         ...rest,
-        organization_id: isSuperAdmin ? rest.organization_id : currentUser?.organization_id,
+        organization_id: (isSuperAdmin ? rest.organization_id : currentUser?.organization_id) ?? undefined,
         location_id: locationId,
         user_id: rest.user_id || null
       };

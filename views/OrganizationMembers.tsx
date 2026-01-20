@@ -220,7 +220,7 @@ export default function OrganizationMembers() {
 
     const createMemberMutation = useMutation({
         mutationFn: async (data: any) => {
-            const organizationId = (orgId || currentUser?.organization_id) as string;
+            const organizationId = (orgId || currentUser?.organization_id) ?? undefined;
 
             if (memberType === 'user') {
                 return base44.entities.User.create({
