@@ -427,6 +427,8 @@ const authMethods = {
             console.error('Logout failed', e);
         }
         localStorage.removeItem('base44_currentUser');
+        localStorage.removeItem('base44_access_token');
+        localStorage.removeItem('base44_refresh_token');
         window.location.href = '/login';
     },
 
@@ -436,12 +438,16 @@ const authMethods = {
         formData.append('password', password);
         formData.append('grant_type', 'password');
 
-        await apiClient.post('auth/login/access-token', formData, {
+        const response = await apiClient.post('auth/login/access-token', formData, {
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         });
 
-        // Cookies are set by backend automatically
+        // Save tokens to localStorage
+        const { access_token, refresh_token } = response.data;
+        localStorage.setItem('base44_access_token', access_token);
+        localStorage.setItem('base44_refresh_token', refresh_token);
 
+        // Cookies are set by backend automatically
         // Fetch and return the user profile
         const user = await authMethods.me();
         return user as User;
