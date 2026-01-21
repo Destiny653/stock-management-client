@@ -388,35 +388,35 @@ export default function VendorDetail() {
       {/* Sales Period Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <Card className={cn("cursor-pointer transition-all", salesPeriod === 'daily' && "ring-2 ring-teal-500")} onClick={() => setSalesPeriod('daily')}>
-          <CardContent className="p-4">
+          <CardContent className="p-4 py-12">
             <p className="text-sm text-slate-500">Today</p>
             <p className="text-2xl font-bold text-slate-900">${salesStats.daily.total.toLocaleString()}</p>
             <p className="text-xs text-slate-500">{salesStats.daily.count} orders</p>
           </CardContent>
         </Card>
         <Card className={cn("cursor-pointer transition-all", salesPeriod === 'weekly' && "ring-2 ring-teal-500")} onClick={() => setSalesPeriod('weekly')}>
-          <CardContent className="p-4">
+          <CardContent className="p-4 py-12">
             <p className="text-sm text-slate-500">This Week</p>
             <p className="text-2xl font-bold text-slate-900">${salesStats.weekly.total.toLocaleString()}</p>
             <p className="text-xs text-slate-500">{salesStats.weekly.count} orders</p>
           </CardContent>
         </Card>
         <Card className={cn("cursor-pointer transition-all", salesPeriod === 'monthly' && "ring-2 ring-teal-500")} onClick={() => setSalesPeriod('monthly')}>
-          <CardContent className="p-4">
+          <CardContent className="p-4 py-12">
             <p className="text-sm text-slate-500">This Month</p>
             <p className="text-2xl font-bold text-teal-600">${salesStats.monthly.total.toLocaleString()}</p>
             <p className="text-xs text-slate-500">{salesStats.monthly.count} orders</p>
           </CardContent>
         </Card>
         <Card className={cn("cursor-pointer transition-all", salesPeriod === 'yearly' && "ring-2 ring-teal-500")} onClick={() => setSalesPeriod('yearly')}>
-          <CardContent className="p-4">
+          <CardContent className="p-4 py-12">
             <p className="text-sm text-slate-500">This Year</p>
             <p className="text-2xl font-bold text-slate-900">${salesStats.yearly.total.toLocaleString()}</p>
             <p className="text-xs text-slate-500">{salesStats.yearly.count} orders</p>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-4 py-12">
             <p className="text-sm text-slate-500">All Time</p>
             <p className="text-2xl font-bold text-slate-900">${salesStats.all.total.toLocaleString()}</p>
             <p className="text-xs text-slate-500">{salesStats.all.count} orders</p>
@@ -518,7 +518,7 @@ export default function VendorDetail() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
                   <TableHead>Date</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Amount</TableHead>
@@ -578,7 +578,7 @@ export default function VendorDetail() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
                   <TableHead>Sale #</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Items</TableHead>

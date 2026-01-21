@@ -318,7 +318,7 @@ export default function Alerts() {
             {/* Quick Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <Card className={cn("cursor-pointer transition-all hover:border-teal-200 shadow-sm", activeTab === "low_stock" ? "ring-2 ring-teal-500 border-teal-500" : "border-slate-200")} onClick={() => setActiveTab("low_stock")}>
-                    <CardContent className="p-4 flex items-center gap-4">
+                    <CardContent className="p-4 py-12 flex items-center gap-4">
                         <div className="h-12 w-12 rounded-xl bg-amber-100 flex items-center justify-center shadow-inner">
                             <AlertTriangle className="h-6 w-6 text-amber-600" />
                         </div>
@@ -329,18 +329,18 @@ export default function Alerts() {
                     </CardContent>
                 </Card>
                 <Card className={cn("cursor-pointer transition-all hover:border-teal-200 shadow-sm", activeTab === "pending_approval" ? "ring-2 ring-teal-500 border-teal-500" : "border-slate-200")} onClick={() => setActiveTab("pending_approval")}>
-                    <CardContent className="p-4 flex items-center gap-4">
+                    <CardContent className="p-4 py-12 flex items-center gap-4">
                         <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center shadow-inner">
                             <Clock className="h-6 w-6 text-blue-600" />
                         </div>
                         <div>
                             <p className="text-2xl font-black text-slate-900 leading-none mb-1">{pendingCount}</p>
-                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider uppercase tracking-wider">{t('pendingApprovals')}</p>
+                            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{t('pendingApprovals')}</p>
                         </div>
                     </CardContent>
                 </Card>
                 <Card className={cn("cursor-pointer transition-all hover:border-teal-200 shadow-sm", activeTab === "unread" ? "ring-2 ring-teal-500 border-teal-500" : "border-slate-200")} onClick={() => setActiveTab("unread")}>
-                    <CardContent className="p-4 flex items-center gap-4">
+                    <CardContent className="p-4 py-12 flex items-center gap-4">
                         <div className="h-12 w-12 rounded-xl bg-rose-100 flex items-center justify-center shadow-inner">
                             <Bell className="h-6 w-6 text-rose-600" />
                         </div>
@@ -365,7 +365,7 @@ export default function Alerts() {
             {/* Alerts List */}
             <div>
                 {isLoading ? (
-                    <div className="flex flex-col items-center justify-center h-64 gap-3 bg-white rounded-3xl border border-slate-200">
+                    <div className="flex flex-col items-center justify-center h-64 gap-3 bg-white overflow-hidden">
                         <Loader2 className="h-10 w-10 animate-spin text-teal-600" />
                         <p className="text-sm font-medium text-slate-500 italic">{t('syncingNotifications')}</p>
                     </div>

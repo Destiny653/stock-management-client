@@ -249,7 +249,7 @@ export default function VendorPayments() {
             </div>
 
             {/* Payments Table */}
-            <div className="bg-whiteoverflow-hidden">
+            <div className="bg-white overflow-hidden">
                 {isLoading ? (
                     <div className="flex items-center justify-center h-64">
                         <Loader2 className="h-8 w-8 animate-spin text-teal-600" />

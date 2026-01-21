@@ -140,7 +140,7 @@ export default function InventoryTable({
   );
 
   return (
-    <div className="bg-whiteoverflow-hidden">
+    <div className="bg-white overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-[11px] font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100">

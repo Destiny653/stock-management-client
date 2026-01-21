@@ -620,7 +620,7 @@ export default function ProductDetail() {
                 ) : (
                   <Table>
                     <TableHeader>
-                      <TableRow>
+                      <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
                         <TableHead>Date</TableHead>
                         <TableHead>Type</TableHead>
                         <TableHead>Quantity</TableHead>

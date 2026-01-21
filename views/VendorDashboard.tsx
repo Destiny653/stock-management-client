@@ -170,7 +170,7 @@ export default function VendorDashboard() {
       {/* Sales Period Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-4 py-12">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm text-slate-500">Today</p>
               <TrendingUp className="h-4 w-4 text-emerald-500" />
@@ -180,7 +180,7 @@ export default function VendorDashboard() {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-4 py-12">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm text-slate-500">This Week</p>
               <Calendar className="h-4 w-4 text-blue-500" />
@@ -190,7 +190,7 @@ export default function VendorDashboard() {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-4 py-12">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm text-slate-500">This Month</p>
               <DollarSign className="h-4 w-4 text-teal-500" />
@@ -200,7 +200,7 @@ export default function VendorDashboard() {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-4 py-12">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm text-slate-500">This Year</p>
               <Package className="h-4 w-4 text-violet-500" />
@@ -210,7 +210,7 @@ export default function VendorDashboard() {
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4">
+          <CardContent className="p-4 py-12">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm text-slate-500">All Time</p>
               <Store className="h-4 w-4 text-slate-500" />
@@ -346,7 +346,7 @@ export default function VendorDashboard() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
                   <TableHead>Sale #</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Customer</TableHead>

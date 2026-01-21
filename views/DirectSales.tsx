@@ -879,7 +879,7 @@ export default function DirectSales() {
 
         {/* Sales History Tab */}
         <TabsContent value="history" className="mt-6">
-          <Card>
+          <div className="bg-white overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
@@ -936,7 +936,7 @@ export default function DirectSales() {
                 )}
               </TableBody>
             </Table>
-          </Card>
+          </div>
         </TabsContent>
       </Tabs>
 

@@ -89,7 +89,7 @@ export default function InventoryFilters({
                         placeholder="Search products by name, SKU, or barcode..."
                         value={searchTerm}
                         onChange={(e) => onSearchChange(e.target.value)}
-                        className="pl-10 rounded-sm py-5 bg-white border-slate-200 focus:bg-white"
+                        className="pl-10 rounded-sm py-5 max-w-[60%] bg-white border-slate-200 focus:bg-white"
                     />
                 </div>
 

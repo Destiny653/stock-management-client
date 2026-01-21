@@ -310,7 +310,7 @@ export default function Reports() {
                 </div>
                 <div className="flex items-center gap-3">
                     <Select value={dateRange} onValueChange={setDateRange}>
-                        <SelectTrigger className="w-40">
+                        <SelectTrigger className="w-40 bg-white rounded-sm py-5">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -329,7 +329,7 @@ export default function Reports() {
             {/* Summary Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card>
-                    <CardContent className="p-6">
+                    <CardContent className="p-6 py-12">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-slate-500">{t('totalStockValue')}</p>
@@ -350,7 +350,7 @@ export default function Reports() {
                 </Card>
 
                 <Card>
-                    <CardContent className="p-6">
+                    <CardContent className="p-6 py-12">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-slate-500">{t('totalUnits')}</p>
@@ -365,7 +365,7 @@ export default function Reports() {
                 </Card>
 
                 <Card>
-                    <CardContent className="p-6">
+                    <CardContent className="p-6 py-12">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-slate-500">{t('inventoryCost')}</p>
@@ -380,7 +380,7 @@ export default function Reports() {
                 </Card>
 
                 <Card>
-                    <CardContent className="p-6">
+                    <CardContent className="p-6 py-12">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-slate-500">{t('lowStockItems')}</p>

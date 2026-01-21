@@ -666,7 +666,7 @@ export default function Settings() {
           <Card>
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
                   <TableHead>{t('warehouseName')}</TableHead>
                   <TableHead>{t('warehouseCode')}</TableHead>
                   <TableHead>{t('location')}</TableHead>
@@ -998,7 +998,7 @@ export default function Settings() {
           <Card className=''>
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
                   <TableHead>{t('user')}</TableHead>
                   <TableHead>{t('role')}</TableHead>
                   <TableHead>{t('department')}</TableHead>

@@ -643,7 +643,7 @@ export default function OrganizationMembers() {
             {/* Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card>
-                    <CardContent className="p-4 flex items-center gap-3">
+                    <CardContent className="p-4 py-12 flex items-center gap-3">
                         <div className="h-10 w-10 rounded-lg bg-violet-100 flex items-center justify-center">
                             <Store className="h-5 w-5 text-violet-600" />
                         </div>
@@ -654,7 +654,7 @@ export default function OrganizationMembers() {
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardContent className="p-4 flex items-center gap-3">
+                    <CardContent className="p-4 py-12 flex items-center gap-3">
                         <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
                             <Users className="h-5 w-5 text-blue-600" />
                         </div>
@@ -665,7 +665,7 @@ export default function OrganizationMembers() {
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardContent className="p-4 flex items-center gap-3">
+                    <CardContent className="p-4 py-12 flex items-center gap-3">
                         <div className="h-10 w-10 rounded-lg bg-emerald-100 flex items-center justify-center">
                             <MapPin className="h-5 w-5 text-emerald-600" />
                         </div>
@@ -676,7 +676,7 @@ export default function OrganizationMembers() {
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardContent className="p-4 flex items-center gap-3">
+                    <CardContent className="p-4 py-12 flex items-center gap-3">
                         <div className="h-10 w-10 rounded-lg bg-amber-100 flex items-center justify-center">
                             <DollarSign className="h-5 w-5 text-amber-600" />
                         </div>
@@ -718,7 +718,7 @@ export default function OrganizationMembers() {
 
                 {/* Vendors Tab */}
                 <TabsContent value="vendors" className="mt-6">
-                    <Card>
+                    <div className="bg-white overflow-hidden">
                         <Table>
                             <TableHeader>
                                 <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
@@ -793,12 +793,12 @@ export default function OrganizationMembers() {
                                 )}
                             </TableBody>
                         </Table>
-                    </Card>
+                    </div>
                 </TabsContent>
 
                 {/* Users Tab */}
                 <TabsContent value="users" className="mt-6">
-                    <Card>
+                    <div className="bg-white overflow-hidden">
                         <Table>
                             <TableHeader>
                                 <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
@@ -870,7 +870,7 @@ export default function OrganizationMembers() {
                                 )}
                             </TableBody>
                         </Table>
-                    </Card>
+                    </div>
                 </TabsContent>
 
                 {/* Map Tab */}

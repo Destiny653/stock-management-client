@@ -459,7 +459,7 @@ export default function Organizations() {
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <Card className='border-none'>
-                    <CardContent className="flex items-center gap-4">
+                    <CardContent className="flex items-center gap-4 py-12">
                         <div className="h-12 w-12 rounded-xl bg-teal-100 flex items-center justify-center">
                             <Building2 className="h-6 w-6 text-teal-600" />
                         </div>
@@ -470,7 +470,7 @@ export default function Organizations() {
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardContent className="flex items-center gap-4">
+                    <CardContent className="flex items-center gap-4 py-12">
                         <div className="h-12 w-12 rounded-xl bg-violet-100 flex items-center justify-center">
                             <Store className="h-6 w-6 text-violet-600" />
                         </div>
@@ -481,7 +481,7 @@ export default function Organizations() {
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardContent className="flex items-center gap-4">
+                    <CardContent className="flex items-center gap-4 py-12">
                         <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
                             <Users className="h-6 w-6 text-blue-600" />
                         </div>
@@ -520,7 +520,7 @@ export default function Organizations() {
             </div>
 
             {/* Table */}
-            <Card>
+            <div className="bg-white overflow-hidden">
                 {isLoading ? (
                     <div className="flex items-center justify-center h-48">
                         <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
@@ -612,7 +612,7 @@ export default function Organizations() {
                         </TableBody>
                     </Table>
                 )}
-            </Card>
+            </div>
             {/* Delete Confirmation Dialog */}
             <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
                 <DialogContent className="max-w-sm">

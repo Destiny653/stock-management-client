@@ -165,7 +165,7 @@ export default function Orders() {
             {/* Stats */}
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card>
-                    <CardContent className="p-4">
+                    <CardContent className="p-4 py-12">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-slate-500">Total Orders</p>
@@ -178,7 +178,7 @@ export default function Orders() {
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardContent className="p-4">
+                    <CardContent className="p-4 py-12">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-slate-500">Pending</p>
@@ -191,7 +191,7 @@ export default function Orders() {
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardContent className="p-4">
+                    <CardContent className="p-4 py-12">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-slate-500">Processing</p>
@@ -204,7 +204,7 @@ export default function Orders() {
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardContent className="p-4">
+                    <CardContent className="p-4 py-12">
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm text-slate-500">Unpaid</p>
@@ -219,7 +219,7 @@ export default function Orders() {
             </div>
 
             {/* Filters */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-4">
+            <div>
                 <div className="flex flex-col lg:flex-row gap-4">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -227,7 +227,7 @@ export default function Orders() {
                             placeholder="Search by order #, client name, email, or phone..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 rounded-sm py-5 max-w-[60%] bg-white"
+                            className="pl-10 rounded-sm py-5 max-w-[60%] bg-white border-slate-200 focus:bg-white"
                         />
                     </div>
                     <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -262,11 +262,11 @@ export default function Orders() {
 
             {/* Orders Table */}
             {isLoading ? (
-                <div className="flex items-center justify-center h-64 bg-white rounded-2xl border border-slate-200">
+                <div className="flex items-center justify-center h-64 bg-white overflow-hidden">
                     <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
                 </div>
             ) : (
-                <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+                <div className="bg-white overflow-hidden">
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
