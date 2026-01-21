@@ -124,7 +124,7 @@ export default function PurchaseOrders() {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter("draft")}>
-          <CardContent className="p-4">
+          <CardContent className="p-4 py-12">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-slate-500">{t('draft')}</p>
@@ -137,7 +137,7 @@ export default function PurchaseOrders() {
           </CardContent>
         </Card>
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter("pending_approval")}>
-          <CardContent className="p-4">
+          <CardContent className="p-4 py-12">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-slate-500">{t('pendingApproval')}</p>
@@ -150,7 +150,7 @@ export default function PurchaseOrders() {
           </CardContent>
         </Card>
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter("ordered")}>
-          <CardContent className="p-4">
+          <CardContent className="p-4 py-12">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-slate-500">{t('ordered')}</p>
@@ -163,7 +163,7 @@ export default function PurchaseOrders() {
           </CardContent>
         </Card>
         <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter("received")}>
-          <CardContent className="p-4">
+          <CardContent className="p-4 py-12">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-slate-500">{t('received')}</p>
@@ -178,7 +178,7 @@ export default function PurchaseOrders() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4">
+      <div className="">
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -186,11 +186,11 @@ export default function PurchaseOrders() {
               placeholder={t('searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-slate-50"
+              className="pl-10 rounded-sm max-w-[60%] py-5 bg-white border-slate-200 focus:bg-white"
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-48 bg-slate-50">
+            <SelectTrigger className="w-48 bg-white rounded-sm py-5">
               <SelectValue placeholder={t('status')} />
             </SelectTrigger>
             <SelectContent>
@@ -208,7 +208,7 @@ export default function PurchaseOrders() {
       </div>
 
       {/* Table */}
-      <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+      <div className="bg-white overflow-hidden">
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
             <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
@@ -216,7 +216,7 @@ export default function PurchaseOrders() {
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50/50">
+              <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
                 <TableHead>{t('poNumber')}</TableHead>
                 <TableHead>{t('supplier')}</TableHead>
                 <TableHead>{t('items')}</TableHead>

@@ -227,11 +227,11 @@ export default function Orders() {
                             placeholder="Search by order #, client name, email, or phone..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 bg-slate-50"
+                            className="pl-10 rounded-sm py-5 max-w-[60%] bg-white"
                         />
                     </div>
                     <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger className="w-40 bg-slate-50">
+                        <SelectTrigger className="w-40 bg-white rounded-sm py-5">
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -246,7 +246,7 @@ export default function Orders() {
                         </SelectContent>
                     </Select>
                     <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-                        <SelectTrigger className="w-40 bg-slate-50">
+                        <SelectTrigger className="w-40 bg-white rounded-sm py-5">
                             <SelectValue placeholder="Payment" />
                         </SelectTrigger>
                         <SelectContent>
@@ -269,7 +269,7 @@ export default function Orders() {
                 <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
                     <Table>
                         <TableHeader>
-                            <TableRow className="bg-slate-50/50">
+                            <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
                                 <TableHead>Order #</TableHead>
                                 <TableHead>Client</TableHead>
                                 <TableHead>Date</TableHead>

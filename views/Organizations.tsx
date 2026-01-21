@@ -458,8 +458,8 @@ export default function Organizations() {
 
             {/* Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
+                <Card className='border-none'>
+                    <CardContent className="flex items-center gap-4">
                         <div className="h-12 w-12 rounded-xl bg-teal-100 flex items-center justify-center">
                             <Building2 className="h-6 w-6 text-teal-600" />
                         </div>
@@ -470,7 +470,7 @@ export default function Organizations() {
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
+                    <CardContent className="flex items-center gap-4">
                         <div className="h-12 w-12 rounded-xl bg-violet-100 flex items-center justify-center">
                             <Store className="h-6 w-6 text-violet-600" />
                         </div>
@@ -481,7 +481,7 @@ export default function Organizations() {
                     </CardContent>
                 </Card>
                 <Card>
-                    <CardContent className="p-4 flex items-center gap-4">
+                    <CardContent className="flex items-center gap-4">
                         <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
                             <Users className="h-6 w-6 text-blue-600" />
                         </div>
@@ -494,7 +494,7 @@ export default function Organizations() {
             </div>
 
             {/* Filters */}
-            <div className="bg-white rounded-2xl border border-slate-200 p-4">
+            <div className="">
                 <div className="flex flex-col sm:flex-row gap-4">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -502,11 +502,11 @@ export default function Organizations() {
                             placeholder="Search organizations..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 bg-slate-50"
+                            className="pl-10 rounded-sm py-5 max-w-[60%] bg-white"
                         />
                     </div>
                     <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger className="w-40 bg-slate-50">
+                        <SelectTrigger className="w-40 bg-white rounded-sm py-5">
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -528,7 +528,7 @@ export default function Organizations() {
                 ) : (
                     <Table>
                         <TableHeader>
-                            <TableRow className="bg-slate-50/50">
+                            <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
                                 <TableHead>Organization</TableHead>
                                 <TableHead>Location</TableHead>
                                 <TableHead>Contact</TableHead>

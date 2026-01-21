@@ -611,7 +611,7 @@ export default function VendorManagement() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
+        <Card className='p-10'>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -624,7 +624,7 @@ export default function VendorManagement() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className='p-10'>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -637,7 +637,7 @@ export default function VendorManagement() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className='p-10'>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -650,7 +650,7 @@ export default function VendorManagement() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        <Card className='p-10'>
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -666,7 +666,7 @@ export default function VendorManagement() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4">
+      <div>
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -674,11 +674,11 @@ export default function VendorManagement() {
               placeholder={t('searchVendors')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-slate-50"
+              className="pl-10 rounded-sm py-5 max-w-[60%] bg-white border-slate-200 focus:bg-white"
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40 bg-slate-50">
+            <SelectTrigger className="w-40 bg-white rounded-sm py-5">
               <SelectValue placeholder={t('status')} />
             </SelectTrigger>
             <SelectContent>
@@ -690,7 +690,7 @@ export default function VendorManagement() {
             </SelectContent>
           </Select>
           <Select value={paymentFilter} onValueChange={setPaymentFilter}>
-            <SelectTrigger className="w-40 bg-slate-50">
+            <SelectTrigger className="w-40 bg-white rounded-sm py-5">
               <SelectValue placeholder={t('paymentStatus')} />
             </SelectTrigger>
             <SelectContent>
@@ -823,10 +823,10 @@ export default function VendorManagement() {
           )}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+        <div className="bg-white overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-50/50">
+              <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
                 <TableHead>Vendor</TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead>Location</TableHead>

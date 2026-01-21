@@ -995,7 +995,7 @@ export default function Settings() {
             </Dialog>
           </div>
 
-          <Card>
+          <Card className=''>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -1058,7 +1058,7 @@ export default function Settings() {
 
         {/* Account Tab */}
         <TabsContent value="account" className="mt-6 space-y-6">
-          <Card>
+          <Card className='p-6'>
             <CardHeader>
               <CardTitle>{t('account')}</CardTitle>
               <CardDescription>{t('personalInformation')}</CardDescription>

@@ -254,7 +254,7 @@ export default function CreatePurchaseOrder() {
         {/* Main Content */}
         <div className="lg:col-span-2 space-y-6">
           {/* Supplier Selection */}
-          <Card>
+          <Card className='p-5'>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Truck className="h-5 w-5 text-slate-400" />
@@ -287,7 +287,7 @@ export default function CreatePurchaseOrder() {
           </Card>
 
           {/* Items */}
-          <Card>
+          <Card className='p-5'>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Package className="h-5 w-5 text-slate-400" />
@@ -357,7 +357,7 @@ export default function CreatePurchaseOrder() {
           </Card>
 
           {/* Notes */}
-          <Card>
+          <Card className='p-5'>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <FileText className="h-5 w-5 text-slate-400" />
@@ -378,7 +378,7 @@ export default function CreatePurchaseOrder() {
         {/* Sidebar */}
         <div className="space-y-6">
           {/* Delivery Details */}
-          <Card>
+          <Card className='p-5'>
             <CardHeader>
               <CardTitle>Delivery Details</CardTitle>
             </CardHeader>
@@ -411,7 +411,7 @@ export default function CreatePurchaseOrder() {
           </Card>
 
           {/* Order Summary */}
-          <Card>
+          <Card className='p-5'>
             <CardHeader>
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>

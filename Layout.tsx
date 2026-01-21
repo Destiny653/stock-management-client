@@ -224,7 +224,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Top Header */}
-      <header className="fixed top-0 left-0 right-0 h-16 bg-white border-b border-slate-200 z-40">
+      <header className="fixed top-0 left-0 right-0 h-16 bg-teal-600/90 border-b border-slate-200 z-40">
         <div className="flex items-center justify-between h-full px-4 lg:px-6">
           {/* Left - Logo & Mobile Menu */}
           <div className="flex items-center gap-4">

@@ -80,7 +80,7 @@ export default function InventoryFilters({
     };
 
     return (
-        <div className="bg-white rounded-2xl border border-slate-200 p-4">
+        <div>
             <div className="flex flex-col lg:flex-row gap-4">
                 {/* Search */}
                 <div className="relative flex-1">
@@ -89,7 +89,7 @@ export default function InventoryFilters({
                         placeholder="Search products by name, SKU, or barcode..."
                         value={searchTerm}
                         onChange={(e) => onSearchChange(e.target.value)}
-                        className="pl-10 bg-slate-50 border-slate-200 focus:bg-white"
+                        className="pl-10 rounded-sm py-5 bg-white border-slate-200 focus:bg-white"
                     />
                 </div>
 
@@ -99,7 +99,7 @@ export default function InventoryFilters({
                         value={filters.category || "all"}
                         onValueChange={(value) => onFilterChange({ ...filters, category: value })}
                     >
-                        <SelectTrigger className="w-40 bg-slate-50">
+                        <SelectTrigger className="w-40 bg-white rounded-sm py-5">
                             <SelectValue placeholder="Category" />
                         </SelectTrigger>
                         <SelectContent>
@@ -114,7 +114,7 @@ export default function InventoryFilters({
                         value={filters.status || "all"}
                         onValueChange={(value) => onFilterChange({ ...filters, status: value })}
                     >
-                        <SelectTrigger className="w-36 bg-slate-50">
+                        <SelectTrigger className="w-36 bg-white rounded-sm py-5">
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
                         <SelectContent>
@@ -130,7 +130,7 @@ export default function InventoryFilters({
                             value={filters.supplier || "all"}
                             onValueChange={(value) => onFilterChange({ ...filters, supplier: value })}
                         >
-                            <SelectTrigger className="w-40 bg-slate-50">
+                            <SelectTrigger className="w-40 bg-white rounded-sm py-5">
                                 <SelectValue placeholder="Supplier" />
                             </SelectTrigger>
                             <SelectContent>
@@ -147,7 +147,7 @@ export default function InventoryFilters({
                             value={filters.location || "all"}
                             onValueChange={(value) => onFilterChange({ ...filters, location: value })}
                         >
-                            <SelectTrigger className="w-40 bg-slate-50">
+                            <SelectTrigger className="w-40 bg-white rounded-sm py-5">
                                 <SelectValue placeholder="Location" />
                             </SelectTrigger>
                             <SelectContent>
@@ -162,7 +162,7 @@ export default function InventoryFilters({
                     {/* Column Chooser */}
                     <Popover>
                         <PopoverTrigger asChild>
-                            <Button variant="outline" className="bg-slate-50">
+                            <Button variant="outline" className="bg-white rounded-sm py-5">
                                 <Columns className="h-4 w-4 mr-2" />
                                 Columns
                             </Button>

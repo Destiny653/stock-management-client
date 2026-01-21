@@ -41,7 +41,7 @@ export default function POItemsTable({
   const subtotal = items.reduce((sum, item) => sum + (item.total || 0), 0);
 
   return (
-    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+    <div className="bg-white overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow className="bg-slate-50/50">

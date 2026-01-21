@@ -198,7 +198,7 @@ export default function StoreLocations() {
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4">
+      <div>
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
@@ -206,11 +206,11 @@ export default function StoreLocations() {
               placeholder={t('searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-slate-50"
+              className="pl-10 rounded-sm max-w-[60%] py-5 bg-white border-slate-200 focus:bg-white"
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40 bg-slate-50">
+            <SelectTrigger className="w-40 bg-white rounded-sm py-5">
               <SelectValue placeholder={t('status')} />
             </SelectTrigger>
             <SelectContent>

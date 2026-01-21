@@ -444,7 +444,7 @@ export default function DirectSales() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         <Card className="border-slate-200/60 shadow-sm bg-white overflow-hidden relative group">
           <div className="absolute top-0 left-0 w-1 h-full bg-emerald-500" />
-          <CardContent className="p-5 flex items-center gap-4">
+          <CardContent className="p-5 py-12 flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-emerald-50 flex items-center justify-center group-hover:scale-110 transition-transform">
               <DollarSign className="h-6 w-6 text-emerald-600" />
             </div>
@@ -457,7 +457,7 @@ export default function DirectSales() {
 
         <Card className="border-slate-200/60 shadow-sm bg-white overflow-hidden relative group">
           <div className="absolute top-0 left-0 w-1 h-full bg-blue-500" />
-          <CardContent className="p-5 flex items-center gap-4">
+          <CardContent className="p-5 py-12 flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-blue-50 flex items-center justify-center group-hover:scale-110 transition-transform">
               <Receipt className="h-6 w-6 text-blue-600" />
             </div>
@@ -470,7 +470,7 @@ export default function DirectSales() {
 
         <Card className="border-slate-200/60 shadow-sm bg-white overflow-hidden relative group">
           <div className="absolute top-0 left-0 w-1 h-full bg-violet-500" />
-          <CardContent className="p-5 flex items-center gap-4">
+          <CardContent className="p-5 py-12 flex items-center gap-4">
             <div className="h-12 w-12 rounded-xl bg-violet-50 flex items-center justify-center group-hover:scale-110 transition-transform">
               <Package className="h-6 w-6 text-violet-600" />
             </div>
@@ -517,12 +517,12 @@ export default function DirectSales() {
                     placeholder={t('searchProducts')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
+                    className="pl-10 rounded-sm py-5 bg-white border-slate-200"
                   />
                 </div>
                 <div className="flex gap-2">
                   <Select value={filters.category} onValueChange={(v) => setFilters(f => ({ ...f, category: v }))}>
-                    <SelectTrigger className="w-[140px]">
+                    <SelectTrigger className="w-[140px] py-5">
                       <Filter className="h-4 w-4 mr-2" />
                       <SelectValue placeholder={t('category')} />
                     </SelectTrigger>
@@ -534,7 +534,7 @@ export default function DirectSales() {
                     </SelectContent>
                   </Select>
                   <Select value={filters.status} onValueChange={(v) => setFilters(f => ({ ...f, status: v }))}>
-                    <SelectTrigger className="w-[130px]">
+                    <SelectTrigger className="w-[130px] py-5">
                       <SelectValue placeholder={t('status')} />
                     </SelectTrigger>
                     <SelectContent>
@@ -544,7 +544,7 @@ export default function DirectSales() {
                     </SelectContent>
                   </Select>
                   <Select value={filters.sortBy} onValueChange={(v) => setFilters(f => ({ ...f, sortBy: v }))}>
-                    <SelectTrigger className="w-[140px]">
+                    <SelectTrigger className="w-[140px] py-5">
                       <ArrowUpDown className="h-4 w-4 mr-2" />
                       <SelectValue placeholder={t('sortBy')} />
                     </SelectTrigger>
@@ -780,7 +780,7 @@ export default function DirectSales() {
 
             {/* Cart */}
             <div className="space-y-4">
-              <Card className="sticky top-4">
+              <Card className="sticky py-5 top-4">
                 <CardHeader className="pb-3 border-b">
                   <CardTitle className="flex items-center gap-2">
                     <ShoppingCart className="h-5 w-5 text-teal-600" />
@@ -882,7 +882,7 @@ export default function DirectSales() {
           <Card>
             <Table>
               <TableHeader>
-                <TableRow>
+                <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
                   <TableHead>{t('saleNumber')}</TableHead>
                   <TableHead>{t('date')}</TableHead>
                   <TableHead>{t('client')}</TableHead>

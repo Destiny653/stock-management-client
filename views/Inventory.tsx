@@ -301,7 +301,7 @@ export default function Inventory() {
       </div>
 
       {/* Filters and View Toggle */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4">
+      <div className="">
         <div className="flex flex-col lg:flex-row gap-4">
           <div className="flex-1">
             <InventoryFilters

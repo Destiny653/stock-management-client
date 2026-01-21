@@ -140,10 +140,10 @@ export default function InventoryTable({
   );
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">
+    <div className="bg-whiteoverflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 hover:bg-slate-50">
+          <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-[11px] font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100">
             <TableHead className="w-12 text-center p-0"></TableHead>
             {!readOnly && (
               <TableHead className="w-12 text-center p-0">
@@ -306,7 +306,7 @@ export default function InventoryTable({
                     <td colSpan={readOnly ? 7 : 8} className="px-12 py-4">
                       <div className="bg-white border border-slate-100 rounded-lg shadow-inner overflow-hidden">
                         <table className="w-full text-[11px] text-left">
-                          <thead className="bg-slate-50 border-b border-slate-100">
+                          <thead className="bg-teal-600/5 border-b border-slate-100">
                             <tr>
                               <th className="px-4 py-2 font-bold text-slate-500">SKU</th>
                               <th className="px-4 py-2 font-bold text-slate-500">Attributes</th>

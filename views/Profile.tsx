@@ -339,7 +339,7 @@ export default function Profile() {
 
         {/* Profile Tab */}
         <TabsContent value="profile" className="mt-6">
-          <Card>
+          <Card className='p-6'>
             <CardHeader className="flex flex-row items-center justify-between">
               <div>
                 <CardTitle>{t('personalInformation')}</CardTitle>
@@ -450,7 +450,7 @@ export default function Profile() {
 
           {/* Vendor Details (if applicable) */}
           {isVendor && myVendor && (
-            <Card className="mt-6">
+            <Card className="mt-6 p-6">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Store className="h-5 w-5 text-slate-400" />
@@ -485,7 +485,7 @@ export default function Profile() {
 
         {/* Preferences Tab */}
         <TabsContent value="preferences" className="mt-6 space-y-6">
-          <Card>
+          <Card className='p-6'>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bell className="h-5 w-5 text-slate-400" />
@@ -514,7 +514,7 @@ export default function Profile() {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className='p-6'>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Palette className="h-5 w-5 text-slate-400" />
@@ -567,7 +567,7 @@ export default function Profile() {
 
         {/* Security Tab */}
         <TabsContent value="security" className="mt-6 space-y-6">
-          <Card>
+          <Card className='p-6'>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Key className="h-5 w-5 text-slate-400" />
@@ -613,7 +613,7 @@ export default function Profile() {
             </CardContent>
           </Card>
 
-          <Card className="border-amber-200 bg-amber-50">
+          <Card className="border-amber-200 p-6 bg-amber-50">
             <CardContent className="p-6">
               <div className="flex items-start gap-4">
                 <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center shrink-0">
@@ -632,7 +632,7 @@ export default function Profile() {
 
         {/* Activity Tab */}
         <TabsContent value="activity" className="mt-6">
-          <Card>
+          <Card className='p-6'>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Activity className="h-5 w-5 text-slate-400" />

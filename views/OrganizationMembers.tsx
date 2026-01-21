@@ -711,7 +711,7 @@ export default function OrganizationMembers() {
                             placeholder="Search..."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 bg-slate-50"
+                            className="pl-10 rounded-sm py-5 bg-white border-slate-200"
                         />
                     </div>
                 </div>
@@ -721,7 +721,7 @@ export default function OrganizationMembers() {
                     <Card>
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-slate-50/50">
+                                <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
                                     <TableHead>Vendor</TableHead>
                                     <TableHead>Contact</TableHead>
                                     <TableHead>Location</TableHead>
@@ -801,7 +801,7 @@ export default function OrganizationMembers() {
                     <Card>
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-slate-50/50">
+                                <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
                                     <TableHead>User</TableHead>
                                     <TableHead>Email</TableHead>
                                     <TableHead>Role</TableHead>
