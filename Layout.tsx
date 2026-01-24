@@ -224,13 +224,43 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
   return (
     <div className="min-h-screen bg-slate-50">
       {/* Top Header - Dark theme */}
-      <header className="fixed top-0 left-0 right-0 h-16 bg-[#004030] border-b border-emerald-900/50 z-40">
-        <div className="flex items-center justify-between h-full px-4 lg:px-6">
-          {/* Left - Logo & Mobile Menu */}
-          <div className="flex items-center gap-4">
+      <header className="fixed top-0 left-0 right-0 h-16 bg-[#002820] border-b border-emerald-900/50 z-40">
+        <div className="flex items-center h-full">
+          {/* Left Section - Logo area with sidebar width */}
+          <div className={cn(
+            "hidden lg:flex items-center justify-between h-full border-r border-emerald-900/50 px-4 transition-all duration-300 ease-in-out",
+            sidebarCollapsed ? "w-[72px]" : "w-64"
+          )}>
+            <Link href={createPageUrl("Dashboard")} className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
+                <Package className="h-5 w-5 text-white" />
+              </div>
+              {!sidebarCollapsed && (
+                <div>
+                  <h1 className="font-bold text-white text-lg tracking-tight">StockFlow</h1>
+                </div>
+              )}
+            </Link>
+            {/* Sidebar Toggle Button - positioned at the right edge near the border */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="h-8 w-8 text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              {sidebarCollapsed ? (
+                <PanelLeft className="h-5 w-5" />
+              ) : (
+                <PanelLeftClose className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
+
+          {/* Mobile Logo & Menu */}
+          <div className="flex lg:hidden items-center gap-4 px-4">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="lg:hidden text-slate-300 hover:text-white hover:bg-white/10">
+                <Button variant="ghost" size="icon" className="text-slate-300 hover:text-white hover:bg-white/10">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -263,7 +293,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
               <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
                 <Package className="h-5 w-5 text-white" />
               </div>
-              <div className="hidden sm:block">
+              <div className="block sm:block">
                 <h1 className="font-bold text-white text-lg tracking-tight">StockFlow</h1>
               </div>
             </Link>
@@ -282,7 +312,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
           </div>
 
           {/* Right - Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ml-auto px-4 lg:px-6">
             <LanguageSelector />
 
             <Link href={createPageUrl("Alerts")}>
@@ -342,23 +372,9 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
 
       {/* Desktop Sidebar - Dark theme */}
       <aside className={cn(
-        "hidden lg:flex fixed left-0 top-16 bottom-0 bg-[#004030] border-r border-emerald-900/50 flex-col transition-all duration-300 ease-in-out",
+        "hidden lg:flex fixed left-0 top-16 bottom-0 bg-[#002820] border-r border-emerald-900/50 flex-col transition-all duration-300 ease-in-out",
         sidebarCollapsed ? "w-[72px]" : "w-64"
       )}>
-        {/* Toggle Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={toggleSidebar}
-          className="absolute -right-3 top-6 h-6 w-6 rounded-full border border-emerald-800/50 bg-[#004030] shadow-sm hover:bg-slate-800 z-10"
-        >
-          {sidebarCollapsed ? (
-            <ChevronRight className="h-3 w-3 text-slate-400" />
-          ) : (
-            <ChevronLeft className="h-3 w-3 text-slate-400" />
-          )}
-        </Button>
-
         <TooltipProvider>
           <nav className={cn(
             "flex-1 space-y-1 overflow-y-auto sidebar-scrollbar transition-all duration-300",
