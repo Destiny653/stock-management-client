@@ -47,12 +47,17 @@ import {
     Mail,
     Loader2,
     DollarSign,
-    AlertTriangle
+    AlertTriangle,
+    Calendar,
+    CreditCard
 } from "lucide-react";
-import { format } from "date-fns";
+import { OrganizationPayment, Organization } from "@/api/base44Client";
+import { format, subDays, startOfMonth } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/i18n/LanguageContext";
 import dynamic from 'next/dynamic';
+
+import type { LocationMarker } from '@/components/organizations/OrganizationMap';
 
 const OrganizationMap = dynamic(
     () => import('@/components/organizations/OrganizationMap'),
@@ -65,6 +70,21 @@ const OrganizationMap = dynamic(
         )
     }
 );
+
+// Payment status colors
+const paymentStatusColors: Record<string, string> = {
+    pending: "bg-amber-100 text-amber-700",
+    completed: "bg-emerald-100 text-emerald-700",
+    failed: "bg-rose-100 text-rose-700",
+    refunded: "bg-blue-100 text-blue-700",
+    cancelled: "bg-slate-100 text-slate-600"
+};
+
+const subscriptionPlanPricing: Record<string, { monthly: number; yearly: number; maxVendors: number; maxUsers: number }> = {
+    starter: { monthly: 29, yearly: 290, maxVendors: 10, maxUsers: 5 },
+    business: { monthly: 79, yearly: 790, maxVendors: 50, maxUsers: 20 },
+    enterprise: { monthly: 199, yearly: 1990, maxVendors: 999, maxUsers: 100 }
+};
 
 function useSafeLanguage() {
     try {
@@ -115,6 +135,52 @@ export default function OrganizationMembers() {
     const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
     const [memberToDelete, setMemberToDelete] = useState<{ id: string, type: 'user' | 'vendor' } | null>(null);
+
+    // Payment & Subscription State
+    const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+    const [isSubscriptionDialogOpen, setIsSubscriptionDialogOpen] = useState(false);
+    const [paymentSearch, setPaymentSearch] = useState('');
+    const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>('all');
+
+    const [datasetSubscriptionForm, setSubscriptionForm] = useState<{
+        subscription_plan: string;
+        billing_cycle: 'monthly' | 'yearly';
+        status: 'active' | 'inactive' | 'suspended' | 'pending';
+        trial_ends_at: string;
+        max_vendors: number;
+        max_users: number;
+    }>({
+        subscription_plan: 'starter',
+        billing_cycle: 'monthly',
+        status: 'active',
+        trial_ends_at: '',
+        max_vendors: 10,
+        max_users: 5
+    });
+
+    const [paymentForm, setPaymentForm] = useState<{
+        amount: string;
+        currency: string;
+        payment_method: 'bank_transfer' | 'card' | 'mobile_money' | 'paypal' | 'stripe' | 'other';
+        payment_type: 'subscription' | 'addon' | 'upgrade' | 'renewal';
+        billing_period: 'monthly' | 'yearly';
+        status: 'pending' | 'completed' | 'failed' | 'refunded' | 'cancelled';
+        reference_number: string;
+        invoice_number: string;
+        payment_date: string;
+        notes: string;
+    }>({
+        amount: '',
+        currency: 'USD',
+        payment_method: 'bank_transfer',
+        payment_type: 'subscription',
+        billing_period: 'monthly',
+        status: 'pending',
+        reference_number: '',
+        invoice_number: '',
+        payment_date: format(new Date(), 'yyyy-MM-dd'),
+        notes: ''
+    });
 
     const roleColors: Record<string, string> = {
         owner: "bg-violet-100 text-violet-700 border-violet-200",
@@ -173,6 +239,12 @@ export default function OrganizationMembers() {
     const { data: locations = [] } = useQuery({
         queryKey: ['locations'],
         queryFn: () => base44.entities.Location.list(),
+    });
+
+    const { data: payments = [] } = useQuery({
+        queryKey: ['organizationPayments', orgId],
+        queryFn: () => base44.entities.OrganizationPayment.list({ organization_id: orgId }),
+        enabled: !!orgId || isSuperAdmin,
     });
 
     const locationMap = useMemo(() => {
@@ -383,6 +455,158 @@ export default function OrganizationMembers() {
         setAddMemberDialogOpen(true);
     };
 
+    // Payment Mutations
+    const createPaymentMutation = useMutation({
+        mutationFn: (data: Partial<OrganizationPayment>) => base44.entities.OrganizationPayment.create(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['organizationPayments'] });
+            setIsPaymentDialogOpen(false);
+            resetPaymentForm();
+            toast.success("Payment recorded successfully");
+        }
+    });
+
+    const updatePaymentMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: Partial<OrganizationPayment> }) =>
+            base44.entities.OrganizationPayment.update(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['organizationPayments'] });
+            toast.success("Payment updated successfully");
+        }
+    });
+
+    // Subscription Mutation
+    const updateOrganizationMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: Partial<Organization> }) =>
+            base44.entities.Organization.update(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['organization'] });
+            setIsSubscriptionDialogOpen(false);
+            toast.success("Subscription updated successfully");
+        }
+    });
+
+    const resetPaymentForm = () => {
+        setPaymentForm({
+            amount: '',
+            currency: 'USD',
+            payment_method: 'bank_transfer',
+            payment_type: 'subscription',
+            billing_period: 'monthly',
+            status: 'pending',
+            reference_number: '',
+            invoice_number: '',
+            payment_date: format(new Date(), 'yyyy-MM-dd'),
+            notes: ''
+        });
+    };
+
+    const handleCreatePayment = () => {
+        if (!orgId || !paymentForm.amount) return;
+
+        const invoiceNumber = paymentForm.invoice_number || `INV-${Date.now().toString().slice(-8)}`;
+
+        createPaymentMutation.mutate({
+            ...paymentForm,
+            organization_id: orgId,
+            amount: parseFloat(paymentForm.amount),
+            invoice_number: invoiceNumber,
+            created_at: new Date().toISOString()
+        });
+    };
+
+    const handleConfirmPayment = (payment: OrganizationPayment) => {
+        updatePaymentMutation.mutate({
+            id: payment.id,
+            data: {
+                status: 'completed',
+                payment_date: new Date().toISOString()
+            }
+        });
+    };
+
+    const handleRejectPayment = (payment: OrganizationPayment) => {
+        updatePaymentMutation.mutate({
+            id: payment.id,
+            data: {
+                status: 'cancelled'
+            }
+        });
+    };
+
+    const handleEditSubscription = () => {
+        if (!organization) return;
+        setSubscriptionForm({
+            subscription_plan: organization.subscription_plan || 'starter',
+            billing_cycle: organization.billing_cycle || 'monthly',
+            status: organization.status,
+            trial_ends_at: organization.trial_ends_at || '',
+            max_vendors: organization.max_vendors || subscriptionPlanPricing[organization.subscription_plan || 'starter']?.maxVendors || 10,
+            max_users: organization.max_users || subscriptionPlanPricing[organization.subscription_plan || 'starter']?.maxUsers || 5
+        });
+        setIsSubscriptionDialogOpen(true);
+    };
+
+    const handleSaveSubscription = () => {
+        if (!organization) return;
+
+        updateOrganizationMutation.mutate({
+            id: organization.id,
+            data: {
+                subscription_plan: datasetSubscriptionForm.subscription_plan,
+                billing_cycle: datasetSubscriptionForm.billing_cycle,
+                status: datasetSubscriptionForm.status as any,
+                trial_ends_at: datasetSubscriptionForm.trial_ends_at || undefined,
+                max_vendors: datasetSubscriptionForm.max_vendors,
+                max_users: datasetSubscriptionForm.max_users
+            }
+        });
+    };
+
+    // Filter payments
+    const filteredPayments = useMemo(() => {
+        return payments.filter((payment: any) => {
+            const matchesSearch = !paymentSearch ||
+                payment.reference_number?.toLowerCase().includes(paymentSearch.toLowerCase()) ||
+                payment.invoice_number?.toLowerCase().includes(paymentSearch.toLowerCase());
+            const matchesStatus = paymentStatusFilter === 'all' || payment.status === paymentStatusFilter;
+            return matchesSearch && matchesStatus;
+        });
+    }, [payments, paymentSearch, paymentStatusFilter]);
+
+    // Subscription Stats
+    const subscriptionStats = useMemo(() => {
+        if (!organization) return null;
+
+        const completedPayments = payments.filter((p: any) => p.status === 'completed');
+        const lastPayment = completedPayments.length > 0
+            ? completedPayments.sort((a: any, b: any) =>
+                new Date(b.payment_date || b.created_at).getTime() - new Date(a.payment_date || a.created_at).getTime()
+            )[0]
+            : null;
+
+        let nextBillingDate: Date | null = null;
+        if (lastPayment && lastPayment.payment_date) {
+            const lastDate = new Date(lastPayment.payment_date);
+            const billingCycle = organization.billing_cycle || 'monthly';
+            if (billingCycle === 'yearly') {
+                nextBillingDate = new Date(lastDate.setFullYear(lastDate.getFullYear() + 1));
+            } else {
+                nextBillingDate = new Date(lastDate.setMonth(lastDate.getMonth() + 1));
+            }
+        }
+
+        const planPrices = subscriptionPlanPricing[organization.subscription_plan || 'starter'] || subscriptionPlanPricing.starter;
+        const billingAmount = organization.billing_cycle === 'yearly' ? planPrices.yearly : planPrices.monthly;
+
+        return {
+            lastPayment,
+            nextBillingDate,
+            billingAmount,
+            totalPaid: completedPayments.reduce((sum: number, p: any) => sum + p.amount, 0)
+        };
+    }, [organization, payments]);
+
     const deleteMemberMutation = useMutation({
         mutationFn: async ({ id, type }: { id: string, type: 'user' | 'vendor' }) => {
             if (type === 'user') {
@@ -417,25 +641,55 @@ export default function OrganizationMembers() {
     };
 
     // Vendors with location for map
-    const vendorsWithLocation = useMemo(() => {
-        return orgVendors.map(v => {
+    const mapMarkers = useMemo(() => {
+        const markers: LocationMarker[] = [];
+
+        // Add Organization Location
+        if (organization && organization.location_id && locationMap[organization.location_id]) {
+            const loc = locationMap[organization.location_id];
+            if (loc.latitude && loc.longitude) {
+                markers.push({
+                    id: 'org-' + organization.id,
+                    name: organization.name,
+                    type: 'organization',
+                    latitude: loc.latitude,
+                    longitude: loc.longitude,
+                    address: loc.address,
+                    city: loc.city,
+                    country: loc.country,
+                    status: organization.status
+                });
+            }
+        }
+
+        // Add Vendor Locations
+        orgVendors.forEach(v => {
             const loc = v.location_id ? locationMap[v.location_id] : null;
-            return {
-                ...v,
-                latitude: loc?.latitude,
-                longitude: loc?.longitude,
-                address: loc?.address,
-                city: loc?.city,
-                country: loc?.country
-            };
-        }).filter(v => v.latitude && v.longitude);
-    }, [orgVendors, locationMap]);
+            if (loc && loc.latitude && loc.longitude) {
+                markers.push({
+                    id: v.id,
+                    store_name: v.store_name,
+                    name: v.user_id && userMap[v.user_id] ? userMap[v.user_id].full_name : undefined,
+                    type: 'vendor',
+                    latitude: loc.latitude,
+                    longitude: loc.longitude,
+                    address: loc.address,
+                    city: loc.city,
+                    country: loc.country,
+                    total_sales: v.total_sales,
+                    status: v.status
+                });
+            }
+        });
+
+        return markers;
+    }, [organization, orgVendors, locationMap, userMap]);
 
     // Calculate map center
-    const mapCenter: [number, number] = vendorsWithLocation.length > 0
+    const mapCenter: [number, number] = mapMarkers.length > 0
         ? [
-            vendorsWithLocation.reduce((sum, v) => sum + (v.latitude || 0), 0) / vendorsWithLocation.length,
-            vendorsWithLocation.reduce((sum, v) => sum + (v.longitude || 0), 0) / vendorsWithLocation.length
+            mapMarkers.reduce((sum, v) => sum + (v.latitude || 0), 0) / mapMarkers.length,
+            mapMarkers.reduce((sum, v) => sum + (v.longitude || 0), 0) / mapMarkers.length
         ]
         : [0, 0];
 
@@ -670,8 +924,8 @@ export default function OrganizationMembers() {
                             <MapPin className="h-5 w-5 text-emerald-600" />
                         </div>
                         <div>
-                            <p className="text-xl font-bold text-slate-900">{vendorsWithLocation.length}</p>
-                            <p className="text-sm text-slate-500">On Map</p>
+                            <p className="text-xl font-bold text-slate-900">{mapMarkers.length - (organization?.location_id ? 1 : 0)} (+1 HQ)</p>
+                            <p className="text-sm text-slate-500">Locations on Map</p>
                         </div>
                     </CardContent>
                 </Card>
@@ -688,6 +942,7 @@ export default function OrganizationMembers() {
                         </div>
                     </CardContent>
                 </Card>
+
             </div>
 
             {/* Tabs */}
@@ -702,6 +957,9 @@ export default function OrganizationMembers() {
                         </TabsTrigger>
                         <TabsTrigger value="map" className="flex items-center gap-2">
                             <MapPin className="h-4 w-4" /> Map View
+                        </TabsTrigger>
+                        <TabsTrigger value="subscription" className="flex items-center gap-2">
+                            <CreditCard className="h-4 w-4" /> Subscription
                         </TabsTrigger>
                     </TabsList>
 
@@ -877,21 +1135,328 @@ export default function OrganizationMembers() {
                 <TabsContent value="map" className="mt-6">
                     <Card className="overflow-hidden">
                         <div className="h-[500px]">
-                            {vendorsWithLocation.length > 0 ? (
+                            {mapMarkers.length > 0 ? (
                                 <OrganizationMap
-                                    vendors={vendorsWithLocation}
+                                    locations={mapMarkers}
                                     center={mapCenter}
-                                    zoom={4}
-                                    onVendorClick={(vendor) => handleViewDetails(vendor, 'vendor')}
+                                    zoom={mapMarkers.length > 0 ? 12 : 3}
+                                    onMarkerClick={(marker) => marker.type === 'vendor' ? handleViewDetails(marker, 'vendor') : null}
                                 />
                             ) : (
                                 <div className="flex flex-col items-center justify-center h-full bg-slate-50">
                                     <MapPin className="h-12 w-12 text-slate-300 mb-3" />
-                                    <p className="text-slate-600">No vendors with location data</p>
-                                    <p className="text-sm text-slate-500">Add latitude and longitude to vendors to see them on the map</p>
+                                    <p className="text-slate-600">No locations found</p>
+                                    <p className="text-sm text-slate-500">Add location data to organization or vendors to see them on the map</p>
                                 </div>
                             )}
                         </div>
+                    </Card>
+                </TabsContent>
+
+                {/* Subscription Tab */}
+                <TabsContent value="subscription" className="mt-6 space-y-6">
+                    {/* Subscription Overview */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <Card>
+                            <CardHeader className="flex flex-row items-center justify-between pb-2">
+                                <CardTitle className="text-lg font-bold flex items-center gap-2">
+                                    <CreditCard className="h-5 w-5 text-emerald-600" />
+                                    Current Plan
+                                </CardTitle>
+                                <Badge className={cn(
+                                    "capitalize",
+                                    organization?.subscription_plan === 'enterprise' && "bg-violet-100 text-violet-700",
+                                    organization?.subscription_plan === 'business' && "bg-blue-100 text-blue-700",
+                                    (!organization?.subscription_plan || organization?.subscription_plan === 'starter') && "bg-slate-100 text-slate-700"
+                                )}>
+                                    {organization?.subscription_plan || 'starter'}
+                                </Badge>
+                            </CardHeader>
+                            <CardContent>
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-baseline">
+                                        <span className="text-3xl font-bold text-slate-900">
+                                            ${subscriptionStats?.billingAmount}
+                                        </span>
+                                        <span className="text-sm text-slate-500 capitalize">
+                                            /{organization?.billing_cycle || 'monthly'}
+                                        </span>
+                                    </div>
+
+                                    <div className="space-y-2 pt-4 border-t">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-slate-600">Status</span>
+                                            <Badge variant="outline" className={statusColors[organization?.status || 'active']}>
+                                                {organization?.status}
+                                            </Badge>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-slate-600">Next Billing</span>
+                                            <span className="font-medium">
+                                                {subscriptionStats?.nextBillingDate
+                                                    ? format(subscriptionStats.nextBillingDate, 'MMM d, yyyy')
+                                                    : 'N/A'}
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-slate-600">Total Paid</span>
+                                            <span className="font-medium text-emerald-600">
+                                                ${subscriptionStats?.totalPaid.toLocaleString()}
+                                            </span>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-4">
+                                        <Button
+                                            variant="outline"
+                                            className="w-full"
+                                            onClick={handleEditSubscription}
+                                            disabled={!isSuperAdmin}
+                                        >
+                                            <Edit2 className="h-4 w-4 mr-2" />
+                                            {isSuperAdmin ? 'Edit Subscription' : 'Contact Admin to Change Plan'}
+                                        </Button>
+                                    </div>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
+                            <CardHeader>
+                                <CardTitle className="text-lg font-bold">Usage Limits</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-slate-600">Vendors</span>
+                                        <span className="font-medium">
+                                            {orgVendors.length} / {organization?.max_vendors || 10}
+                                        </span>
+                                    </div>
+                                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-violet-500 rounded-full"
+                                            style={{ width: `${Math.min((orgVendors.length / (organization?.max_vendors || 10)) * 100, 100)}%` }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-slate-600">Users</span>
+                                        <span className="font-medium">
+                                            {orgUsers.length} / {organization?.max_users || 5}
+                                        </span>
+                                    </div>
+                                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                                        <div
+                                            className="h-full bg-blue-500 rounded-full"
+                                            style={{ width: `${Math.min((orgUsers.length / (organization?.max_users || 5)) * 100, 100)}%` }}
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="bg-slate-50 p-4 rounded-lg text-sm text-slate-600">
+                                    <p>Need more capacity? Upgrade your plan to increase limits for vendors, users, and storage.</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* Payment History Table */}
+                    <Card>
+                        <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                            <CardTitle className="flex items-center gap-2">
+                                <DollarSign className="h-5 w-5 text-slate-400" />
+                                Billing History
+                            </CardTitle>
+                            <div className="flex gap-2">
+                                {isSuperAdmin && (
+                                    <Button
+                                        onClick={() => {
+                                            if (organization) {
+                                                setPaymentForm(prev => ({
+                                                    ...prev,
+                                                    organization_id: organization.id,
+                                                    amount: subscriptionStats?.billingAmount.toString() || '',
+                                                    payment_type: 'subscription'
+                                                }));
+                                                setIsPaymentDialogOpen(true);
+                                            }
+                                        }}
+                                        className="bg-emerald-600 hover:bg-emerald-700"
+                                        size="sm"
+                                    >
+                                        <Plus className="h-4 w-4 mr-2" />
+                                        Record Payment
+                                    </Button>
+                                )}
+                            </div>
+                        </CardHeader>
+                        <CardContent>
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
+                                        <TableHead>Invoice</TableHead>
+                                        <TableHead>Amount</TableHead>
+                                        <TableHead>Date</TableHead>
+                                        <TableHead>Method</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead className="text-right">Actions</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {filteredPayments.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={6} className="text-center py-8 text-slate-500">
+                                                No payment history found
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        filteredPayments.map((payment: any) => (
+                                            <TableRow key={payment.id}>
+                                                <TableCell>
+                                                    <div className="font-mono text-sm font-medium">{payment.invoice_number}</div>
+                                                    <div className="text-xs text-slate-500">{payment.payment_type}</div>
+                                                </TableCell>
+                                                <TableCell className="font-medium">
+                                                    {payment.currency === 'USD' ? '$' : payment.currency} {payment.amount.toLocaleString()}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {payment.payment_date
+                                                        ? format(new Date(payment.payment_date), 'MMM d, yyyy')
+                                                        : format(new Date(payment.created_at), 'MMM d, yyyy')}
+                                                </TableCell>
+                                                <TableCell className="capitalize">
+                                                    {payment.payment_method.replace('_', ' ')}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge className={cn(paymentStatusColors[payment.status], "capitalize")}>
+                                                        {payment.status}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell className="text-right">
+                                                    <div className="flex justify-end gap-2">
+                                                        {isSuperAdmin && payment.status === 'pending' && (
+                                                            <>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() => handleConfirmPayment(payment)}
+                                                                    className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 h-8 px-2"
+                                                                >
+                                                                    Confirm
+                                                                </Button>
+                                                                <Button
+                                                                    variant="ghost"
+                                                                    size="sm"
+                                                                    onClick={() => handleRejectPayment(payment)}
+                                                                    className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-8 px-2"
+                                                                >
+                                                                    Reject
+                                                                </Button>
+                                                            </>
+                                                        )}
+                                                        {payment.status === 'completed' && (
+                                                            <Button variant="ghost" size="sm" className="h-8 px-2 text-slate-500">
+                                                                Download
+                                                            </Button>
+                                                        )}
+                                                    </div>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+
+                {/* Subscription Tab */}
+                <TabsContent value="subscription" className="mt-6">
+                    <Card className="bg-white border-slate-200">
+                        <CardHeader className="pb-4 border-b border-slate-100">
+                            <div className="flex items-center justify-between">
+                                <CardTitle className="text-lg font-medium text-slate-900 flex items-center gap-2">
+                                    <CreditCard className="h-5 w-5 text-emerald-600" /> Subscription & Billing
+                                </CardTitle>
+                                <Button variant="outline" size="sm">Manage Plan</Button>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="pt-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                {/* Current Plan Info */}
+                                <div className="space-y-6">
+                                    <div>
+                                        <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-4">Current Subscription</h3>
+                                        <div className="flex items-center gap-4 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                                            <div className="h-14 w-14 rounded-full bg-emerald-100 flex items-center justify-center border-4 border-white shadow-sm">
+                                                <div className="font-bold text-emerald-700 text-xl uppercase">
+                                                    {organization?.subscription_plan?.charAt(0) || 'S'}
+                                                </div>
+                                            </div>
+                                            <div className="flex-1">
+                                                <div className="flex items-center justify-between">
+                                                    <h3 className="font-bold text-lg text-slate-900 capitalize">{organization?.subscription_plan || 'Starter'} Plan</h3>
+                                                    <Badge className="bg-emerald-600 text-white border-none capitalize">
+                                                        {organization?.status || 'Active'}
+                                                    </Badge>
+                                                </div>
+                                                <div className="flex items-center gap-2 text-sm text-slate-600 mt-1">
+                                                    <span>Billed {organization?.billing_cycle || 'Monthly'}</span>
+                                                    <span>•</span>
+                                                    <span>Next billing date: {organization?.created_at ? format(new Date(new Date(organization.created_at).setMonth(new Date(organization.created_at).getMonth() + 1)), 'MMM dd, yyyy') : '-'}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
+                                            <p className="text-xs font-medium text-slate-500 uppercase mb-1">Start Date</p>
+                                            <div className="flex items-center gap-2 text-slate-700 font-medium">
+                                                <Calendar className="h-4 w-4 text-slate-400" />
+                                                {organization?.created_at ? format(new Date(organization.created_at), 'MMM dd, yyyy') : '-'}
+                                            </div>
+                                        </div>
+                                        <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
+                                            <p className="text-xs font-medium text-slate-500 uppercase mb-1">Renewal Date</p>
+                                            <div className="flex items-center gap-2 text-slate-700 font-medium">
+                                                <Calendar className="h-4 w-4 text-emerald-600" />
+                                                {organization?.created_at
+                                                    ? format(new Date(new Date(organization.created_at).setFullYear(new Date(organization.created_at).getFullYear() + 1)), 'MMM dd, yyyy')
+                                                    : '-'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Billing Details / Payment Method Placeholder */}
+                                <div className="space-y-6">
+                                    <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-4">Payment Method</h3>
+
+                                    <div className="p-6 border border-slate-200 rounded-xl bg-white border-dashed flex flex-col items-center justify-center text-center space-y-3 min-h-[160px]">
+                                        <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
+                                            <CreditCard className="h-5 w-5 text-slate-400" />
+                                        </div>
+                                        <div>
+                                            <p className="font-medium text-slate-900">No payment method on file</p>
+                                            <p className="text-sm text-slate-500 mt-1">Add a payment method to ensure uninterrupted service.</p>
+                                        </div>
+                                        <Button variant="outline" size="sm" className="mt-2">
+                                            Add Payment Method
+                                        </Button>
+                                    </div>
+
+                                    <div className="pt-4 border-t border-slate-100">
+                                        <h4 className="text-sm font-medium text-slate-900 mb-3">Billing History</h4>
+                                        <div className="text-sm text-slate-500 italic">No previous invoices found.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
                     </Card>
                 </TabsContent>
             </Tabs>
@@ -971,7 +1536,7 @@ export default function OrganizationMembers() {
                                     </CardHeader>
                                     <div className="h-48">
                                         <OrganizationMap
-                                            vendors={[{
+                                            locations={[{
                                                 ...selectedMember,
                                                 latitude: locationMap[selectedMember.location_id]?.latitude,
                                                 longitude: locationMap[selectedMember.location_id]?.longitude

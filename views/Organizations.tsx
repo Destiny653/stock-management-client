@@ -46,7 +46,9 @@ import {
     Globe,
     Mail,
     Phone,
-    AlertTriangle
+    AlertTriangle,
+    LayoutGrid,
+    List
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -72,6 +74,7 @@ export default function Organizations() {
     const queryClient = useQueryClient();
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("all");
+    const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
     const [dialogOpen, setDialogOpen] = useState(false);
     const [editingOrg, setEditingOrg] = useState<any>(null);
     const [formData, setFormData] = useState({
@@ -465,197 +468,288 @@ export default function Organizations() {
                                 onChange={(e) => setFormData(p => ({ ...p, max_users: parseInt(e.target.value) || 5 }))}
                             />
                         </div>
-                   
-                    <DialogFooter>
-                        <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
-                        <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleSubmit}>
-                            <Save className="h-4 w-4 mr-2" /> Save
+
+                        <DialogFooter>
+                            <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
+                            <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleSubmit}>
+                                <Save className="h-4 w-4 mr-2" /> Save
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <Card className='border-none'>
+                    <CardContent className="flex items-center gap-4 py-12">
+                        <div className="h-12 w-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                            <Building2 className="h-6 w-6 text-emerald-600" />
+                        </div>
+                        <div>
+                            <p className="text-2xl font-bold text-slate-900">{organizations.length}</p>
+                            <p className="text-sm text-slate-500">Total Organizations</p>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardContent className="flex items-center gap-4 py-12">
+                        <div className="h-12 w-12 rounded-xl bg-violet-100 flex items-center justify-center">
+                            <Store className="h-6 w-6 text-violet-600" />
+                        </div>
+                        <div>
+                            <p className="text-2xl font-bold text-slate-900">{vendors.length}</p>
+                            <p className="text-sm text-slate-500">Total Vendors</p>
+                        </div>
+                    </CardContent>
+                </Card>
+                <Card>
+                    <CardContent className="flex items-center gap-4 py-12">
+                        <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                            <Users className="h-6 w-6 text-blue-600" />
+                        </div>
+                        <div>
+                            <p className="text-2xl font-bold text-slate-900">{users.length}</p>
+                            <p className="text-sm text-slate-500">Total Users</p>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+
+            {/* Filters */}
+            <div className="">
+                <div className="flex flex-col sm:flex-row gap-4 justify-between">
+                    <div className="flex flex-1 gap-4">
+                        <div className="relative flex-1">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                            <Input
+                                placeholder="Search organizations..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-10 rounded-xl py-5 max-w-[60%] bg-white border-slate-200"
+                            />
+                        </div>
+                        <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <SelectTrigger className="w-40 bg-white rounded-xl py-5 border-slate-200">
+                                <SelectValue placeholder="Status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Status</SelectItem>
+                                <SelectItem value="active">Active</SelectItem>
+                                <SelectItem value="inactive">Inactive</SelectItem>
+                                <SelectItem value="suspended">Suspended</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    {/* View Mode Toggle */}
+                    <div className="flex items-center bg-white rounded-xl border border-slate-200 p-1">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setViewMode('list')}
+                            className={cn(
+                                "rounded-lg px-3",
+                                viewMode === 'list' ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-900"
+                            )}
+                        >
+                            <List className="h-4 w-4 mr-2" /> List
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setViewMode('grid')}
+                            className={cn(
+                                "rounded-lg px-3",
+                                viewMode === 'grid' ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-900"
+                            )}
+                        >
+                            <LayoutGrid className="h-4 w-4 mr-2" /> Grid
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Content */}
+            <div className="min-h-[400px]">
+                {isLoading ? (
+                    <div className="flex items-center justify-center h-48">
+                        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+                    </div>
+                ) : filteredOrgs.length === 0 ? (
+                    <div className="text-center py-12 text-slate-500 bg-white rounded-xl border border-slate-200">
+                        <Building2 className="h-12 w-12 mx-auto mb-3 text-slate-300" />
+                        <p>No organizations found matching your criteria</p>
+                    </div>
+                ) : viewMode === 'list' ? (
+                    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
+                        <Table>
+                            <TableHeader>
+                                <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
+                                    <TableHead>Organization</TableHead>
+                                    <TableHead>Location</TableHead>
+                                    <TableHead>Contact</TableHead>
+                                    <TableHead>Plan</TableHead>
+                                    <TableHead>Vendors</TableHead>
+                                    <TableHead>Users</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead className="w-24"></TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {filteredOrgs.map(org => (
+                                    <TableRow key={org.id} className="hover:bg-slate-50">
+                                        <TableCell>
+                                            <div className="flex items-center gap-3">
+                                                <div className="h-10 w-10 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold shadow-emerald-500/20 shadow-md">
+                                                    {org.name?.charAt(0) || 'O'}
+                                                </div>
+                                                <div>
+                                                    <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="font-medium text-slate-900 hover:text-emerald-600 hover:underline">
+                                                        {org.name}
+                                                    </Link>
+                                                    <p className="text-sm text-slate-500 font-mono">{org.code}</p>
+                                                </div>
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="text-slate-600">
+                                            {(() => {
+                                                const loc = locations.find(l => l.id === org.location_id);
+                                                return loc?.city ? `${loc.city}, ${loc.country}` : '-';
+                                            })()}
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="text-sm">
+                                                {org.email && <div className="flex items-center gap-1"><Mail className="h-3 w-3 text-slate-400" /> {org.email}</div>}
+                                                {org.phone && <div className="flex items-center gap-1 text-slate-500"><Phone className="h-3 w-3 text-slate-400" /> {org.phone}</div>}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge variant="outline" className="capitalize bg-slate-50">{org.subscription_plan}</Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Link href={createPageUrl(`OrganizationMembers?id=${org.id}&tab=vendors`)} className="text-slate-600 hover:text-emerald-600 font-medium">
+                                                {orgStats[org.id]?.vendorCount || 0} <span className="text-slate-400 font-normal">/ {org.max_vendors}</span>
+                                            </Link>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Link href={createPageUrl(`OrganizationMembers?id=${org.id}&tab=users`)} className="text-slate-600 hover:text-emerald-600 font-medium">
+                                                {orgStats[org.id]?.userCount || 0} <span className="text-slate-400 font-normal">/ {org.max_users}</span>
+                                            </Link>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge className={statusColors[org.status]}>{org.status}</Badge>
+                                        </TableCell>
+                                        <TableCell>
+                                            <div className="flex items-center gap-1">
+                                                <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)}>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600">
+                                                        <Eye className="h-4 w-4" />
+                                                    </Button>
+                                                </Link>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-indigo-600" onClick={() => handleEdit(org)}>
+                                                    <Edit2 className="h-4 w-4" />
+                                                </Button>
+                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600" onClick={() => handleDelete(org.id)}>
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        {filteredOrgs.map(org => {
+                            const loc = locations.find(l => l.id === org.location_id);
+                            return (
+                                <Card key={org.id} className="hover:shadow-md transition-shadow duration-200 border-slate-200">
+                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                                        <div className="h-12 w-12 rounded-xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg shadow-emerald-500/20 shadow-md">
+                                            {org.name?.charAt(0) || 'O'}
+                                        </div>
+                                        <div className="flex gap-1">
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600" onClick={() => handleEdit(org)}>
+                                                <Edit2 className="h-4 w-4" />
+                                            </Button>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600" onClick={() => handleDelete(org.id)}>
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </div>
+                                    </CardHeader>
+                                    <CardContent className="pt-4 space-y-4">
+                                        <div>
+                                            <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="font-bold text-lg text-slate-900 hover:text-emerald-600 hover:underline">
+                                                {org.name}
+                                            </Link>
+                                            <div className="flex items-center gap-2 mt-1">
+                                                <Badge variant="outline" className="font-mono text-xs">{org.code}</Badge>
+                                                <Badge className={cn("text-xs px-2 py-0.5", statusColors[org.status])}>{org.status}</Badge>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2 text-sm text-slate-600">
+                                            {loc?.city && (
+                                                <div className="flex items-center gap-2">
+                                                    <Building2 className="h-4 w-4 text-slate-400" />
+                                                    {loc.city}, {loc.country}
+                                                </div>
+                                            )}
+                                            {org.email && (
+                                                <div className="flex items-center gap-2 overflow-hidden">
+                                                    <Mail className="h-4 w-4 text-slate-400 shrink-0" />
+                                                    <span className="truncate">{org.email}</span>
+                                                </div>
+                                            )}
+                                            <div className="flex items-center gap-2">
+                                                <Store className="h-4 w-4 text-slate-400" />
+                                                <span>{orgStats[org.id]?.vendorCount || 0} Vendors</span>
+                                            </div>
+                                            <div className="flex items-center gap-2">
+                                                <Users className="h-4 w-4 text-slate-400" />
+                                                <span>{orgStats[org.id]?.userCount || 0} Users</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="pt-2">
+                                            <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)}>
+                                                <Button variant="outline" className="w-full hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200">
+                                                    View Details
+                                                </Button>
+                                            </Link>
+                                        </div>
+                                    </CardContent>
+                                </Card>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+                <DialogContent className="max-w-sm">
+                    <DialogHeader className="flex flex-col items-center text-center space-y-3">
+                        <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
+                            <AlertTriangle className="h-6 w-6 text-rose-600" />
+                        </div>
+                        <DialogTitle className="text-xl">Delete Organization?</DialogTitle>
+                        <p className="text-sm text-slate-500">
+                            Are you sure you want to delete this organization? This will not delete associated vendors or users, but they will lose access to this organization's data.
+                        </p>
+                    </DialogHeader>
+                    <DialogFooter className="grid grid-cols-2 gap-3 mt-4">
+                        <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="destructive" onClick={confirmDelete} disabled={deleteOrgMutation.isPending}>
+                            {deleteOrgMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                            Delete
                         </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </div>
-
-            {/* Stats */ }
-    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Card className='border-none'>
-            <CardContent className="flex items-center gap-4 py-12">
-                <div className="h-12 w-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                    <Building2 className="h-6 w-6 text-emerald-600" />
-                </div>
-                <div>
-                    <p className="text-2xl font-bold text-slate-900">{organizations.length}</p>
-                    <p className="text-sm text-slate-500">Total Organizations</p>
-                </div>
-            </CardContent>
-        </Card>
-        <Card>
-            <CardContent className="flex items-center gap-4 py-12">
-                <div className="h-12 w-12 rounded-xl bg-violet-100 flex items-center justify-center">
-                    <Store className="h-6 w-6 text-violet-600" />
-                </div>
-                <div>
-                    <p className="text-2xl font-bold text-slate-900">{vendors.length}</p>
-                    <p className="text-sm text-slate-500">Total Vendors</p>
-                </div>
-            </CardContent>
-        </Card>
-        <Card>
-            <CardContent className="flex items-center gap-4 py-12">
-                <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                    <Users className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                    <p className="text-2xl font-bold text-slate-900">{users.length}</p>
-                    <p className="text-sm text-slate-500">Total Users</p>
-                </div>
-            </CardContent>
-        </Card>
-    </div>
-
-    {/* Filters */ }
-    <div className="">
-        <div className="flex flex-col sm:flex-row gap-4">
-            <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input
-                    placeholder="Search organizations..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 rounded-sm py-5 max-w-[60%] bg-white"
-                />
-            </div>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-40 bg-white rounded-sm py-5">
-                    <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                    <SelectItem value="suspended">Suspended</SelectItem>
-                </SelectContent>
-            </Select>
-        </div>
-    </div>
-
-    {/* Table */ }
-    <div className="bg-white overflow-hidden">
-        {isLoading ? (
-            <div className="flex items-center justify-center h-48">
-                <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-            </div>
-        ) : (
-            <Table>
-                <TableHeader>
-                    <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                        <TableHead>Organization</TableHead>
-                        <TableHead>Location</TableHead>
-                        <TableHead>Contact</TableHead>
-                        <TableHead>Plan</TableHead>
-                        <TableHead>Vendors</TableHead>
-                        <TableHead>Users</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead className="w-24"></TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {filteredOrgs.length === 0 ? (
-                        <TableRow>
-                            <TableCell colSpan={8} className="text-center py-12 text-slate-500">
-                                <Building2 className="h-12 w-12 mx-auto mb-3 text-slate-300" />
-                                No organizations found
-                            </TableCell>
-                        </TableRow>
-                    ) : (
-                        filteredOrgs.map(org => (
-                            <TableRow key={org.id} className="hover:bg-slate-50">
-                                <TableCell>
-                                    <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
-                                            {org.name?.charAt(0) || 'O'}
-                                        </div>
-                                        <div>
-                                            <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="font-medium text-slate-900 hover:text-emerald-600 hover:underline">
-                                                {org.name}
-                                            </Link>
-                                            <p className="text-sm text-slate-500 font-mono">{org.code}</p>
-                                        </div>
-                                    </div>
-                                </TableCell>
-                                <TableCell className="text-slate-600">
-                                    {(() => {
-                                        const loc = locations.find(l => l.id === org.location_id);
-                                        return loc?.city ? `${loc.city}, ${loc.country}` : '-';
-                                    })()}
-                                </TableCell>
-                                <TableCell>
-                                    <div className="text-sm">
-                                        {org.email && <div className="flex items-center gap-1"><Mail className="h-3 w-3" /> {org.email}</div>}
-                                        {org.phone && <div className="flex items-center gap-1 text-slate-500"><Phone className="h-3 w-3" /> {org.phone}</div>}
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <Badge variant="outline" className="capitalize">{org.subscription_plan}</Badge>
-                                </TableCell>
-                                <TableCell>
-                                    <Link href={createPageUrl(`OrganizationMembers?id=${org.id}&tab=vendors`)} className="text-emerald-600 hover:underline font-medium">
-                                        {orgStats[org.id]?.vendorCount || 0} / {org.max_vendors}
-                                    </Link>
-                                </TableCell>
-                                <TableCell>
-                                    <Link href={createPageUrl(`OrganizationMembers?id=${org.id}&tab=users`)} className="text-emerald-600 hover:underline font-medium">
-                                        {orgStats[org.id]?.userCount || 0} / {org.max_users}
-                                    </Link>
-                                </TableCell>
-                                <TableCell>
-                                    <Badge className={statusColors[org.status]}>{org.status}</Badge>
-                                </TableCell>
-                                <TableCell>
-                                    <div className="flex items-center gap-1">
-                                        <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)}>
-                                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                <Eye className="h-4 w-4" />
-                                            </Button>
-                                        </Link>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(org)}>
-                                            <Edit2 className="h-4 w-4" />
-                                        </Button>
-                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-600" onClick={() => handleDelete(org.id)}>
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        ))
-                    )}
-                </TableBody>
-            </Table>
-        )}
-    </div>
-    {/* Delete Confirmation Dialog */ }
-    <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <DialogContent className="max-w-sm">
-            <DialogHeader className="flex flex-col items-center text-center space-y-3">
-                <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
-                    <AlertTriangle className="h-6 w-6 text-rose-600" />
-                </div>
-                <DialogTitle className="text-xl">Delete Organization?</DialogTitle>
-                <p className="text-sm text-slate-500">
-                    Are you sure you want to delete this organization? This will not delete associated vendors or users, but they will lose access to this organization's data.
-                </p>
-            </DialogHeader>
-            <DialogFooter className="grid grid-cols-2 gap-3 mt-4">
-                <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
-                    Cancel
-                </Button>
-                <Button variant="destructive" onClick={confirmDelete} disabled={deleteOrgMutation.isPending}>
-                    {deleteOrgMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
-                    Delete
-                </Button>
-            </DialogFooter>
-        </DialogContent>
-    </Dialog>
         </div >
     );
 }

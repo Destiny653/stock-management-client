@@ -24,25 +24,26 @@ const statusColors: Record<string, string> = {
     suspended: "bg-rose-100 text-rose-700"
 };
 
-interface Vendor {
+export interface LocationMarker {
     id: string;
     latitude?: number;
     longitude?: number;
-    store_name?: string;
-    name?: string;
+    store_name?: string; // For vendors
+    name?: string; // For organization or contact name
     address?: string;
     city?: string;
     country?: string;
     total_sales?: number;
-    status: string;
+    status?: string;
     total_orders?: number;
+    type?: 'organization' | 'vendor';
 }
 
 interface OrganizationMapProps {
-    vendors: Vendor[];
+    locations: LocationMarker[];
     center: [number, number];
     zoom: number;
-    onVendorClick?: (vendor: Vendor) => void;
+    onMarkerClick?: (location: LocationMarker) => void;
 }
 
 const MapUpdater: React.FC<{ center: [number, number]; zoom?: number }> = ({ center, zoom }) => {
@@ -55,7 +56,7 @@ const MapUpdater: React.FC<{ center: [number, number]; zoom?: number }> = ({ cen
     return null;
 };
 
-export default function OrganizationMap({ vendors, center, zoom, onVendorClick }: OrganizationMapProps) {
+export default function OrganizationMap({ locations, center, zoom, onMarkerClick }: OrganizationMapProps) {
     return (
         <MapContainer
             center={center}
@@ -67,30 +68,49 @@ export default function OrganizationMap({ vendors, center, zoom, onVendorClick }
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            {vendors.map(vendor => (
-                (vendor.latitude && vendor.longitude) ? (
+            {locations.map(location => (
+                (location.latitude && location.longitude) ? (
                     <Marker
-                        key={vendor.id}
-                        position={[vendor.latitude, vendor.longitude]}
+                        key={location.id}
+                        position={[location.latitude, location.longitude]}
                         eventHandlers={{
-                            click: () => onVendorClick && onVendorClick(vendor)
+                            click: () => onMarkerClick && onMarkerClick(location)
                         }}
                     >
                         <Popup>
                             <div className="p-2 min-w-48">
-                                <h3 className="font-semibold">{vendor.store_name}</h3>
-                                <p className="text-sm text-slate-600">{vendor.name}</p>
-                                <p className="text-sm text-slate-500">{vendor.address}</p>
-                                <p className="text-sm text-slate-500">{vendor.city}, {vendor.country}</p>
-                                <div className="mt-2 pt-2 border-t flex justify-between text-sm">
-                                    <span>Sales: ${(vendor.total_sales || 0).toLocaleString()}</span>
-                                    <Badge className={statusColors[vendor.status] || statusColors.active} variant="outline">{vendor.status}</Badge>
+                                <div className="flex items-center gap-2 mb-2">
+                                    {location.type === 'organization' && (
+                                        <Badge className="bg-emerald-600 hover:bg-emerald-700">HQ</Badge>
+                                    )}
+                                    {location.type === 'vendor' && (
+                                        <Badge variant="outline">Vendor</Badge>
+                                    )}
                                 </div>
-                                {onVendorClick && (
+                                <h3 className="font-semibold">{location.store_name || location.name}</h3>
+                                {location.type === 'vendor' && location.name && (
+                                    <p className="text-sm text-slate-600">{location.name}</p>
+                                )}
+                                <p className="text-sm text-slate-500">{location.address}</p>
+                                <p className="text-sm text-slate-500">{location.city}, {location.country}</p>
+
+                                {location.type === 'vendor' && (
+                                    <div className="mt-2 pt-2 border-t flex justify-between text-sm">
+                                        <span>Sales: ${(location.total_sales || 0).toLocaleString()}</span>
+                                        <Badge className={statusColors[location.status || 'active'] || statusColors.active} variant="outline">{location.status}</Badge>
+                                    </div>
+                                )}
+                                {location.type === 'organization' && location.status && (
+                                    <div className="mt-2 pt-2 border-t flex justify-between text-sm">
+                                        <Badge className={statusColors[location.status] || statusColors.active} variant="outline">{location.status}</Badge>
+                                    </div>
+                                )}
+
+                                {onMarkerClick && location.type === 'vendor' && (
                                     <Button
                                         size="sm"
                                         className="mt-2 w-full bg-emerald-600 hover:bg-emerald-700"
-                                        onClick={() => onVendorClick(vendor)}
+                                        onClick={() => onMarkerClick(location)}
                                     >
                                         View Details
                                     </Button>
