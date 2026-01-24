@@ -38,7 +38,7 @@ const StoreMapDynamic = dynamic(
     loading: () => (
       <div className="h-full flex items-center justify-center bg-slate-50">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-teal-600 mx-auto mb-2" />
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto mb-2" />
           <p className="text-sm text-slate-500">Loading map...</p>
         </div>
       </div>
@@ -181,7 +181,7 @@ export default function StoreLocations() {
           <Button
             variant={viewMode === 'map' ? 'default' : 'outline'}
             onClick={() => setViewMode('map')}
-            className={viewMode === 'map' ? 'bg-teal-600 hover:bg-teal-700' : ''}
+            className={viewMode === 'map' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
           >
             <Map className="h-4 w-4 mr-2" />
             {t('mapView')}
@@ -189,7 +189,7 @@ export default function StoreLocations() {
           <Button
             variant={viewMode === 'list' ? 'default' : 'outline'}
             onClick={() => setViewMode('list')}
-            className={viewMode === 'list' ? 'bg-teal-600 hover:bg-teal-700' : ''}
+            className={viewMode === 'list' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
           >
             <List className="h-4 w-4 mr-2" />
             {t('listView')}
@@ -225,7 +225,7 @@ export default function StoreLocations() {
 
       {isLoading ? (
         <div className="flex items-center justify-center h-96">
-          <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
         </div>
       ) : viewMode === 'map' ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -264,14 +264,14 @@ export default function StoreLocations() {
                 key={vendor.id}
                 className={cn(
                   "cursor-pointer transition-all hover:shadow-md",
-                  selectedVendor?.id === vendor.id && "ring-2 ring-teal-500"
+                  selectedVendor?.id === vendor.id && "ring-2 ring-emerald-500"
                 )}
                 onClick={() => setSelectedVendor(vendor)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-semibold">
+                      <div className="h-10 w-10 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
                         {vendor.store_name?.charAt(0) || 'V'}
                       </div>
                       <div>
@@ -314,7 +314,7 @@ export default function StoreLocations() {
               <CardContent className="p-5">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-xl bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-bold text-lg">
+                    <div className="h-12 w-12 rounded-xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg">
                       {vendor.store_name?.charAt(0) || 'V'}
                     </div>
                     <div>

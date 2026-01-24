@@ -291,7 +291,7 @@ export default function Inventory() {
           </Button>
           {canEdit && (
             <Link href={createPageUrl("ProductDetail?mode=new")}>
-              <Button className="bg-teal-600 hover:bg-teal-700">
+              <Button className="bg-emerald-600 hover:bg-emerald-700">
                 <Plus className="h-4 w-4 mr-2" />
                 {t('addProduct')}
               </Button>
@@ -341,7 +341,7 @@ export default function Inventory() {
       {/* Products Display */}
       {isLoading ? (
         <div className="flex items-center justify-center h-64 bg-white rounded-2xl border border-slate-200">
-          <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
         </div>
       ) : viewMode === 'grid' ? (
         /* Grid View */
@@ -411,7 +411,7 @@ export default function Inventory() {
                     <div className="mb-3">
                       <Link
                         href={createPageUrl(`ProductDetail?id=${product.id}`)}
-                        className="font-semibold text-slate-900 hover:text-teal-600 transition-colors line-clamp-1"
+                        className="font-semibold text-slate-900 hover:text-emerald-600 transition-colors line-clamp-1"
                       >
                         {product.name}
                       </Link>
@@ -436,7 +436,7 @@ export default function Inventory() {
                         <p className="text-xs text-slate-500">Stock</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-lg font-bold text-teal-600">
+                        <p className="text-lg font-bold text-emerald-600">
                           ${product.variants?.[0]?.unit_price?.toFixed(2) || '0.00'}
                         </p>
                         <p className="text-xs text-slate-500">{t('price') || 'Price'}</p>

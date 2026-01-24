@@ -240,7 +240,7 @@ export default function CreatePurchaseOrder() {
             Save as Draft
           </Button>
           <Button
-            className="bg-teal-600 hover:bg-teal-700"
+            className="bg-emerald-600 hover:bg-emerald-700"
             onClick={() => handleSave(true)}
             disabled={createPOMutation.isPending}
           >

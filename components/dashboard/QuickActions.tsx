@@ -29,7 +29,7 @@ export default function QuickActions() {
       description: "Create a new inventory item",
       icon: Plus,
       href: "ProductDetail?mode=new",
-      color: "bg-teal-600 hover:bg-teal-700 text-white",
+      color: "bg-emerald-600 hover:bg-emerald-700 text-white",
       roles: ['owner', 'admin', 'manager']
     },
     {

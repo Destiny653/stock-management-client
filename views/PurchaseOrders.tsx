@@ -114,7 +114,7 @@ export default function PurchaseOrders() {
           <p className="text-slate-500 mt-1">{t('allPurchaseOrders')}</p>
         </div>
         <Link href={createPageUrl("CreatePurchaseOrder")}>
-          <Button className="bg-teal-600 hover:bg-teal-700">
+          <Button className="bg-emerald-600 hover:bg-emerald-700">
             <Plus className="h-4 w-4 mr-2" />
             {t('createNewPO')}
           </Button>
@@ -211,12 +211,12 @@ export default function PurchaseOrders() {
       <div className="bg-white overflow-hidden">
         {isLoading ? (
           <div className="flex items-center justify-center h-64">
-            <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
           </div>
         ) : (
           <Table>
             <TableHeader>
-              <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
+              <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
                 <TableHead>{t('poNumber')}</TableHead>
                 <TableHead>{t('supplier')}</TableHead>
                 <TableHead>{t('items')}</TableHead>
@@ -236,7 +236,7 @@ export default function PurchaseOrders() {
                       <p className="text-slate-600 font-medium">{t('noResults')}</p>
                       <p className="text-sm text-slate-400 mt-1">{t('createNewPO')}</p>
                       <Link href={createPageUrl("CreatePurchaseOrder")} className="mt-4">
-                        <Button size="sm" className="bg-teal-600 hover:bg-teal-700">
+                        <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700">
                           <Plus className="h-4 w-4 mr-1" /> {t('createPO')}
                         </Button>
                       </Link>
@@ -249,7 +249,7 @@ export default function PurchaseOrders() {
                     <TableCell>
                       <Link
                         href={createPageUrl(`PurchaseOrderDetail?id=${po.id}`)}
-                        className="font-medium text-slate-900 hover:text-teal-600"
+                        className="font-medium text-slate-900 hover:text-emerald-600"
                       >
                         {po.po_number}
                       </Link>

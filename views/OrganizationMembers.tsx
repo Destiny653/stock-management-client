@@ -60,7 +60,7 @@ const OrganizationMap = dynamic(
         ssr: false,
         loading: () => (
             <div className="h-full w-full flex items-center justify-center bg-slate-50 min-h-[300px]">
-                <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
             </div>
         )
     }
@@ -127,7 +127,7 @@ export default function OrganizationMembers() {
     const typeColors: Record<string, string> = {
         admin: "bg-blue-50 text-blue-600 border-blue-100",
         vendor: "bg-purple-50 text-purple-600 border-purple-100",
-        manager: "bg-teal-50 text-teal-600 border-teal-100",
+        manager: "bg-emerald-50 text-emerald-600 border-emerald-100",
         staff: "bg-slate-50 text-slate-600 border-slate-100",
     };
 
@@ -455,7 +455,7 @@ export default function OrganizationMembers() {
     if (loadingOrg) {
         return (
             <div className="flex items-center justify-center h-96">
-                <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
             </div>
         );
     }
@@ -483,7 +483,7 @@ export default function OrganizationMembers() {
                         </Button>
                     </Link>
                     <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 rounded-xl bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-bold text-xl">
+                        <div className="h-12 w-12 rounded-xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-xl">
                             {organization?.name?.charAt(0) || 'O'}
                         </div>
                         <div>
@@ -507,7 +507,7 @@ export default function OrganizationMembers() {
                             }
                         }}>
                             <DialogTrigger asChild>
-                                <Button className="bg-teal-600 hover:bg-teal-700">
+                                <Button className="bg-emerald-600 hover:bg-emerald-700">
                                     <UserPlus className="h-4 w-4 mr-2" /> Add Member
                                 </Button>
                             </DialogTrigger>
@@ -620,7 +620,7 @@ export default function OrganizationMembers() {
                                 </div>
                                 <DialogFooter>
                                     <Button variant="outline" onClick={() => setAddMemberDialogOpen(false)}>Cancel</Button>
-                                    <Button className="bg-teal-600 hover:bg-teal-700" onClick={handleAddMember} disabled={createMemberMutation.isPending || updateMemberMutation.isPending}>
+                                    <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleAddMember} disabled={createMemberMutation.isPending || updateMemberMutation.isPending}>
                                         {(createMemberMutation.isPending || updateMemberMutation.isPending) ? (
                                             <Loader2 className="h-4 w-4 animate-spin mr-2" />
                                         ) : (
@@ -721,7 +721,7 @@ export default function OrganizationMembers() {
                     <div className="bg-white overflow-hidden">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
+                                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
                                     <TableHead>Vendor</TableHead>
                                     <TableHead>Contact</TableHead>
                                     <TableHead>Location</TableHead>
@@ -773,7 +773,7 @@ export default function OrganizationMembers() {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-1">
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-teal-600" onClick={(e) => { e.stopPropagation(); handleViewDetails(vendor, 'vendor'); }}>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600" onClick={(e) => { e.stopPropagation(); handleViewDetails(vendor, 'vendor'); }}>
                                                         <Eye className="h-4 w-4" />
                                                     </Button>
                                                     {isManagerOrAdmin && (
@@ -801,7 +801,7 @@ export default function OrganizationMembers() {
                     <div className="bg-white overflow-hidden">
                         <Table>
                             <TableHeader>
-                                <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
+                                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
                                     <TableHead>User</TableHead>
                                     <TableHead>Email</TableHead>
                                     <TableHead>Role</TableHead>
@@ -848,7 +848,7 @@ export default function OrganizationMembers() {
                                             </TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-1">
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-teal-600" onClick={(e) => { e.stopPropagation(); handleViewDetails(user, 'user'); }}>
+                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600" onClick={(e) => { e.stopPropagation(); handleViewDetails(user, 'user'); }}>
                                                         <Eye className="h-4 w-4" />
                                                     </Button>
                                                     {isManagerOrAdmin && (
@@ -1004,7 +1004,7 @@ export default function OrganizationMembers() {
                                                 <p className="text-sm text-slate-500">Orders</p>
                                             </div>
                                             <div className="text-center p-3 bg-slate-50 rounded-lg col-span-2">
-                                                <p className="text-2xl font-bold text-teal-600">
+                                                <p className="text-2xl font-bold text-emerald-600">
                                                     {selectedMember.commission_rate || 0}%
                                                 </p>
                                                 <p className="text-sm text-slate-500">Commission Rate</p>
@@ -1067,7 +1067,7 @@ export default function OrganizationMembers() {
                                 )}
                                 {selectedMember.type === 'vendor' && (
                                     <Link href={createPageUrl(`VendorDetail?id=${selectedMember.id}`)} className="flex-1">
-                                        <Button className="w-full bg-teal-600 hover:bg-teal-700">
+                                        <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
                                             <Building2 className="h-4 w-4 mr-2" /> Manage
                                         </Button>
                                     </Link>

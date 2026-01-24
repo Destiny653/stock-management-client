@@ -20,6 +20,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Check for existing session on mount
     useEffect(() => {
         const checkAuth = async () => {
+            
             try {
                 // Verify session with backend (cookies sent automatically)
                 const freshUser = await base44.auth.me();

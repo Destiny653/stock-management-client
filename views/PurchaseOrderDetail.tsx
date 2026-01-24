@@ -74,7 +74,7 @@ export default function PurchaseOrderDetail() {
   if (isLoading || !purchaseOrder) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
       </div>
     );
   }
@@ -108,7 +108,7 @@ export default function PurchaseOrderDetail() {
               <Button variant="outline" onClick={() => handleStatusChange('draft')}>
                 Return to Draft
               </Button>
-              <Button className="bg-teal-600 hover:bg-teal-700" onClick={() => handleStatusChange('approved')}>
+              <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={() => handleStatusChange('approved')}>
                 <CheckCircle className="h-4 w-4 mr-2" /> Approve
               </Button>
             </>

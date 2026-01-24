@@ -16,7 +16,7 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
 
     useEffect(() => {
         if (!isLoading) {
-            if (!isAuthenticated) {
+            if (!isAuthenticated && window.location.href != '/') {
                 router.push('/login');
             } else if (allowedRoles && user && !allowedRoles.includes(user.user_type)) {
                 // Redirect to appropriate dashboard if user doesn't have access
@@ -31,13 +31,13 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900">
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#004030] via-slate-800 to-[#004030]">
                 <div className="text-center">
-                    <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-teal-500/30">
+                    <div className="h-16 w-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/30">
                         <Package className="h-8 w-8 text-white" />
                     </div>
                     <div className="flex items-center justify-center gap-2 mb-2">
-                        <Loader2 className="h-5 w-5 animate-spin text-teal-400" />
+                        <Loader2 className="h-5 w-5 animate-spin text-emerald-400" />
                         <p className="text-slate-300 font-medium">Loading...</p>
                     </div>
                 </div>

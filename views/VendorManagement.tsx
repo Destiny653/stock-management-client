@@ -399,7 +399,7 @@ export default function VendorManagement() {
             setIsAddDialogOpen(open);
           }}>
             <DialogTrigger asChild>
-              <Button className="bg-teal-600 hover:bg-teal-700">
+              <Button className="bg-emerald-600 hover:bg-emerald-700">
                 <Plus className="h-4 w-4 mr-2" />
                 {t('addVendor')}
               </Button>
@@ -593,7 +593,7 @@ export default function VendorManagement() {
                     {t('cancel')}
                   </Button>
                   <Button
-                    className="bg-teal-600 hover:bg-teal-700"
+                    className="bg-emerald-600 hover:bg-emerald-700"
                     onClick={handleSubmit}
                     disabled={createVendorMutation.isPending || updateVendorMutation.isPending}
                   >
@@ -618,8 +618,8 @@ export default function VendorManagement() {
                 <p className="text-sm text-slate-500">{t('totalVendors')}</p>
                 <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
               </div>
-              <div className="h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center">
-                <Store className="h-5 w-5 text-teal-600" />
+              <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                <Store className="h-5 w-5 text-emerald-600" />
               </div>
             </div>
           </CardContent>
@@ -724,7 +724,7 @@ export default function VendorManagement() {
       {/* Vendors Display */}
       {isLoading ? (
         <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
         </div>
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -735,7 +735,7 @@ export default function VendorManagement() {
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-xl bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-bold text-lg">
+                      <div className="h-12 w-12 rounded-xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg">
                         {vendor.store_name?.charAt(0) || 'V'}
                       </div>
                       <div>
@@ -826,7 +826,7 @@ export default function VendorManagement() {
         <div className="bg-white overflow-hidden">
           <Table>
             <TableHeader>
-              <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
+              <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
                 <TableHead>Vendor</TableHead>
                 <TableHead>Contact</TableHead>
                 <TableHead>Location</TableHead>
@@ -843,11 +843,11 @@ export default function VendorManagement() {
                   <TableRow key={vendor.id} className="hover:bg-slate-50">
                     <TableCell>
                       <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-semibold">
+                        <div className="h-10 w-10 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
                           {vendor.store_name?.charAt(0) || 'V'}
                         </div>
                         <div>
-                          <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)} className="font-medium text-slate-900 hover:text-teal-600 hover:underline">
+                          <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)} className="font-medium text-slate-900 hover:text-emerald-600 hover:underline">
                             {vendor.store_name}
                           </Link>
                           <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.full_name || 'No contact'}</p>

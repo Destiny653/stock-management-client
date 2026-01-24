@@ -82,9 +82,9 @@ export default function LoginPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900">
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#004030] via-[#003025] to-[#004030]">
                 <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="h-8 w-8 animate-spin text-teal-400" />
+                    <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
                     <p className="text-slate-300">Loading...</p>
                 </div>
             </div>
@@ -93,9 +93,9 @@ export default function LoginPage() {
 
     if (isAuthenticated) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900">
+            <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#004030] via-[#003025] to-[#004030]">
                 <div className="flex flex-col items-center gap-4">
-                    <Loader2 className="h-8 w-8 animate-spin text-teal-400" />
+                    <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
                     <p className="text-slate-300">Redirecting...</p>
                 </div>
             </div>
@@ -105,10 +105,10 @@ export default function LoginPage() {
     return (
         <div className="min-h-screen flex">
             {/* Left Panel - Branding */}
-            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900 p-12 flex-col justify-between relative overflow-hidden">
+            <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-[#004030] via-[#003025] to-[#004030] p-12 flex-col justify-between relative overflow-hidden">
                 {/* Background Pattern */}
                 <div className="absolute inset-0 opacity-10">
-                    <div className="absolute top-20 left-20 w-72 h-72 bg-teal-500 rounded-full blur-3xl" />
+                    <div className="absolute top-20 left-20 w-72 h-72 bg-emerald-500 rounded-full blur-3xl" />
                     <div className="absolute bottom-20 right-20 w-96 h-96 bg-blue-500 rounded-full blur-3xl" />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-500 rounded-full blur-3xl opacity-30" />
                 </div>
@@ -116,7 +116,7 @@ export default function LoginPage() {
                 {/* Logo */}
                 <div className="relative z-10">
                     <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center shadow-lg shadow-teal-500/30">
+                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
                             <Package className="h-6 w-6 text-white" />
                         </div>
                         <div>
@@ -131,7 +131,7 @@ export default function LoginPage() {
                     <div>
                         <h2 className="text-4xl font-bold text-white leading-tight">
                             Manage your inventory<br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-cyan-400">
+                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">
                                 with confidence
                             </span>
                         </h2>
@@ -143,8 +143,8 @@ export default function LoginPage() {
                     {/* Features */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-lg bg-teal-500/20 flex items-center justify-center">
-                                <Shield className="h-5 w-5 text-teal-400" />
+                            <div className="h-10 w-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
+                                <Shield className="h-5 w-5 text-emerald-400" />
                             </div>
                             <div>
                                 <p className="text-white font-medium">Role-Based Access</p>
@@ -176,7 +176,7 @@ export default function LoginPage() {
                 <div className="w-full max-w-md">
                     {/* Mobile Logo */}
                     <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
+                        <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
                             <Package className="h-6 w-6 text-white" />
                         </div>
                         <div>
@@ -211,7 +211,7 @@ export default function LoginPage() {
                                     placeholder="Enter your username"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    className="h-12 rounded-xl border-slate-200 focus:border-teal-500 focus:ring-teal-500"
+                                    className="h-12 rounded-xl border-slate-200 focus:border-emerald-500 focus:ring-emerald-500"
                                     disabled={isSubmitting}
                                 />
                             </div>
@@ -227,7 +227,7 @@ export default function LoginPage() {
                                         placeholder="Enter your password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="h-12 rounded-xl border-slate-200 focus:border-teal-500 focus:ring-teal-500 pr-12"
+                                        className="h-12 rounded-xl border-slate-200 focus:border-emerald-500 focus:ring-emerald-500 pr-12"
                                         disabled={isSubmitting}
                                     />
                                     <button
@@ -242,7 +242,7 @@ export default function LoginPage() {
 
                             <Button
                                 type="submit"
-                                className="w-full h-12 rounded-xl bg-gradient-to-r from-teal-500 to-teal-600 hover:from-teal-600 hover:to-teal-700 text-white font-medium shadow-lg shadow-teal-500/30 transition-all duration-200"
+                                className="w-full h-12 rounded-xl bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white font-medium shadow-lg shadow-emerald-500/30 transition-all duration-200"
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting ? (
@@ -275,13 +275,13 @@ export default function LoginPage() {
                                 type="button"
                                 onClick={() => handleDemoLogin('admin')}
                                 disabled={isSubmitting}
-                                className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-slate-200 hover:border-teal-500 hover:bg-teal-50 transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-slate-200 hover:border-emerald-500 hover:bg-emerald-50 transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center shadow-lg shadow-teal-500/30">
+                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30">
                                     <Shield className="h-5 w-5 text-white" />
                                 </div>
                                 <div className="text-center">
-                                    <p className="font-semibold text-slate-900 group-hover:text-teal-700">Admin</p>
+                                    <p className="font-semibold text-slate-900 group-hover:text-emerald-700">Admin</p>
                                     <p className="text-xs text-slate-500">Destiny / fokundem653@</p>
                                 </div>
                             </button>

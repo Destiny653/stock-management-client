@@ -597,7 +597,7 @@ export default function Settings() {
             </div>
             <Dialog open={warehouseDialogOpen} onOpenChange={(open) => { setWarehouseDialogOpen(open); if (!open) resetWarehouseForm(); }}>
               <DialogTrigger asChild>
-                <Button className="bg-teal-600 hover:bg-teal-700">
+                <Button className="bg-emerald-600 hover:bg-emerald-700">
                   <Plus className="h-4 w-4 mr-2" /> {t('addWarehouse')}
                 </Button>
               </DialogTrigger>
@@ -655,7 +655,7 @@ export default function Settings() {
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => { setWarehouseDialogOpen(false); resetWarehouseForm(); }}>{t('cancel')}</Button>
-                  <Button className="bg-teal-600 hover:bg-teal-700" onClick={handleSaveWarehouse}>
+                  <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleSaveWarehouse}>
                     <Save className="h-4 w-4 mr-2" /> {t('save')}
                   </Button>
                 </DialogFooter>
@@ -666,7 +666,7 @@ export default function Settings() {
           <Card>
             <Table>
               <TableHeader>
-                <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
+                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
                   <TableHead>{t('warehouseName')}</TableHead>
                   <TableHead>{t('warehouseCode')}</TableHead>
                   <TableHead>{t('location')}</TableHead>
@@ -723,7 +723,7 @@ export default function Settings() {
             </div>
             <Dialog open={supplierDialogOpen} onOpenChange={(open) => { setSupplierDialogOpen(open); if (!open) resetSupplierForm(); }}>
               <DialogTrigger asChild>
-                <Button className="bg-teal-600 hover:bg-teal-700">
+                <Button className="bg-emerald-600 hover:bg-emerald-700">
                   <Plus className="h-4 w-4 mr-2" /> {t('add')} {t('supplier')}
                 </Button>
               </DialogTrigger>
@@ -801,7 +801,7 @@ export default function Settings() {
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => { setSupplierDialogOpen(false); resetSupplierForm(); }}>{t('cancel')}</Button>
-                  <Button className="bg-teal-600 hover:bg-teal-700" onClick={handleSaveSupplier}>
+                  <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleSaveSupplier}>
                     <Save className="h-4 w-4 mr-2" /> {t('save')}
                   </Button>
                 </DialogFooter>
@@ -812,7 +812,7 @@ export default function Settings() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {loadingSuppliers ? (
               <div className="col-span-full flex justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
               </div>
             ) : suppliers.length === 0 ? (
               <div className="col-span-full text-center py-8 text-slate-500">{t('noData')}</div>
@@ -869,7 +869,7 @@ export default function Settings() {
             </div>
             <Dialog open={userDialogOpen} onOpenChange={(open) => { setUserDialogOpen(open); if (!open) resetUserForm(); }}>
               <DialogTrigger asChild>
-                <Button className="bg-teal-600 hover:bg-teal-700">
+                <Button className="bg-emerald-600 hover:bg-emerald-700">
                   <UserPlus className="h-4 w-4 mr-2" /> {t('addUser')}
                 </Button>
               </DialogTrigger>
@@ -966,7 +966,7 @@ export default function Settings() {
                         <div key={wh.id} className="flex items-center space-x-2">
                           <input
                             type="checkbox"
-                            className="rounded border-slate-300 text-teal-600 focus:ring-teal-500"
+                            className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                             checked={userForm.warehouse_access.includes(wh.id)}
                             onChange={(e) => {
                               const checked = e.target.checked;
@@ -986,7 +986,7 @@ export default function Settings() {
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => { setUserDialogOpen(false); resetUserForm(); }}>{t('cancel')}</Button>
-                  <Button className="bg-teal-600 hover:bg-teal-700" onClick={handleSaveUser} disabled={createUserMutation.isPending || updateUserMutation.isPending}>
+                  <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleSaveUser} disabled={createUserMutation.isPending || updateUserMutation.isPending}>
                     {(createUserMutation.isPending || updateUserMutation.isPending) ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                     {t('save')}
                   </Button>
@@ -998,7 +998,7 @@ export default function Settings() {
           <Card className=''>
             <Table>
               <TableHeader>
-                <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
+                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
                   <TableHead>{t('user')}</TableHead>
                   <TableHead>{t('role')}</TableHead>
                   <TableHead>{t('department')}</TableHead>
@@ -1040,7 +1040,7 @@ export default function Settings() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-teal-600" onClick={() => handleEditUser(u)}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600" onClick={() => handleEditUser(u)}>
                             <Edit2 className="h-4 w-4" />
                           </Button>
                           <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600" onClick={() => handleDeleteUser(u.id)} disabled={u.id === user?.id}>
@@ -1065,7 +1065,7 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-4">
-                <div className="h-16 w-16 rounded-full bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white text-2xl font-bold">
+                <div className="h-16 w-16 rounded-full bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-2xl font-bold">
                   {user?.full_name?.charAt(0) || 'U'}
                 </div>
                 <div>

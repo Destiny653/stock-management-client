@@ -60,7 +60,7 @@ const statusColors: Record<string, string> = {
     pending: "bg-amber-100 text-amber-700",
     confirmed: "bg-blue-100 text-blue-700",
     processing: "bg-purple-100 text-purple-700",
-    ready: "bg-teal-100 text-teal-700",
+    ready: "bg-emerald-100 text-emerald-700",
     shipped: "bg-indigo-100 text-indigo-700",
     delivered: "bg-emerald-100 text-emerald-700",
     cancelled: "bg-rose-100 text-rose-700"
@@ -155,7 +155,7 @@ export default function Orders() {
                     <p className="text-slate-500 mt-1">Manage and process customer orders</p>
                 </div>
                 <Link href={createPageUrl("CreateOrder")}>
-                    <Button className="bg-teal-600 hover:bg-teal-700">
+                    <Button className="bg-emerald-600 hover:bg-emerald-700">
                         <Plus className="h-4 w-4 mr-2" />
                         New Order
                     </Button>
@@ -171,8 +171,8 @@ export default function Orders() {
                                 <p className="text-sm text-slate-500">Total Orders</p>
                                 <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
                             </div>
-                            <div className="h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center">
-                                <ShoppingCart className="h-5 w-5 text-teal-600" />
+                            <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                                <ShoppingCart className="h-5 w-5 text-emerald-600" />
                             </div>
                         </div>
                     </CardContent>
@@ -263,13 +263,13 @@ export default function Orders() {
             {/* Orders Table */}
             {isLoading ? (
                 <div className="flex items-center justify-center h-64 bg-white overflow-hidden">
-                    <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+                    <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
                 </div>
             ) : (
                 <div className="bg-white overflow-hidden">
                     <Table>
                         <TableHeader>
-                            <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
+                            <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
                                 <TableHead>Order #</TableHead>
                                 <TableHead>Client</TableHead>
                                 <TableHead>Date</TableHead>

@@ -16,7 +16,7 @@ const activityIcons = {
   dispatched: { icon: Package, color: "text-blue-600", bg: "bg-blue-100" },
   transferred: { icon: ArrowRightLeft, color: "text-violet-600", bg: "bg-violet-100" },
   alert: { icon: AlertTriangle, color: "text-amber-600", bg: "bg-amber-100" },
-  approved: { icon: CheckCircle2, color: "text-teal-600", bg: "bg-teal-100" },
+  approved: { icon: CheckCircle2, color: "text-emerald-600", bg: "bg-emerald-100" },
   po_created: { icon: FileText, color: "text-slate-600", bg: "bg-slate-100" }
 };
 

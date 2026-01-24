@@ -287,19 +287,59 @@ export interface User {
     warehouse_access?: string[];
 }
 
+export interface SubscriptionPlan {
+    id: string;
+    name: string;
+    code: string;
+    description?: string;
+    price_monthly: number;
+    price_yearly: number;
+    currency: string;
+    max_vendors: number;
+    max_users: number;
+    max_products: number;
+    max_locations: number;
+    features: string[];
+    is_popular?: boolean;
+    is_active: boolean;
+    created_at: string;
+}
+
+export interface OrganizationPayment {
+    id: string;
+    organization_id: string;
+    subscription_plan_id?: string;
+    amount: number;
+    currency: string;
+    payment_method: 'bank_transfer' | 'card' | 'mobile_money' | 'paypal' | 'stripe' | 'other';
+    payment_type: 'subscription' | 'addon' | 'upgrade' | 'renewal';
+    billing_period?: 'monthly' | 'yearly';
+    status: 'pending' | 'completed' | 'failed' | 'refunded' | 'cancelled';
+    reference_number?: string;
+    invoice_number?: string;
+    payment_date?: string;
+    next_billing_date?: string;
+    notes?: string;
+    created_at: string;
+}
+
 export interface Organization {
     id: string;
     name: string;
     code: string;
     description?: string;
+    owner_id?: string; // The user who owns/manages this organization
     location_id?: string;
     phone?: string;
     email?: string;
     website?: string;
     city?: string;
     country?: string;
-    status: 'active' | 'inactive' | 'suspended';
+    status: 'active' | 'inactive' | 'suspended' | 'pending';
     subscription_plan?: string;
+    subscription_plan_id?: string;
+    billing_cycle?: 'monthly' | 'yearly';
+    trial_ends_at?: string;
     max_vendors?: number;
     max_users?: number;
     created_at: string;
@@ -331,7 +371,10 @@ const getEntityEndpoint = (entityName: string): string => {
         'Vendor': 'vendors/',
         'VendorPayment': 'vendor-payments/',
         'Warehouse': 'warehouses/',
-        'Location': 'locations/'
+        'Location': 'locations/',
+        'SubscriptionPlan': 'subscription-plans/',
+        'OrganizationPayment': 'organization-payments/',
+        'Order': 'orders/'
     };
     return endpoints[entityName] || `${entityName.toLowerCase()}s/`;
 };
@@ -512,6 +555,8 @@ export const base44 = {
         VendorPayment: createEntityMethods<VendorPayment>('VendorPayment'),
         Warehouse: createEntityMethods<Warehouse>('Warehouse'),
         Location: createEntityMethods<Location>('Location'),
+        SubscriptionPlan: createEntityMethods<SubscriptionPlan>('SubscriptionPlan'),
+        OrganizationPayment: createEntityMethods<OrganizationPayment>('OrganizationPayment'),
     },
     auth: authMethods,
     search: {

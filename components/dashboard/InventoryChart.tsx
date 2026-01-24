@@ -46,7 +46,7 @@ export default function InventoryChart({ data = [] }: { data: any[] }) {
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-teal-500" />
+            <div className="h-3 w-3 rounded-full bg-emerald-500" />
             <span className="text-xs text-slate-600">Value ($)</span>
           </div>
           <div className="flex items-center gap-2">
@@ -61,8 +61,8 @@ export default function InventoryChart({ data = [] }: { data: any[] }) {
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#0d9488" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#0d9488" stopOpacity={0} />
+                <stop offset="5%" stopColor="#059669" stopOpacity={0.2} />
+                <stop offset="95%" stopColor="#059669" stopOpacity={0} />
               </linearGradient>
               <linearGradient id="colorUnits" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.2} />
@@ -86,7 +86,7 @@ export default function InventoryChart({ data = [] }: { data: any[] }) {
             <Area
               type="monotone"
               dataKey="value"
-              stroke="#0d9488"
+              stroke="#059669"
               strokeWidth={2}
               fillOpacity={1}
               fill="url(#colorValue)"

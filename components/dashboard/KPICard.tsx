@@ -23,7 +23,7 @@ export default function KPICard({
 }: KPICardProps) {
   const variants = {
     default: "bg-white border-slate-200",
-    primary: "bg-gradient-to-br from-teal-600 to-teal-700 text-white border-teal-700",
+    primary: "bg-gradient-to-br from-emerald-600 to-emerald-700 text-white border-emerald-700",
     warning: "bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200",
     danger: "bg-gradient-to-br from-rose-50 to-red-50 border-rose-200"
   };
@@ -44,7 +44,7 @@ export default function KPICard({
         <div className="space-y-3">
           <p className={cn(
             "text-sm font-medium tracking-wide uppercase",
-            variant === "primary" ? "text-teal-100" : "text-slate-500"
+            variant === "primary" ? "text-emerald-100" : "text-slate-500"
           )}>
             {title}
           </p>
@@ -58,7 +58,7 @@ export default function KPICard({
             {subtitle && (
               <p className={cn(
                 "text-sm",
-                variant === "primary" ? "text-teal-100" : "text-slate-500"
+                variant === "primary" ? "text-emerald-100" : "text-slate-500"
               )}>
                 {subtitle}
               </p>

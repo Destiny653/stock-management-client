@@ -9,6 +9,8 @@ import CategoryDistribution from "@/components/dashboard/CategoryDistribution";
 import LowStockAlert from "@/components/dashboard/LowStockAlert";
 import { Package, DollarSign, AlertTriangle, Truck, Loader2 } from "lucide-react";
 import { useLanguage } from "@/components/i18n/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import OwnerDashboard from "./OwnerDashboard";
 
 // Safe language hook that works outside provider
 function useSafeLanguage() {
@@ -27,6 +29,23 @@ interface CategoryData {
 
 
 export default function Dashboard() {
+  const { t } = useSafeLanguage();
+  const { user } = useAuth();
+
+  // Check if user is SuperAdmin/Owner - they see the organization-focused dashboard
+  const isSuperAdmin = user?.role === 'admin' || user?.role === 'owner';
+
+  // If SuperAdmin/Owner, render the OwnerDashboard instead
+  if (isSuperAdmin) {
+    return <OwnerDashboard />;
+  }
+
+  // For regular org users, show the inventory dashboard
+  return <OrgDashboard />;
+}
+
+// Organization-level dashboard (inventory focused)
+function OrgDashboard() {
   const { t } = useSafeLanguage();
 
   const { data: products = [], isLoading: loadingProducts } = useQuery<Product[]>({
@@ -211,7 +230,7 @@ export default function Dashboard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
       </div>
     );
   }

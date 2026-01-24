@@ -89,7 +89,8 @@ export default function Organizations() {
         status: 'active',
         subscription_plan: 'starter',
         max_vendors: 10,
-        max_users: 5
+        max_users: 5,
+        owner_id: '' as string
     });
 
     const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
@@ -162,7 +163,8 @@ export default function Organizations() {
             status: 'active',
             subscription_plan: 'starter',
             max_vendors: 10,
-            max_users: 5
+            max_users: 5,
+            owner_id: ''
         });
         setEditingOrg(null);
     };
@@ -185,7 +187,8 @@ export default function Organizations() {
             status: org.status || 'active',
             subscription_plan: org.subscription_plan || 'starter',
             max_vendors: org.max_vendors || 10,
-            max_users: org.max_users || 5
+            max_users: org.max_users || 5,
+            owner_id: org.owner_id || ''
         });
         setDialogOpen(true);
     };
@@ -230,7 +233,8 @@ export default function Organizations() {
                 status: formData.status as any,
                 subscription_plan: formData.subscription_plan as any,
                 max_vendors: formData.max_vendors,
-                max_users: formData.max_users
+                max_users: formData.max_users,
+                owner_id: formData.owner_id || undefined
             };
 
             if (editingOrg) {
@@ -310,7 +314,7 @@ export default function Organizations() {
                 </div>
                 <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
                     <DialogTrigger asChild>
-                        <Button className="bg-teal-600 hover:bg-teal-700">
+                        <Button className="bg-emerald-600 hover:bg-emerald-700">
                             <Plus className="h-4 w-4 mr-2" />
                             Add Organization
                         </Button>
@@ -409,233 +413,249 @@ export default function Organizations() {
                                         <SelectContent>
                                             <SelectItem value="active">Active</SelectItem>
                                             <SelectItem value="inactive">Inactive</SelectItem>
+                                            <SelectItem value="pending">Pending</SelectItem>
                                             <SelectItem value="suspended">Suspended</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
                                 <div className="space-y-2">
-                                    <Label>Plan</Label>
-                                    <Select value={formData.subscription_plan} onValueChange={(v) => setFormData(p => ({ ...p, subscription_plan: v }))}>
-                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <Label>Assign Owner</Label>
+                                    <Select value={formData.owner_id || 'none'} onValueChange={(v) => setFormData(p => ({ ...p, owner_id: v === 'none' ? '' : v }))}>
+                                        <SelectTrigger><SelectValue placeholder="Select owner" /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="starter">Starter</SelectItem>
-                                            <SelectItem value="business">Business</SelectItem>
-                                            <SelectItem value="enterprise">Enterprise</SelectItem>
+                                            <SelectItem value="none">No owner assigned</SelectItem>
+                                            {users.filter(u => u.user_type === 'admin' || u.role === 'admin').map(u => (
+                                                <SelectItem key={u.id} value={u.id}>{u.full_name || u.email}</SelectItem>
+                                            ))}
                                         </SelectContent>
                                     </Select>
                                 </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Max Vendors</Label>
-                                    <Input
-                                        type="number"
-                                        min={1}
-                                        value={formData.max_vendors}
-                                        onChange={(e) => setFormData(p => ({ ...p, max_vendors: parseInt(e.target.value) || 10 }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Max Users</Label>
-                                    <Input
-                                        type="number"
-                                        min={1}
-                                        value={formData.max_users}
-                                        onChange={(e) => setFormData(p => ({ ...p, max_users: parseInt(e.target.value) || 5 }))}
-                                    />
-                                </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label>Plan</Label>
+                                <Select value={formData.subscription_plan} onValueChange={(v) => setFormData(p => ({ ...p, subscription_plan: v }))}>
+                                    <SelectTrigger><SelectValue /></SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="starter">Starter</SelectItem>
+                                        <SelectItem value="business">Business</SelectItem>
+                                        <SelectItem value="enterprise">Enterprise</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Max Vendors</Label>
+                                <Input
+                                    type="number"
+                                    min={1}
+                                    value={formData.max_vendors}
+                                    onChange={(e) => setFormData(p => ({ ...p, max_vendors: parseInt(e.target.value) || 10 }))}
+                                />
                             </div>
                         </div>
-                        <DialogFooter>
-                            <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
-                            <Button className="bg-teal-600 hover:bg-teal-700" onClick={handleSubmit}>
-                                <Save className="h-4 w-4 mr-2" /> Save
-                            </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
-            </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Card className='border-none'>
-                    <CardContent className="flex items-center gap-4 py-12">
-                        <div className="h-12 w-12 rounded-xl bg-teal-100 flex items-center justify-center">
-                            <Building2 className="h-6 w-6 text-teal-600" />
+                        <div className="space-y-2">
+                            <Label>Max Users</Label>
+                            <Input
+                                type="number"
+                                min={1}
+                                value={formData.max_users}
+                                onChange={(e) => setFormData(p => ({ ...p, max_users: parseInt(e.target.value) || 5 }))}
+                            />
                         </div>
-                        <div>
-                            <p className="text-2xl font-bold text-slate-900">{organizations.length}</p>
-                            <p className="text-sm text-slate-500">Total Organizations</p>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="flex items-center gap-4 py-12">
-                        <div className="h-12 w-12 rounded-xl bg-violet-100 flex items-center justify-center">
-                            <Store className="h-6 w-6 text-violet-600" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-slate-900">{vendors.length}</p>
-                            <p className="text-sm text-slate-500">Total Vendors</p>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="flex items-center gap-4 py-12">
-                        <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                            <Users className="h-6 w-6 text-blue-600" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-slate-900">{users.length}</p>
-                            <p className="text-sm text-slate-500">Total Users</p>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Filters */}
-            <div className="">
-                <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                        <Input
-                            placeholder="Search organizations..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 rounded-sm py-5 max-w-[60%] bg-white"
-                        />
-                    </div>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger className="w-40 bg-white rounded-sm py-5">
-                            <SelectValue placeholder="Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Status</SelectItem>
-                            <SelectItem value="active">Active</SelectItem>
-                            <SelectItem value="inactive">Inactive</SelectItem>
-                            <SelectItem value="suspended">Suspended</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-            </div>
-
-            {/* Table */}
-            <div className="bg-white overflow-hidden">
-                {isLoading ? (
-                    <div className="flex items-center justify-center h-48">
-                        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
-                    </div>
-                ) : (
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
-                                <TableHead>Organization</TableHead>
-                                <TableHead>Location</TableHead>
-                                <TableHead>Contact</TableHead>
-                                <TableHead>Plan</TableHead>
-                                <TableHead>Vendors</TableHead>
-                                <TableHead>Users</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead className="w-24"></TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {filteredOrgs.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={8} className="text-center py-12 text-slate-500">
-                                        <Building2 className="h-12 w-12 mx-auto mb-3 text-slate-300" />
-                                        No organizations found
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                filteredOrgs.map(org => (
-                                    <TableRow key={org.id} className="hover:bg-slate-50">
-                                        <TableCell>
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 rounded-lg bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-semibold">
-                                                    {org.name?.charAt(0) || 'O'}
-                                                </div>
-                                                <div>
-                                                    <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="font-medium text-slate-900 hover:text-teal-600 hover:underline">
-                                                        {org.name}
-                                                    </Link>
-                                                    <p className="text-sm text-slate-500 font-mono">{org.code}</p>
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="text-slate-600">
-                                            {(() => {
-                                                const loc = locations.find(l => l.id === org.location_id);
-                                                return loc?.city ? `${loc.city}, ${loc.country}` : '-';
-                                            })()}
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="text-sm">
-                                                {org.email && <div className="flex items-center gap-1"><Mail className="h-3 w-3" /> {org.email}</div>}
-                                                {org.phone && <div className="flex items-center gap-1 text-slate-500"><Phone className="h-3 w-3" /> {org.phone}</div>}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge variant="outline" className="capitalize">{org.subscription_plan}</Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Link href={createPageUrl(`OrganizationMembers?id=${org.id}&tab=vendors`)} className="text-teal-600 hover:underline font-medium">
-                                                {orgStats[org.id]?.vendorCount || 0} / {org.max_vendors}
-                                            </Link>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Link href={createPageUrl(`OrganizationMembers?id=${org.id}&tab=users`)} className="text-teal-600 hover:underline font-medium">
-                                                {orgStats[org.id]?.userCount || 0} / {org.max_users}
-                                            </Link>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge className={statusColors[org.status]}>{org.status}</Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-1">
-                                                <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)}>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                        <Eye className="h-4 w-4" />
-                                                    </Button>
-                                                </Link>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(org)}>
-                                                    <Edit2 className="h-4 w-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-600" onClick={() => handleDelete(org.id)}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
-                )}
-            </div>
-            {/* Delete Confirmation Dialog */}
-            <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-                <DialogContent className="max-w-sm">
-                    <DialogHeader className="flex flex-col items-center text-center space-y-3">
-                        <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
-                            <AlertTriangle className="h-6 w-6 text-rose-600" />
-                        </div>
-                        <DialogTitle className="text-xl">Delete Organization?</DialogTitle>
-                        <p className="text-sm text-slate-500">
-                            Are you sure you want to delete this organization? This will not delete associated vendors or users, but they will lose access to this organization's data.
-                        </p>
-                    </DialogHeader>
-                    <DialogFooter className="grid grid-cols-2 gap-3 mt-4">
-                        <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
-                            Cancel
-                        </Button>
-                        <Button variant="destructive" onClick={confirmDelete} disabled={deleteOrgMutation.isPending}>
-                            {deleteOrgMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
-                            Delete
+                   
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
+                        <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleSubmit}>
+                            <Save className="h-4 w-4 mr-2" /> Save
                         </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>
+
+            {/* Stats */ }
+    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <Card className='border-none'>
+            <CardContent className="flex items-center gap-4 py-12">
+                <div className="h-12 w-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                    <Building2 className="h-6 w-6 text-emerald-600" />
+                </div>
+                <div>
+                    <p className="text-2xl font-bold text-slate-900">{organizations.length}</p>
+                    <p className="text-sm text-slate-500">Total Organizations</p>
+                </div>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardContent className="flex items-center gap-4 py-12">
+                <div className="h-12 w-12 rounded-xl bg-violet-100 flex items-center justify-center">
+                    <Store className="h-6 w-6 text-violet-600" />
+                </div>
+                <div>
+                    <p className="text-2xl font-bold text-slate-900">{vendors.length}</p>
+                    <p className="text-sm text-slate-500">Total Vendors</p>
+                </div>
+            </CardContent>
+        </Card>
+        <Card>
+            <CardContent className="flex items-center gap-4 py-12">
+                <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                    <Users className="h-6 w-6 text-blue-600" />
+                </div>
+                <div>
+                    <p className="text-2xl font-bold text-slate-900">{users.length}</p>
+                    <p className="text-sm text-slate-500">Total Users</p>
+                </div>
+            </CardContent>
+        </Card>
+    </div>
+
+    {/* Filters */ }
+    <div className="">
+        <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                <Input
+                    placeholder="Search organizations..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10 rounded-sm py-5 max-w-[60%] bg-white"
+                />
+            </div>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-40 bg-white rounded-sm py-5">
+                    <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="suspended">Suspended</SelectItem>
+                </SelectContent>
+            </Select>
+        </div>
+    </div>
+
+    {/* Table */ }
+    <div className="bg-white overflow-hidden">
+        {isLoading ? (
+            <div className="flex items-center justify-center h-48">
+                <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+            </div>
+        ) : (
+            <Table>
+                <TableHeader>
+                    <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
+                        <TableHead>Organization</TableHead>
+                        <TableHead>Location</TableHead>
+                        <TableHead>Contact</TableHead>
+                        <TableHead>Plan</TableHead>
+                        <TableHead>Vendors</TableHead>
+                        <TableHead>Users</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="w-24"></TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {filteredOrgs.length === 0 ? (
+                        <TableRow>
+                            <TableCell colSpan={8} className="text-center py-12 text-slate-500">
+                                <Building2 className="h-12 w-12 mx-auto mb-3 text-slate-300" />
+                                No organizations found
+                            </TableCell>
+                        </TableRow>
+                    ) : (
+                        filteredOrgs.map(org => (
+                            <TableRow key={org.id} className="hover:bg-slate-50">
+                                <TableCell>
+                                    <div className="flex items-center gap-3">
+                                        <div className="h-10 w-10 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
+                                            {org.name?.charAt(0) || 'O'}
+                                        </div>
+                                        <div>
+                                            <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="font-medium text-slate-900 hover:text-emerald-600 hover:underline">
+                                                {org.name}
+                                            </Link>
+                                            <p className="text-sm text-slate-500 font-mono">{org.code}</p>
+                                        </div>
+                                    </div>
+                                </TableCell>
+                                <TableCell className="text-slate-600">
+                                    {(() => {
+                                        const loc = locations.find(l => l.id === org.location_id);
+                                        return loc?.city ? `${loc.city}, ${loc.country}` : '-';
+                                    })()}
+                                </TableCell>
+                                <TableCell>
+                                    <div className="text-sm">
+                                        {org.email && <div className="flex items-center gap-1"><Mail className="h-3 w-3" /> {org.email}</div>}
+                                        {org.phone && <div className="flex items-center gap-1 text-slate-500"><Phone className="h-3 w-3" /> {org.phone}</div>}
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant="outline" className="capitalize">{org.subscription_plan}</Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <Link href={createPageUrl(`OrganizationMembers?id=${org.id}&tab=vendors`)} className="text-emerald-600 hover:underline font-medium">
+                                        {orgStats[org.id]?.vendorCount || 0} / {org.max_vendors}
+                                    </Link>
+                                </TableCell>
+                                <TableCell>
+                                    <Link href={createPageUrl(`OrganizationMembers?id=${org.id}&tab=users`)} className="text-emerald-600 hover:underline font-medium">
+                                        {orgStats[org.id]?.userCount || 0} / {org.max_users}
+                                    </Link>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge className={statusColors[org.status]}>{org.status}</Badge>
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex items-center gap-1">
+                                        <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)}>
+                                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                <Eye className="h-4 w-4" />
+                                            </Button>
+                                        </Link>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEdit(org)}>
+                                            <Edit2 className="h-4 w-4" />
+                                        </Button>
+                                        <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-600" onClick={() => handleDelete(org.id)}>
+                                            <Trash2 className="h-4 w-4" />
+                                        </Button>
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ))
+                    )}
+                </TableBody>
+            </Table>
+        )}
+    </div>
+    {/* Delete Confirmation Dialog */ }
+    <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <DialogContent className="max-w-sm">
+            <DialogHeader className="flex flex-col items-center text-center space-y-3">
+                <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
+                    <AlertTriangle className="h-6 w-6 text-rose-600" />
+                </div>
+                <DialogTitle className="text-xl">Delete Organization?</DialogTitle>
+                <p className="text-sm text-slate-500">
+                    Are you sure you want to delete this organization? This will not delete associated vendors or users, but they will lose access to this organization's data.
+                </p>
+            </DialogHeader>
+            <DialogFooter className="grid grid-cols-2 gap-3 mt-4">
+                <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
+                    Cancel
+                </Button>
+                <Button variant="destructive" onClick={confirmDelete} disabled={deleteOrgMutation.isPending}>
+                    {deleteOrgMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
+                    Delete
+                </Button>
+            </DialogFooter>
+        </DialogContent>
+    </Dialog>
+        </div >
     );
 }

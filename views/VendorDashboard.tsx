@@ -114,7 +114,7 @@ export default function VendorDashboard() {
   if (loadingUser) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
       </div>
     );
   }
@@ -130,7 +130,7 @@ export default function VendorDashboard() {
           <p className="text-slate-500 mt-1">Here's your store performance overview</p>
         </div>
         <Link href={createPageUrl("DirectSales")}>
-          <Button className="bg-teal-600 hover:bg-teal-700">
+          <Button className="bg-emerald-600 hover:bg-emerald-700">
             <ShoppingCart className="h-4 w-4 mr-2" />
             New Sale
           </Button>
@@ -139,7 +139,7 @@ export default function VendorDashboard() {
 
       {/* Store Info Card */}
       {myVendor && (
-        <Card className="bg-linear-to-br from-teal-500 to-teal-600 text-white">
+        <Card className="bg-linear-to-br from-emerald-500 to-emerald-600 text-white">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -148,7 +148,7 @@ export default function VendorDashboard() {
                 </div>
                 <div>
                   <h2 className="text-xl font-bold">{myVendor.store_name}</h2>
-                  <p className="text-teal-100">{myLocation ? `${myLocation.city}, ${myLocation.country}` : 'No location set'}</p>
+                  <p className="text-emerald-100">{myLocation ? `${myLocation.city}, ${myLocation.country}` : 'No location set'}</p>
                 </div>
               </div>
               <div className="text-right">
@@ -158,7 +158,7 @@ export default function VendorDashboard() {
                 )}>
                   {myVendor.status}
                 </Badge>
-                <p className="text-sm text-teal-100 mt-2">
+                <p className="text-sm text-emerald-100 mt-2">
                   Plan: <span className="capitalize font-medium text-white">{myVendor.subscription_plan}</span>
                 </p>
               </div>
@@ -193,9 +193,9 @@ export default function VendorDashboard() {
           <CardContent className="p-4 py-12">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm text-slate-500">This Month</p>
-              <DollarSign className="h-4 w-4 text-teal-500" />
+              <DollarSign className="h-4 w-4 text-emerald-500" />
             </div>
-            <p className="text-2xl font-bold text-teal-600">${salesStats.monthly.total.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-emerald-600">${salesStats.monthly.total.toLocaleString()}</p>
             <p className="text-xs text-slate-500">{salesStats.monthly.count} orders</p>
           </CardContent>
         </Card>
@@ -236,15 +236,15 @@ export default function VendorDashboard() {
                 <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="vendorSalesGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#14b8a6" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#94a3b8" />
                   <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" />
                   <Tooltip />
-                  <Area type="monotone" dataKey="sales" stroke="#14b8a6" fill="url(#vendorSalesGradient)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="sales" stroke="#10b981" fill="url(#vendorSalesGradient)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -340,13 +340,13 @@ export default function VendorDashboard() {
               <ShoppingCart className="h-12 w-12 text-slate-300 mx-auto mb-3" />
               <p className="text-slate-600">No sales yet</p>
               <Link href={createPageUrl("DirectSales")}>
-                <Button className="mt-4 bg-teal-600 hover:bg-teal-700">Make Your First Sale</Button>
+                <Button className="mt-4 bg-emerald-600 hover:bg-emerald-700">Make Your First Sale</Button>
               </Link>
             </div>
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
+                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
                   <TableHead>Sale #</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Customer</TableHead>

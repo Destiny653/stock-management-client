@@ -499,7 +499,7 @@ export default function DirectSales() {
               <div className="absolute inset-0 z-[60] bg-white/60 backdrop-blur-sm flex flex-col items-center justify-center rounded-xl animate-in fade-in duration-300">
                 <div className="p-8 bg-white shadow-2xl rounded-2xl flex flex-col items-center gap-4 ring-1 ring-slate-200">
                   <div className="relative">
-                    <Loader2 className="h-12 w-12 animate-spin text-teal-600" />
+                    <Loader2 className="h-12 w-12 animate-spin text-emerald-600" />
                   </div>
                   <div className="text-center">
                     <p className="font-black text-slate-900 uppercase tracking-widest text-sm">{t('completingSale')}</p>
@@ -560,7 +560,7 @@ export default function DirectSales() {
 
               {loadingProducts ? (
                 <div className="flex items-center justify-center h-64">
-                  <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+                  <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
                 </div>
               ) : filteredProducts.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-64 bg-slate-50 rounded-xl">
@@ -584,9 +584,9 @@ export default function DirectSales() {
                       <div key={product.id} className="h-full">
                         <Card
                           className={cn(
-                            "group relative h-full overflow-hidden border-slate-200/60 transition-all duration-300 hover:shadow-2xl hover:shadow-teal-500/10 hover:-translate-y-1.5 bg-white/80 backdrop-blur-sm",
-                            isInCart && "ring-2 ring-teal-500/50 shadow-lg shadow-teal-500/5 border-teal-200/50",
-                            isExpanded && "ring-2 ring-teal-500 shadow-xl border-teal-200"
+                            "group relative h-full overflow-hidden border-slate-200/60 transition-all duration-300 hover:shadow-2xl hover:shadow-emerald-500/10 hover:-translate-y-1.5 bg-white/80 backdrop-blur-sm",
+                            isInCart && "ring-2 ring-emerald-500/50 shadow-lg shadow-emerald-500/5 border-emerald-200/50",
+                            isExpanded && "ring-2 ring-emerald-500 shadow-xl border-emerald-200"
                           )}
                           onClick={() => handleProductClick(product)}
                         >
@@ -616,7 +616,7 @@ export default function DirectSales() {
                                   </Badge>
                                 )}
                                 {isInCart && (
-                                  <Badge className="bg-teal-500/90 text-white backdrop-blur-md border-0 text-[10px] py-0 px-2 h-5 rounded-full shadow-sm animate-in zoom-in-50 font-bold">
+                                  <Badge className="bg-emerald-500/90 text-white backdrop-blur-md border-0 text-[10px] py-0 px-2 h-5 rounded-full shadow-sm animate-in zoom-in-50 font-bold">
                                     <CheckCircle className="h-3.5 w-3.5 mr-1" />
                                     {itemsInCart.length} {t('inCart')}
                                   </Badge>
@@ -635,7 +635,7 @@ export default function DirectSales() {
                             {/* Info Section */}
                             <div className="p-4 space-y-4 flex-1 flex flex-col justify-between">
                               <div className="space-y-1">
-                                <h4 className="font-extrabold text-slate-900 group-hover:text-teal-600 transition-colors line-clamp-1 leading-tight text-[15px]">{product.name}</h4>
+                                <h4 className="font-extrabold text-slate-900 group-hover:text-emerald-600 transition-colors line-clamp-1 leading-tight text-[15px]">{product.name}</h4>
                                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{product.category}</p>
                               </div>
 
@@ -644,9 +644,9 @@ export default function DirectSales() {
                                   <div className="flex flex-col">
                                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{t('price')}</span>
                                     {priceRange.isSame ? (
-                                      <span className="font-black text-teal-600 text-lg tabular-nums tracking-tight">${priceRange.min.toFixed(2)}</span>
+                                      <span className="font-black text-emerald-600 text-lg tabular-nums tracking-tight">${priceRange.min.toFixed(2)}</span>
                                     ) : (
-                                      <span className="font-black text-teal-600 tabular-nums tracking-tight text-base">
+                                      <span className="font-black text-emerald-600 tabular-nums tracking-tight text-base">
                                         ${priceRange.min} - ${priceRange.max}
                                       </span>
                                     )}
@@ -664,7 +664,7 @@ export default function DirectSales() {
 
                                 {isSingleVariant ? (
                                   <Button
-                                    className="w-full h-11 bg-teal-600 hover:bg-teal-700 text-white shadow-lg shadow-teal-500/20 rounded-xl font-black transition-all active:scale-95 text-xs uppercase tracking-widest"
+                                    className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20 rounded-xl font-black transition-all active:scale-95 text-xs uppercase tracking-widest"
                                   >
                                     <Plus className="h-4 w-4 mr-2" /> {t('addToCart')}
                                   </Button>
@@ -672,8 +672,8 @@ export default function DirectSales() {
                                   <Button
                                     variant="outline"
                                     className={cn(
-                                      "w-full h-11 rounded-xl font-black transition-all border-slate-200 hover:bg-teal-50 hover:text-teal-600 hover:border-teal-200 text-xs uppercase tracking-widest",
-                                      isExpanded && "bg-teal-50 border-teal-300 text-teal-600"
+                                      "w-full h-11 rounded-xl font-black transition-all border-slate-200 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 text-xs uppercase tracking-widest",
+                                      isExpanded && "bg-emerald-50 border-emerald-300 text-emerald-600"
                                     )}
                                   >
                                     {t('selectOptions')} <ChevronDown className={cn("h-4 w-4 ml-2 transition-transform duration-300", isExpanded && "rotate-180")} />
@@ -691,15 +691,15 @@ export default function DirectSales() {
                               onClick={(e) => e.stopPropagation()} // Prevent clicking selector from triggering card click
                             >
                               {/* Header with Close */}
-                              <div className="p-3 border-b flex items-center justify-between bg-teal-50/80 backdrop-blur-sm sticky top-0 z-10">
+                              <div className="p-3 border-b flex items-center justify-between bg-emerald-50/80 backdrop-blur-sm sticky top-0 z-10">
                                 <div className="flex flex-col min-w-0 pr-4">
-                                  <h5 className="font-black text-teal-900 text-xs leading-none uppercase tracking-widest mb-1">{t('selectVariant')}</h5>
-                                  <p className="text-[10px] text-teal-600 font-black uppercase tracking-tight truncate">{product.name}</p>
+                                  <h5 className="font-black text-emerald-900 text-xs leading-none uppercase tracking-widest mb-1">{t('selectVariant')}</h5>
+                                  <p className="text-[10px] text-emerald-600 font-black uppercase tracking-tight truncate">{product.name}</p>
                                 </div>
                                 <Button
                                   variant="ghost"
                                   size="icon"
-                                  className="h-8 w-8 rounded-full hover:bg-teal-100/80 text-teal-700 flex-shrink-0"
+                                  className="h-8 w-8 rounded-full hover:bg-emerald-100/80 text-emerald-700 flex-shrink-0"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     setExpandedProductId(null);
@@ -726,18 +726,18 @@ export default function DirectSales() {
                                         toast.success(t('addedToCartSuccess'));
                                       }}
                                       className={cn(
-                                        "w-full flex items-center justify-between p-3 rounded-xl hover:bg-teal-50 transition-all text-left group/v border border-slate-100",
-                                        variantInCart && "bg-teal-50/50 border-teal-200 ring-2 ring-teal-500/10"
+                                        "w-full flex items-center justify-between p-3 rounded-xl hover:bg-emerald-50 transition-all text-left group/v border border-slate-100",
+                                        variantInCart && "bg-emerald-50/50 border-emerald-200 ring-2 ring-emerald-500/10"
                                       )}
                                     >
                                       <div className="flex-1 min-w-0 pr-2">
                                         <div className="flex items-center gap-2 mb-1.5">
-                                          <span className="text-[10px] font-black font-mono text-teal-600 bg-teal-100/50 px-1.5 py-0.5 rounded uppercase tracking-wider">{variant.sku}</span>
+                                          <span className="text-[10px] font-black font-mono text-emerald-600 bg-emerald-100/50 px-1.5 py-0.5 rounded uppercase tracking-wider">{variant.sku}</span>
                                           {isVariantLowStock && (
                                             <Badge className="bg-orange-100 text-orange-700 text-[9px] font-black px-1.5 h-4 border-0 uppercase">{t('low')}</Badge>
                                           )}
                                           {variantInCart && (
-                                            <CheckCircle className="h-3.5 w-3.5 text-teal-500" />
+                                            <CheckCircle className="h-3.5 w-3.5 text-emerald-500" />
                                           )}
                                         </div>
                                         {Object.keys(variant.attributes || {}).length > 0 && (
@@ -750,7 +750,7 @@ export default function DirectSales() {
                                         <p className="font-black text-sm text-slate-900 tabular-nums">${variant.unit_price.toFixed(2)}</p>
                                         <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{variant.stock} {t('left')}</p>
                                       </div>
-                                      <div className="ml-3 h-9 w-9 rounded-full bg-white border border-slate-200 flex items-center justify-center group-hover/v:bg-teal-600 group-hover/v:text-white group-hover/v:border-teal-600 transition-all shadow-sm">
+                                      <div className="ml-3 h-9 w-9 rounded-full bg-white border border-slate-200 flex items-center justify-center group-hover/v:bg-emerald-600 group-hover/v:text-white group-hover/v:border-emerald-600 transition-all shadow-sm">
                                         <Plus className="h-4 w-4" />
                                       </div>
                                     </button>
@@ -760,7 +760,7 @@ export default function DirectSales() {
 
                               {/* Inline Cart Summary */}
                               {isInCart && (
-                                <div className="p-3 bg-teal-600 text-white text-[10px] font-black flex items-center justify-between uppercase tracking-widest">
+                                <div className="p-3 bg-emerald-600 text-white text-[10px] font-black flex items-center justify-between uppercase tracking-widest">
                                   <span className="flex items-center gap-2">
                                     <ShoppingCart className="h-3.5 w-3.5" />
                                     {itemsInCart.length} {t('items')} {t('inCart')}
@@ -783,10 +783,10 @@ export default function DirectSales() {
               <Card className="sticky py-5 top-4">
                 <CardHeader className="pb-3 border-b">
                   <CardTitle className="flex items-center gap-2">
-                    <ShoppingCart className="h-5 w-5 text-teal-600" />
+                    <ShoppingCart className="h-5 w-5 text-emerald-600" />
                     {t('cart')}
                     {cart.length > 0 && (
-                      <Badge className="ml-auto bg-teal-100 text-teal-700">{cart.length} {t('items')}</Badge>
+                      <Badge className="ml-auto bg-emerald-100 text-emerald-700">{cart.length} {t('items')}</Badge>
                     )}
                   </CardTitle>
                 </CardHeader>
@@ -857,12 +857,12 @@ export default function DirectSales() {
                         </div>
                         <div className="flex justify-between text-xl font-bold pt-2 border-t">
                           <span>{t('total')}</span>
-                          <span className="text-teal-600">${cartTotal.toFixed(2)}</span>
+                          <span className="text-emerald-600">${cartTotal.toFixed(2)}</span>
                         </div>
                       </div>
 
                       <Button
-                        className="w-full bg-teal-600 hover:bg-teal-700"
+                        className="w-full bg-emerald-600 hover:bg-emerald-700"
                         size="lg"
                         onClick={handleOpenSaleDialog}
                       >
@@ -882,7 +882,7 @@ export default function DirectSales() {
           <div className="bg-white overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
+                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
                   <TableHead>{t('saleNumber')}</TableHead>
                   <TableHead>{t('date')}</TableHead>
                   <TableHead>{t('client')}</TableHead>
@@ -922,7 +922,7 @@ export default function DirectSales() {
                             {sale.payment_method}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-right font-bold text-teal-600">${sale.total_amount?.toFixed(2)}</TableCell>
+                        <TableCell className="text-right font-bold text-emerald-600">${sale.total_amount?.toFixed(2)}</TableCell>
                         {isManagerOrAdmin && (
                           <TableCell>
                             <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-600 hover:text-rose-700" onClick={() => handleDeleteSale(sale.id)}>
@@ -945,7 +945,7 @@ export default function DirectSales() {
         <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <Receipt className="h-5 w-5 text-teal-600" />
+              <Receipt className="h-5 w-5 text-emerald-600" />
               {t('completeSale')}
             </DialogTitle>
           </DialogHeader>
@@ -1013,11 +1013,11 @@ export default function DirectSales() {
                     className={cn(
                       "flex flex-col items-center gap-1 p-3 rounded-lg border-2 transition-all",
                       saleForm.payment_method === value
-                        ? "border-teal-500 bg-teal-50"
+                        ? "border-emerald-500 bg-emerald-50"
                         : "border-slate-200 hover:border-slate-300"
                     )}
                   >
-                    <Icon className={cn("h-5 w-5", saleForm.payment_method === value ? "text-teal-600" : "text-slate-400")} />
+                    <Icon className={cn("h-5 w-5", saleForm.payment_method === value ? "text-emerald-600" : "text-slate-400")} />
                     <span className="text-xs font-medium">{label}</span>
                   </button>
                 ))}
@@ -1066,7 +1066,7 @@ export default function DirectSales() {
               )}
               <div className="flex justify-between text-xl font-bold pt-2 border-t border-slate-700">
                 <span>{t('total')}</span>
-                <span className="text-teal-400">${cartTotal.toFixed(2)}</span>
+                <span className="text-emerald-400">${cartTotal.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -1076,7 +1076,7 @@ export default function DirectSales() {
               {t('cancel')}
             </Button>
             <Button
-              className="bg-teal-600 hover:bg-teal-700"
+              className="bg-emerald-600 hover:bg-emerald-700"
               onClick={handleCompleteSale}
               disabled={createSaleMutation.isPending}
             >

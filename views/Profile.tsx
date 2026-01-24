@@ -208,7 +208,7 @@ export default function Profile() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
       </div>
     );
   }
@@ -223,7 +223,7 @@ export default function Profile() {
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
               {/* Avatar */}
               <div className="relative group">
-                <div className="h-28 w-28 rounded-2xl bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white text-4xl font-bold overflow-hidden">
+                <div className="h-28 w-28 rounded-2xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-4xl font-bold overflow-hidden">
                   {profileData.avatar_url ? (
                     <img src={profileData.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
                   ) : (
@@ -246,7 +246,7 @@ export default function Profile() {
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                     <Badge className={cn(
                       "capitalize px-3 py-1",
-                      user?.role === 'admin' || user?.role === 'owner' ? 'bg-violet-100 text-violet-700' : 'bg-teal-100 text-teal-700'
+                      user?.role === 'admin' || user?.role === 'owner' ? 'bg-violet-100 text-violet-700' : 'bg-emerald-100 text-emerald-700'
                     )}>
                       <Shield className="h-3 w-3 mr-1" />
                       {user?.role || 'user'}
@@ -349,7 +349,7 @@ export default function Profile() {
                 variant={isEditing ? "default" : "outline"}
                 onClick={() => isEditing ? handleSaveProfile() : setIsEditing(true)}
                 disabled={updateProfileMutation.isPending}
-                className={isEditing ? "bg-teal-600 hover:bg-teal-700" : ""}
+                className={isEditing ? "bg-emerald-600 hover:bg-emerald-700" : ""}
               >
                 {updateProfileMutation.isPending ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -555,7 +555,7 @@ export default function Profile() {
 
           <div className="flex justify-end">
             <Button
-              className="bg-teal-600 hover:bg-teal-700"
+              className="bg-emerald-600 hover:bg-emerald-700"
               onClick={handleSaveProfile}
               disabled={updateProfileMutation.isPending}
             >

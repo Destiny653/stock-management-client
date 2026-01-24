@@ -89,7 +89,7 @@ export default function OrganizationMap({ vendors, center, zoom, onVendorClick }
                                 {onVendorClick && (
                                     <Button
                                         size="sm"
-                                        className="mt-2 w-full bg-teal-600 hover:bg-teal-700"
+                                        className="mt-2 w-full bg-emerald-600 hover:bg-emerald-700"
                                         onClick={() => onVendorClick(vendor)}
                                     >
                                         View Details

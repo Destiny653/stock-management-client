@@ -143,7 +143,7 @@ export default function InventoryTable({
     <div className="bg-white overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-[11px] font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100">
+          <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-[11px] font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100">
             <TableHead className="w-12 text-center p-0"></TableHead>
             {!readOnly && (
               <TableHead className="w-12 text-center p-0">
@@ -191,7 +191,7 @@ export default function InventoryTable({
                   className={cn(
                     "group transition-colors hover:bg-slate-50 border-b border-slate-50 cursor-pointer",
                     isExpanded && "bg-indigo-50/30",
-                    isSelected && "bg-teal-50/50"
+                    isSelected && "bg-emerald-50/50"
                   )}>
                   <td className="w-12 p-0 text-center align-middle">
                     <div className="flex justify-center items-center w-full h-full">
@@ -306,7 +306,7 @@ export default function InventoryTable({
                     <td colSpan={readOnly ? 7 : 8} className="px-12 py-4">
                       <div className="bg-white border border-slate-100 rounded-lg shadow-inner overflow-hidden">
                         <table className="w-full text-[11px] text-left">
-                          <thead className="bg-teal-600/5 border-b border-slate-100">
+                          <thead className="bg-emerald-600/5 border-b border-slate-100">
                             <tr>
                               <th className="px-4 py-2 font-bold text-slate-500">SKU</th>
                               <th className="px-4 py-2 font-bold text-slate-500">Attributes</th>

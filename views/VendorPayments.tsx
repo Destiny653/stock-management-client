@@ -203,8 +203,8 @@ export default function VendorPayments() {
                                 <p className="text-sm text-slate-500">{t('totalPayments')}</p>
                                 <p className="text-2xl font-bold text-slate-900">{payments.length}</p>
                             </div>
-                            <div className="h-10 w-10 rounded-full bg-teal-100 flex items-center justify-center">
-                                <CreditCard className="h-5 w-5 text-teal-600" />
+                            <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
+                                <CreditCard className="h-5 w-5 text-emerald-600" />
                             </div>
                         </div>
                     </CardContent>
@@ -252,12 +252,12 @@ export default function VendorPayments() {
             <div className="bg-white overflow-hidden">
                 {isLoading ? (
                     <div className="flex items-center justify-center h-64">
-                        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+                        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
                     </div>
                 ) : (
                     <Table>
                         <TableHeader>
-                            <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
+                            <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
                                 <TableHead>{t('date')}</TableHead>
                                 <TableHead>{t('vendor')}</TableHead>
                                 <TableHead>{t('paymentType')}</TableHead>
@@ -288,7 +288,7 @@ export default function VendorPayments() {
                                         <TableCell>
                                             <Link
                                                 href={createPageUrl(`VendorDetail?id=${payment.vendor_id}`)}
-                                                className="font-medium text-slate-900 hover:text-teal-600"
+                                                className="font-medium text-slate-900 hover:text-emerald-600"
                                             >
                                                 {payment.vendor_name}
                                             </Link>

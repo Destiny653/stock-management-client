@@ -267,7 +267,7 @@ export default function VendorDetail() {
   if (loadingVendor) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
       </div>
     );
   }
@@ -294,7 +294,7 @@ export default function VendorDetail() {
             </Button>
           </Link>
           <div className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-xl bg-linear-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-bold text-xl">
+            <div className="h-14 w-14 rounded-xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-xl">
               {vendor.store_name?.charAt(0) || 'V'}
             </div>
             <div>
@@ -309,7 +309,7 @@ export default function VendorDetail() {
           </Badge>
           <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-teal-600 hover:bg-teal-700">
+              <Button className="bg-emerald-600 hover:bg-emerald-700">
                 <Plus className="h-4 w-4 mr-2" />
                 Record Payment
               </Button>
@@ -375,7 +375,7 @@ export default function VendorDetail() {
                 </div>
                 <div className="flex justify-end gap-3">
                   <Button variant="outline" onClick={() => setIsPaymentDialogOpen(false)}>Cancel</Button>
-                  <Button className="bg-teal-600 hover:bg-teal-700" onClick={handleRecordPayment}>
+                  <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleRecordPayment}>
                     Record Payment
                   </Button>
                 </div>
@@ -387,28 +387,28 @@ export default function VendorDetail() {
 
       {/* Sales Period Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card className={cn("cursor-pointer transition-all", salesPeriod === 'daily' && "ring-2 ring-teal-500")} onClick={() => setSalesPeriod('daily')}>
+        <Card className={cn("cursor-pointer transition-all", salesPeriod === 'daily' && "ring-2 ring-emerald-500")} onClick={() => setSalesPeriod('daily')}>
           <CardContent className="p-4 py-12">
             <p className="text-sm text-slate-500">Today</p>
             <p className="text-2xl font-bold text-slate-900">${salesStats.daily.total.toLocaleString()}</p>
             <p className="text-xs text-slate-500">{salesStats.daily.count} orders</p>
           </CardContent>
         </Card>
-        <Card className={cn("cursor-pointer transition-all", salesPeriod === 'weekly' && "ring-2 ring-teal-500")} onClick={() => setSalesPeriod('weekly')}>
+        <Card className={cn("cursor-pointer transition-all", salesPeriod === 'weekly' && "ring-2 ring-emerald-500")} onClick={() => setSalesPeriod('weekly')}>
           <CardContent className="p-4 py-12">
             <p className="text-sm text-slate-500">This Week</p>
             <p className="text-2xl font-bold text-slate-900">${salesStats.weekly.total.toLocaleString()}</p>
             <p className="text-xs text-slate-500">{salesStats.weekly.count} orders</p>
           </CardContent>
         </Card>
-        <Card className={cn("cursor-pointer transition-all", salesPeriod === 'monthly' && "ring-2 ring-teal-500")} onClick={() => setSalesPeriod('monthly')}>
+        <Card className={cn("cursor-pointer transition-all", salesPeriod === 'monthly' && "ring-2 ring-emerald-500")} onClick={() => setSalesPeriod('monthly')}>
           <CardContent className="p-4 py-12">
             <p className="text-sm text-slate-500">This Month</p>
-            <p className="text-2xl font-bold text-teal-600">${salesStats.monthly.total.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-emerald-600">${salesStats.monthly.total.toLocaleString()}</p>
             <p className="text-xs text-slate-500">{salesStats.monthly.count} orders</p>
           </CardContent>
         </Card>
-        <Card className={cn("cursor-pointer transition-all", salesPeriod === 'yearly' && "ring-2 ring-teal-500")} onClick={() => setSalesPeriod('yearly')}>
+        <Card className={cn("cursor-pointer transition-all", salesPeriod === 'yearly' && "ring-2 ring-emerald-500")} onClick={() => setSalesPeriod('yearly')}>
           <CardContent className="p-4 py-12">
             <p className="text-sm text-slate-500">This Year</p>
             <p className="text-2xl font-bold text-slate-900">${salesStats.yearly.total.toLocaleString()}</p>
@@ -439,15 +439,15 @@ export default function VendorDetail() {
                 <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#14b8a6" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#14b8a6" stopOpacity={0} />
+                      <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#94a3b8" />
                   <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" />
                   <Tooltip />
-                  <Area type="monotone" dataKey="sales" stroke="#14b8a6" fill="url(#salesGradient)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="sales" stroke="#10b981" fill="url(#salesGradient)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -518,7 +518,7 @@ export default function VendorDetail() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
+                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
                   <TableHead>Date</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Amount</TableHead>
@@ -578,7 +578,7 @@ export default function VendorDetail() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
+                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
                   <TableHead>Sale #</TableHead>
                   <TableHead>Date</TableHead>
                   <TableHead>Items</TableHead>

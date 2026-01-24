@@ -150,7 +150,7 @@ export default function VendorLocationPickerMap({
         return (
             <div className="h-48 rounded-xl border border-slate-200 flex items-center justify-center bg-slate-50">
                 <div className="text-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-teal-600 mx-auto mb-2" />
+                    <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto mb-2" />
                     <p className="text-sm text-slate-500">Loading Google Maps...</p>
                 </div>
             </div>
@@ -212,7 +212,7 @@ export default function VendorLocationPickerMap({
             {/* Coordinates Display */}
             {position && (
                 <div className="flex items-center gap-4 text-sm text-slate-600 bg-slate-50 rounded-lg p-3">
-                    <MapPin className="h-4 w-4 text-teal-600" />
+                    <MapPin className="h-4 w-4 text-emerald-600" />
                     <span>
                         Lat: <strong>{position.lat.toFixed(6)}</strong>,
                         Lng: <strong>{position.lng.toFixed(6)}</strong>

@@ -176,7 +176,7 @@ export default function Alerts() {
                                 key={alert.id}
                                 className={cn(
                                     "transition-all hover:shadow-md border-slate-200",
-                                    !alert.is_read && "border-l-4 border-l-teal-500 bg-teal-50/20"
+                                    !alert.is_read && "border-l-4 border-l-emerald-500 bg-emerald-50/20"
                                 )}
                             >
                                 <CardContent className="p-4">
@@ -199,7 +199,7 @@ export default function Alerts() {
                                                             {priority.label}
                                                         </Badge>
                                                         {!alert.is_read && (
-                                                            <span className="h-2 w-2 rounded-full bg-teal-500 ring-4 ring-teal-50" />
+                                                            <span className="h-2 w-2 rounded-full bg-emerald-500 ring-4 ring-emerald-50" />
                                                         )}
                                                     </div>
                                                     <p className="text-sm text-slate-600 leading-relaxed">{alert.message}</p>
@@ -223,7 +223,7 @@ export default function Alerts() {
                                                                         variant="ghost"
                                                                         size="icon"
                                                                         disabled={updateAlertMutation.isPending}
-                                                                        className="h-8 w-8 text-teal-600 hover:bg-teal-50"
+                                                                        className="h-8 w-8 text-emerald-600 hover:bg-emerald-50"
                                                                         onClick={() => markAsRead(alert.id)}
                                                                     >
                                                                         {updateAlertMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
@@ -317,7 +317,7 @@ export default function Alerts() {
 
             {/* Quick Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Card className={cn("cursor-pointer transition-all hover:border-teal-200 shadow-sm", activeTab === "low_stock" ? "ring-2 ring-teal-500 border-teal-500" : "border-slate-200")} onClick={() => setActiveTab("low_stock")}>
+                <Card className={cn("cursor-pointer transition-all hover:border-emerald-200 shadow-sm", activeTab === "low_stock" ? "ring-2 ring-emerald-500 border-emerald-500" : "border-slate-200")} onClick={() => setActiveTab("low_stock")}>
                     <CardContent className="p-4 py-12 flex items-center gap-4">
                         <div className="h-12 w-12 rounded-xl bg-amber-100 flex items-center justify-center shadow-inner">
                             <AlertTriangle className="h-6 w-6 text-amber-600" />
@@ -328,7 +328,7 @@ export default function Alerts() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className={cn("cursor-pointer transition-all hover:border-teal-200 shadow-sm", activeTab === "pending_approval" ? "ring-2 ring-teal-500 border-teal-500" : "border-slate-200")} onClick={() => setActiveTab("pending_approval")}>
+                <Card className={cn("cursor-pointer transition-all hover:border-emerald-200 shadow-sm", activeTab === "pending_approval" ? "ring-2 ring-emerald-500 border-emerald-500" : "border-slate-200")} onClick={() => setActiveTab("pending_approval")}>
                     <CardContent className="p-4 py-12 flex items-center gap-4">
                         <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center shadow-inner">
                             <Clock className="h-6 w-6 text-blue-600" />
@@ -339,7 +339,7 @@ export default function Alerts() {
                         </div>
                     </CardContent>
                 </Card>
-                <Card className={cn("cursor-pointer transition-all hover:border-teal-200 shadow-sm", activeTab === "unread" ? "ring-2 ring-teal-500 border-teal-500" : "border-slate-200")} onClick={() => setActiveTab("unread")}>
+                <Card className={cn("cursor-pointer transition-all hover:border-emerald-200 shadow-sm", activeTab === "unread" ? "ring-2 ring-emerald-500 border-emerald-500" : "border-slate-200")} onClick={() => setActiveTab("unread")}>
                     <CardContent className="p-4 py-12 flex items-center gap-4">
                         <div className="h-12 w-12 rounded-xl bg-rose-100 flex items-center justify-center shadow-inner">
                             <Bell className="h-6 w-6 text-rose-600" />
@@ -355,10 +355,10 @@ export default function Alerts() {
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-slate-100 p-1 rounded-xl w-fit">
                 <TabsList className="bg-transparent gap-1">
-                    <TabsTrigger value="all" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-teal-600 data-[state=active]:shadow-sm px-6 font-semibold">{t('all')}</TabsTrigger>
-                    <TabsTrigger value="unread" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-teal-600 data-[state=active]:shadow-sm px-6 font-semibold">{t('unread')}</TabsTrigger>
-                    <TabsTrigger value="low_stock" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-teal-600 data-[state=active]:shadow-sm px-6 font-semibold">{t('lowStock')}</TabsTrigger>
-                    <TabsTrigger value="pending_approval" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-teal-600 data-[state=active]:shadow-sm px-6 font-semibold">{t('approvals')}</TabsTrigger>
+                    <TabsTrigger value="all" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm px-6 font-semibold">{t('all')}</TabsTrigger>
+                    <TabsTrigger value="unread" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm px-6 font-semibold">{t('unread')}</TabsTrigger>
+                    <TabsTrigger value="low_stock" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm px-6 font-semibold">{t('lowStock')}</TabsTrigger>
+                    <TabsTrigger value="pending_approval" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm px-6 font-semibold">{t('approvals')}</TabsTrigger>
                 </TabsList>
             </Tabs>
 
@@ -366,7 +366,7 @@ export default function Alerts() {
             <div>
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center h-64 gap-3 bg-white overflow-hidden">
-                        <Loader2 className="h-10 w-10 animate-spin text-teal-600" />
+                        <Loader2 className="h-10 w-10 animate-spin text-emerald-600" />
                         <p className="text-sm font-medium text-slate-500 italic">{t('syncingNotifications')}</p>
                     </div>
                 ) : filteredAlerts.length === 0 ? (

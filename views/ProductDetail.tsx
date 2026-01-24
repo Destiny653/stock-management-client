@@ -194,7 +194,7 @@ export default function ProductDetail() {
   if (isLoading && productId) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
       </div>
     );
   }
@@ -244,7 +244,7 @@ export default function ProductDetail() {
                 </Button>
               )}
               <Button
-                className="bg-teal-600 hover:bg-teal-700"
+                className="bg-emerald-600 hover:bg-emerald-700"
                 onClick={handleSave}
                 disabled={createMutation.isPending || updateMutation.isPending}
               >
@@ -620,7 +620,7 @@ export default function ProductDetail() {
                 ) : (
                   <Table>
                     <TableHeader>
-                      <TableRow className="bg-teal-600/10 hover:bg-teal-600/10 text-slate-700">
+                      <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
                         <TableHead>Date</TableHead>
                         <TableHead>Type</TableHead>
                         <TableHead>Quantity</TableHead>

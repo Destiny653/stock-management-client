@@ -41,6 +41,8 @@ import {
 import { format, subDays, differenceInDays } from "date-fns";
 import { toast } from "sonner";
 import { useLanguage } from "@/components/i18n/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import OwnerReports from "./OwnerReports";
 
 function useSafeLanguage() {
     try {
@@ -50,7 +52,7 @@ function useSafeLanguage() {
     }
 }
 
-const COLORS = ['#0d9488', '#8b5cf6', '#f59e0b', '#ef4444', '#3b82f6', '#10b981', '#6366f1', '#ec4899'];
+const COLORS = ['#059669', '#8b5cf6', '#f59e0b', '#ef4444', '#3b82f6', '#10b981', '#6366f1', '#ec4899'];
 
 const CustomTooltip = ({ active, payload, label, valuePrefix = '', valueSuffix = '' }: any) => {
     if (active && payload && payload.length) {
@@ -69,6 +71,23 @@ const CustomTooltip = ({ active, payload, label, valuePrefix = '', valueSuffix =
 };
 
 export default function Reports() {
+    const { t } = useSafeLanguage();
+    const { user } = useAuth();
+
+    // Check if user is SuperAdmin/Owner - they see organization-focused reports
+    const isSuperAdmin = user?.role === 'admin' || user?.role === 'owner';
+
+    // If SuperAdmin/Owner, render the OwnerReports instead
+    if (isSuperAdmin) {
+        return <OwnerReports />;
+    }
+
+    // For regular org users, show the inventory/sales reports
+    return <OrgReports />;
+}
+
+// Organization-level reports (inventory/sales focused)
+function OrgReports() {
     const { t } = useSafeLanguage();
     const [dateRange, setDateRange] = useState<string>('30');
 
@@ -295,7 +314,7 @@ export default function Reports() {
     if (loadingProducts) {
         return (
             <div className="flex items-center justify-center h-96">
-                <Loader2 className="h-8 w-8 animate-spin text-teal-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
             </div>
         );
     }
@@ -342,8 +361,8 @@ export default function Reports() {
                                     <span className="text-xs">{valueTrend.trend === "up" ? '+' : '-'}{valueTrend.value}</span>
                                 </div>
                             </div>
-                            <div className="h-12 w-12 rounded-xl bg-teal-100 flex items-center justify-center">
-                                <DollarSign className="h-6 w-6 text-teal-600" />
+                            <div className="h-12 w-12 rounded-xl bg-emerald-100 flex items-center justify-center">
+                                <DollarSign className="h-6 w-6 text-emerald-600" />
                             </div>
                         </div>
                     </CardContent>
@@ -409,15 +428,15 @@ export default function Reports() {
                                 <AreaChart data={inventoryTrend}>
                                     <defs>
                                         <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#0d9488" stopOpacity={0.2} />
-                                            <stop offset="95%" stopColor="#0d9488" stopOpacity={0} />
+                                            <stop offset="5%" stopColor="#059669" stopOpacity={0.2} />
+                                            <stop offset="95%" stopColor="#059669" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                                     <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} />
                                     <Tooltip content={<CustomTooltip valuePrefix="$" />} />
-                                    <Area type="monotone" dataKey="value" stroke="#0d9488" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" name={t('value')} />
+                                    <Area type="monotone" dataKey="value" stroke="#059669" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" name={t('value')} />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>

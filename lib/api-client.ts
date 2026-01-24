@@ -63,8 +63,8 @@ apiClient.interceptors.response.use(
                     localStorage.removeItem('base44_currentUser');
                     localStorage.removeItem('base44_access_token');
                     localStorage.removeItem('base44_refresh_token');
-                    // Only redirect if not already on login
-                    if (!window.location.pathname.includes('/login')) {
+                    // Only redirect if not already on login AND not on landing page
+                    if (!window.location.pathname.includes('/login') && window.location.pathname !== '/') {
                         window.location.href = '/login';
                     }
                 }
