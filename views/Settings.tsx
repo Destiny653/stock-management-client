@@ -161,13 +161,14 @@ export default function Settings() {
     queryFn: () => base44.auth.me(),
   });
 
-  const isSuperAdmin = currentUser?.role === 'admin' || currentUser?.role === 'owner';
+  const isSuperAdmin = !currentUser?.organization_id && (currentUser?.role === 'admin' || currentUser?.role === 'owner');
 
   const { data: warehouses = [], isLoading: loadingWarehouses } = useQuery({
     queryKey: ['warehouses', currentUser?.organization_id],
     queryFn: () => base44.entities.Warehouse.list({
       organization_id: isSuperAdmin ? undefined : currentUser?.organization_id
     }),
+    enabled: !!currentUser,
   });
 
   const { data: suppliers = [], isLoading: loadingSuppliers } = useQuery({
@@ -175,6 +176,7 @@ export default function Settings() {
     queryFn: () => base44.entities.Supplier.list({
       organization_id: isSuperAdmin ? undefined : currentUser?.organization_id
     }),
+    enabled: !!currentUser,
   });
 
   const { data: users = [] } = useQuery({
@@ -182,6 +184,7 @@ export default function Settings() {
     queryFn: () => base44.entities.User.list({
       organization_id: isSuperAdmin ? undefined : currentUser?.organization_id
     }),
+    enabled: !!currentUser,
   });
 
   const { data: locations = [] } = useQuery({
@@ -194,6 +197,7 @@ export default function Settings() {
     queryFn: () => base44.entities.Vendor.list({
       organization_id: isSuperAdmin ? undefined : currentUser?.organization_id
     }),
+    enabled: !!currentUser,
   });
 
   // Create a map for location names
