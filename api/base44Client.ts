@@ -333,8 +333,6 @@ export interface Organization {
     phone?: string;
     email?: string;
     website?: string;
-    city?: string;
-    country?: string;
     status: 'active' | 'inactive' | 'suspended' | 'pending';
     subscription_plan?: string;
     subscription_plan_id?: string;

@@ -2,19 +2,10 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Checkbox } from '@/components/ui/checkbox';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-} from '@/components/ui/dialog';
 import {
     Package,
     BarChart3,
@@ -31,10 +22,6 @@ import {
     Play,
     Loader2,
     Building2,
-    Mail,
-    Lock,
-    User,
-    CheckCircle2,
     Sparkles,
     TrendingUp,
     Clock,
@@ -42,8 +29,6 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/contexts/AuthContext';
-import { apiClient } from '@/lib/api-client';
-import { toast } from 'sonner';
 
 // Animation variants
 const fadeInUp = {
@@ -201,70 +186,12 @@ const testimonials = [
 
 export default function LandingPage() {
     const { isAuthenticated, isLoading } = useAuth();
+    const router = useRouter();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
-    const [registerOpen, setRegisterOpen] = useState(false);
-    const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
-
-    // Registration form state
-    const [formData, setFormData] = useState({
-        organizationName: '',
-        organizationCode: '',
-        fullName: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        agreeTerms: false
-    });
-    const [showPassword, setShowPassword] = useState(false);
-    const [submitting, setSubmitting] = useState(false);
-    const [registrationSuccess, setRegistrationSuccess] = useState(false);
 
     const handleOpenRegister = (planId?: string) => {
-        if (planId) setSelectedPlan(planId);
-        setRegisterOpen(true);
-    };
-
-    const handleRegister = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (formData.password !== formData.confirmPassword) {
-            toast.error('Passwords do not match');
-            return;
-        }
-
-        if (!formData.agreeTerms) {
-            toast.error('Please agree to the terms and conditions');
-            return;
-        }
-
-        setSubmitting(true);
-
-        try {
-            await apiClient.post('/auth/register-organization', {
-                organization: {
-                    name: formData.organizationName,
-                    code: formData.organizationCode.toUpperCase(),
-                    subscription_plan: selectedPlan || 'starter',
-                    status: 'pending'
-                },
-                user: {
-                    full_name: formData.fullName,
-                    email: formData.email,
-                    username: formData.email,
-                    password: formData.password,
-                    role: 'admin',
-                    user_type: 'admin'
-                }
-            });
-
-            setRegistrationSuccess(true);
-            toast.success('Registration successful!');
-        } catch (error: any) {
-            toast.error(error.response?.data?.detail || 'Registration failed. Please try again.');
-        } finally {
-            setSubmitting(false);
-        }
+        router.push('/register');
     };
 
     if (isLoading) {
@@ -356,14 +283,12 @@ export default function LandingPage() {
                 </div>
             </nav>
 
-            {/* Hero Section - Immersive Full-Screen */}
+            {/* Hero Section */}
             <section className="relative min-h-screen flex items-center pt-16 overflow-hidden bg-gradient-to-br from-[#004030] via-[#003025] to-[#002018]">
-                {/* Animated Background Elements */}
                 <div className="absolute inset-0 overflow-hidden">
                     <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl animate-pulse" />
                     <div className="absolute bottom-20 right-10 w-96 h-96 bg-teal-500/15 rounded-full blur-3xl animate-pulse delay-1000" />
                     <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-600/10 rounded-full blur-3xl" />
-                    {/* Grid pattern overlay */}
                     <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
                 </div>
 
@@ -423,7 +348,6 @@ export default function LandingPage() {
                                 </Button>
                             </motion.div>
 
-                            {/* Trust Indicators */}
                             <motion.div variants={fadeInUp} className="mt-12 flex items-center justify-center lg:justify-start gap-6">
                                 <div className="flex -space-x-2">
                                     {[...Array(4)].map((_, i) => (
@@ -457,7 +381,6 @@ export default function LandingPage() {
                                         alt="StockFlow Dashboard"
                                         className="w-full h-auto"
                                     />
-                                    {/* Overlay gradient */}
                                     <div className="absolute inset-0 bg-gradient-to-t from-[#004030]/50 to-transparent pointer-events-none" />
                                 </div>
 
@@ -601,7 +524,7 @@ export default function LandingPage() {
                 </div>
             </section>
 
-            {/* Team Section with Image */}
+            {/* Team Section */}
             <section className="py-24 bg-gradient-to-br from-slate-50 to-emerald-50/30 overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -621,7 +544,6 @@ export default function LandingPage() {
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-[#004030]/60 to-transparent" />
                             </div>
-                            {/* Decorative elements */}
                             <div className="absolute -top-8 -left-8 w-32 h-32 bg-emerald-200 rounded-full blur-3xl opacity-50" />
                             <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-teal-200 rounded-full blur-3xl opacity-50" />
                         </motion.div>
@@ -839,7 +761,6 @@ export default function LandingPage() {
 
             {/* CTA Section */}
             <section className="py-24 bg-gradient-to-br from-[#004030] via-[#003025] to-[#002018] relative overflow-hidden">
-                {/* Background Elements */}
                 <div className="absolute inset-0">
                     <div className="absolute top-10 left-10 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl" />
                     <div className="absolute bottom-10 right-10 w-80 h-80 bg-teal-500/15 rounded-full blur-3xl" />
@@ -937,140 +858,6 @@ export default function LandingPage() {
                     </div>
                 </div>
             </footer>
-
-            {/* Registration Modal */}
-            <Dialog open={registerOpen} onOpenChange={setRegisterOpen}>
-                <DialogContent className="max-w-md">
-                    <DialogHeader>
-                        <DialogTitle className="text-center">
-                            {registrationSuccess ? (
-                                <div className="flex flex-col items-center gap-4">
-                                    <div className="h-16 w-16 rounded-full bg-emerald-100 flex items-center justify-center">
-                                        <CheckCircle2 className="h-8 w-8 text-emerald-600" />
-                                    </div>
-                                    <span className="text-xl">Registration Successful!</span>
-                                </div>
-                            ) : (
-                                <div className="flex flex-col items-center gap-4">
-                                    <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center">
-                                        <Package className="h-6 w-6 text-white" />
-                                    </div>
-                                    <span>Start your free trial</span>
-                                </div>
-                            )}
-                        </DialogTitle>
-                    </DialogHeader>
-
-                    {registrationSuccess ? (
-                        <div className="text-center py-6">
-                            <p className="text-slate-600 mb-4">
-                                Your organization is pending approval. We'll notify you by email once your account is approved.
-                            </p>
-                            <Button onClick={() => setRegisterOpen(false)} className="bg-emerald-600 hover:bg-emerald-700">
-                                Got it
-                            </Button>
-                        </div>
-                    ) : (
-                        <form onSubmit={handleRegister} className="space-y-4 py-4">
-                            <div className="space-y-2">
-                                <Label htmlFor="orgName">Organization Name</Label>
-                                <Input
-                                    id="orgName"
-                                    placeholder="Your Company Name"
-                                    value={formData.organizationName}
-                                    onChange={(e) => setFormData({ ...formData, organizationName: e.target.value })}
-                                    required
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="orgCode">Organization Code</Label>
-                                <Input
-                                    id="orgCode"
-                                    placeholder="ACME"
-                                    value={formData.organizationCode}
-                                    onChange={(e) => setFormData({ ...formData, organizationCode: e.target.value.toUpperCase() })}
-                                    maxLength={10}
-                                    required
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="fullName">Your Name</Label>
-                                <Input
-                                    id="fullName"
-                                    placeholder="John Doe"
-                                    value={formData.fullName}
-                                    onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                                    required
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    placeholder="you@example.com"
-                                    value={formData.email}
-                                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    required
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="password">Password</Label>
-                                <Input
-                                    id="password"
-                                    type={showPassword ? 'text' : 'password'}
-                                    placeholder="Create a strong password"
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                                    required
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="confirmPassword">Confirm Password</Label>
-                                <Input
-                                    id="confirmPassword"
-                                    type="password"
-                                    placeholder="Confirm your password"
-                                    value={formData.confirmPassword}
-                                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                                    required
-                                />
-                            </div>
-
-                            <div className="flex items-center space-x-2">
-                                <Checkbox
-                                    id="terms"
-                                    checked={formData.agreeTerms}
-                                    onCheckedChange={(checked) => setFormData({ ...formData, agreeTerms: checked as boolean })}
-                                />
-                                <label htmlFor="terms" className="text-sm text-slate-600">
-                                    I agree to the Terms of Service and Privacy Policy
-                                </label>
-                            </div>
-
-                            <Button
-                                type="submit"
-                                className="w-full bg-emerald-600 hover:bg-emerald-700"
-                                disabled={submitting}
-                            >
-                                {submitting ? (
-                                    <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                        Creating account...
-                                    </>
-                                ) : (
-                                    'Create Account'
-                                )}
-                            </Button>
-                        </form>
-                    )}
-                </DialogContent>
-            </Dialog>
         </div>
     );
 }

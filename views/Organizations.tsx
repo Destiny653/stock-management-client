@@ -377,22 +377,7 @@ export default function Organizations() {
                                     onChange={(e) => setFormData(p => ({ ...p, address: e.target.value }))}
                                 />
                             </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>City</Label>
-                                    <Input
-                                        value={formData.city}
-                                        onChange={(e) => setFormData(p => ({ ...p, city: e.target.value }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Country</Label>
-                                    <Input
-                                        value={formData.country}
-                                        onChange={(e) => setFormData(p => ({ ...p, country: e.target.value }))}
-                                    />
-                                </div>
-                            </div>
+
 
                             {/* Location Map */}
                             <LocationPicker

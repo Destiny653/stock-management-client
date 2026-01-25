@@ -742,7 +742,11 @@ export default function OrganizationMembers() {
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{organization?.name || 'Organization'}</h1>
-                            <p className="text-slate-500">{organization?.code} • {organization?.city}, {organization?.country}</p>
+                            <p className="text-slate-500">
+                                {organization?.code}
+                                {organization?.location_id && locationMap[organization.location_id] ?
+                                    ` • ${locationMap[organization.location_id].city}, ${locationMap[organization.location_id].country}` : ''}
+                            </p>
                         </div>
                     </div>
                 </div>
