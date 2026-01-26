@@ -43,40 +43,64 @@ export default function RegisterPage() {
         const finalData = { ...data, user: userData };
 
         try {
-            // Transform data for backend
-            const payload = {
-                location: {
-                    name: `${finalData.organization.name} HQ`,
-                    address: finalData.location.address,
-                    city: finalData.location.city,
-                    country: finalData.location.country,
-                    latitude: finalData.location.latitude,
-                    longitude: finalData.location.longitude,
-                },
-                organization: {
-                    name: finalData.organization.name,
-                    code: finalData.organization.code,
-                    phone: finalData.organization.phone,
-                    website: finalData.organization.website,
-                    status: 'active',
-                    subscription_plan: finalData.plan
-                },
-                user: {
-                    full_name: userData.full_name,
-                    email: userData.email,
-                    username: userData.email, // using email as username
-                    password: userData.password,
-                    role: 'admin',
-                    user_type: 'admin'
-                }
+            // 1. Create Location
+            const locationPayload = {
+                name: `${finalData.organization.name} HQ`,
+                address: finalData.location.address,
+                city: finalData.location.city,
+                country: finalData.location.country,
+                latitude: finalData.location.latitude,
+                longitude: finalData.location.longitude,
             };
+            const locationRes = await apiClient.post('/locations/', locationPayload);
+            const locationId = locationRes.data._id || locationRes.data.id;
 
-            await apiClient.post('/auth/register-organization', payload);
+            // 2. Get Plan ID
+            const plansRes = await apiClient.get('/subscription-plans/');
+            const selectedPlanObj = plansRes.data.find((p: any) => p.code === finalData.plan);
+            const planId = selectedPlanObj ? (selectedPlanObj._id || selectedPlanObj.id) : null;
+
+            if (!planId) {
+                toast.error("Invalid subscription plan selected");
+                return;
+            }
+
+            // 3. Create Organization
+            const orgPayload = {
+                name: finalData.organization.name,
+                code: finalData.organization.code,
+                phone: finalData.organization.phone,
+                website: finalData.organization.website,
+                description: '',
+                location_id: locationId,
+                subscription_plan_id: planId,
+                status: 'active'
+            };
+            const orgRes = await apiClient.post('/organizations/', orgPayload);
+            const orgId = orgRes.data._id || orgRes.data.id;
+
+            // 4. Register User
+            const userPayload = {
+                full_name: userData.full_name,
+                email: userData.email,
+                username: userData.email,
+                password: userData.password,
+                role: 'admin',
+                user_type: 'admin',
+                organization_id: orgId
+            };
+            await apiClient.post('/auth/register', userPayload);
+
             toast.success("Registration successful! Please login.");
             router.push('/login');
         } catch (error: any) {
             console.error("Registration error:", error);
-            toast.error(error.response?.data?.detail || "Registration failed");
+            const msg = error.response?.data?.detail || "Registration failed";
+            if (typeof msg === 'object') {
+                toast.error(JSON.stringify(msg));
+            } else {
+                toast.error(msg);
+            }
         } finally {
             setIsSubmitting(false);
         }
