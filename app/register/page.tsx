@@ -16,6 +16,7 @@ export default function RegisterPage() {
     const router = useRouter();
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [loadingMessage, setLoadingMessage] = useState('');
     const [data, setData] = useState({
         plan: 'starter',
         location: null as any,
@@ -44,6 +45,7 @@ export default function RegisterPage() {
 
         try {
             // 1. Create Location
+            setLoadingMessage("Creating business location...");
             const locationPayload = {
                 name: `${finalData.organization.name} HQ`,
                 address: finalData.location.address,
@@ -56,6 +58,7 @@ export default function RegisterPage() {
             const locationId = locationRes.data._id || locationRes.data.id;
 
             // 2. Get Plan ID
+            setLoadingMessage("Setting up subscription...");
             const plansRes = await apiClient.get('/subscription-plans/');
             const selectedPlanObj = plansRes.data.find((p: any) => p.code === finalData.plan);
             const planId = selectedPlanObj ? (selectedPlanObj._id || selectedPlanObj.id) : null;
@@ -66,6 +69,7 @@ export default function RegisterPage() {
             }
 
             // 3. Create Organization
+            setLoadingMessage("Creating organization...");
             const orgPayload = {
                 name: finalData.organization.name,
                 code: finalData.organization.code,
@@ -80,6 +84,7 @@ export default function RegisterPage() {
             const orgId = orgRes.data._id || orgRes.data.id;
 
             // 4. Register User
+            setLoadingMessage("Creating admin account...");
             const userPayload = {
                 full_name: userData.full_name,
                 email: userData.email,
@@ -91,6 +96,7 @@ export default function RegisterPage() {
             };
             await apiClient.post('/auth/register', userPayload);
 
+            setLoadingMessage("Finalizing setup...");
             toast.success("Registration successful! Please login.");
             router.push('/login');
         } catch (error: any) {
@@ -103,6 +109,7 @@ export default function RegisterPage() {
             }
         } finally {
             setIsSubmitting(false);
+            setLoadingMessage('');
         }
     };
 
@@ -114,7 +121,23 @@ export default function RegisterPage() {
     ];
 
     return (
-        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
+        <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 relative">
+            {/* Loading Overlay */}
+            <AnimatePresence>
+                {isSubmitting && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute inset-0 z-50 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center p-4"
+                    >
+                        <div className="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mb-4" />
+                        <h3 className="text-xl font-semibold text-slate-800 animate-pulse">{loadingMessage}</h3>
+                        <p className="text-sm text-slate-500 mt-2">Please do not close this window.</p>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <div className="mb-8 text-center">
                 <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/30 mb-4">
                     <Package className="h-6 w-6 text-white" />
