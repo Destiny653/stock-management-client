@@ -27,6 +27,7 @@ import BulkActions from "@/components/inventory/BulkActions";
 import { toast } from "sonner";
 import { useLanguage } from "@/components/i18n/LanguageContext";
 import { cn } from "@/lib/utils";
+import { PageHeader } from "@/components/ui/page-header";
 
 // Safe language hook that works outside provider
 function useSafeLanguage() {
@@ -278,27 +279,23 @@ export default function Inventory() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('inventory')}</h1>
-          <p className="text-slate-500 mt-1">{filteredProducts.length} {t('products')}</p>
-        </div>
-        <div className="flex items-center gap-3">
-          <Button variant="outline" onClick={handleExport}>
-            <Download className="h-4 w-4 mr-2" />
-            {t('export')}
-          </Button>
-          {canEdit && (
-            <Link href={createPageUrl("ProductDetail?mode=new")}>
-              <Button className="bg-emerald-600 hover:bg-emerald-700">
-                <Plus className="h-4 w-4 mr-2" />
-                {t('addProduct')}
-              </Button>
-            </Link>
-          )}
-        </div>
-      </div>
+      <PageHeader
+        title={t('inventory')}
+        subtitle={`${filteredProducts.length} ${t('products')}`}
+      >
+        <Button variant="outline" onClick={handleExport}>
+          <Download className="h-4 w-4 mr-2" />
+          {t('export')}
+        </Button>
+        {canEdit && (
+          <Link href={createPageUrl("ProductDetail?mode=new")}>
+            <Button className="bg-emerald-600 hover:bg-emerald-700">
+              <Plus className="h-4 w-4 mr-2" />
+              {t('addProduct')}
+            </Button>
+          </Link>
+        )}
+      </PageHeader>
 
       {/* Filters and View Toggle */}
       <div className="">
@@ -456,16 +453,20 @@ export default function Inventory() {
         </div>
       ) : (
         /* List View (Table) */
-        <InventoryTable
-          products={filteredProducts}
-          selectedIds={canEdit ? selectedIds : []}
-          onSelectionChange={canEdit ? setSelectedIds : () => { }}
-          onQuantityUpdate={canEdit ? handleStockUpdate : async () => { }}
-          onDelete={canEdit ? handleDelete : undefined}
-          sortConfig={sortConfig}
-          onSort={handleSort}
-          readOnly={!canEdit}
-        />
+        <Card>
+          <CardContent className="p-0">
+            <InventoryTable
+              products={filteredProducts}
+              selectedIds={canEdit ? selectedIds : []}
+              onSelectionChange={canEdit ? setSelectedIds : () => { }}
+              onQuantityUpdate={canEdit ? handleStockUpdate : async () => { }}
+              onDelete={canEdit ? handleDelete : undefined}
+              sortConfig={sortConfig}
+              onSort={handleSort}
+              readOnly={!canEdit}
+            />
+          </CardContent>
+        </Card>
       )}
 
       {/* Bulk Actions - only for users with edit permissions */}

@@ -7,14 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+import { DataTable, Column } from "@/components/ui/data-table";
 import {
     Dialog,
     DialogContent,
@@ -607,6 +600,209 @@ export default function OrganizationMembers() {
         };
     }, [organization, payments]);
 
+    const vendorColumns: Column<any>[] = [
+        {
+            header: 'Vendor',
+            cell: (vendor) => (
+                <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-linear-to-br from-violet-500 to-violet-600 flex items-center justify-center text-white font-semibold">
+                        {vendor.store_name?.charAt(0) || 'V'}
+                    </div>
+                    <div>
+                        <p className="font-medium text-slate-900">{vendor.store_name}</p>
+                        <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.full_name || 'No contact'}</p>
+                    </div>
+                </div>
+            )
+        },
+        {
+            header: 'Contact',
+            cell: (vendor) => (
+                <div className="text-sm">
+                    <div className="flex items-center gap-1"><Mail className="h-3 w-3" /> {userMap[vendor.user_id!]?.email || 'No email linked'}</div>
+                    {userMap[vendor.user_id!]?.phone && <div className="flex items-center gap-1 text-slate-500"><Phone className="h-3 w-3" /> {userMap[vendor.user_id!]?.phone}</div>}
+                </div>
+            )
+        },
+        {
+            header: 'Location',
+            cell: (vendor) => (
+                vendor.location_id && locationMap[vendor.location_id] ? (
+                    <div className="flex items-center gap-1 text-slate-600">
+                        <MapPin className="h-3 w-3" /> {locationMap[vendor.location_id].city}, {locationMap[vendor.location_id].country}
+                    </div>
+                ) : '-'
+            )
+        },
+        {
+            header: 'Status',
+            cell: (vendor) => <Badge className={statusColors[vendor.status]}>{vendor.status}</Badge>
+        },
+        {
+            header: 'Sales',
+            className: 'font-medium',
+            cell: (vendor) => `$${(vendor.total_sales || 0).toLocaleString()}`
+        },
+        {
+            header: '',
+            className: 'w-12',
+            cell: (vendor) => (
+                <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600" onClick={(e) => { e.stopPropagation(); handleViewDetails(vendor, 'vendor'); }}>
+                        <Eye className="h-4 w-4" />
+                    </Button>
+                    {isManagerOrAdmin && (
+                        <>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-indigo-600" onClick={(e) => handleEditMember(e, vendor, 'vendor')}>
+                                <Edit2 className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600" onClick={(e) => handleDeleteMember(e, vendor.id, 'vendor')}>
+                                <Trash2 className="h-4 w-4" />
+                            </Button>
+                        </>
+                    )}
+                </div>
+            )
+        }
+    ];
+
+    const userColumns: Column<any>[] = [
+        {
+            header: 'User',
+            cell: (user) => (
+                <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold">
+                        {user.full_name?.charAt(0) || 'U'}
+                    </div>
+                    <div>
+                        <p className="font-medium text-slate-900">{user.full_name}</p>
+                        <p className="text-sm text-slate-500">{user.job_title || 'Staff'}</p>
+                    </div>
+                </div>
+            )
+        },
+        {
+            header: 'Email',
+            className: 'text-slate-600',
+            cell: (user) => user.email
+        },
+        {
+            header: 'Role',
+            cell: (user) => (
+                <Badge variant="outline" className={cn("capitalize font-semibold", roleColors[user.role] || "bg-slate-100")}>
+                    {user.role || 'user'}
+                </Badge>
+            )
+        },
+        {
+            header: 'Type',
+            cell: (user) => (
+                <div className={cn("text-xs font-medium px-2 py-1 rounded-md border inline-block capitalize", typeColors[user.user_type] || "bg-slate-50")}>
+                    {user.user_type || 'staff'}
+                </div>
+            )
+        },
+        {
+            header: 'Joined',
+            className: 'text-slate-500',
+            cell: (user) => (user.created_at ? format(new Date(user.created_at), 'MMM d, yyyy') : '-')
+        },
+        {
+            header: '',
+            className: 'w-12',
+            cell: (user) => (
+                <div className="flex items-center gap-1">
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600" onClick={(e) => { e.stopPropagation(); handleViewDetails(user, 'user'); }}>
+                        <Eye className="h-4 w-4" />
+                    </Button>
+                    {isManagerOrAdmin && (
+                        <>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-indigo-600" onClick={(e) => handleEditMember(e, user, 'user')}>
+                                <Edit2 className="h-4 w-4" />
+                            </Button>
+                            {user.id !== currentUser?.id && (
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600" onClick={(e) => handleDeleteMember(e, user.id, 'user')}>
+                                    <Trash2 className="h-4 w-4" />
+                                </Button>
+                            )}
+                        </>
+                    )}
+                </div>
+            )
+        }
+    ];
+
+    const billingColumns: Column<any>[] = [
+        {
+            header: 'Invoice',
+            cell: (payment) => (
+                <>
+                    <div className="font-mono text-sm font-medium">{payment.invoice_number}</div>
+                    <div className="text-xs text-slate-500">{payment.payment_type}</div>
+                </>
+            )
+        },
+        {
+            header: 'Amount',
+            className: 'font-medium',
+            cell: (payment) => `${payment.currency === 'USD' ? '$' : payment.currency} ${payment.amount.toLocaleString()}`
+        },
+        {
+            header: 'Date',
+            cell: (payment) => (
+                payment.payment_date
+                    ? format(new Date(payment.payment_date), 'MMM d, yyyy')
+                    : format(new Date(payment.created_at), 'MMM d, yyyy')
+            )
+        },
+        {
+            header: 'Method',
+            className: 'capitalize',
+            cell: (payment) => payment.payment_method.replace('_', ' ')
+        },
+        {
+            header: 'Status',
+            cell: (payment) => (
+                <Badge className={cn(paymentStatusColors[payment.status], "capitalize")}>
+                    {payment.status}
+                </Badge>
+            )
+        },
+        {
+            header: 'Actions',
+            className: 'text-right',
+            cell: (payment) => (
+                <div className="flex justify-end gap-2">
+                    {isSuperAdmin && payment.status === 'pending' && (
+                        <>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleConfirmPayment(payment)}
+                                className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 h-8 px-2"
+                            >
+                                Confirm
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRejectPayment(payment)}
+                                className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-8 px-2"
+                            >
+                                Reject
+                            </Button>
+                        </>
+                    )}
+                    {payment.status === 'completed' && (
+                        <Button variant="ghost" size="sm" className="h-8 px-2 text-slate-500">
+                            Download
+                        </Button>
+                    )}
+                </div>
+            )
+        }
+    ];
+
     const deleteMemberMutation = useMutation({
         mutationFn: async ({ id, type }: { id: string, type: 'user' | 'vendor' }) => {
             if (type === 'user') {
@@ -981,157 +1177,24 @@ export default function OrganizationMembers() {
                 {/* Vendors Tab */}
                 <TabsContent value="vendors" className="mt-6">
                     <div className="bg-white overflow-hidden">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                                    <TableHead>Vendor</TableHead>
-                                    <TableHead>Contact</TableHead>
-                                    <TableHead>Location</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead>Sales</TableHead>
-                                    <TableHead className="w-12"></TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {orgVendors.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="text-center py-12 text-slate-500">
-                                            <Store className="h-12 w-12 mx-auto mb-3 text-slate-300" />
-                                            No vendors in this organization
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    orgVendors.map(vendor => (
-                                        <TableRow key={vendor.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => handleViewDetails(vendor, 'vendor')}>
-                                            <TableCell>
-                                                <div className="flex items-center gap-3">
-                                                    <div className="h-10 w-10 rounded-lg bg-linear-to-br from-violet-500 to-violet-600 flex items-center justify-center text-white font-semibold">
-                                                        {vendor.store_name?.charAt(0) || 'V'}
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-medium text-slate-900">{vendor.store_name}</p>
-                                                        <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.full_name || 'No contact'}</p>
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="text-sm">
-                                                    <div className="flex items-center gap-1"><Mail className="h-3 w-3" /> {userMap[vendor.user_id!]?.email || 'No email linked'}</div>
-                                                    {userMap[vendor.user_id!]?.phone && <div className="flex items-center gap-1 text-slate-500"><Phone className="h-3 w-3" /> {userMap[vendor.user_id!]?.phone}</div>}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                {vendor.location_id && locationMap[vendor.location_id] ? (
-                                                    <div className="flex items-center gap-1 text-slate-600">
-                                                        <MapPin className="h-3 w-3" /> {locationMap[vendor.location_id].city}, {locationMap[vendor.location_id].country}
-                                                    </div>
-                                                ) : '-'}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge className={statusColors[vendor.status]}>{vendor.status}</Badge>
-                                            </TableCell>
-                                            <TableCell className="font-medium">
-                                                ${(vendor.total_sales || 0).toLocaleString()}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-1">
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600" onClick={(e) => { e.stopPropagation(); handleViewDetails(vendor, 'vendor'); }}>
-                                                        <Eye className="h-4 w-4" />
-                                                    </Button>
-                                                    {isManagerOrAdmin && (
-                                                        <>
-                                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-indigo-600" onClick={(e) => handleEditMember(e, vendor, 'vendor')}>
-                                                                <Edit2 className="h-4 w-4" />
-                                                            </Button>
-                                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600" onClick={(e) => handleDeleteMember(e, vendor.id, 'vendor')}>
-                                                                <Trash2 className="h-4 w-4" />
-                                                            </Button>
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
+                        <DataTable
+                            data={orgVendors}
+                            columns={vendorColumns}
+                            emptyMessage="No vendors in this organization"
+                            onRowClick={(vendor) => handleViewDetails(vendor, 'vendor')}
+                        />
                     </div>
                 </TabsContent>
 
                 {/* Users Tab */}
                 <TabsContent value="users" className="mt-6">
                     <div className="bg-white overflow-hidden">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                                    <TableHead>User</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Role</TableHead>
-                                    <TableHead>Type</TableHead>
-                                    <TableHead>Joined</TableHead>
-                                    <TableHead className="w-12"></TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {orgUsers.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={6} className="text-center py-12 text-slate-500">
-                                            <Users className="h-12 w-12 mx-auto mb-3 text-slate-300" />
-                                            No users in this organization
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    orgUsers.map(user => (
-                                        <TableRow key={user.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => handleViewDetails(user, 'user')}>
-                                            <TableCell>
-                                                <div className="flex items-center gap-3">
-                                                    <div className="h-10 w-10 rounded-full bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold">
-                                                        {user.full_name?.charAt(0) || 'U'}
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-medium text-slate-900">{user.full_name}</p>
-                                                        <p className="text-sm text-slate-500">{user.job_title || 'Staff'}</p>
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-slate-600">{user.email}</TableCell>
-                                            <TableCell>
-                                                <Badge variant="outline" className={cn("capitalize font-semibold", roleColors[user.role] || "bg-slate-100")}>
-                                                    {user.role || 'user'}
-                                                </Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className={cn("text-xs font-medium px-2 py-1 rounded-md border inline-block capitalize", typeColors[user.user_type] || "bg-slate-50")}>
-                                                    {user.user_type || 'staff'}
-                                                </div>
-                                            </TableCell>
-                                            <TableCell className="text-slate-500">
-                                                {user.created_at ? format(new Date(user.created_at), 'MMM d, yyyy') : '-'}
-                                            </TableCell>
-                                            <TableCell>
-                                                <div className="flex items-center gap-1">
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600" onClick={(e) => { e.stopPropagation(); handleViewDetails(user, 'user'); }}>
-                                                        <Eye className="h-4 w-4" />
-                                                    </Button>
-                                                    {isManagerOrAdmin && (
-                                                        <>
-                                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-indigo-600" onClick={(e) => handleEditMember(e, user, 'user')}>
-                                                                <Edit2 className="h-4 w-4" />
-                                                            </Button>
-                                                            {user.id !== currentUser?.id && (
-                                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600" onClick={(e) => handleDeleteMember(e, user.id, 'user')}>
-                                                                    <Trash2 className="h-4 w-4" />
-                                                                </Button>
-                                                            )}
-                                                        </>
-                                                    )}
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
+                        <DataTable
+                            data={orgUsers}
+                            columns={userColumns}
+                            emptyMessage="No users in this organization"
+                            onRowClick={(user) => handleViewDetails(user, 'user')}
+                        />
                     </div>
                 </TabsContent>
 
@@ -1297,82 +1360,12 @@ export default function OrganizationMembers() {
                                 )}
                             </div>
                         </CardHeader>
-                        <CardContent>
-                            <Table>
-                                <TableHeader>
-                                    <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                                        <TableHead>Invoice</TableHead>
-                                        <TableHead>Amount</TableHead>
-                                        <TableHead>Date</TableHead>
-                                        <TableHead>Method</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {filteredPayments.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={6} className="text-center py-8 text-slate-500">
-                                                No payment history found
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : (
-                                        filteredPayments.map((payment: any) => (
-                                            <TableRow key={payment.id}>
-                                                <TableCell>
-                                                    <div className="font-mono text-sm font-medium">{payment.invoice_number}</div>
-                                                    <div className="text-xs text-slate-500">{payment.payment_type}</div>
-                                                </TableCell>
-                                                <TableCell className="font-medium">
-                                                    {payment.currency === 'USD' ? '$' : payment.currency} {payment.amount.toLocaleString()}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {payment.payment_date
-                                                        ? format(new Date(payment.payment_date), 'MMM d, yyyy')
-                                                        : format(new Date(payment.created_at), 'MMM d, yyyy')}
-                                                </TableCell>
-                                                <TableCell className="capitalize">
-                                                    {payment.payment_method.replace('_', ' ')}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge className={cn(paymentStatusColors[payment.status], "capitalize")}>
-                                                        {payment.status}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <div className="flex justify-end gap-2">
-                                                        {isSuperAdmin && payment.status === 'pending' && (
-                                                            <>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    onClick={() => handleConfirmPayment(payment)}
-                                                                    className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 h-8 px-2"
-                                                                >
-                                                                    Confirm
-                                                                </Button>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    onClick={() => handleRejectPayment(payment)}
-                                                                    className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-8 px-2"
-                                                                >
-                                                                    Reject
-                                                                </Button>
-                                                            </>
-                                                        )}
-                                                        {payment.status === 'completed' && (
-                                                            <Button variant="ghost" size="sm" className="h-8 px-2 text-slate-500">
-                                                                Download
-                                                            </Button>
-                                                        )}
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    )}
-                                </TableBody>
-                            </Table>
+                        <CardContent className="p-0">
+                            <DataTable
+                                data={filteredPayments}
+                                columns={billingColumns}
+                                emptyMessage="No payment history found"
+                            />
                         </CardContent>
                     </Card>
                 </TabsContent>

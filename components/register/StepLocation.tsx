@@ -5,15 +5,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import VendorLocationPicker from "@/components/vendors/VendorLocationPicker";
-import { ArrowRight, MapPin } from "lucide-react";
+import { ArrowRight, ArrowLeft, MapPin } from "lucide-react";
 import { toast } from "sonner";
 
 interface StepLocationProps {
     onNext: (data: any) => void;
+    onBack?: () => void;
     initialData?: any;
 }
 
-export default function StepLocation({ onNext, initialData }: StepLocationProps) {
+export default function StepLocation({ onNext, onBack, initialData }: StepLocationProps) {
     const [locationData, setLocationData] = useState({
         latitude: initialData?.latitude || null,
         longitude: initialData?.longitude || null,
@@ -23,15 +24,51 @@ export default function StepLocation({ onNext, initialData }: StepLocationProps)
     });
 
     const handleNext = () => {
+        // Validate coordinates
         if (!locationData.latitude || !locationData.longitude) {
             toast.error("Please select a location on the map");
             return;
         }
-        if (!locationData.address || !locationData.city || !locationData.country) {
-            toast.error("Please fill in all address fields");
+
+        // Trim and validate address
+        const address = locationData.address.trim();
+        const city = locationData.city.trim();
+        const country = locationData.country.trim();
+
+        if (!address) {
+            toast.error("Please enter an address");
             return;
         }
-        onNext(locationData);
+        if (address.length < 5) {
+            toast.error("Address must be at least 5 characters");
+            return;
+        }
+
+        if (!city) {
+            toast.error("Please enter a city");
+            return;
+        }
+        if (city.length < 2) {
+            toast.error("City name must be at least 2 characters");
+            return;
+        }
+
+        if (!country) {
+            toast.error("Please enter a country");
+            return;
+        }
+        if (country.length < 2) {
+            toast.error("Country name must be at least 2 characters");
+            return;
+        }
+
+        // Pass validated and trimmed data
+        onNext({
+            ...locationData,
+            address,
+            city,
+            country
+        });
     };
 
     return (
@@ -63,16 +100,16 @@ export default function StepLocation({ onNext, initialData }: StepLocationProps)
 
             <div className="space-y-4">
                 <div className="space-y-2">
-                    <Label>Address</Label>
+                    <Label>Address *</Label>
                     <Input
                         value={locationData.address}
                         onChange={(e) => setLocationData(prev => ({ ...prev, address: e.target.value }))}
                         placeholder="123 Main St"
                     />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
-                        <Label>City</Label>
+                        <Label>City *</Label>
                         <Input
                             value={locationData.city}
                             onChange={(e) => setLocationData(prev => ({ ...prev, city: e.target.value }))}
@@ -80,7 +117,7 @@ export default function StepLocation({ onNext, initialData }: StepLocationProps)
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label>Country</Label>
+                        <Label>Country *</Label>
                         <Input
                             value={locationData.country}
                             onChange={(e) => setLocationData(prev => ({ ...prev, country: e.target.value }))}
@@ -90,9 +127,16 @@ export default function StepLocation({ onNext, initialData }: StepLocationProps)
                 </div>
             </div>
 
-            <Button onClick={handleNext} className="w-full bg-emerald-600 hover:bg-emerald-700">
-                Confirm Location <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+            <div className="flex gap-3">
+                {onBack && (
+                    <Button variant="outline" onClick={onBack} className="flex-1">
+                        <ArrowLeft className="mr-2 h-4 w-4" /> Back
+                    </Button>
+                )}
+                <Button onClick={handleNext} className={`${onBack ? 'flex-1' : 'w-full'} bg-emerald-600 hover:bg-emerald-700`}>
+                    Confirm Location <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+            </div>
         </div>
     );
 }

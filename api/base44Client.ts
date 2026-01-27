@@ -289,6 +289,7 @@ export interface User {
 
 export interface SubscriptionPlan {
     id: string;
+    _id?: string;  // MongoDB ObjectId
     name: string;
     code: string;
     description?: string;

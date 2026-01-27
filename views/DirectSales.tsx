@@ -25,14 +25,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable, Column } from "@/components/ui/data-table";
 import { createPageUrl, getImageUrl } from "@/utils";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -429,6 +422,55 @@ export default function DirectSales() {
   const formatAttributes = (attrs: Record<string, string>) => {
     return Object.values(attrs).join(' / ');
   };
+
+  const historyColumns: Column<Sale>[] = [
+    {
+      header: t('saleNumber'),
+      className: 'font-medium font-mono text-indigo-600',
+      cell: (sale) => sale.sale_number
+    },
+    {
+      header: t('date'),
+      cell: (sale) => format(new Date(sale.created_at), "MMM d, h:mm a")
+    },
+    {
+      header: t('client'),
+      cell: (sale) => sale.client_name || 'Walk-in'
+    },
+    {
+      header: t('items'),
+      cell: (sale) => <Badge variant="outline">{sale.items?.length || 0} items</Badge>
+    },
+    {
+      header: t('payment'),
+      cell: (sale) => {
+        const PaymentIcon = paymentIcons[sale.payment_method] || Receipt;
+        return (
+          <Badge variant="outline" className="capitalize">
+            <PaymentIcon className="h-3 w-3 mr-1" />
+            {sale.payment_method}
+          </Badge>
+        );
+      }
+    },
+    {
+      header: t('total'),
+      className: 'text-right font-bold text-emerald-600',
+      cell: (sale) => `$${sale.total_amount?.toFixed(2)}`
+    }
+  ];
+
+  if (isManagerOrAdmin) {
+    historyColumns.push({
+      header: '',
+      className: 'w-12',
+      cell: (sale) => (
+        <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-600 hover:text-rose-700" onClick={() => handleDeleteSale(sale.id)}>
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      )
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -879,64 +921,16 @@ export default function DirectSales() {
 
         {/* Sales History Tab */}
         <TabsContent value="history" className="mt-6">
-          <div className="bg-white overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                  <TableHead>{t('saleNumber')}</TableHead>
-                  <TableHead>{t('date')}</TableHead>
-                  <TableHead>{t('client')}</TableHead>
-                  <TableHead>{t('items')}</TableHead>
-                  <TableHead>{t('payment')}</TableHead>
-                  <TableHead className="text-right">{t('total')}</TableHead>
-                  {isManagerOrAdmin && <TableHead className="w-12"></TableHead>}
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loadingSales ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
-                      <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                    </TableCell>
-                  </TableRow>
-                ) : sales.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8 text-slate-500">
-                      {t('noSalesRecorded')}
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  sales.map((sale) => {
-                    const PaymentIcon = paymentIcons[sale.payment_method] || Receipt;
-                    return (
-                      <TableRow key={sale.id}>
-                        <TableCell className="font-medium font-mono text-indigo-600">{sale.sale_number}</TableCell>
-                        <TableCell>{format(new Date(sale.created_at), "MMM d, h:mm a")}</TableCell>
-                        <TableCell>{sale.client_name || 'Walk-in'}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{sale.items?.length || 0} items</Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className="capitalize">
-                            <PaymentIcon className="h-3 w-3 mr-1" />
-                            {sale.payment_method}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="text-right font-bold text-emerald-600">${sale.total_amount?.toFixed(2)}</TableCell>
-                        {isManagerOrAdmin && (
-                          <TableCell>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-600 hover:text-rose-700" onClick={() => handleDeleteSale(sale.id)}>
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        )}
-                      </TableRow>
-                    );
-                  })
-                )}
-              </TableBody>
-            </Table>
-          </div>
+          <Card>
+            <CardContent className="p-0">
+              <DataTable
+                data={sales}
+                columns={historyColumns}
+                isLoading={loadingSales}
+                emptyMessage={t('noSalesRecorded')}
+              />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 

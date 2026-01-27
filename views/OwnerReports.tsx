@@ -13,14 +13,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+import { DataTable, Column } from "@/components/ui/data-table";
 import {
     AreaChart,
     Area,
@@ -182,6 +175,101 @@ export default function OwnerReports() {
         });
         return Object.entries(counts).map(([name, value]) => ({ name, value }));
     }, [organizations]);
+
+    const performanceColumns: Column<any>[] = [
+        {
+            header: 'Organization',
+            cell: (org) => (
+                <div>
+                    <p className="font-medium text-slate-900">{org.name}</p>
+                    <p className="text-sm text-slate-500 font-mono">{org.code}</p>
+                </div>
+            )
+        },
+        {
+            header: 'Status',
+            cell: (org) => <Badge className={statusColors[org.status]}>{org.status}</Badge>
+        },
+        {
+            header: 'Plan',
+            className: 'capitalize',
+            cell: (org) => org.plan
+        },
+        {
+            header: 'Vendors',
+            cell: (org) => org.vendorCount
+        },
+        {
+            header: 'Users',
+            cell: (org) => org.userCount
+        },
+        {
+            header: 'Products',
+            cell: (org) => org.productCount
+        },
+        {
+            header: 'Sales',
+            cell: (org) => org.salesCount
+        },
+        {
+            header: 'Revenue',
+            className: 'font-medium text-emerald-600',
+            cell: (org) => `$${org.revenue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+        }
+    ];
+
+    const storageColumns: Column<any>[] = [
+        {
+            header: 'Organization',
+            cell: (org) => (
+                <div>
+                    <p className="font-medium text-slate-900">{org.name}</p>
+                    <p className="text-sm text-slate-500 font-mono">{org.code}</p>
+                </div>
+            )
+        },
+        {
+            header: 'Products',
+            cell: (org) => org.productCount
+        },
+        {
+            header: 'Vendors',
+            cell: (org) => org.vendorCount
+        },
+        {
+            header: 'Users',
+            cell: (org) => org.userCount
+        },
+        {
+            header: 'Sales Records',
+            cell: (org) => org.salesCount
+        },
+        {
+            header: 'Estimated Storage',
+            className: 'font-medium',
+            cell: (org) => (
+                org.storageKB > 1024
+                    ? `${(org.storageKB / 1024).toFixed(1)} MB`
+                    : `${org.storageKB.toFixed(0)} KB`
+            )
+        },
+        {
+            header: '% of Total',
+            cell: (org) => (
+                <div className="flex items-center gap-2">
+                    <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div
+                            className="h-full bg-emerald-500 rounded-full"
+                            style={{ width: `${(org.storageKB / totalStats.totalStorage) * 100}%` }}
+                        />
+                    </div>
+                    <span className="text-sm text-slate-600">
+                        {((org.storageKB / totalStats.totalStorage) * 100).toFixed(1)}%
+                    </span>
+                </div>
+            )
+        }
+    ];
 
     // Monthly organization growth
     const growthData = useMemo(() => {
@@ -465,46 +553,12 @@ export default function OwnerReports() {
                             <CardTitle>Organization Performance</CardTitle>
                             <CardDescription>Detailed performance metrics for each organization</CardDescription>
                         </CardHeader>
-                        <CardContent>
-                            <div className="bg-white overflow-hidden">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                                            <TableHead>Organization</TableHead>
-                                            <TableHead>Status</TableHead>
-                                            <TableHead>Plan</TableHead>
-                                            <TableHead>Vendors</TableHead>
-                                            <TableHead>Users</TableHead>
-                                            <TableHead>Products</TableHead>
-                                            <TableHead>Sales</TableHead>
-                                            <TableHead>Revenue</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {orgPerformanceData.map(org => (
-                                            <TableRow key={org.id} className="hover:bg-slate-50">
-                                                <TableCell>
-                                                    <div>
-                                                        <p className="font-medium text-slate-900">{org.name}</p>
-                                                        <p className="text-sm text-slate-500 font-mono">{org.code}</p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge className={statusColors[org.status]}>{org.status}</Badge>
-                                                </TableCell>
-                                                <TableCell className="capitalize">{org.plan}</TableCell>
-                                                <TableCell>{org.vendorCount}</TableCell>
-                                                <TableCell>{org.userCount}</TableCell>
-                                                <TableCell>{org.productCount}</TableCell>
-                                                <TableCell>{org.salesCount}</TableCell>
-                                                <TableCell className="font-medium text-emerald-600">
-                                                    ${org.revenue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
+                        <CardContent className="p-0">
+                            <DataTable
+                                data={orgPerformanceData}
+                                columns={performanceColumns}
+                                emptyMessage="No data available"
+                            />
                         </CardContent>
                     </Card>
                 </TabsContent>
@@ -561,56 +615,12 @@ export default function OwnerReports() {
                             </CardTitle>
                             <CardDescription>Estimated storage consumption based on data volume</CardDescription>
                         </CardHeader>
-                        <CardContent>
-                            <div className="bg-white overflow-hidden">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                                            <TableHead>Organization</TableHead>
-                                            <TableHead>Products</TableHead>
-                                            <TableHead>Vendors</TableHead>
-                                            <TableHead>Users</TableHead>
-                                            <TableHead>Sales Records</TableHead>
-                                            <TableHead>Estimated Storage</TableHead>
-                                            <TableHead>% of Total</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {orgPerformanceData.map(org => (
-                                            <TableRow key={org.id} className="hover:bg-slate-50">
-                                                <TableCell>
-                                                    <div>
-                                                        <p className="font-medium text-slate-900">{org.name}</p>
-                                                        <p className="text-sm text-slate-500 font-mono">{org.code}</p>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>{org.productCount}</TableCell>
-                                                <TableCell>{org.vendorCount}</TableCell>
-                                                <TableCell>{org.userCount}</TableCell>
-                                                <TableCell>{org.salesCount}</TableCell>
-                                                <TableCell className="font-medium">
-                                                    {org.storageKB > 1024
-                                                        ? `${(org.storageKB / 1024).toFixed(1)} MB`
-                                                        : `${org.storageKB.toFixed(0)} KB`}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
-                                                            <div
-                                                                className="h-full bg-emerald-500 rounded-full"
-                                                                style={{ width: `${(org.storageKB / totalStats.totalStorage) * 100}%` }}
-                                                            />
-                                                        </div>
-                                                        <span className="text-sm text-slate-600">
-                                                            {((org.storageKB / totalStats.totalStorage) * 100).toFixed(1)}%
-                                                        </span>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                    </TableBody>
-                                </Table>
-                            </div>
+                        <CardContent className="p-0">
+                            <DataTable
+                                data={orgPerformanceData}
+                                columns={storageColumns}
+                                emptyMessage="No storage data available"
+                            />
                         </CardContent>
                     </Card>
                 </TabsContent>

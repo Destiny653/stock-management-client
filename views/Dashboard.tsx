@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import { base44, Product, PurchaseOrder, StockMovement, Sale } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import KPICard from "@/components/dashboard/KPICard";
 import ActivityTimeline, { Activity } from "@/components/dashboard/ActivityTimeline";
 import QuickActions from "@/components/dashboard/QuickActions";
 import InventoryChart from "@/components/dashboard/InventoryChart";
@@ -11,6 +10,8 @@ import { Package, DollarSign, AlertTriangle, Truck, Loader2 } from "lucide-react
 import { useLanguage } from "@/components/i18n/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import OwnerDashboard from "./OwnerDashboard";
+import { PageHeader } from "@/components/ui/page-header";
+import { StatsCard } from "@/components/ui/stats-card";
 
 // Safe language hook that works outside provider
 function useSafeLanguage() {
@@ -237,17 +238,14 @@ function OrgDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('dashboard')}</h1>
-          <p className="text-slate-500 mt-1">{t('welcomeBack')}</p>
-        </div>
-      </div>
+      <PageHeader
+        title={t('dashboard')}
+        subtitle={t('welcomeBack')}
+      />
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard
+        <StatsCard
           title={t('thisMonthRevenue')}
           value={`$${thisMonthRevenue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           icon={DollarSign}
@@ -255,25 +253,23 @@ function OrgDashboard() {
           trend={revenueTrend.trend}
           trendValue={`${revenueTrend.value} ${t('fromLastMonth')}`}
         />
-        <KPICard
+        <StatsCard
           title={t('stockValue')}
           value={totalValue > 1000 ? `$${(totalValue / 1000).toFixed(1)}k` : `$${totalValue.toFixed(2)}`}
           icon={Package}
-          variant="default"
           subtitle={t('totalInventoryValue')}
         />
-        <KPICard
+        <StatsCard
           title={t('lowStockItems')}
           value={lowStockCount}
           icon={AlertTriangle}
           variant={lowStockCount > 0 ? "warning" : "default"}
           subtitle={t('itemsNeedingRestock')}
         />
-        <KPICard
+        <StatsCard
           title={t('incomingOrders')}
           value={incomingPOs}
           icon={Truck}
-          variant="default"
           subtitle={t('purchaseOrdersPending')}
         />
       </div>

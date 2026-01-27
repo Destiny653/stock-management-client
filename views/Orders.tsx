@@ -7,14 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+import { DataTable, Column } from "@/components/ui/data-table";
 import {
     Select,
     SelectContent,
@@ -106,6 +99,88 @@ export default function Orders() {
             toast.success("Order updated");
         },
     });
+
+    const columns: Column<Order>[] = [
+        {
+            header: 'Order #',
+            cell: (order) => <span className="font-medium">{order.order_number}</span>
+        },
+        {
+            header: 'Client',
+            cell: (order) => (
+                <div>
+                    <p className="font-medium text-slate-900">{order.client_name}</p>
+                    <p className="text-sm text-slate-500">{order.client_email}</p>
+                </div>
+            )
+        },
+        {
+            header: 'Date',
+            cell: (order) => format(new Date(order.created_at), 'MMM d, yyyy')
+        },
+        {
+            header: 'Items',
+            cell: (order) => `${order.items?.length || 0} items`
+        },
+        {
+            header: 'Total',
+            cell: (order) => <span className="font-medium">${order.total?.toFixed(2)}</span>
+        },
+        {
+            header: 'Status',
+            cell: (order) => (
+                <Badge className={statusColors[order.status]}>
+                    {order.status}
+                </Badge>
+            )
+        },
+        {
+            header: 'Payment',
+            cell: (order) => (
+                <Badge className={paymentStatusColors[order.payment_status]}>
+                    {order.payment_status}
+                </Badge>
+            )
+        },
+        {
+            header: '',
+            className: 'w-12',
+            cell: (order) => (
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setSelectedOrder(order)}>
+                            <Eye className="h-4 w-4 mr-2" /> View Details
+                        </DropdownMenuItem>
+                        {order.status === 'pending' && (
+                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'confirmed')}>
+                                <CheckCircle className="h-4 w-4 mr-2" /> Confirm Order
+                            </DropdownMenuItem>
+                        )}
+                        {order.status === 'confirmed' && (
+                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'processing')}>
+                                <Package className="h-4 w-4 mr-2" /> Start Processing
+                            </DropdownMenuItem>
+                        )}
+                        {order.status === 'processing' && (
+                            <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'ready')}>
+                                <CheckCircle className="h-4 w-4 mr-2" /> Mark Ready
+                            </DropdownMenuItem>
+                        )}
+                        {order.payment_status === 'unpaid' && (
+                            <DropdownMenuItem onClick={() => handlePaymentStatusChange(order.id, 'paid')}>
+                                <DollarSign className="h-4 w-4 mr-2" /> Mark Paid
+                            </DropdownMenuItem>
+                        )}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            )
+        }
+    ];
 
     const filteredOrders = useMemo(() => {
         let result = [...orders];
@@ -261,96 +336,16 @@ export default function Orders() {
             </div>
 
             {/* Orders Table */}
-            {isLoading ? (
-                <div className="flex items-center justify-center h-64 bg-white overflow-hidden">
-                    <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-                </div>
-            ) : (
-                <div className="bg-white overflow-hidden">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                                <TableHead>Order #</TableHead>
-                                <TableHead>Client</TableHead>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Items</TableHead>
-                                <TableHead>Total</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Payment</TableHead>
-                                <TableHead className="w-12"></TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {filteredOrders.map(order => (
-                                <TableRow key={order.id} className="hover:bg-slate-50">
-                                    <TableCell className="font-medium">{order.order_number}</TableCell>
-                                    <TableCell>
-                                        <div>
-                                            <p className="font-medium text-slate-900">{order.client_name}</p>
-                                            <p className="text-sm text-slate-500">{order.client_email}</p>
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="text-slate-600">
-                                        {format(new Date(order.created_at), 'MMM d, yyyy')}
-                                    </TableCell>
-                                    <TableCell>{order.items?.length || 0} items</TableCell>
-                                    <TableCell className="font-medium">${order.total?.toFixed(2)}</TableCell>
-                                    <TableCell>
-                                        <Badge className={statusColors[order.status]}>
-                                            {order.status}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <Badge className={paymentStatusColors[order.payment_status]}>
-                                            {order.payment_status}
-                                        </Badge>
-                                    </TableCell>
-                                    <TableCell>
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuItem onClick={() => setSelectedOrder(order)}>
-                                                    <Eye className="h-4 w-4 mr-2" /> View Details
-                                                </DropdownMenuItem>
-                                                {order.status === 'pending' && (
-                                                    <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'confirmed')}>
-                                                        <CheckCircle className="h-4 w-4 mr-2" /> Confirm Order
-                                                    </DropdownMenuItem>
-                                                )}
-                                                {order.status === 'confirmed' && (
-                                                    <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'processing')}>
-                                                        <Package className="h-4 w-4 mr-2" /> Start Processing
-                                                    </DropdownMenuItem>
-                                                )}
-                                                {order.status === 'processing' && (
-                                                    <DropdownMenuItem onClick={() => handleStatusChange(order.id, 'ready')}>
-                                                        <CheckCircle className="h-4 w-4 mr-2" /> Mark Ready
-                                                    </DropdownMenuItem>
-                                                )}
-                                                {order.payment_status === 'unpaid' && (
-                                                    <DropdownMenuItem onClick={() => handlePaymentStatusChange(order.id, 'paid')}>
-                                                        <DollarSign className="h-4 w-4 mr-2" /> Mark Paid
-                                                    </DropdownMenuItem>
-                                                )}
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                    {filteredOrders.length === 0 && (
-                        <div className="text-center py-12">
-                            <ShoppingCart className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                            <p className="text-slate-600">No orders found</p>
-                        </div>
-                    )}
-                </div>
-            )}
+            <Card>
+                <CardContent className="p-0">
+                    <DataTable
+                        data={filteredOrders}
+                        columns={columns}
+                        isLoading={isLoading}
+                        emptyMessage="No orders found"
+                    />
+                </CardContent>
+            </Card>
 
             {/* Order Details Dialog */}
             {selectedOrder && (

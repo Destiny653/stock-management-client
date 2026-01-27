@@ -8,14 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable, Column } from "@/components/ui/data-table";
 import {
   Select,
   SelectContent,
@@ -180,6 +173,86 @@ export default function VendorDetail() {
       }
     };
   }, [vendorSales]);
+
+  const paymentColumns: Column<VendorPayment>[] = [
+    {
+      header: 'Date',
+      cell: (p) => format(new Date(p.created_at), 'MMM d, yyyy')
+    },
+    {
+      header: 'Type',
+      className: 'capitalize',
+      cell: (p) => p.payment_type
+    },
+    {
+      header: 'Amount',
+      className: 'font-medium',
+      cell: (p) => `$${p.amount}`
+    },
+    {
+      header: 'Method',
+      className: 'capitalize',
+      cell: (p) => p.payment_method?.replace('_', ' ')
+    },
+    {
+      header: 'Reference',
+      cell: (p) => p.reference_number || '-'
+    },
+    {
+      header: 'Status',
+      cell: (p) => (
+        <Badge className={paymentStatusColors[p.status]}>{p.status}</Badge>
+      )
+    },
+    {
+      header: 'Actions',
+      cell: (payment) => (
+        <>
+          {payment.status === 'pending' && (
+            <Button
+              size="sm"
+              className="bg-emerald-600 hover:bg-emerald-700"
+              onClick={() => handleConfirmPayment(payment)}
+            >
+              <CheckCircle className="h-4 w-4 mr-1" />
+              Confirm
+            </Button>
+          )}
+          {payment.status === 'confirmed' && (
+            <span className="text-sm text-slate-500">
+              by {payment.confirmed_by}
+            </span>
+          )}
+        </>
+      )
+    }
+  ];
+
+  const salesColumns: Column<Sale>[] = [
+    {
+      header: 'Sale #',
+      className: 'font-medium',
+      cell: (sale) => sale.sale_number
+    },
+    {
+      header: 'Date',
+      cell: (sale) => format(new Date(sale.created_at), 'MMM d, yyyy HH:mm')
+    },
+    {
+      header: 'Items',
+      cell: (sale) => `${sale.items?.length || 0} items`
+    },
+    {
+      header: 'Total',
+      className: 'font-medium',
+      cell: (sale) => `$${sale.total?.toFixed(2)}`
+    },
+    {
+      header: 'Payment',
+      className: 'capitalize',
+      cell: (sale) => sale.payment_method
+    }
+  ];
 
   // Chart data
   const chartData = useMemo(() => {
@@ -512,55 +585,12 @@ export default function VendorDetail() {
             Payment History
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          {payments.length === 0 ? (
-            <p className="text-center text-slate-500 py-8">No payment records</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                  <TableHead>Date</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Method</TableHead>
-                  <TableHead>Reference</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {(payments as VendorPayment[]).map(payment => (
-                  <TableRow key={payment.id}>
-                    <TableCell>{format(new Date(payment.created_at), 'MMM d, yyyy')}</TableCell>
-                    <TableCell className="capitalize">{payment.payment_type}</TableCell>
-                    <TableCell className="font-medium">${payment.amount}</TableCell>
-                    <TableCell className="capitalize">{payment.payment_method?.replace('_', ' ')}</TableCell>
-                    <TableCell>{payment.reference_number || '-'}</TableCell>
-                    <TableCell>
-                      <Badge className={paymentStatusColors[payment.status]}>{payment.status}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      {payment.status === 'pending' && (
-                        <Button
-                          size="sm"
-                          className="bg-emerald-600 hover:bg-emerald-700"
-                          onClick={() => handleConfirmPayment(payment)}
-                        >
-                          <CheckCircle className="h-4 w-4 mr-1" />
-                          Confirm
-                        </Button>
-                      )}
-                      {payment.status === 'confirmed' && (
-                        <span className="text-sm text-slate-500">
-                          by {payment.confirmed_by}
-                        </span>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+        <CardContent className="p-0">
+          <DataTable
+            data={payments}
+            columns={paymentColumns}
+            emptyMessage="No payment records"
+          />
         </CardContent>
       </Card>
 
@@ -572,33 +602,12 @@ export default function VendorDetail() {
             Recent Sales
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          {vendorSales.length === 0 ? (
-            <p className="text-center text-slate-500 py-8">No sales recorded</p>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                  <TableHead>Sale #</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Items</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Payment</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {(vendorSales as Sale[]).slice(0, 10).map(sale => (
-                  <TableRow key={sale.id}>
-                    <TableCell className="font-medium">{sale.sale_number}</TableCell>
-                    <TableCell>{format(new Date(sale.created_at), 'MMM d, yyyy HH:mm')}</TableCell>
-                    <TableCell>{sale.items?.length || 0} items</TableCell>
-                    <TableCell className="font-medium">${sale.total?.toFixed(2)}</TableCell>
-                    <TableCell className="capitalize">{sale.payment_method}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
+        <CardContent className="p-0">
+          <DataTable
+            data={vendorSales.slice(0, 10)}
+            columns={salesColumns}
+            emptyMessage="No sales recorded"
+          />
         </CardContent>
       </Card>
     </div>

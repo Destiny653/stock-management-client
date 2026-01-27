@@ -6,15 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
     Select,
     SelectContent,
@@ -41,19 +33,24 @@ import {
     Eye,
     Edit2,
     Trash2,
-    Loader2,
     Save,
-    Globe,
     Mail,
     Phone,
-    AlertTriangle,
     LayoutGrid,
-    List
+    List,
+    Loader2Icon
 } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/i18n/LanguageContext";
 import LocationPicker from "@/components/vendors/VendorLocationPicker";
+
+// Reusable components
+import { PageHeader } from "@/components/ui/page-header";
+import { StatsCard } from "@/components/ui/stats-card";
+import { DataTable, Column } from "@/components/ui/data-table";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 function useSafeLanguage() {
     try {
@@ -62,12 +59,6 @@ function useSafeLanguage() {
         return { t: (key: string) => key, language: 'en', setLanguage: () => { } };
     }
 }
-
-const statusColors: Record<string, string> = {
-    active: "bg-emerald-100 text-emerald-700",
-    inactive: "bg-slate-100 text-slate-600",
-    suspended: "bg-rose-100 text-rose-700"
-};
 
 export default function Organizations() {
     const { t } = useSafeLanguage();
@@ -203,9 +194,7 @@ export default function Organizations() {
         }
 
         try {
-            // 1. Create/Update Location first if we have address info
             let locationId = editingOrg?.location_id || null;
-
             if (formData.address || formData.latitude) {
                 const locationData = {
                     name: `${formData.name} HQ`,
@@ -215,7 +204,6 @@ export default function Organizations() {
                     latitude: formData.latitude as number,
                     longitude: formData.longitude as number,
                 };
-
                 if (locationId) {
                     await base44.entities.Location.update(locationId, locationData);
                 } else {
@@ -223,8 +211,6 @@ export default function Organizations() {
                     locationId = loc.id;
                 }
             }
-
-            // 2. Prepare organization data
             const orgData = {
                 name: formData.name,
                 code: formData.code,
@@ -239,19 +225,12 @@ export default function Organizations() {
                 max_users: formData.max_users,
                 owner_id: formData.owner_id || undefined
             };
-
             if (editingOrg) {
                 await updateOrgMutation.mutateAsync({ id: editingOrg.id, data: orgData });
-                toast.success("Organization updated successfully");
             } else {
                 await createOrgMutation.mutateAsync(orgData);
-                toast.success("Organization created successfully");
             }
-
-            setDialogOpen(false);
-            resetForm();
         } catch (error: any) {
-            console.error("Save error:", error);
             toast.error(error.response?.data?.detail || "Error saving organization");
         }
     };
@@ -263,17 +242,12 @@ export default function Organizations() {
 
     const confirmDelete = async () => {
         if (itemToDelete) {
-            try {
-                await deleteOrgMutation.mutateAsync(itemToDelete);
-                setDeleteConfirmOpen(false);
-                setItemToDelete(null);
-            } catch (error: any) {
-                toast.error(error.response?.data?.detail || "Error deleting organization");
-            }
+            await deleteOrgMutation.mutateAsync(itemToDelete);
+            setDeleteConfirmOpen(false);
+            setItemToDelete(null);
         }
     };
 
-    // Get counts per organization
     const orgStats = useMemo(() => {
         const stats: Record<string, { vendorCount: number; userCount: number }> = {};
         organizations.forEach(org => {
@@ -287,7 +261,6 @@ export default function Organizations() {
 
     const filteredOrgs = useMemo(() => {
         let result = [...organizations];
-
         if (searchTerm) {
             const search = searchTerm.toLowerCase();
             result = result.filter(o => {
@@ -299,22 +272,93 @@ export default function Organizations() {
                 );
             });
         }
-
         if (statusFilter !== "all") {
             result = result.filter(o => o.status === statusFilter);
         }
-
         return result;
     }, [organizations, searchTerm, statusFilter, locations]);
 
+    const columns: Column<Organization>[] = [
+        {
+            header: 'Organization',
+            cell: (org) => (
+                <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold shadow-emerald-500/20 shadow-md text-xs uppercase">
+                        {org.name?.charAt(0) || 'O'}
+                    </div>
+                    <div>
+                        <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="font-bold text-slate-900 hover:text-emerald-600 hover:underline block">
+                            {org.name}
+                        </Link>
+                        <p className="text-[10px] text-slate-400 font-mono tracking-tight">{org.code}</p>
+                    </div>
+                </div>
+            )
+        },
+        {
+            header: 'Location',
+            cell: (org) => {
+                const loc = locations.find(l => l.id === org.location_id);
+                return loc?.city ? `${loc.city}, ${loc.country}` : '-';
+            }
+        },
+        {
+            header: 'Contact',
+            cell: (org) => (
+                <div className="text-[11px] leading-tight flex flex-col gap-0.5">
+                    {org.email && <div className="flex items-center gap-1"><Mail className="h-3 w-3 text-slate-400" /> {org.email}</div>}
+                    {org.phone && <div className="flex items-center gap-1 text-slate-500"><Phone className="h-3 w-3 text-slate-400" /> {org.phone}</div>}
+                </div>
+            )
+        },
+        {
+            header: 'Plan',
+            cell: (org) => <Badge variant="outline" className="text-[10px] uppercase font-bold bg-slate-50 text-slate-600 border-slate-100">{org.subscription_plan}</Badge>
+        },
+        {
+            header: 'Vendors',
+            cell: (org) => (
+                <Link href={createPageUrl(`OrganizationMembers?id=${org.id}&tab=vendors`)} className="text-slate-600 hover:text-emerald-600 font-bold">
+                    {orgStats[org.id]?.vendorCount || 0} <span className="text-slate-400 font-normal">/ {org.max_vendors}</span>
+                </Link>
+            )
+        },
+        {
+            header: 'Users',
+            cell: (org) => (
+                <Link href={createPageUrl(`OrganizationMembers?id=${org.id}&tab=users`)} className="text-slate-600 hover:text-emerald-600 font-bold">
+                    {orgStats[org.id]?.userCount || 0} <span className="text-slate-400 font-normal">/ {org.max_users}</span>
+                </Link>
+            )
+        },
+        {
+            header: 'Status',
+            cell: (org) => <StatusBadge status={org.status} />
+        },
+        {
+            header: '',
+            className: 'w-24 text-right',
+            cell: (org) => (
+                <div className="flex justify-end items-center gap-1">
+                    <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600">
+                            <Eye className="h-4 w-4" />
+                        </Button>
+                    </Link>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-indigo-600" onClick={() => handleEdit(org)}>
+                        <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600" onClick={() => handleDelete(org.id)}>
+                        <Trash2 className="h-4 w-4" />
+                    </Button>
+                </div>
+            )
+        }
+    ];
+
     return (
         <div className="space-y-6">
-            {/* Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('organizations') || 'Organizations'}</h1>
-                    <p className="text-slate-500 mt-1">Manage organizations and their members</p>
-                </div>
+            <PageHeader title={t('organizations') || 'Organizations'} subtitle="Manage organizations and their members">
                 <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
                     <DialogTrigger asChild>
                         <Button className="bg-emerald-600 hover:bg-emerald-700">
@@ -323,76 +367,34 @@ export default function Organizations() {
                         </Button>
                     </DialogTrigger>
                     <DialogContent className="max-w-lg">
-                        <DialogHeader>
-                            <DialogTitle>{editingOrg ? 'Edit Organization' : 'Add New Organization'}</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto">
+                        <DialogHeader><DialogTitle>{editingOrg ? 'Edit Organization' : 'Add New Organization'}</DialogTitle></DialogHeader>
+                        <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label>Name *</Label>
-                                    <Input
-                                        value={formData.name}
-                                        onChange={(e) => setFormData(p => ({ ...p, name: e.target.value }))}
-                                        placeholder="Acme Corporation"
-                                    />
+                                    <Input value={formData.name} onChange={(e) => setFormData(p => ({ ...p, name: e.target.value }))} placeholder="Acme Corporation" />
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Code *</Label>
-                                    <Input
-                                        value={formData.code}
-                                        onChange={(e) => setFormData(p => ({ ...p, code: e.target.value.toUpperCase() }))}
-                                        placeholder="ACME"
-                                    />
+                                    <Input value={formData.code} onChange={(e) => setFormData(p => ({ ...p, code: e.target.value.toUpperCase() }))} placeholder="ACME" />
                                 </div>
                             </div>
                             <div className="space-y-2">
                                 <Label>Description</Label>
-                                <Textarea
-                                    value={formData.description}
-                                    onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))}
-                                    rows={2}
-                                />
+                                <Textarea value={formData.description} onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))} rows={2} />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                    <Label>Email</Label>
-                                    <Input
-                                        type="email"
-                                        value={formData.email}
-                                        onChange={(e) => setFormData(p => ({ ...p, email: e.target.value }))}
-                                    />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>Phone</Label>
-                                    <Input
-                                        value={formData.phone}
-                                        onChange={(e) => setFormData(p => ({ ...p, phone: e.target.value }))}
-                                    />
-                                </div>
+                                <div className="space-y-2"><Label>Email</Label><Input type="email" value={formData.email} onChange={(e) => setFormData(p => ({ ...p, email: e.target.value }))} /></div>
+                                <div className="space-y-2"><Label>Phone</Label><Input value={formData.phone} onChange={(e) => setFormData(p => ({ ...p, phone: e.target.value }))} /></div>
                             </div>
-                            <div className="space-y-2">
-                                <Label>Address</Label>
-                                <Input
-                                    value={formData.address}
-                                    onChange={(e) => setFormData(p => ({ ...p, address: e.target.value }))}
-                                />
-                            </div>
-
-
-                            {/* Location Map */}
+                            <div className="space-y-2"><Label>Address</Label><Input value={formData.address} onChange={(e) => setFormData(p => ({ ...p, address: e.target.value }))} /></div>
                             <LocationPicker
                                 latitude={formData.latitude || undefined}
                                 longitude={formData.longitude || undefined}
                                 onLocationChange={(lat, lng) => setFormData(p => ({ ...p, latitude: lat, longitude: lng }))}
-                                onAddressChange={(data) => setFormData(p => ({
-                                    ...p,
-                                    address: data.address || p.address,
-                                    city: data.city || p.city,
-                                    country: data.country || p.country
-                                }))}
+                                onAddressChange={(data) => setFormData(p => ({ ...p, address: data.address || p.address, city: data.city || p.city, country: data.country || p.country }))}
                                 label="Headquarters Location"
                             />
-
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label>Status</Label>
@@ -419,244 +421,85 @@ export default function Organizations() {
                                     </Select>
                                 </div>
                             </div>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
-                                <Label>Plan</Label>
-                                <Select value={formData.subscription_plan} onValueChange={(v) => setFormData(p => ({ ...p, subscription_plan: v }))}>
-                                    <SelectTrigger><SelectValue /></SelectTrigger>
-                                    <SelectContent>
-                                        <SelectItem value="starter">Starter</SelectItem>
-                                        <SelectItem value="business">Business</SelectItem>
-                                        <SelectItem value="enterprise">Enterprise</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                    <Label>Plan</Label>
+                                    <Select value={formData.subscription_plan} onValueChange={(v) => setFormData(p => ({ ...p, subscription_plan: v }))}>
+                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="starter">Starter</SelectItem>
+                                            <SelectItem value="business">Business</SelectItem>
+                                            <SelectItem value="enterprise">Enterprise</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2"><Label>Max Vendors</Label><Input type="number" min={1} value={formData.max_vendors} onChange={(e) => setFormData(p => ({ ...p, max_vendors: parseInt(e.target.value) || 10 }))} /></div>
                             </div>
-                            <div className="space-y-2">
-                                <Label>Max Vendors</Label>
-                                <Input
-                                    type="number"
-                                    min={1}
-                                    value={formData.max_vendors}
-                                    onChange={(e) => setFormData(p => ({ ...p, max_vendors: parseInt(e.target.value) || 10 }))}
-                                />
-                            </div>
+                            <div className="space-y-2"><Label>Max Users</Label><Input type="number" min={1} value={formData.max_users} onChange={(e) => setFormData(p => ({ ...p, max_users: parseInt(e.target.value) || 5 }))} /></div>
                         </div>
-
-                        <div className="space-y-2">
-                            <Label>Max Users</Label>
-                            <Input
-                                type="number"
-                                min={1}
-                                value={formData.max_users}
-                                onChange={(e) => setFormData(p => ({ ...p, max_users: parseInt(e.target.value) || 5 }))}
-                            />
-                        </div>
-
                         <DialogFooter>
                             <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
-                            <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleSubmit}>
-                                <Save className="h-4 w-4 mr-2" /> Save
+                            <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleSubmit} disabled={createOrgMutation.isPending || updateOrgMutation.isPending}>
+                                {(createOrgMutation.isPending || updateOrgMutation.isPending) ? <Loader2Icon className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />} Save
                             </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
-            </div>
+            </PageHeader>
 
-            {/* Stats */}
+            {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <Card className='border-none'>
-                    <CardContent className="flex items-center gap-4 py-12">
-                        <div className="h-12 w-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                            <Building2 className="h-6 w-6 text-emerald-600" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-slate-900">{organizations.length}</p>
-                            <p className="text-sm text-slate-500">Total Organizations</p>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="flex items-center gap-4 py-12">
-                        <div className="h-12 w-12 rounded-xl bg-violet-100 flex items-center justify-center">
-                            <Store className="h-6 w-6 text-violet-600" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-slate-900">{vendors.length}</p>
-                            <p className="text-sm text-slate-500">Total Vendors</p>
-                        </div>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardContent className="flex items-center gap-4 py-12">
-                        <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                            <Users className="h-6 w-6 text-blue-600" />
-                        </div>
-                        <div>
-                            <p className="text-2xl font-bold text-slate-900">{users.length}</p>
-                            <p className="text-sm text-slate-500">Total Users</p>
-                        </div>
-                    </CardContent>
-                </Card>
+                <StatsCard title="Total Organizations" value={organizations.length} icon={Building2} variant="success" />
+                <StatsCard title="Total Vendors" value={vendors.length} icon={Store} variant="primary" />
+                <StatsCard title="Total Users" value={users.length} icon={Users} />
             </div>
 
-            {/* Filters */}
-            <div className="">
-                <div className="flex flex-col sm:flex-row gap-4 justify-between">
-                    <div className="flex flex-1 gap-4">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                            <Input
-                                placeholder="Search organizations..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 rounded-xl py-5 max-w-[60%] bg-white border-slate-200"
-                            />
-                        </div>
-                        <Select value={statusFilter} onValueChange={setStatusFilter}>
-                            <SelectTrigger className="w-40 bg-white rounded-xl py-5 border-slate-200">
-                                <SelectValue placeholder="Status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Status</SelectItem>
-                                <SelectItem value="active">Active</SelectItem>
-                                <SelectItem value="inactive">Inactive</SelectItem>
-                                <SelectItem value="suspended">Suspended</SelectItem>
-                            </SelectContent>
-                        </Select>
+            {/* Filters & View Toggle */}
+            <div className="flex flex-col sm:flex-row gap-4 justify-between">
+                <div className="flex flex-1 gap-4">
+                    <div className="relative flex-1 max-w-md">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <Input placeholder="Search organizations..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10 h-11 bg-white border-slate-200" />
                     </div>
-
-                    {/* View Mode Toggle */}
-                    <div className="flex items-center bg-white rounded-xl border border-slate-200 p-1">
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setViewMode('list')}
-                            className={cn(
-                                "rounded-lg px-3",
-                                viewMode === 'list' ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-900"
-                            )}
-                        >
-                            <List className="h-4 w-4 mr-2" /> List
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setViewMode('grid')}
-                            className={cn(
-                                "rounded-lg px-3",
-                                viewMode === 'grid' ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-900"
-                            )}
-                        >
-                            <LayoutGrid className="h-4 w-4 mr-2" /> Grid
-                        </Button>
-                    </div>
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="w-[160px] h-11 bg-white border-slate-200 font-medium">
+                            <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Status</SelectItem>
+                            <SelectItem value="active">Active</SelectItem>
+                            <SelectItem value="inactive">Inactive</SelectItem>
+                            <SelectItem value="suspended">Suspended</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+                <div className="flex items-center bg-white rounded-lg border border-slate-200 p-1 h-11">
+                    <Button variant="ghost" size="sm" onClick={() => setViewMode('list')} className={cn("rounded-md px-3 h-9", viewMode === 'list' ? "bg-slate-100 text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900")}>
+                        <List className="h-4 w-4 mr-2" /> List
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => setViewMode('grid')} className={cn("rounded-md px-3 h-9", viewMode === 'grid' ? "bg-slate-100 text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900")}>
+                        <LayoutGrid className="h-4 w-4 mr-2" /> Grid
+                    </Button>
                 </div>
             </div>
 
-            {/* Content */}
+            {/* Content Rendering */}
             <div className="min-h-[400px]">
-                {isLoading ? (
-                    <div className="flex items-center justify-center h-48">
-                        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-                    </div>
-                ) : filteredOrgs.length === 0 ? (
-                    <div className="text-center py-12 text-slate-500 bg-white rounded-xl border border-slate-200">
-                        <Building2 className="h-12 w-12 mx-auto mb-3 text-slate-300" />
-                        <p>No organizations found matching your criteria</p>
-                    </div>
-                ) : viewMode === 'list' ? (
-                    <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-slate-50/50 hover:bg-slate-50/50">
-                                    <TableHead>Organization</TableHead>
-                                    <TableHead>Location</TableHead>
-                                    <TableHead>Contact</TableHead>
-                                    <TableHead>Plan</TableHead>
-                                    <TableHead>Vendors</TableHead>
-                                    <TableHead>Users</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="w-24"></TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {filteredOrgs.map(org => (
-                                    <TableRow key={org.id} className="hover:bg-slate-50">
-                                        <TableCell>
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-10 w-10 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold shadow-emerald-500/20 shadow-md">
-                                                    {org.name?.charAt(0) || 'O'}
-                                                </div>
-                                                <div>
-                                                    <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="font-medium text-slate-900 hover:text-emerald-600 hover:underline">
-                                                        {org.name}
-                                                    </Link>
-                                                    <p className="text-sm text-slate-500 font-mono">{org.code}</p>
-                                                </div>
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="text-slate-600">
-                                            {(() => {
-                                                const loc = locations.find(l => l.id === org.location_id);
-                                                return loc?.city ? `${loc.city}, ${loc.country}` : '-';
-                                            })()}
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="text-sm">
-                                                {org.email && <div className="flex items-center gap-1"><Mail className="h-3 w-3 text-slate-400" /> {org.email}</div>}
-                                                {org.phone && <div className="flex items-center gap-1 text-slate-500"><Phone className="h-3 w-3 text-slate-400" /> {org.phone}</div>}
-                                            </div>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge variant="outline" className="capitalize bg-slate-50">{org.subscription_plan}</Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Link href={createPageUrl(`OrganizationMembers?id=${org.id}&tab=vendors`)} className="text-slate-600 hover:text-emerald-600 font-medium">
-                                                {orgStats[org.id]?.vendorCount || 0} <span className="text-slate-400 font-normal">/ {org.max_vendors}</span>
-                                            </Link>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Link href={createPageUrl(`OrganizationMembers?id=${org.id}&tab=users`)} className="text-slate-600 hover:text-emerald-600 font-medium">
-                                                {orgStats[org.id]?.userCount || 0} <span className="text-slate-400 font-normal">/ {org.max_users}</span>
-                                            </Link>
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge className={statusColors[org.status]}>{org.status}</Badge>
-                                        </TableCell>
-                                        <TableCell>
-                                            <div className="flex items-center gap-1">
-                                                <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)}>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600">
-                                                        <Eye className="h-4 w-4" />
-                                                    </Button>
-                                                </Link>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-indigo-600" onClick={() => handleEdit(org)}>
-                                                    <Edit2 className="h-4 w-4" />
-                                                </Button>
-                                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600" onClick={() => handleDelete(org.id)}>
-                                                    <Trash2 className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
+                {viewMode === 'list' ? (
+                    <DataTable data={filteredOrgs} columns={columns} isLoading={isLoading} />
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {filteredOrgs.map(org => {
                             const loc = locations.find(l => l.id === org.location_id);
                             return (
-                                <Card key={org.id} className="hover:shadow-md transition-shadow duration-200 border-slate-200">
-                                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                                        <div className="h-12 w-12 rounded-xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg shadow-emerald-500/20 shadow-md">
+                                <Card key={org.id} className="group hover:shadow-lg transition-all duration-300 border-slate-200 overflow-hidden bg-white">
+                                    <div className="h-1.5 w-full bg-emerald-500/10 group-hover:bg-emerald-500 transition-colors" />
+                                    <CardHeader className="flex flex-row items-start justify-between space-y-0 p-5 pb-2">
+                                        <div className="h-12 w-12 rounded-xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg shadow-emerald-500/20 shadow-md uppercase">
                                             {org.name?.charAt(0) || 'O'}
                                         </div>
-                                        <div className="flex gap-1">
-                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600" onClick={() => handleEdit(org)}>
+                                        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-indigo-600" onClick={() => handleEdit(org)}>
                                                 <Edit2 className="h-4 w-4" />
                                             </Button>
                                             <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600" onClick={() => handleDelete(org.id)}>
@@ -664,45 +507,33 @@ export default function Organizations() {
                                             </Button>
                                         </div>
                                     </CardHeader>
-                                    <CardContent className="pt-4 space-y-4">
+                                    <CardContent className="p-5 pt-4 space-y-4">
                                         <div>
-                                            <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="font-bold text-lg text-slate-900 hover:text-emerald-600 hover:underline">
+                                            <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="font-bold text-lg text-slate-900 hover:text-emerald-600 hover:underline block truncate">
                                                 {org.name}
                                             </Link>
-                                            <div className="flex items-center gap-2 mt-1">
-                                                <Badge variant="outline" className="font-mono text-xs">{org.code}</Badge>
-                                                <Badge className={cn("text-xs px-2 py-0.5", statusColors[org.status])}>{org.status}</Badge>
+                                            <div className="flex items-center gap-2 mt-1.5">
+                                                <Badge variant="outline" className="font-mono text-[10px] uppercase border-slate-100 text-slate-400">{org.code}</Badge>
+                                                <StatusBadge status={org.status} />
                                             </div>
                                         </div>
-
-                                        <div className="space-y-2 text-sm text-slate-600">
-                                            {loc?.city && (
-                                                <div className="flex items-center gap-2">
-                                                    <Building2 className="h-4 w-4 text-slate-400" />
-                                                    {loc.city}, {loc.country}
+                                        <div className="space-y-2.5 text-[13px] text-slate-600">
+                                            {loc?.city && <div className="flex items-center gap-2"><Building2 className="h-4 w-4 text-slate-400 shrink-0" /> <span className="truncate">{loc.city}, {loc.country}</span></div>}
+                                            {org.email && <div className="flex items-center gap-2"><Mail className="h-4 w-4 text-slate-400 shrink-0" /> <span className="truncate">{org.email}</span></div>}
+                                            <div className="grid grid-cols-2 gap-2 pt-1">
+                                                <div className="bg-slate-50 rounded-lg p-2 flex flex-col items-center">
+                                                    <span className="font-bold text-slate-900">{orgStats[org.id]?.vendorCount || 0}</span>
+                                                    <span className="text-[10px] uppercase text-slate-400 font-semibold tracking-wider">Vendors</span>
                                                 </div>
-                                            )}
-                                            {org.email && (
-                                                <div className="flex items-center gap-2 overflow-hidden">
-                                                    <Mail className="h-4 w-4 text-slate-400 shrink-0" />
-                                                    <span className="truncate">{org.email}</span>
+                                                <div className="bg-slate-50 rounded-lg p-2 flex flex-col items-center">
+                                                    <span className="font-bold text-slate-900">{orgStats[org.id]?.userCount || 0}</span>
+                                                    <span className="text-[10px] uppercase text-slate-400 font-semibold tracking-wider">Users</span>
                                                 </div>
-                                            )}
-                                            <div className="flex items-center gap-2">
-                                                <Store className="h-4 w-4 text-slate-400" />
-                                                <span>{orgStats[org.id]?.vendorCount || 0} Vendors</span>
-                                            </div>
-                                            <div className="flex items-center gap-2">
-                                                <Users className="h-4 w-4 text-slate-400" />
-                                                <span>{orgStats[org.id]?.userCount || 0} Users</span>
                                             </div>
                                         </div>
-
                                         <div className="pt-2">
-                                            <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)}>
-                                                <Button variant="outline" className="w-full hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200">
-                                                    View Details
-                                                </Button>
+                                            <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="w-full">
+                                                <Button variant="outline" className="w-full h-10 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 font-semibold text-xs uppercase tracking-wide">View Full Details</Button>
                                             </Link>
                                         </div>
                                     </CardContent>
@@ -712,29 +543,16 @@ export default function Organizations() {
                     </div>
                 )}
             </div>
-            {/* Delete Confirmation Dialog */}
-            <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-                <DialogContent className="max-w-sm">
-                    <DialogHeader className="flex flex-col items-center text-center space-y-3">
-                        <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
-                            <AlertTriangle className="h-6 w-6 text-rose-600" />
-                        </div>
-                        <DialogTitle className="text-xl">Delete Organization?</DialogTitle>
-                        <p className="text-sm text-slate-500">
-                            Are you sure you want to delete this organization? This will not delete associated vendors or users, but they will lose access to this organization's data.
-                        </p>
-                    </DialogHeader>
-                    <DialogFooter className="grid grid-cols-2 gap-3 mt-4">
-                        <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
-                            Cancel
-                        </Button>
-                        <Button variant="destructive" onClick={confirmDelete} disabled={deleteOrgMutation.isPending}>
-                            {deleteOrgMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
-                            Delete
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-        </div >
+
+            <ConfirmDialog
+                open={deleteConfirmOpen}
+                onOpenChange={setDeleteConfirmOpen}
+                title="Delete Organization?"
+                description="Are you sure you want to delete this organization? This will not delete associated vendors or users, but they will lose access to this organization's data."
+                onConfirm={confirmDelete}
+                confirmText="Delete Organization"
+                isLoading={deleteOrgMutation.isPending}
+            />
+        </div>
     );
 }

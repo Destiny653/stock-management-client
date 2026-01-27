@@ -4,16 +4,6 @@ import { base44, PurchaseOrder } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
@@ -28,7 +18,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Plus,
   Search,
@@ -38,15 +27,17 @@ import {
   CheckCircle,
   Truck,
   XCircle,
-  Loader2,
-  Filter,
-  Download
 } from "lucide-react";
 import { format } from "date-fns";
 import POStatusBadge from "@/components/po/POStatusBadge";
 import { toast } from "sonner";
 import { useLanguage } from "@/components/i18n/LanguageContext";
 import Link from 'next/link';
+
+// New reusable components
+import { PageHeader } from "@/components/ui/page-header";
+import { StatsCard } from "@/components/ui/stats-card";
+import { DataTable, Column } from "@/components/ui/data-table";
 
 function useSafeLanguage() {
   try {
@@ -98,234 +89,192 @@ export default function PurchaseOrders() {
   };
 
   // Stats
-  const stats = {
+  const stats = useMemo(() => ({
     draft: purchaseOrders.filter(p => p.status === 'draft').length,
     pending: purchaseOrders.filter(p => p.status === 'pending_approval').length,
     ordered: purchaseOrders.filter(p => ['approved', 'ordered'].includes(p.status)).length,
     received: purchaseOrders.filter(p => p.status === 'received').length,
-  };
+  }), [purchaseOrders]);
+
+  // Define Table Columns
+  const columns: Column<PurchaseOrder>[] = [
+    {
+      header: t('poNumber'),
+      accessorKey: 'po_number',
+      cell: (po) => (
+        <Link
+          href={createPageUrl(`PurchaseOrderDetail?id=${po.id}`)}
+          className="font-medium text-slate-900 hover:text-emerald-600"
+        >
+          {po.po_number}
+        </Link>
+      ),
+      sortable: true
+    },
+    {
+      header: t('supplier'),
+      accessorKey: 'supplier_name',
+      sortable: true
+    },
+    {
+      header: t('items'),
+      cell: (po) => `${po.items?.length || 0} ${t('items')}`
+    },
+    {
+      header: t('total'),
+      cell: (po) => {
+        const total = (po as any).total ?? po.items?.reduce((sum, item) => {
+          const itemTotal = (item as any).total ??
+            ((item as any).quantity ?? (item as any).quantity_ordered ?? 0) *
+            ((item as any).unit_price ?? (item as any).unit_cost ?? 0);
+          return sum + itemTotal;
+        }, 0) ?? 0;
+        return `$${total.toFixed(2)}`;
+      }
+    },
+    {
+      header: t('status'),
+      cell: (po) => <POStatusBadge status={po.status} />
+    },
+    {
+      header: t('expectedDate'),
+      cell: (po) => po.expected_date ? format(new Date(po.expected_date), "MMM d, yyyy") : '-'
+    },
+    {
+      header: t('created'),
+      cell: (po) => format(new Date(po.created_at), "MMM d")
+    },
+    {
+      header: '',
+      className: 'w-12 text-right',
+      cell: (po) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link href={createPageUrl(`PurchaseOrderDetail?id=${po.id}`)}>
+                <Eye className="h-4 w-4 mr-2" /> {t('viewDetails')}
+              </Link>
+            </DropdownMenuItem>
+            {po.status === 'draft' && (
+              <DropdownMenuItem onClick={() => handleStatusChange(po.id, 'pending_approval')}>
+                <CheckCircle className="h-4 w-4 mr-2" /> {t('submit')}
+              </DropdownMenuItem>
+            )}
+            {po.status === 'pending_approval' && (
+              <DropdownMenuItem onClick={() => handleStatusChange(po.id, 'approved')}>
+                <CheckCircle className="h-4 w-4 mr-2" /> {t('approved')}
+              </DropdownMenuItem>
+            )}
+            {po.status === 'approved' && (
+              <DropdownMenuItem onClick={() => handleStatusChange(po.id, 'ordered')}>
+                <Truck className="h-4 w-4 mr-2" /> {t('ordered')}
+              </DropdownMenuItem>
+            )}
+            {po.status === 'ordered' && (
+              <DropdownMenuItem onClick={() => handleStatusChange(po.id, 'received')}>
+                <CheckCircle className="h-4 w-4 mr-2" /> {t('received')}
+              </DropdownMenuItem>
+            )}
+            <DropdownMenuSeparator />
+            {po.status !== 'cancelled' && po.status !== 'received' && (
+              <DropdownMenuItem
+                className="text-rose-600"
+                onClick={() => handleStatusChange(po.id, 'cancelled')}
+              >
+                <XCircle className="h-4 w-4 mr-2" /> {t('cancel')}
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    }
+  ];
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('purchaseOrders')}</h1>
-          <p className="text-slate-500 mt-1">{t('allPurchaseOrders')}</p>
-        </div>
+      <PageHeader
+        title={t('purchaseOrders')}
+        subtitle={t('allPurchaseOrders')}
+      >
         <Link href={createPageUrl("CreatePurchaseOrder")}>
           <Button className="bg-emerald-600 hover:bg-emerald-700">
             <Plus className="h-4 w-4 mr-2" />
             {t('createNewPO')}
           </Button>
         </Link>
-      </div>
+      </PageHeader>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter("draft")}>
-          <CardContent className="p-4 py-12">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-500">{t('draft')}</p>
-                <p className="text-2xl font-bold text-slate-900">{stats.draft}</p>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
-                <FileText className="h-5 w-5 text-slate-500" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter("pending_approval")}>
-          <CardContent className="p-4 py-12">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-500">{t('pendingApproval')}</p>
-                <p className="text-2xl font-bold text-amber-600">{stats.pending}</p>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
-                <CheckCircle className="h-5 w-5 text-amber-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter("ordered")}>
-          <CardContent className="p-4 py-12">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-500">{t('ordered')}</p>
-                <p className="text-2xl font-bold text-violet-600">{stats.ordered}</p>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-violet-100 flex items-center justify-center">
-                <Truck className="h-5 w-5 text-violet-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setStatusFilter("received")}>
-          <CardContent className="p-4 py-12">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-slate-500">{t('received')}</p>
-                <p className="text-2xl font-bold text-emerald-600">{stats.received}</p>
-              </div>
-              <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                <CheckCircle className="h-5 w-5 text-emerald-600" />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <StatsCard
+          title={t('draft')}
+          value={stats.draft}
+          icon={FileText}
+          onClick={() => setStatusFilter("draft")}
+        />
+        <StatsCard
+          title={t('pendingApproval')}
+          value={stats.pending}
+          icon={CheckCircle}
+          variant="warning"
+          onClick={() => setStatusFilter("pending_approval")}
+        />
+        <StatsCard
+          title={t('ordered')}
+          value={stats.ordered}
+          icon={Truck}
+          variant="primary"
+          onClick={() => setStatusFilter("ordered")}
+        />
+        <StatsCard
+          title={t('received')}
+          value={stats.received}
+          icon={CheckCircle}
+          variant="success"
+          onClick={() => setStatusFilter("received")}
+        />
       </div>
 
       {/* Filters */}
-      <div className="">
-        <div className="flex flex-col sm:flex-row gap-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <Input
-              placeholder={t('searchPlaceholder')}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 rounded-sm max-w-[60%] py-5 bg-white border-slate-200 focus:bg-white"
-            />
-          </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-48 bg-white rounded-sm py-5">
-              <SelectValue placeholder={t('status')} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">{t('allStatus')}</SelectItem>
-              <SelectItem value="draft">{t('draft')}</SelectItem>
-              <SelectItem value="pending_approval">{t('pendingApproval')}</SelectItem>
-              <SelectItem value="approved">{t('approved')}</SelectItem>
-              <SelectItem value="ordered">{t('ordered')}</SelectItem>
-              <SelectItem value="partially_received">{t('partiallyReceived')}</SelectItem>
-              <SelectItem value="received">{t('received')}</SelectItem>
-              <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
-            </SelectContent>
-          </Select>
+      <div className="flex flex-col sm:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Input
+            placeholder={t('searchPlaceholder')}
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10 h-11 bg-white border-slate-200"
+          />
         </div>
+        <Select value={statusFilter} onValueChange={setStatusFilter}>
+          <SelectTrigger className="w-[180px] h-11 bg-white">
+            <SelectValue placeholder={t('status')} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t('allStatus')}</SelectItem>
+            <SelectItem value="draft">{t('draft')}</SelectItem>
+            <SelectItem value="pending_approval">{t('pendingApproval')}</SelectItem>
+            <SelectItem value="approved">{t('approved')}</SelectItem>
+            <SelectItem value="ordered">{t('ordered')}</SelectItem>
+            <SelectItem value="partially_received">{t('partiallyReceived')}</SelectItem>
+            <SelectItem value="received">{t('received')}</SelectItem>
+            <SelectItem value="cancelled">{t('cancelled')}</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Table */}
-      <div className="bg-white overflow-hidden">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-64">
-            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-          </div>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                <TableHead>{t('poNumber')}</TableHead>
-                <TableHead>{t('supplier')}</TableHead>
-                <TableHead>{t('items')}</TableHead>
-                <TableHead>{t('total')}</TableHead>
-                <TableHead>{t('status')}</TableHead>
-                <TableHead>{t('expectedDate')}</TableHead>
-                <TableHead>{t('created')}</TableHead>
-                <TableHead className="w-12"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredOrders.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={8} className="h-48">
-                    <div className="flex flex-col items-center justify-center text-center">
-                      <FileText className="h-12 w-12 text-slate-300 mb-3" />
-                      <p className="text-slate-600 font-medium">{t('noResults')}</p>
-                      <p className="text-sm text-slate-400 mt-1">{t('createNewPO')}</p>
-                      <Link href={createPageUrl("CreatePurchaseOrder")} className="mt-4">
-                        <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700">
-                          <Plus className="h-4 w-4 mr-1" /> {t('createPO')}
-                        </Button>
-                      </Link>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredOrders.map((po) => (
-                  <TableRow key={po.id} className="hover:bg-slate-50">
-                    <TableCell>
-                      <Link
-                        href={createPageUrl(`PurchaseOrderDetail?id=${po.id}`)}
-                        className="font-medium text-slate-900 hover:text-emerald-600"
-                      >
-                        {po.po_number}
-                      </Link>
-                    </TableCell>
-                    <TableCell className="text-slate-600">{po.supplier_name}</TableCell>
-                    <TableCell>{po.items?.length || 0} {t('items')}</TableCell>
-                    <TableCell className="font-medium">
-                      ${((po as any).total ?? po.items?.reduce((sum, item) => {
-                        // Handle different item structures
-                        const itemTotal = (item as any).total ??
-                          ((item as any).quantity ?? (item as any).quantity_ordered ?? 0) *
-                          ((item as any).unit_price ?? (item as any).unit_cost ?? 0);
-                        return sum + itemTotal;
-                      }, 0) ?? 0).toFixed(2)}
-                    </TableCell>
-                    <TableCell>
-                      <POStatusBadge status={po.status} />
-                    </TableCell>
-                    <TableCell className="text-slate-600">
-                      {po.expected_date ? format(new Date(po.expected_date), "MMM d, yyyy") : '-'}
-                    </TableCell>
-                    <TableCell className="text-slate-500 text-sm">
-                      {format(new Date(po.created_at), "MMM d")}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
-                            <Link href={createPageUrl(`PurchaseOrderDetail?id=${po.id}`)}>
-                              <Eye className="h-4 w-4 mr-2" /> {t('viewDetails')}
-                            </Link>
-                          </DropdownMenuItem>
-                          {po.status === 'draft' && (
-                            <DropdownMenuItem onClick={() => handleStatusChange(po.id, 'pending_approval')}>
-                              <CheckCircle className="h-4 w-4 mr-2" /> {t('submit')}
-                            </DropdownMenuItem>
-                          )}
-                          {po.status === 'pending_approval' && (
-                            <DropdownMenuItem onClick={() => handleStatusChange(po.id, 'approved')}>
-                              <CheckCircle className="h-4 w-4 mr-2" /> {t('approved')}
-                            </DropdownMenuItem>
-                          )}
-                          {po.status === 'approved' && (
-                            <DropdownMenuItem onClick={() => handleStatusChange(po.id, 'ordered')}>
-                              <Truck className="h-4 w-4 mr-2" /> {t('ordered')}
-                            </DropdownMenuItem>
-                          )}
-                          {po.status === 'ordered' && (
-                            <DropdownMenuItem onClick={() => handleStatusChange(po.id, 'received')}>
-                              <CheckCircle className="h-4 w-4 mr-2" /> {t('received')}
-                            </DropdownMenuItem>
-                          )}
-                          <DropdownMenuSeparator />
-                          {po.status !== 'cancelled' && po.status !== 'received' && (
-                            <DropdownMenuItem
-                              className="text-rose-600"
-                              onClick={() => handleStatusChange(po.id, 'cancelled')}
-                            >
-                              <XCircle className="h-4 w-4 mr-2" /> {t('cancel')}
-                            </DropdownMenuItem>
-                          )}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        )}
-      </div>
+      {/* Reusable Data Table */}
+      <DataTable
+        data={filteredOrders}
+        columns={columns}
+        isLoading={isLoading}
+        emptyMessage={t('noResults')}
+      />
     </div>
   );
 }

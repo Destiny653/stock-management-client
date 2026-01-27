@@ -5,14 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable, Column } from "@/components/ui/data-table";
 import {
   DollarSign,
   Package,
@@ -110,6 +103,36 @@ export default function VendorDashboard() {
     }
     return last30Days;
   }, [mySales]);
+
+  const salesColumns: Column<Sale>[] = [
+    {
+      header: 'Sale #',
+      className: 'font-medium',
+      cell: (sale) => sale.sale_number
+    },
+    {
+      header: 'Date',
+      cell: (sale) => format(new Date(sale.created_at), 'MMM d, HH:mm')
+    },
+    {
+      header: 'Customer',
+      cell: (sale) => sale.client_name || 'Walk-in'
+    },
+    {
+      header: 'Items',
+      cell: (sale) => `${sale.items?.length || 0} items`
+    },
+    {
+      header: 'Total',
+      className: 'font-semibold',
+      cell: (sale) => `$${sale.total?.toFixed(2)}`
+    },
+    {
+      header: 'Payment',
+      className: 'capitalize',
+      cell: (sale) => sale.payment_method
+    }
+  ];
 
   if (loadingUser) {
     return (
@@ -344,30 +367,12 @@ export default function VendorDashboard() {
               </Link>
             </div>
           ) : (
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                  <TableHead>Sale #</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Customer</TableHead>
-                  <TableHead>Items</TableHead>
-                  <TableHead>Total</TableHead>
-                  <TableHead>Payment</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mySales.slice(0, 5).map(sale => (
-                  <TableRow key={sale.id}>
-                    <TableCell className="font-medium">{sale.sale_number}</TableCell>
-                    <TableCell>{format(new Date(sale.created_at), 'MMM d, HH:mm')}</TableCell>
-                    <TableCell>{sale.client_name || 'Walk-in'}</TableCell>
-                    <TableCell>{sale.items?.length || 0} items</TableCell>
-                    <TableCell className="font-semibold">${sale.total?.toFixed(2)}</TableCell>
-                    <TableCell className="capitalize">{sale.payment_method}</TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <div className="bg-white overflow-hidden">
+              <DataTable
+                data={mySales.slice(0, 5)}
+                columns={salesColumns}
+              />
+            </div>
           )}
         </CardContent>
       </Card>

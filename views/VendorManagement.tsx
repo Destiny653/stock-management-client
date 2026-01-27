@@ -7,14 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable, Column } from "@/components/ui/data-table";
 import {
   Select,
   SelectContent,
@@ -366,6 +359,86 @@ export default function VendorManagement() {
 
     return result;
   }, [vendors, searchTerm, statusFilter, paymentFilter, locationMap]);
+
+  const vendorListColumns: Column<any>[] = [
+    {
+      header: 'Vendor',
+      cell: (vendor) => (
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
+            {vendor.store_name?.charAt(0) || 'V'}
+          </div>
+          <div>
+            <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)} className="font-medium text-slate-900 hover:text-emerald-600 hover:underline">
+              {vendor.store_name}
+            </Link>
+            <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.full_name || 'No contact'}</p>
+          </div>
+        </div>
+      )
+    },
+    {
+      header: 'Contact',
+      cell: (vendor) => (
+        <>
+          <p className="text-sm">{userMap[vendor.user_id!]?.email || 'No email'}</p>
+          <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.phone || ''}</p>
+        </>
+      )
+    },
+    {
+      header: 'Location',
+      className: 'text-slate-600',
+      cell: (vendor) => (
+        vendor.location_id && locationMap[vendor.location_id]
+          ? `${locationMap[vendor.location_id].city}, ${locationMap[vendor.location_id].country}`
+          : '-'
+      )
+    },
+    {
+      header: 'Status',
+      cell: (vendor) => <Badge className={statusColors[vendor.status]}>{vendor.status}</Badge>
+    },
+    {
+      header: 'Payment',
+      cell: (vendor) => (
+        <Badge className={paymentStatusColors[vendor.payment_status || 'pending']}>
+          {vendor.payment_status || 'pending'}
+        </Badge>
+      )
+    },
+    {
+      header: 'Sales',
+      className: 'font-medium',
+      cell: (vendor) => {
+        const stats = vendorStats[vendor.id] || { totalSales: 0, totalOrders: 0 };
+        return `$${(stats.totalSales || vendor.total_sales || 0).toLocaleString()}`;
+      }
+    },
+    {
+      header: '',
+      className: 'w-12',
+      cell: (vendor) => (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem asChild>
+              <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)}>
+                <Eye className="h-4 w-4 mr-2" /> View
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleEdit(vendor)}>
+              <Edit className="h-4 w-4 mr-2" /> Edit
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      )
+    }
+  ];
 
   // Stats
   const stats = {
@@ -824,80 +897,11 @@ export default function VendorManagement() {
         </div>
       ) : (
         <div className="bg-white overflow-hidden">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                <TableHead>Vendor</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Payment</TableHead>
-                <TableHead>Sales</TableHead>
-                <TableHead className="w-12"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredVendors.map(vendor => {
-                const stats = vendorStats[vendor.id] || { totalSales: 0, totalOrders: 0 };
-                return (
-                  <TableRow key={vendor.id} className="hover:bg-slate-50">
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
-                          {vendor.store_name?.charAt(0) || 'V'}
-                        </div>
-                        <div>
-                          <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)} className="font-medium text-slate-900 hover:text-emerald-600 hover:underline">
-                            {vendor.store_name}
-                          </Link>
-                          <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.full_name || 'No contact'}</p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <p className="text-sm">{userMap[vendor.user_id!]?.email || 'No email'}</p>
-                      <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.phone || ''}</p>
-                    </TableCell>
-                    <TableCell className="text-slate-600">
-                      {vendor.location_id && locationMap[vendor.location_id]
-                        ? `${locationMap[vendor.location_id].city}, ${locationMap[vendor.location_id].country}`
-                        : '-'}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={statusColors[vendor.status]}>{vendor.status}</Badge>
-                    </TableCell>
-                    <TableCell>
-                      <Badge className={paymentStatusColors[vendor.payment_status || 'pending']}>
-                        {vendor.payment_status || 'pending'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      ${(stats.totalSales || vendor.total_sales || 0).toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem asChild>
-                            <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)}>
-                              <Eye className="h-4 w-4 mr-2" /> View
-                            </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleEdit(vendor)}>
-                            <Edit className="h-4 w-4 mr-2" /> Edit
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
+          <DataTable
+            data={filteredVendors}
+            columns={vendorListColumns}
+            emptyMessage={t('noVendorsFound')}
+          />
         </div>
       )}
     </div>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card } from '@/components/ui/card';
 import { apiClient } from '@/lib/api-client';
+import { SubscriptionPlan } from '@/api/base44Client';
 import StepSubscription from '@/components/register/StepSubscription';
 import StepLocation from '@/components/register/StepLocation';
 import StepOrganization from '@/components/register/StepOrganization';
@@ -18,14 +19,14 @@ export default function RegisterPage() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState('');
     const [data, setData] = useState({
-        plan: 'starter',
+        plan: null as SubscriptionPlan | null,
         location: null as any,
         organization: null as any,
         user: null as any
     });
 
-    const handlePlanNext = (planId: string) => {
-        setData(prev => ({ ...prev, plan: planId }));
+    const handlePlanNext = (plan: SubscriptionPlan) => {
+        setData(prev => ({ ...prev, plan }));
         setStep(2);
     };
 
@@ -44,57 +45,46 @@ export default function RegisterPage() {
         const finalData = { ...data, user: userData };
 
         try {
-            // 1. Create Location
-            setLoadingMessage("Creating business location...");
-            const locationPayload = {
-                name: `${finalData.organization.name} HQ`,
-                address: finalData.location.address,
-                city: finalData.location.city,
-                country: finalData.location.country,
-                latitude: finalData.location.latitude,
-                longitude: finalData.location.longitude,
-            };
-            const locationRes = await apiClient.post('/locations/', locationPayload);
-            const locationId = locationRes.data._id || locationRes.data.id;
-
-            // 2. Get Plan ID
-            setLoadingMessage("Setting up subscription...");
-            const plansRes = await apiClient.get('/subscription-plans/');
-            const selectedPlanObj = plansRes.data.find((p: any) => p.code === finalData.plan);
-            const planId = selectedPlanObj ? (selectedPlanObj._id || selectedPlanObj.id) : null;
-
-            if (!planId) {
-                toast.error("Invalid subscription plan selected");
+            if (!finalData.plan) {
+                toast.error("Please select a subscription plan");
+                setIsSubmitting(false);
                 return;
             }
 
-            // 3. Create Organization
-            setLoadingMessage("Creating organization...");
-            const orgPayload = {
-                name: finalData.organization.name,
-                code: finalData.organization.code,
-                phone: finalData.organization.phone,
-                website: finalData.organization.website,
-                description: '',
-                location_id: locationId,
-                subscription_plan_id: planId,
-                status: 'active'
-            };
-            const orgRes = await apiClient.post('/organizations/', orgPayload);
-            const orgId = orgRes.data._id || orgRes.data.id;
+            setLoadingMessage("Creating your account...");
 
-            // 4. Register User
-            setLoadingMessage("Creating admin account...");
-            const userPayload = {
-                full_name: userData.full_name,
-                email: userData.email,
-                username: userData.email,
-                password: userData.password,
-                role: 'admin',
-                user_type: 'admin',
-                organization_id: orgId
+            // Use the atomic register-organization endpoint
+            const planId = finalData.plan._id || finalData.plan.id;
+
+            const registrationPayload = {
+                user: {
+                    full_name: userData.full_name,
+                    email: userData.email,
+                    username: userData.email,
+                    password: userData.password,
+                    role: 'admin',
+                    user_type: 'admin'
+                },
+                organization: {
+                    name: finalData.organization.name,
+                    code: finalData.organization.code,
+                    phone: finalData.organization.phone || null,
+                    website: finalData.organization.website || null,
+                    description: '',
+                    subscription_plan_id: planId,
+                    status: 'active'
+                },
+                location: {
+                    name: `${finalData.organization.name} HQ`,
+                    address: finalData.location.address,
+                    city: finalData.location.city,
+                    country: finalData.location.country,
+                    latitude: finalData.location.latitude,
+                    longitude: finalData.location.longitude
+                }
             };
-            await apiClient.post('/auth/register', userPayload);
+
+            await apiClient.post('/auth/register-organization', registrationPayload);
 
             setLoadingMessage("Finalizing setup...");
             toast.success("Registration successful! Please login.");
@@ -139,7 +129,7 @@ export default function RegisterPage() {
             </AnimatePresence>
 
             <div className="mb-8 text-center">
-                <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/30 mb-4">
+                <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-linear-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/30 mb-4">
                     <Package className="h-6 w-6 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
@@ -182,7 +172,7 @@ export default function RegisterPage() {
                             exit={{ opacity: 0, x: -20 }}
                             transition={{ duration: 0.2 }}
                         >
-                            <StepLocation onNext={handleLocationNext} initialData={data.location} />
+                            <StepLocation onNext={handleLocationNext} onBack={() => setStep(1)} initialData={data.location} />
                         </motion.div>
                     )}
                     {step === 3 && (

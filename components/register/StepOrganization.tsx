@@ -22,11 +22,56 @@ export default function StepOrganization({ onNext, onBack, initialData }: StepOr
     });
 
     const handleNext = () => {
-        if (!formData.name || !formData.code) {
-            toast.error("Please fill in required fields");
+        const name = formData.name.trim();
+        const code = formData.code.trim().toUpperCase();
+        const phone = formData.phone?.trim() || '';
+        const website = formData.website?.trim() || '';
+
+        // Validate name
+        if (!name) {
+            toast.error("Please enter an organization name");
             return;
         }
-        onNext(formData);
+        if (name.length < 3) {
+            toast.error("Organization name must be at least 3 characters");
+            return;
+        }
+
+        // Validate code format (alphanumeric only, 3-10 chars)
+        if (!code) {
+            toast.error("Please enter an organization code");
+            return;
+        }
+        const codeRegex = /^[A-Z0-9]{3,10}$/;
+        if (!codeRegex.test(code)) {
+            toast.error("Organization code must be 3-10 alphanumeric characters (letters and numbers only)");
+            return;
+        }
+
+        // Validate phone format if provided
+        if (phone) {
+            const phoneRegex = /^[\d\s\-\+\(\)]{7,20}$/;
+            if (!phoneRegex.test(phone)) {
+                toast.error("Please enter a valid phone number");
+                return;
+            }
+        }
+
+        // Validate website URL if provided
+        if (website) {
+            const urlRegex = /^(https?:\/\/)?([\w\-]+\.)+[\w\-]+(\/[\w\-\.\/]*)?$/i;
+            if (!urlRegex.test(website)) {
+                toast.error("Please enter a valid website URL");
+                return;
+            }
+        }
+
+        onNext({
+            name,
+            code,
+            phone: phone || null,
+            website: website || null
+        });
     };
 
     return (

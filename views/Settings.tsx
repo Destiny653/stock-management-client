@@ -7,14 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable, Column } from "@/components/ui/data-table";
 import {
   Dialog,
   DialogContent,
@@ -568,6 +561,105 @@ export default function Settings() {
     }
   };
 
+  const warehouseColumns: Column<Warehouse>[] = [
+    {
+      header: t('warehouseName'),
+      className: 'font-medium',
+      cell: (w) => w.name
+    },
+    {
+      header: t('warehouseCode'),
+      className: 'font-mono text-sm',
+      cell: (w) => w.code
+    },
+    {
+      header: t('location'),
+      cell: (w) => (w.location_id ? locationMap[w.location_id]?.city : '-')
+    },
+    {
+      header: t('manager'),
+      cell: (w) => w.manager || '-'
+    },
+    {
+      header: t('status'),
+      cell: (w) => (
+        <Badge variant="outline" className={cn(
+          w.status === 'active' && "bg-emerald-50 text-emerald-700",
+          w.status === 'inactive' && "bg-slate-50 text-slate-600",
+          w.status === 'maintenance' && "bg-amber-50 text-amber-700"
+        )}>
+          {w.status}
+        </Badge>
+      )
+    },
+    {
+      header: '',
+      className: 'w-24',
+      cell: (w) => (
+        <div className="flex items-center gap-1">
+          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditWarehouse(w)}>
+            <Edit2 className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-600" onClick={() => handleDeleteWarehouse(w.id)}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      )
+    }
+  ];
+
+  const userTableColumns: Column<any>[] = [
+    {
+      header: t('user'),
+      cell: (u) => (
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-medium">
+            {u.full_name?.charAt(0) || u.email.charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <p className="font-medium text-slate-900">{u.full_name || u.username}</p>
+            <p className="text-xs text-slate-500">{u.email}</p>
+          </div>
+        </div>
+      )
+    },
+    {
+      header: t('role'),
+      cell: (u) => <Badge variant="outline" className="capitalize">{u.role}</Badge>
+    },
+    {
+      header: t('department'),
+      className: 'text-slate-600',
+      cell: (u) => u.department || '-'
+    },
+    {
+      header: t('status'),
+      cell: (u) => (
+        <Badge variant="outline" className={cn(
+          u.status === 'active' && "bg-emerald-50 text-emerald-700",
+          u.status === 'pending' && "bg-amber-50 text-amber-700",
+          u.status === 'suspended' && "bg-rose-50 text-rose-700"
+        )}>
+          {u.status}
+        </Badge>
+      )
+    },
+    {
+      header: t('actions'),
+      className: 'text-right',
+      cell: (u) => (
+        <div className="flex items-center justify-end gap-1">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600" onClick={() => handleEditUser(u)}>
+            <Edit2 className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600" onClick={() => handleDeleteUser(u.id)} disabled={u.id === user?.id}>
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+      )
+    }
+  ];
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -667,54 +759,13 @@ export default function Settings() {
             </Dialog>
           </div>
 
-          <Card>
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                  <TableHead>{t('warehouseName')}</TableHead>
-                  <TableHead>{t('warehouseCode')}</TableHead>
-                  <TableHead>{t('location')}</TableHead>
-                  <TableHead>{t('manager')}</TableHead>
-                  <TableHead>{t('status')}</TableHead>
-                  <TableHead className="w-24"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loadingWarehouses ? (
-                  <TableRow><TableCell colSpan={6} className="text-center py-8"><Loader2 className="h-6 w-6 animate-spin mx-auto" /></TableCell></TableRow>
-                ) : warehouses.length === 0 ? (
-                  <TableRow><TableCell colSpan={6} className="text-center py-8 text-slate-500">{t('noData')}</TableCell></TableRow>
-                ) : (
-                  warehouses.map((w: Warehouse) => (
-                    <TableRow key={w.id}>
-                      <TableCell className="font-medium">{w.name}</TableCell>
-                      <TableCell className="font-mono text-sm">{w.code}</TableCell>
-                      <TableCell>{w.location_id ? locationMap[w.location_id]?.city : '-'}</TableCell>
-                      <TableCell>{w.manager || '-'}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={cn(
-                          w.status === 'active' && "bg-emerald-50 text-emerald-700",
-                          w.status === 'inactive' && "bg-slate-50 text-slate-600",
-                          w.status === 'maintenance' && "bg-amber-50 text-amber-700"
-                        )}>
-                          {w.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => handleEditWarehouse(w)}>
-                            <Edit2 className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-rose-600" onClick={() => handleDeleteWarehouse(w.id)}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+          <Card className="overflow-hidden">
+            <DataTable
+              data={warehouses}
+              columns={warehouseColumns}
+              isLoading={loadingWarehouses}
+              emptyMessage={t('noData')}
+            />
           </Card>
         </TabsContent>
 
@@ -999,64 +1050,12 @@ export default function Settings() {
             </Dialog>
           </div>
 
-          <Card className=''>
-            <Table>
-              <TableHeader>
-                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                  <TableHead>{t('user')}</TableHead>
-                  <TableHead>{t('role')}</TableHead>
-                  <TableHead>{t('department')}</TableHead>
-                  <TableHead>{t('status')}</TableHead>
-                  <TableHead className="text-right">{t('actions')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {users.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-slate-500">{t('noData')}</TableCell>
-                  </TableRow>
-                ) : (
-                  users.map((u: any) => (
-                    <TableRow key={u.id}>
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-medium">
-                            {u.full_name?.charAt(0) || u.email.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <p className="font-medium text-slate-900">{u.full_name || u.username}</p>
-                            <p className="text-xs text-slate-500">{u.email}</p>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className="capitalize">{u.role}</Badge>
-                      </TableCell>
-                      <TableCell className="text-slate-600">{u.department || '-'}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline" className={cn(
-                          u.status === 'active' && "bg-emerald-50 text-emerald-700",
-                          u.status === 'pending' && "bg-amber-50 text-amber-700",
-                          u.status === 'suspended' && "bg-rose-50 text-rose-700"
-                        )}>
-                          {u.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex items-center justify-end gap-1">
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600" onClick={() => handleEditUser(u)}>
-                            <Edit2 className="h-4 w-4" />
-                          </Button>
-                          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600" onClick={() => handleDeleteUser(u.id)} disabled={u.id === user?.id}>
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
+          <Card className="overflow-hidden">
+            <DataTable
+              data={users}
+              columns={userTableColumns}
+              emptyMessage={t('noData')}
+            />
           </Card>
         </TabsContent>
 

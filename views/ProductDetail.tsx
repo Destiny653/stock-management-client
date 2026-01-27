@@ -18,14 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { DataTable, Column } from "@/components/ui/data-table";
 import {
   ArrowLeft,
   Save,
@@ -205,6 +198,45 @@ export default function ProductDetail() {
     out_of_stock: "bg-rose-100 text-rose-700",
     discontinued: "bg-slate-100 text-slate-600"
   };
+
+  const movementColumns: Column<StockMovement>[] = [
+    {
+      header: 'Date',
+      className: 'text-sm',
+      cell: (m) => (m.created_at ? format(new Date(m.created_at), "MMM d, yyyy") : '-')
+    },
+    {
+      header: 'Type',
+      cell: (m) => (
+        <Badge variant="outline" className={cn(
+          m.type === 'in' && "bg-emerald-50 text-emerald-700",
+          m.type === 'out' && "bg-blue-50 text-blue-700",
+          m.type === 'adjustment' && "bg-amber-50 text-amber-700"
+        )}>
+          {m.type}
+        </Badge>
+      )
+    },
+    {
+      header: 'Quantity',
+      className: 'font-medium',
+      cell: (m) => (
+        <span className={cn(m.quantity > 0 ? "text-emerald-600" : "text-rose-600")}>
+          {m.quantity > 0 ? '+' : ''}{m.quantity}
+        </span>
+      )
+    },
+    {
+      header: 'Reference',
+      className: 'text-sm text-slate-600',
+      cell: (m) => m.reference_id || '-'
+    },
+    {
+      header: 'By',
+      className: 'text-sm text-slate-600',
+      cell: (m) => m.performed_by || '-'
+    }
+  ];
 
   return (
     <div className="space-y-6">
@@ -618,47 +650,12 @@ export default function ProductDetail() {
                 {movements.length === 0 ? (
                   <p className="text-center text-slate-500 py-8">No stock movements recorded</p>
                 ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                        <TableHead>Date</TableHead>
-                        <TableHead>Type</TableHead>
-                        <TableHead>Quantity</TableHead>
-                        <TableHead>Reference</TableHead>
-                        <TableHead>By</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {movements.slice(0, 10).map((m) => (
-                        <TableRow key={m.id}>
-                          <TableCell className="text-sm">
-                            {m.created_at ? format(new Date(m.created_at), "MMM d, yyyy") : '-'}
-                          </TableCell>
-                          <TableCell>
-                            <Badge variant="outline" className={cn(
-                              m.type === 'in' && "bg-emerald-50 text-emerald-700",
-                              m.type === 'out' && "bg-blue-50 text-blue-700",
-                              m.type === 'adjustment' && "bg-amber-50 text-amber-700"
-                            )}>
-                              {m.type}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className={cn(
-                            "font-medium",
-                            m.quantity > 0 ? "text-emerald-600" : "text-rose-600"
-                          )}>
-                            {m.quantity > 0 ? '+' : ''}{m.quantity}
-                          </TableCell>
-                          <TableCell className="text-sm text-slate-600">
-                            {m.reference_id || '-'}
-                          </TableCell>
-                          <TableCell className="text-sm text-slate-600">
-                            {m.performed_by || '-'}
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
+                  <div className="bg-white overflow-hidden">
+                    <DataTable
+                      data={movements.slice(0, 10)}
+                      columns={movementColumns}
+                    />
+                  </div>
                 )}
               </CardContent>
             </Card>

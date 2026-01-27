@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { User, CheckCircle, ArrowLeft, Loader2 } from "lucide-react";
+import { User, CheckCircle, ArrowLeft, Loader2, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface StepUserProps {
     onSubmit: (data: any) => void;
@@ -21,17 +22,105 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
         password: '',
         confirmPassword: ''
     });
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    // Password strength calculation
+    const passwordStrength = useMemo(() => {
+        const password = formData.password;
+        let score = 0;
+        const checks = {
+            length: password.length >= 8,
+            uppercase: /[A-Z]/.test(password),
+            lowercase: /[a-z]/.test(password),
+            number: /[0-9]/.test(password),
+            special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+        };
+
+        if (checks.length) score++;
+        if (checks.uppercase) score++;
+        if (checks.lowercase) score++;
+        if (checks.number) score++;
+        if (checks.special) score++;
+
+        return { score, checks };
+    }, [formData.password]);
+
+    const getStrengthLabel = () => {
+        if (formData.password.length === 0) return '';
+        if (passwordStrength.score < 3) return 'Weak';
+        if (passwordStrength.score < 4) return 'Fair';
+        if (passwordStrength.score < 5) return 'Good';
+        return 'Strong';
+    };
+
+    const getStrengthColor = () => {
+        if (passwordStrength.score < 3) return 'bg-red-500';
+        if (passwordStrength.score < 4) return 'bg-amber-500';
+        if (passwordStrength.score < 5) return 'bg-emerald-400';
+        return 'bg-emerald-600';
+    };
 
     const handleSubmit = () => {
-        if (!formData.full_name || !formData.email || !formData.password) {
-            toast.error("Please fill in all required fields");
+        const fullName = formData.full_name.trim();
+        const email = formData.email.trim().toLowerCase();
+        const password = formData.password;
+        const confirmPassword = formData.confirmPassword;
+
+        // Validate full name
+        if (!fullName) {
+            toast.error("Please enter your full name");
             return;
         }
-        if (formData.password !== formData.confirmPassword) {
+        if (fullName.length < 2) {
+            toast.error("Full name must be at least 2 characters");
+            return;
+        }
+
+        // Validate email format
+        if (!email) {
+            toast.error("Please enter your email address");
+            return;
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            toast.error("Please enter a valid email address");
+            return;
+        }
+
+        // Validate password strength
+        if (!password) {
+            toast.error("Please enter a password");
+            return;
+        }
+        if (password.length < 8) {
+            toast.error("Password must be at least 8 characters long");
+            return;
+        }
+        if (!passwordStrength.checks.uppercase) {
+            toast.error("Password must contain at least one uppercase letter");
+            return;
+        }
+        if (!passwordStrength.checks.lowercase) {
+            toast.error("Password must contain at least one lowercase letter");
+            return;
+        }
+        if (!passwordStrength.checks.number) {
+            toast.error("Password must contain at least one number");
+            return;
+        }
+
+        // Validate password confirmation
+        if (password !== confirmPassword) {
             toast.error("Passwords do not match");
             return;
         }
-        onSubmit(formData);
+
+        onSubmit({
+            full_name: fullName,
+            email,
+            password
+        });
     };
 
     return (
@@ -48,43 +137,112 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
 
             <div className="space-y-4">
                 <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name</Label>
+                    <Label htmlFor="fullName">Full Name *</Label>
                     <Input
                         id="fullName"
                         value={formData.full_name}
                         onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                         placeholder="John Doe"
+                        disabled={isSubmitting}
                     />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="email">Email Address</Label>
+                    <Label htmlFor="email">Email Address *</Label>
                     <Input
                         id="email"
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="john@example.com"
+                        disabled={isSubmitting}
                     />
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                        id="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                        placeholder="••••••••"
-                    />
+                    <Label htmlFor="password">Password *</Label>
+                    <div className="relative">
+                        <Input
+                            id="password"
+                            type={showPassword ? "text" : "password"}
+                            value={formData.password}
+                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                            placeholder="••••••••"
+                            disabled={isSubmitting}
+                            className="pr-10"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                            tabIndex={-1}
+                        >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                    </div>
+                    {/* Password strength indicator */}
+                    {formData.password.length > 0 && (
+                        <div className="space-y-2">
+                            <div className="flex gap-1">
+                                {[1, 2, 3, 4, 5].map((level) => (
+                                    <div
+                                        key={level}
+                                        className={cn(
+                                            "h-1 flex-1 rounded-full transition-colors",
+                                            passwordStrength.score >= level ? getStrengthColor() : "bg-slate-200"
+                                        )}
+                                    />
+                                ))}
+                            </div>
+                            <p className={cn(
+                                "text-xs",
+                                passwordStrength.score < 3 ? "text-red-600" :
+                                    passwordStrength.score < 4 ? "text-amber-600" : "text-emerald-600"
+                            )}>
+                                Password strength: {getStrengthLabel()}
+                            </p>
+                            <ul className="text-xs text-slate-500 space-y-0.5">
+                                <li className={passwordStrength.checks.length ? "text-emerald-600" : ""}>
+                                    {passwordStrength.checks.length ? "✓" : "○"} At least 8 characters
+                                </li>
+                                <li className={passwordStrength.checks.uppercase ? "text-emerald-600" : ""}>
+                                    {passwordStrength.checks.uppercase ? "✓" : "○"} One uppercase letter
+                                </li>
+                                <li className={passwordStrength.checks.lowercase ? "text-emerald-600" : ""}>
+                                    {passwordStrength.checks.lowercase ? "✓" : "○"} One lowercase letter
+                                </li>
+                                <li className={passwordStrength.checks.number ? "text-emerald-600" : ""}>
+                                    {passwordStrength.checks.number ? "✓" : "○"} One number
+                                </li>
+                            </ul>
+                        </div>
+                    )}
                 </div>
                 <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm Password</Label>
-                    <Input
-                        id="confirmPassword"
-                        type="password"
-                        value={formData.confirmPassword}
-                        onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                        placeholder="••••••••"
-                    />
+                    <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                    <div className="relative">
+                        <Input
+                            id="confirmPassword"
+                            type={showConfirmPassword ? "text" : "password"}
+                            value={formData.confirmPassword}
+                            onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                            placeholder="••••••••"
+                            disabled={isSubmitting}
+                            className="pr-10"
+                        />
+                        <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                            tabIndex={-1}
+                        >
+                            {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </button>
+                    </div>
+                    {formData.confirmPassword && formData.password !== formData.confirmPassword && (
+                        <p className="text-xs text-red-600">Passwords do not match</p>
+                    )}
+                    {formData.confirmPassword && formData.password === formData.confirmPassword && formData.password.length > 0 && (
+                        <p className="text-xs text-emerald-600">✓ Passwords match</p>
+                    )}
                 </div>
             </div>
 
@@ -100,3 +258,4 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
         </div>
     );
 }
+

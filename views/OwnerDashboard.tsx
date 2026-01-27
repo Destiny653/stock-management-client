@@ -25,14 +25,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+import { DataTable, Column } from "@/components/ui/data-table";
 import {
     Building2,
     Users,
@@ -496,6 +489,329 @@ export default function OwnerDashboard() {
             .reduce((sum, org) => sum + (planPrices[org.subscription_plan || 'starter'] || 29), 0);
     }, [organizations]);
 
+    const paymentColumns: Column<OrganizationPayment>[] = [
+        {
+            header: 'Organization',
+            cell: (payment) => {
+                const org = organizations.find(o => o.id === payment.organization_id);
+                return (
+                    <div className="flex items-center gap-2">
+                        <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 font-medium text-sm">
+                            {org?.name?.charAt(0) || '?'}
+                        </div>
+                        <div>
+                            <p className="font-medium text-slate-900">{org?.name || 'Unknown'}</p>
+                            <p className="text-sm text-slate-500">{org?.code}</p>
+                        </div>
+                    </div>
+                );
+            }
+        },
+        {
+            header: 'Invoice',
+            cell: (payment) => (
+                <>
+                    <span className="font-mono text-sm">{payment.invoice_number}</span>
+                    {payment.reference_number && (
+                        <p className="text-xs text-slate-400">Ref: {payment.reference_number}</p>
+                    )}
+                </>
+            )
+        },
+        {
+            header: 'Amount',
+            cell: (payment) => (
+                <>
+                    <span className="font-semibold text-slate-900">
+                        {payment.currency === 'USD' ? '$' : payment.currency === 'EUR' ? '€' : payment.currency === 'XAF' ? 'CFA ' : '£'}
+                        {payment.amount.toLocaleString()}
+                    </span>
+                    <p className="text-xs text-slate-400 capitalize">{payment.billing_period}</p>
+                </>
+            )
+        },
+        {
+            header: 'Method',
+            className: 'capitalize text-sm',
+            cell: (payment) => payment.payment_method.replace('_', ' ')
+        },
+        {
+            header: 'Type',
+            className: 'capitalize text-sm',
+            cell: (payment) => payment.payment_type
+        },
+        {
+            header: 'Date',
+            className: 'text-sm',
+            cell: (payment) => (
+                payment.payment_date
+                    ? format(new Date(payment.payment_date), 'MMM d, yyyy')
+                    : format(new Date(payment.created_at), 'MMM d, yyyy')
+            )
+        },
+        {
+            header: 'Status',
+            cell: (payment) => (
+                <Badge className={cn(paymentStatusColors[payment.status], "capitalize")}>
+                    {payment.status}
+                </Badge>
+            )
+        },
+        {
+            header: 'Actions',
+            className: 'text-right',
+            cell: (payment) => (
+                <>
+                    {payment.status === 'pending' && (
+                        <div className="flex justify-end gap-1">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleConfirmPayment(payment)}
+                                disabled={updatePaymentMutation.isPending}
+                                className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                            >
+                                <CheckCircle className="h-4 w-4 mr-1" />
+                                Confirm
+                            </Button>
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleRejectPayment(payment)}
+                                disabled={updatePaymentMutation.isPending}
+                                className="text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                            >
+                                <XCircle className="h-4 w-4" />
+                            </Button>
+                        </div>
+                    )}
+                    {payment.status === 'completed' && (
+                        <span className="text-xs text-emerald-600 flex items-center justify-end gap-1">
+                            <CheckCircle className="h-3 w-3" />
+                            Confirmed
+                        </span>
+                    )}
+                    {payment.status === 'cancelled' && (
+                        <span className="text-xs text-slate-400">Cancelled</span>
+                    )}
+                </>
+            )
+        }
+    ];
+
+    const orgStatsColumns: Column<any>[] = [
+        {
+            header: 'Organization',
+            cell: (org) => (
+                <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
+                        {org.name?.charAt(0) || 'O'}
+                    </div>
+                    <div>
+                        <p className="font-medium text-slate-900">{org.name}</p>
+                        <p className="text-sm text-slate-500 font-mono">{org.code}</p>
+                    </div>
+                </div>
+            )
+        },
+        {
+            header: 'Vendors',
+            cell: (org) => (
+                <>
+                    <span className="font-medium">{org.vendorCount}</span>
+                    <span className="text-slate-400"> / {org.max_vendors}</span>
+                </>
+            )
+        },
+        {
+            header: 'Users',
+            cell: (org) => (
+                <>
+                    <span className="font-medium">{org.userCount}</span>
+                    <span className="text-slate-400"> / {org.max_users}</span>
+                </>
+            )
+        },
+        {
+            header: 'Products',
+            cell: (org) => org.productCount
+        },
+        {
+            header: 'Storage',
+            cell: (org) => (
+                org.estimatedStorageKB > 1024
+                    ? `${(org.estimatedStorageKB / 1024).toFixed(1)} MB`
+                    : `${org.estimatedStorageKB.toFixed(0)} KB`
+            )
+        },
+        {
+            header: 'Revenue (MTD)',
+            className: 'font-medium text-emerald-600',
+            cell: (org) => `$${org.thisMonthRevenue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
+        },
+        {
+            header: 'Status',
+            cell: (org) => <Badge className={statusColors[org.status]}>{org.status}</Badge>
+        },
+        {
+            header: '',
+            className: 'w-12',
+            cell: (org) => (
+                <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <Eye className="h-4 w-4" />
+                    </Button>
+                </Link>
+            )
+        }
+    ];
+
+    const subscriptionColumns: Column<any>[] = [
+        {
+            header: 'Organization',
+            cell: (org) => (
+                <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
+                        {org.name?.charAt(0) || 'O'}
+                    </div>
+                    <div>
+                        <p className="font-medium text-slate-900">{org.name}</p>
+                        <p className="text-sm text-slate-500 font-mono">{org.code}</p>
+                    </div>
+                </div>
+            )
+        },
+        {
+            header: 'Plan',
+            cell: (org) => (
+                <Badge className={cn(
+                    "capitalize",
+                    org.subscription_plan === 'enterprise' && "bg-violet-100 text-violet-700",
+                    org.subscription_plan === 'business' && "bg-blue-100 text-blue-700",
+                    (!org.subscription_plan || org.subscription_plan === 'starter') && "bg-slate-100 text-slate-700"
+                )}>
+                    <Crown className="h-3 w-3 mr-1" />
+                    {org.subscription_plan || 'starter'}
+                </Badge>
+            )
+        },
+        {
+            header: 'Billing Cycle',
+            className: 'capitalize text-sm font-medium',
+            cell: (org) => org.billing_cycle || 'monthly'
+        },
+        {
+            header: 'Amount',
+            cell: (org) => (
+                <>
+                    <span className="font-semibold text-slate-900">
+                        ${org.billingAmount}
+                    </span>
+                    <span className="text-xs text-slate-400">
+                        /{org.billing_cycle === 'yearly' ? 'yr' : 'mo'}
+                    </span>
+                </>
+            )
+        },
+        {
+            header: 'Last Payment',
+            cell: (org) => (
+                org.lastPayment ? (
+                    <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-slate-400" />
+                        <span className="text-sm">
+                            {format(new Date(org.lastPayment.payment_date || org.lastPayment.created_at), 'MMM d, yyyy')}
+                        </span>
+                    </div>
+                ) : (
+                    <span className="text-sm text-slate-400">No payment yet</span>
+                )
+            )
+        },
+        {
+            header: 'Next Billing',
+            cell: (org) => (
+                org.nextBillingDate ? (
+                    <div className="flex items-center gap-2">
+                        <Calendar className="h-4 w-4 text-slate-400" />
+                        <span className={cn(
+                            "text-sm",
+                            new Date() > org.nextBillingDate && "text-rose-600 font-medium"
+                        )}>
+                            {format(org.nextBillingDate, 'MMM d, yyyy')}
+                        </span>
+                    </div>
+                ) : (
+                    <span className="text-sm text-slate-400">—</span>
+                )
+            )
+        },
+        {
+            header: 'Payment Status',
+            cell: (org) => (
+                <Badge className={cn(
+                    org.paymentStatus === 'paid' && "bg-emerald-100 text-emerald-700",
+                    org.paymentStatus === 'pending' && "bg-amber-100 text-amber-700",
+                    org.paymentStatus === 'overdue' && "bg-rose-100 text-rose-700",
+                    org.paymentStatus === 'no_payment' && "bg-slate-100 text-slate-600"
+                )}>
+                    {org.paymentStatus === 'paid' && <CheckCircle className="h-3 w-3 mr-1" />}
+                    {org.paymentStatus === 'pending' && <Clock className="h-3 w-3 mr-1" />}
+                    {org.paymentStatus === 'overdue' && <AlertCircle className="h-3 w-3 mr-1" />}
+                    <span className="capitalize">{org.paymentStatus.replace('_', ' ')}</span>
+                </Badge>
+            )
+        },
+        {
+            header: 'Total Paid',
+            cell: (org) => (
+                <>
+                    <div className="flex items-center gap-1">
+                        <Wallet className="h-4 w-4 text-emerald-500" />
+                        <span className="font-semibold text-emerald-600">
+                            ${org.totalPaid.toLocaleString()}
+                        </span>
+                    </div>
+                    <p className="text-xs text-slate-400">{org.completedPaymentsCount} payments</p>
+                </>
+            )
+        },
+        {
+            header: 'Actions',
+            className: 'text-right',
+            cell: (org) => (
+                <div className="flex justify-end gap-1">
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleEditSubscription(org)}
+                        className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                    >
+                        <Edit2 className="h-4 w-4 mr-1" />
+                        Edit
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                            setPaymentForm(prev => ({
+                                ...prev,
+                                organization_id: org.id,
+                                amount: org.billingAmount.toString(),
+                                payment_type: 'subscription'
+                            }));
+                            setIsPaymentDialogOpen(true);
+                        }}
+                        className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
+                    >
+                        <Plus className="h-4 w-4 mr-1" />
+                        Payment
+                    </Button>
+                </div>
+            )
+        }
+    ];
+
     // Growth chart data (last 30 days)
     const growthChartData = useMemo(() => {
         const days = 30;
@@ -611,7 +927,7 @@ export default function OwnerDashboard() {
             </div>
 
             {/* Storage Overview */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <Card className='p-6'>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -719,7 +1035,7 @@ export default function OwnerDashboard() {
             </div>
 
             {/* Subscription Management Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <Card className='p-6'>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
@@ -1144,133 +1460,20 @@ export default function OwnerDashboard() {
                             </Select>
                         </div>
                     </CardHeader>
-                    <CardContent>
-                        <div className="bg-white overflow-x-auto">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                                        <TableHead>Organization</TableHead>
-                                        <TableHead>Invoice</TableHead>
-                                        <TableHead>Amount</TableHead>
-                                        <TableHead>Method</TableHead>
-                                        <TableHead>Type</TableHead>
-                                        <TableHead>Date</TableHead>
-                                        <TableHead>Status</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {loadingPayments ? (
-                                        <TableRow>
-                                            <TableCell colSpan={8} className="text-center py-8">
-                                                <Loader2 className="h-6 w-6 animate-spin mx-auto text-emerald-600" />
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : filteredPayments.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={8} className="text-center py-8 text-slate-500">
-                                                <div className="flex flex-col items-center gap-2">
-                                                    <Receipt className="h-8 w-8 text-slate-300" />
-                                                    <p>No payment records found</p>
-                                                    <p className="text-xs">Record payments as they are received</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : (
-                                        filteredPayments.slice(0, 10).map(payment => {
-                                            const org = organizations.find(o => o.id === payment.organization_id);
-                                            return (
-                                                <TableRow key={payment.id} className="hover:bg-slate-50">
-                                                    <TableCell>
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="h-8 w-8 rounded-lg bg-emerald-100 flex items-center justify-center text-emerald-600 font-medium text-sm">
-                                                                {org?.name?.charAt(0) || '?'}
-                                                            </div>
-                                                            <div>
-                                                                <p className="font-medium text-slate-900">{org?.name || 'Unknown'}</p>
-                                                                <p className="text-xs text-slate-500">{org?.code}</p>
-                                                            </div>
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <span className="font-mono text-sm">{payment.invoice_number}</span>
-                                                        {payment.reference_number && (
-                                                            <p className="text-xs text-slate-400">Ref: {payment.reference_number}</p>
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <span className="font-semibold text-slate-900">
-                                                            {payment.currency === 'USD' ? '$' : payment.currency === 'EUR' ? '€' : payment.currency === 'XAF' ? 'CFA ' : '£'}
-                                                            {payment.amount.toLocaleString()}
-                                                        </span>
-                                                        <p className="text-xs text-slate-400 capitalize">{payment.billing_period}</p>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <span className="capitalize text-sm">{payment.payment_method.replace('_', ' ')}</span>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <span className="capitalize text-sm">{payment.payment_type}</span>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <span className="text-sm">
-                                                            {payment.payment_date
-                                                                ? format(new Date(payment.payment_date), 'MMM d, yyyy')
-                                                                : format(new Date(payment.created_at), 'MMM d, yyyy')}
-                                                        </span>
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <Badge className={cn(paymentStatusColors[payment.status], "capitalize")}>
-                                                            {payment.status}
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell className="text-right">
-                                                        {payment.status === 'pending' && (
-                                                            <div className="flex justify-end gap-1">
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    onClick={() => handleConfirmPayment(payment)}
-                                                                    disabled={updatePaymentMutation.isPending}
-                                                                    className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                                                                >
-                                                                    <CheckCircle className="h-4 w-4 mr-1" />
-                                                                    Confirm
-                                                                </Button>
-                                                                <Button
-                                                                    variant="ghost"
-                                                                    size="sm"
-                                                                    onClick={() => handleRejectPayment(payment)}
-                                                                    disabled={updatePaymentMutation.isPending}
-                                                                    className="text-rose-600 hover:text-rose-700 hover:bg-rose-50"
-                                                                >
-                                                                    <XCircle className="h-4 w-4" />
-                                                                </Button>
-                                                            </div>
-                                                        )}
-                                                        {payment.status === 'completed' && (
-                                                            <span className="text-xs text-emerald-600 flex items-center justify-end gap-1">
-                                                                <CheckCircle className="h-3 w-3" />
-                                                                Confirmed
-                                                            </span>
-                                                        )}
-                                                        {payment.status === 'cancelled' && (
-                                                            <span className="text-xs text-slate-400">Cancelled</span>
-                                                        )}
-                                                    </TableCell>
-                                                </TableRow>
-                                            );
-                                        })
-                                    )}
-                                </TableBody>
-                            </Table>
-                            {filteredPayments.length > 10 && (
-                                <div className="text-center py-3 border-t">
-                                    <p className="text-sm text-slate-500">
-                                        Showing 10 of {filteredPayments.length} payments
-                                    </p>
-                                </div>
-                            )}
-                        </div>
+                    <CardContent className="p-0">
+                        <DataTable
+                            data={filteredPayments.slice(0, 10)}
+                            columns={paymentColumns}
+                            isLoading={loadingPayments}
+                            emptyMessage="No payment records found"
+                        />
+                        {filteredPayments.length > 10 && (
+                            <div className="text-center py-3 border-t">
+                                <p className="text-sm text-slate-500">
+                                    Showing 10 of {filteredPayments.length} payments
+                                </p>
+                            </div>
+                        )}
                     </CardContent>
                 </Card>
             </div>
@@ -1322,75 +1525,12 @@ export default function OwnerDashboard() {
                         </Button>
                     </Link>
                 </CardHeader>
-                <CardContent>
-                    <div className="bg-white overflow-hidden">
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                                    <TableHead>Organization</TableHead>
-                                    <TableHead>Vendors</TableHead>
-                                    <TableHead>Users</TableHead>
-                                    <TableHead>Products</TableHead>
-                                    <TableHead>Storage</TableHead>
-                                    <TableHead>Revenue (MTD)</TableHead>
-                                    <TableHead>Status</TableHead>
-                                    <TableHead className="w-12"></TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {orgStats.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={8} className="text-center py-8 text-slate-500">
-                                            No organizations found
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    orgStats.slice(0, 10).map(org => (
-                                        <TableRow key={org.id} className="hover:bg-slate-50">
-                                            <TableCell>
-                                                <div className="flex items-center gap-3">
-                                                    <div className="h-10 w-10 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
-                                                        {org.name?.charAt(0) || 'O'}
-                                                    </div>
-                                                    <div>
-                                                        <p className="font-medium text-slate-900">{org.name}</p>
-                                                        <p className="text-sm text-slate-500 font-mono">{org.code}</p>
-                                                    </div>
-                                                </div>
-                                            </TableCell>
-                                            <TableCell>
-                                                <span className="font-medium">{org.vendorCount}</span>
-                                                <span className="text-slate-400"> / {org.max_vendors}</span>
-                                            </TableCell>
-                                            <TableCell>
-                                                <span className="font-medium">{org.userCount}</span>
-                                                <span className="text-slate-400"> / {org.max_users}</span>
-                                            </TableCell>
-                                            <TableCell>{org.productCount}</TableCell>
-                                            <TableCell>
-                                                {org.estimatedStorageKB > 1024
-                                                    ? `${(org.estimatedStorageKB / 1024).toFixed(1)} MB`
-                                                    : `${org.estimatedStorageKB.toFixed(0)} KB`}
-                                            </TableCell>
-                                            <TableCell className="font-medium text-emerald-600">
-                                                ${org.thisMonthRevenue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-                                            </TableCell>
-                                            <TableCell>
-                                                <Badge className={statusColors[org.status]}>{org.status}</Badge>
-                                            </TableCell>
-                                            <TableCell>
-                                                <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)}>
-                                                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                                                        <Eye className="h-4 w-4" />
-                                                    </Button>
-                                                </Link>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    </div>
+                <CardContent className="p-0">
+                    <DataTable
+                        data={orgStats.slice(0, 10)}
+                        columns={orgStatsColumns}
+                        emptyMessage="No organizations found"
+                    />
                 </CardContent>
             </Card>
 
@@ -1411,161 +1551,13 @@ export default function OwnerDashboard() {
                             Organization Subscriptions
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div className="bg-white overflow-x-auto">
-                            <Table>
-                                <TableHeader>
-                                    <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                                        <TableHead>Organization</TableHead>
-                                        <TableHead>Plan</TableHead>
-                                        <TableHead>Billing Cycle</TableHead>
-                                        <TableHead>Amount</TableHead>
-                                        <TableHead>Last Payment</TableHead>
-                                        <TableHead>Next Billing</TableHead>
-                                        <TableHead>Payment Status</TableHead>
-                                        <TableHead>Total Paid</TableHead>
-                                        <TableHead className="text-right">Actions</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {loadingOrgs || loadingPayments ? (
-                                        <TableRow>
-                                            <TableCell colSpan={9} className="text-center py-8">
-                                                <Loader2 className="h-6 w-6 animate-spin mx-auto text-emerald-600" />
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : orgSubscriptionStats.length === 0 ? (
-                                        <TableRow>
-                                            <TableCell colSpan={9} className="text-center py-8 text-slate-500">
-                                                <div className="flex flex-col items-center gap-2">
-                                                    <Crown className="h-8 w-8 text-slate-300" />
-                                                    <p>No organizations found</p>
-                                                </div>
-                                            </TableCell>
-                                        </TableRow>
-                                    ) : (
-                                        orgSubscriptionStats.map(org => (
-                                            <TableRow key={org.id} className="hover:bg-slate-50">
-                                                <TableCell>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
-                                                            {org.name?.charAt(0) || 'O'}
-                                                        </div>
-                                                        <div>
-                                                            <p className="font-medium text-slate-900">{org.name}</p>
-                                                            <p className="text-sm text-slate-500 font-mono">{org.code}</p>
-                                                        </div>
-                                                    </div>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge className={cn(
-                                                        "capitalize",
-                                                        org.subscription_plan === 'enterprise' && "bg-violet-100 text-violet-700",
-                                                        org.subscription_plan === 'business' && "bg-blue-100 text-blue-700",
-                                                        (!org.subscription_plan || org.subscription_plan === 'starter') && "bg-slate-100 text-slate-700"
-                                                    )}>
-                                                        <Crown className="h-3 w-3 mr-1" />
-                                                        {org.subscription_plan || 'starter'}
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <span className="capitalize text-sm font-medium">
-                                                        {org.billing_cycle || 'monthly'}
-                                                    </span>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <span className="font-semibold text-slate-900">
-                                                        ${org.billingAmount}
-                                                    </span>
-                                                    <span className="text-xs text-slate-400">
-                                                        /{org.billing_cycle === 'yearly' ? 'yr' : 'mo'}
-                                                    </span>
-                                                </TableCell>
-                                                <TableCell>
-                                                    {org.lastPayment ? (
-                                                        <div className="flex items-center gap-2">
-                                                            <Calendar className="h-4 w-4 text-slate-400" />
-                                                            <span className="text-sm">
-                                                                {format(new Date(org.lastPayment.payment_date || org.lastPayment.created_at), 'MMM d, yyyy')}
-                                                            </span>
-                                                        </div>
-                                                    ) : (
-                                                        <span className="text-sm text-slate-400">No payment yet</span>
-                                                    )}
-                                                </TableCell>
-                                                <TableCell>
-                                                    {org.nextBillingDate ? (
-                                                        <div className="flex items-center gap-2">
-                                                            <Calendar className="h-4 w-4 text-slate-400" />
-                                                            <span className={cn(
-                                                                "text-sm",
-                                                                new Date() > org.nextBillingDate && "text-rose-600 font-medium"
-                                                            )}>
-                                                                {format(org.nextBillingDate, 'MMM d, yyyy')}
-                                                            </span>
-                                                        </div>
-                                                    ) : (
-                                                        <span className="text-sm text-slate-400">—</span>
-                                                    )}
-                                                </TableCell>
-                                                <TableCell>
-                                                    <Badge className={cn(
-                                                        org.paymentStatus === 'paid' && "bg-emerald-100 text-emerald-700",
-                                                        org.paymentStatus === 'pending' && "bg-amber-100 text-amber-700",
-                                                        org.paymentStatus === 'overdue' && "bg-rose-100 text-rose-700",
-                                                        org.paymentStatus === 'no_payment' && "bg-slate-100 text-slate-600"
-                                                    )}>
-                                                        {org.paymentStatus === 'paid' && <CheckCircle className="h-3 w-3 mr-1" />}
-                                                        {org.paymentStatus === 'pending' && <Clock className="h-3 w-3 mr-1" />}
-                                                        {org.paymentStatus === 'overdue' && <AlertCircle className="h-3 w-3 mr-1" />}
-                                                        <span className="capitalize">{org.paymentStatus.replace('_', ' ')}</span>
-                                                    </Badge>
-                                                </TableCell>
-                                                <TableCell>
-                                                    <div className="flex items-center gap-1">
-                                                        <Wallet className="h-4 w-4 text-emerald-500" />
-                                                        <span className="font-semibold text-emerald-600">
-                                                            ${org.totalPaid.toLocaleString()}
-                                                        </span>
-                                                    </div>
-                                                    <p className="text-xs text-slate-400">{org.completedPaymentsCount} payments</p>
-                                                </TableCell>
-                                                <TableCell className="text-right">
-                                                    <div className="flex justify-end gap-1">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() => handleEditSubscription(org)}
-                                                            className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                                                        >
-                                                            <Edit2 className="h-4 w-4 mr-1" />
-                                                            Edit
-                                                        </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                            onClick={() => {
-                                                                setPaymentForm(prev => ({
-                                                                    ...prev,
-                                                                    organization_id: org.id,
-                                                                    amount: org.billingAmount.toString(),
-                                                                    payment_type: 'subscription'
-                                                                }));
-                                                                setIsPaymentDialogOpen(true);
-                                                            }}
-                                                            className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
-                                                        >
-                                                            <Plus className="h-4 w-4 mr-1" />
-                                                            Payment
-                                                        </Button>
-                                                    </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))
-                                    )}
-                                </TableBody>
-                            </Table>
-                        </div>
+                    <CardContent className="p-0">
+                        <DataTable
+                            data={orgSubscriptionStats}
+                            columns={subscriptionColumns}
+                            isLoading={loadingOrgs || loadingPayments}
+                            emptyMessage="No organizations found"
+                        />
                     </CardContent>
                 </Card>
             </div>

@@ -7,14 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-    Table,
-    TableBody,
-    TableCell,
-    TableHead,
-    TableHeader,
-    TableRow,
-} from "@/components/ui/table";
+import { DataTable, Column } from "@/components/ui/data-table";
 import {
     Select,
     SelectContent,
@@ -114,6 +107,80 @@ export default function VendorPayments() {
             });
         }
     };
+
+    const columns: Column<VendorPayment>[] = [
+        {
+            header: t('date'),
+            cell: (payment) => format(new Date(payment.created_at), 'MMM d, yyyy')
+        },
+        {
+            header: t('vendor'),
+            cell: (payment) => (
+                <Link
+                    href={createPageUrl(`VendorDetail?id=${payment.vendor_id}`)}
+                    className="font-medium text-slate-900 hover:text-emerald-600"
+                >
+                    {payment.vendor_name}
+                </Link>
+            )
+        },
+        {
+            header: t('paymentType'),
+            className: 'capitalize',
+            cell: (payment) => payment.payment_type
+        },
+        {
+            header: t('amount'),
+            className: 'font-bold text-emerald-600',
+            cell: (payment) => `$${payment.amount?.toLocaleString()}`
+        },
+        {
+            header: t('method'),
+            className: 'capitalize text-slate-600',
+            cell: (payment) => payment.payment_method?.replace('_', ' ')
+        },
+        {
+            header: t('reference'),
+            className: 'text-slate-600 font-mono text-sm',
+            cell: (payment) => payment.reference_number || '-'
+        },
+        {
+            header: t('status'),
+            cell: (payment) => (
+                <Badge className={paymentStatusColors[payment.status]}>
+                    {payment.status}
+                </Badge>
+            )
+        },
+        {
+            header: t('confirmedBy'),
+            className: 'text-sm text-slate-500',
+            cell: (payment) => payment.confirmed_by || '-'
+        },
+        {
+            header: t('actions'),
+            cell: (payment) => (
+                payment.status === 'pending' ? (
+                    <Button
+                        size="sm"
+                        className="bg-emerald-600 hover:bg-emerald-700"
+                        onClick={() => handleConfirmPayment(payment)}
+                        disabled={confirmPaymentMutation.isPending}
+                    >
+                        <CheckCircle className="h-4 w-4 mr-1" />
+                        {t('confirm')}
+                    </Button>
+                ) : (
+                    <Link href={createPageUrl(`VendorDetail?id=${payment.vendor_id}`)}>
+                        <Button variant="outline" size="sm">
+                            <Eye className="h-4 w-4 mr-1" />
+                            {t('view')}
+                        </Button>
+                    </Link>
+                )
+            )
+        }
+    ];
 
     const filteredPayments = useMemo(() => {
         let result = [...payments];
@@ -249,93 +316,16 @@ export default function VendorPayments() {
             </div>
 
             {/* Payments Table */}
-            <div className="bg-white overflow-hidden">
-                {isLoading ? (
-                    <div className="flex items-center justify-center h-64">
-                        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-                    </div>
-                ) : (
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-slate-700">
-                                <TableHead>{t('date')}</TableHead>
-                                <TableHead>{t('vendor')}</TableHead>
-                                <TableHead>{t('paymentType')}</TableHead>
-                                <TableHead>{t('amount')}</TableHead>
-                                <TableHead>{t('method')}</TableHead>
-                                <TableHead>{t('reference')}</TableHead>
-                                <TableHead>{t('status')}</TableHead>
-                                <TableHead>{t('confirmedBy')}</TableHead>
-                                <TableHead>{t('actions')}</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {filteredPayments.length === 0 ? (
-                                <TableRow>
-                                    <TableCell colSpan={9} className="h-48">
-                                        <div className="flex flex-col items-center justify-center text-center">
-                                            <CreditCard className="h-12 w-12 text-slate-300 mb-3" />
-                                            <p className="text-slate-600">{t('noPaymentsFound')}</p>
-                                        </div>
-                                    </TableCell>
-                                </TableRow>
-                            ) : (
-                                filteredPayments.map((payment: any) => (
-                                    <TableRow key={payment.id} className="hover:bg-slate-50">
-                                        <TableCell className="text-sm">
-                                            {format(new Date(payment.created_at), 'MMM d, yyyy')}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Link
-                                                href={createPageUrl(`VendorDetail?id=${payment.vendor_id}`)}
-                                                className="font-medium text-slate-900 hover:text-emerald-600"
-                                            >
-                                                {payment.vendor_name}
-                                            </Link>
-                                        </TableCell>
-                                        <TableCell className="capitalize">{payment.payment_type}</TableCell>
-                                        <TableCell className="font-semibold">${payment.amount?.toLocaleString()}</TableCell>
-                                        <TableCell className="capitalize text-slate-600">
-                                            {payment.payment_method?.replace('_', ' ')}
-                                        </TableCell>
-                                        <TableCell className="text-slate-600 font-mono text-sm">
-                                            {payment.reference_number || '-'}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Badge className={paymentStatusColors[payment.status]}>
-                                                {payment.status}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="text-sm text-slate-500">
-                                            {payment.confirmed_by || '-'}
-                                        </TableCell>
-                                        <TableCell>
-                                            {payment.status === 'pending' ? (
-                                                <Button
-                                                    size="sm"
-                                                    className="bg-emerald-600 hover:bg-emerald-700"
-                                                    onClick={() => handleConfirmPayment(payment)}
-                                                    disabled={confirmPaymentMutation.isPending}
-                                                >
-                                                    <CheckCircle className="h-4 w-4 mr-1" />
-                                                    {t('confirm')}
-                                                </Button>
-                                            ) : (
-                                                <Link href={createPageUrl(`VendorDetail?id=${payment.vendor_id}`)}>
-                                                    <Button variant="outline" size="sm">
-                                                        <Eye className="h-4 w-4 mr-1" />
-                                                        {t('view')}
-                                                    </Button>
-                                                </Link>
-                                            )}
-                                        </TableCell>
-                                    </TableRow>
-                                ))
-                            )}
-                        </TableBody>
-                    </Table>
-                )}
-            </div>
+            <Card>
+                <CardContent className="p-0">
+                    <DataTable
+                        data={filteredPayments}
+                        columns={columns}
+                        isLoading={isLoading}
+                        emptyMessage={t('noPaymentsFound')}
+                    />
+                </CardContent>
+            </Card>
         </div>
     );
 }
