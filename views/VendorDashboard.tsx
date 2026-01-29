@@ -137,7 +137,7 @@ export default function VendorDashboard() {
   if (loadingUser) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -153,7 +153,7 @@ export default function VendorDashboard() {
           <p className="text-slate-500 mt-1">Here's your store performance overview</p>
         </div>
         <Link href={createPageUrl("DirectSales")}>
-          <Button className="bg-blue-600 hover:bg-blue-700">
+          <Button className="bg-primary hover:bg-primary/90">
             <ShoppingCart className="h-4 w-4 mr-2" />
             New Sale
           </Button>
@@ -162,7 +162,7 @@ export default function VendorDashboard() {
 
       {/* Store Info Card */}
       {myVendor && (
-        <Card className="bg-linear-to-br from-blue-500 to-blue-600 text-white">
+        <Card className="bg-primary text-primary-foreground">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -171,7 +171,7 @@ export default function VendorDashboard() {
                 </div>
                 <div>
                   <h2 className="text-xl font-bold">{myVendor.store_name}</h2>
-                  <p className="text-blue-100">{myLocation ? `${myLocation.city}, ${myLocation.country}` : 'No location set'}</p>
+                  <p className="text-primary-foreground/80">{myLocation ? `${myLocation.city}, ${myLocation.country}` : 'No location set'}</p>
                 </div>
               </div>
               <div className="text-right">
@@ -181,7 +181,7 @@ export default function VendorDashboard() {
                 )}>
                   {myVendor.status}
                 </Badge>
-                <p className="text-sm text-blue-100 mt-2">
+                <p className="text-sm text-primary-foreground/80 mt-2">
                   Plan: <span className="capitalize font-medium text-white">{myVendor.subscription_plan}</span>
                 </p>
               </div>
@@ -196,7 +196,7 @@ export default function VendorDashboard() {
           <CardContent className="p-4 py-12">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm text-slate-500">Today</p>
-              <TrendingUp className="h-4 w-4 text-blue-500" />
+              <TrendingUp className="h-4 w-4 text-primary" />
             </div>
             <p className="text-2xl font-bold text-slate-900">${salesStats.daily.total.toLocaleString()}</p>
             <p className="text-xs text-slate-500">{salesStats.daily.count} orders</p>
@@ -206,7 +206,7 @@ export default function VendorDashboard() {
           <CardContent className="p-4 py-12">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm text-slate-500">This Week</p>
-              <Calendar className="h-4 w-4 text-blue-500" />
+              <Calendar className="h-4 w-4 text-primary" />
             </div>
             <p className="text-2xl font-bold text-slate-900">${salesStats.weekly.total.toLocaleString()}</p>
             <p className="text-xs text-slate-500">{salesStats.weekly.count} orders</p>
@@ -216,9 +216,9 @@ export default function VendorDashboard() {
           <CardContent className="p-4 py-12">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm text-slate-500">This Month</p>
-              <DollarSign className="h-4 w-4 text-blue-500" />
+              <DollarSign className="h-4 w-4 text-primary" />
             </div>
-            <p className="text-2xl font-bold text-blue-600">${salesStats.monthly.total.toLocaleString()}</p>
+            <p className="text-2xl font-bold text-primary">${salesStats.monthly.total.toLocaleString()}</p>
             <p className="text-xs text-slate-500">{salesStats.monthly.count} orders</p>
           </CardContent>
         </Card>
@@ -259,15 +259,15 @@ export default function VendorDashboard() {
                 <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="vendorSalesGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#2454FF" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#2454FF" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#94a3b8" />
                   <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" />
                   <Tooltip />
-                  <Area type="monotone" dataKey="sales" stroke="#2454FF" fill="url(#vendorSalesGradient)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="sales" stroke="var(--primary)" fill="url(#vendorSalesGradient)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -297,7 +297,7 @@ export default function VendorDashboard() {
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-slate-500">Status</span>
                     <Badge className={cn(
-                      myVendor.payment_status === 'paid' ? 'bg-blue-100 text-blue-700' :
+                      myVendor.payment_status === 'paid' ? 'bg-primary/10 text-primary' :
                         myVendor.payment_status === 'overdue' ? 'bg-rose-100 text-rose-700' :
                           'bg-amber-100 text-amber-700'
                     )}>
@@ -328,7 +328,7 @@ export default function VendorDashboard() {
                             <span className="font-medium">${payment.amount}</span>
                             <Badge variant="outline" className={cn(
                               "text-xs",
-                              payment.status === 'confirmed' ? 'bg-blue-50 text-blue-700' : 'bg-amber-50 text-amber-700'
+                              payment.status === 'confirmed' ? 'bg-primary/10 text-primary' : 'bg-amber-50 text-amber-700'
                             )}>
                               {payment.status}
                             </Badge>
@@ -363,7 +363,7 @@ export default function VendorDashboard() {
               <ShoppingCart className="h-12 w-12 text-slate-300 mx-auto mb-3" />
               <p className="text-slate-600">No sales yet</p>
               <Link href={createPageUrl("DirectSales")}>
-                <Button className="mt-4 bg-blue-600 hover:bg-blue-700">Make Your First Sale</Button>
+                <Button className="mt-4 bg-primary hover:bg-primary/90">Make Your First Sale</Button>
               </Link>
             </div>
           ) : (

@@ -52,7 +52,7 @@ function useSafeLanguage() {
     }
 }
 
-const COLORS = ['#2454FF', '#8b5cf6', '#f59e0b', '#ef4444', '#3b82f6', '#2454FF', '#6366f1', '#ec4899'];
+const COLORS = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)', 'var(--primary)', '#6366f1', '#ec4899'];
 
 const CustomTooltip = ({ active, payload, label, valuePrefix = '', valueSuffix = '' }: any) => {
     if (active && payload && payload.length) {
@@ -314,7 +314,7 @@ function OrgReports() {
     if (loadingProducts) {
         return (
             <div className="flex items-center justify-center h-96">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
     }
@@ -355,14 +355,14 @@ function OrgReports() {
                                 <p className="text-2xl font-bold text-slate-900 mt-1">${(totalValue / 1000).toFixed(1)}k</p>
                                 <div className={cn(
                                     "flex items-center gap-1 mt-1",
-                                    valueTrend.trend === "up" ? "text-blue-600" : "text-rose-600"
+                                    valueTrend.trend === "up" ? "text-primary" : "text-rose-600"
                                 )}>
                                     {valueTrend.trend === "up" ? <ArrowUpRight className="h-4 w-4" /> : <ArrowDownRight className="h-4 w-4" />}
                                     <span className="text-xs">{valueTrend.trend === "up" ? '+' : '-'}{valueTrend.value}</span>
                                 </div>
                             </div>
-                            <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                                <DollarSign className="h-6 w-6 text-blue-600" />
+                            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                                <DollarSign className="h-6 w-6 text-primary" />
                             </div>
                         </div>
                     </CardContent>
@@ -391,8 +391,8 @@ function OrgReports() {
                                 <p className="text-2xl font-bold text-slate-900 mt-1">${(totalCost / 1000).toFixed(1)}k</p>
                                 <p className="text-xs text-slate-400 mt-1">{t('profitMargin')}: {totalCost > 0 ? ((totalValue - totalCost) / totalCost * 100).toFixed(1) : 0}%</p>
                             </div>
-                            <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                                <TrendingUp className="h-6 w-6 text-blue-600" />
+                            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                                <TrendingUp className="h-6 w-6 text-primary" />
                             </div>
                         </div>
                     </CardContent>
@@ -428,15 +428,15 @@ function OrgReports() {
                                 <AreaChart data={inventoryTrend}>
                                     <defs>
                                         <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="#2454FF" stopOpacity={0.2} />
-                                            <stop offset="95%" stopColor="#2454FF" stopOpacity={0} />
+                                            <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.2} />
+                                            <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
                                     <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
                                     <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} />
                                     <Tooltip content={<CustomTooltip valuePrefix="$" />} />
-                                    <Area type="monotone" dataKey="value" stroke="#2454FF" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" name={t('value')} />
+                                    <Area type="monotone" dataKey="value" stroke="var(--primary)" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" name={t('value')} />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
@@ -501,7 +501,7 @@ function OrgReports() {
                                     <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
                                     <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} width={100} />
                                     <Tooltip content={<CustomTooltip valueSuffix={` ${t('units')}`} />} />
-                                    <Bar dataKey="received" fill="#2454FF" name={t('received')} radius={[0, 4, 4, 0]} />
+                                    <Bar dataKey="received" fill="var(--primary)" name={t('received')} radius={[0, 4, 4, 0]} />
                                     <Bar dataKey="dispatched" fill="#3b82f6" name={t('dispatched')} radius={[0, 4, 4, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
@@ -527,7 +527,7 @@ function OrgReports() {
                                         {agingData.map((entry: any, index: number) => (
                                             <Cell
                                                 key={`cell-${index}`}
-                                                fill={index === 3 ? '#ef4444' : index === 2 ? '#f59e0b' : index === 1 ? '#3b82f6' : '#2454FF'}
+                                                fill={index === 3 ? '#ef4444' : index === 2 ? '#f59e0b' : index === 1 ? '#3b82f6' : 'var(--primary)'}
                                             />
                                         ))}
                                     </Bar>
@@ -547,14 +547,14 @@ function OrgReports() {
                 <CardContent>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         <Button variant="outline" className="h-auto p-4 justify-start" onClick={exportInventoryCSV}>
-                            <FileSpreadsheet className="h-8 w-8 mr-4 text-blue-600" />
+                            <FileSpreadsheet className="h-8 w-8 mr-4 text-primary" />
                             <div className="text-left">
                                 <p className="font-medium">{t('inventoryValuation')}</p>
                                 <p className="text-xs text-slate-500">{t('fullStockListValues')}</p>
                             </div>
                         </Button>
                         <Button variant="outline" className="h-auto p-4 justify-start" onClick={exportMovementsCSV}>
-                            <FileSpreadsheet className="h-8 w-8 mr-4 text-blue-600" />
+                            <FileSpreadsheet className="h-8 w-8 mr-4 text-primary" />
                             <div className="text-left">
                                 <p className="font-medium">{t('stockMovements')}</p>
                                 <p className="text-xs text-slate-500">{t('allInventoryTransactions')}</p>

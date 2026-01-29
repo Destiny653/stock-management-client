@@ -47,10 +47,10 @@ export function StatusBadge({
     const finalLabel = label || config.label;
 
     const variantStyles = {
-        success: "bg-blue-50 text-blue-700 border-blue-200",
+        success: "bg-primary/10 text-primary border-primary/20",
         warning: "bg-amber-50 text-amber-700 border-amber-200",
         danger: "bg-rose-50 text-rose-700 border-rose-200",
-        info: "bg-blue-50 text-blue-700 border-blue-200",
+        info: "bg-primary/5 text-primary border-primary/20",
         default: "bg-slate-50 text-slate-600 border-slate-200"
     };
 

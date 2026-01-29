@@ -406,7 +406,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
 
       {/* Main Content */}
       <main className={cn(
-        "pt-16 min-h-screen transition-all duration-300 ease-in-out bg-[#f9fafb70]",
+        "pt-16 min-h-screen transition-all duration-300 ease-in-out bg-[#f9fafb86]",
         sidebarCollapsed ? "lg:pl-[72px]" : "lg:pl-64"
       )}>
         <div className="p-4 lg:p-8">

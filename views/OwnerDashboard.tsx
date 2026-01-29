@@ -71,10 +71,10 @@ function useSafeLanguage() {
     }
 }
 
-const COLORS = ['#2454FF', '#8b5cf6', '#f59e0b', '#ef4444', '#3b82f6', '#ec4899'];
+const COLORS = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)', '#ec4899'];
 
 const statusColors: Record<string, string> = {
-    active: "bg-blue-100 text-blue-700",
+    active: "bg-primary/10 text-primary",
     inactive: "bg-slate-100 text-slate-600",
     suspended: "bg-rose-100 text-rose-700",
     pending: "bg-amber-100 text-amber-700"
@@ -155,9 +155,9 @@ export default function OwnerDashboard() {
     // Payment status colors
     const paymentStatusColors: Record<string, string> = {
         pending: "bg-amber-100 text-amber-700",
-        completed: "bg-blue-100 text-blue-700",
-        failed: "bg-rose-100 text-rose-700",
-        refunded: "bg-blue-100 text-blue-700",
+        completed: "bg-primary/10 text-primary",
+        failed: "bg-destructive/10 text-destructive",
+        refunded: "bg-primary/10 text-primary",
         cancelled: "bg-slate-100 text-slate-600"
     };
 
@@ -496,7 +496,7 @@ export default function OwnerDashboard() {
                 const org = organizations.find(o => o.id === payment.organization_id);
                 return (
                     <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-medium text-sm">
+                        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-medium text-sm">
                             {org?.name?.charAt(0) || '?'}
                         </div>
                         <div>
@@ -569,7 +569,7 @@ export default function OwnerDashboard() {
                                 size="sm"
                                 onClick={() => handleConfirmPayment(payment)}
                                 disabled={updatePaymentMutation.isPending}
-                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                className="text-primary hover:text-primary hover:bg-primary/10"
                             >
                                 <CheckCircle className="h-4 w-4 mr-1" />
                                 Confirm
@@ -586,7 +586,7 @@ export default function OwnerDashboard() {
                         </div>
                     )}
                     {payment.status === 'completed' && (
-                        <span className="text-xs text-blue-600 flex items-center justify-end gap-1">
+                        <span className="text-xs text-primary flex items-center justify-end gap-1">
                             <CheckCircle className="h-3 w-3" />
                             Confirmed
                         </span>
@@ -604,7 +604,7 @@ export default function OwnerDashboard() {
             header: 'Organization',
             cell: (org) => (
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-semibold">
                         {org.name?.charAt(0) || 'O'}
                     </div>
                     <div>
@@ -646,7 +646,7 @@ export default function OwnerDashboard() {
         },
         {
             header: 'Revenue (MTD)',
-            className: 'font-medium text-blue-600',
+            className: 'font-medium text-primary',
             cell: (org) => `$${org.thisMonthRevenue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
         },
         {
@@ -671,7 +671,7 @@ export default function OwnerDashboard() {
             header: 'Organization',
             cell: (org) => (
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-semibold">
                         {org.name?.charAt(0) || 'O'}
                     </div>
                     <div>
@@ -750,7 +750,7 @@ export default function OwnerDashboard() {
             header: 'Payment Status',
             cell: (org) => (
                 <Badge className={cn(
-                    org.paymentStatus === 'paid' && "bg-blue-100 text-blue-700",
+                    org.paymentStatus === 'paid' && "bg-primary/10 text-primary",
                     org.paymentStatus === 'pending' && "bg-amber-100 text-amber-700",
                     org.paymentStatus === 'overdue' && "bg-rose-100 text-rose-700",
                     org.paymentStatus === 'no_payment' && "bg-slate-100 text-slate-600"
@@ -767,8 +767,8 @@ export default function OwnerDashboard() {
             cell: (org) => (
                 <>
                     <div className="flex items-center gap-1">
-                        <Wallet className="h-4 w-4 text-blue-500" />
-                        <span className="font-semibold text-blue-600">
+                        <Wallet className="h-4 w-4 text-primary" />
+                        <span className="font-semibold text-primary">
                             ${org.totalPaid.toLocaleString()}
                         </span>
                     </div>
@@ -785,7 +785,7 @@ export default function OwnerDashboard() {
                         variant="ghost"
                         size="sm"
                         onClick={() => handleEditSubscription(org)}
-                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        className="text-primary hover:text-primary hover:bg-primary/10"
                     >
                         <Edit2 className="h-4 w-4 mr-1" />
                         Edit
@@ -842,7 +842,7 @@ export default function OwnerDashboard() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-96">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
     }
@@ -868,13 +868,13 @@ export default function OwnerDashboard() {
                 <Card>
                     <CardContent className="p-4 py-12">
                         <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                                <Building2 className="h-6 w-6 text-blue-600" />
+                            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                                <Building2 className="h-6 w-6 text-primary" />
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-slate-900">{platformStats.totalOrganizations}</p>
                                 <p className="text-sm text-slate-500">Total Organizations</p>
-                                <p className="text-xs text-blue-600">{platformStats.activeOrganizations} active</p>
+                                <p className="text-xs text-primary">{platformStats.activeOrganizations} active</p>
                             </div>
                         </div>
                     </CardContent>
@@ -889,7 +889,7 @@ export default function OwnerDashboard() {
                             <div>
                                 <p className="text-2xl font-bold text-slate-900">{platformStats.totalVendors}</p>
                                 <p className="text-sm text-slate-500">Total Vendors</p>
-                                <p className="text-xs text-blue-600">{platformStats.activeVendors} active</p>
+                                <p className="text-xs text-primary">{platformStats.activeVendors} active</p>
                             </div>
                         </div>
                     </CardContent>
@@ -912,8 +912,8 @@ export default function OwnerDashboard() {
                 <Card>
                     <CardContent className="p-4 py-12">
                         <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                                <DollarSign className="h-6 w-6 text-blue-600" />
+                            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                                <DollarSign className="h-6 w-6 text-primary" />
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-slate-900">
@@ -1017,7 +1017,7 @@ export default function OwnerDashboard() {
                                 {recentOrgActivity.map(org => (
                                     <div key={org.id} className="flex items-center justify-between p-2 rounded-lg bg-slate-50">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-8 w-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600 font-semibold text-sm">
+                                            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
                                                 {org.name?.charAt(0) || 'O'}
                                             </div>
                                             <div>
@@ -1122,8 +1122,8 @@ export default function OwnerDashboard() {
                     <CardContent>
                         {pendingOrganizations.length === 0 ? (
                             <div className="text-center py-6">
-                                <div className="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-3">
-                                    <CheckCircle className="h-6 w-6 text-blue-600" />
+                                <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                                    <CheckCircle className="h-6 w-6 text-primary" />
                                 </div>
                                 <p className="text-sm text-slate-500">No pending organizations</p>
                             </div>
@@ -1167,7 +1167,7 @@ export default function OwnerDashboard() {
                     </div>
                     <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
                         <DialogTrigger asChild>
-                            <Button className="bg-blue-600 hover:bg-blue-700">
+                            <Button className="bg-primary hover:bg-primary/90">
                                 <Plus className="h-4 w-4 mr-2" />
                                 Record Payment
                             </Button>
@@ -1344,7 +1344,7 @@ export default function OwnerDashboard() {
                                 <Button
                                     onClick={handleCreatePayment}
                                     disabled={!paymentForm.organization_id || !paymentForm.amount || createPaymentMutation.isPending}
-                                    className="bg-blue-600 hover:bg-blue-700"
+                                    className="bg-primary hover:bg-primary/90"
                                 >
                                     {createPaymentMutation.isPending ? (
                                         <>
@@ -1368,11 +1368,11 @@ export default function OwnerDashboard() {
                     <Card>
                         <CardContent className="p-4">
                             <div className="flex items-center gap-4">
-                                <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                                    <Banknote className="h-5 w-5 text-blue-600" />
+                                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                    <Banknote className="h-5 w-5 text-primary" />
                                 </div>
                                 <div>
-                                    <p className="text-xl font-bold text-blue-600">
+                                    <p className="text-xl font-bold text-primary">
                                         ${paymentStats.totalRevenue.toLocaleString()}
                                     </p>
                                     <p className="text-sm text-slate-500">Total Confirmed</p>
@@ -1706,7 +1706,7 @@ export default function OwnerDashboard() {
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-slate-600">Price:</span>
-                                    <span className="font-medium text-blue-600">
+                                    <span className="font-medium text-primary">
                                         ${subscriptionForm.billing_cycle === 'yearly'
                                             ? subscriptionPlanPricing[subscriptionForm.subscription_plan]?.yearly || 290
                                             : subscriptionPlanPricing[subscriptionForm.subscription_plan]?.monthly || 29

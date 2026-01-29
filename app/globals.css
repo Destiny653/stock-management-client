@@ -46,7 +46,7 @@
 :root {
   --radius: 0.625rem;
 
-  /* Strict Theme: #2454FF, #FFFFFF, #f9fafb */
+  /* Strict Theme: #800020, #FFFFFF, #f9fafb */
   --background: #FFFFFF;
   --foreground: #020817;
 
@@ -56,7 +56,7 @@
   --popover: #FFFFFF;
   --popover-foreground: #020817;
 
-  --primary: #2454FF;
+  --primary: #800020;
   --primary-foreground: #FFFFFF;
 
   --secondary: #f1f5f9;
@@ -73,47 +73,47 @@
 
   --border: #e2e8f0;
   --input: #e2e8f0;
-  --ring: #2454FF;
+  --ring: #800020;
 
   /* Chart colors */
-  --chart-1: #2454FF;
+  --chart-1: #800020;
   --chart-2: #020817;
   --chart-3: #64748b;
   --chart-4: #e2e8f0;
   --chart-5: #94a3b8;
 
-  /* Sidebar - Blue theme (#2454FF) */
-  --sidebar: #2454FF;
+  /* Sidebar - Blue theme (#800020) */
+  --sidebar: #800020;
   --sidebar-foreground: #FFFFFF;
   --sidebar-primary: #FFFFFF;
-  --sidebar-primary-foreground: #2454FF;
+  --sidebar-primary-foreground: #800020;
   --sidebar-accent: rgba(255, 255, 255, 0.1);
   --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: #2454FF;
+  --sidebar-border: #800020;
   --sidebar-ring: #FFFFFF;
 }
 
 .dark {
   /* Blueprint Style for Dark Mode */
-  --background: #2454FF;
+  --background: #800020;
   --foreground: #FFFFFF;
 
-  --card: #2454FF;
+  --card: #800020;
   --card-foreground: #FFFFFF;
 
-  --popover: #2454FF;
+  --popover: #800020;
   --popover-foreground: #FFFFFF;
 
   --primary: #FFFFFF;
-  --primary-foreground: #2454FF;
+  --primary-foreground: #800020;
 
-  --secondary: #2454FF;
+  --secondary: #800020;
   --secondary-foreground: #FFFFFF;
 
-  --muted: #2454FF;
+  --muted: #800020;
   --muted-foreground: #f9fafb;
 
-  --accent: #2454FF;
+  --accent: #800020;
   --accent-foreground: #FFFFFF;
 
   --destructive: #FFFFFF;
@@ -128,11 +128,11 @@
   --chart-4: #f9fafb;
   --chart-5: #FFFFFF;
 
-  --sidebar: #2454FF;
+  --sidebar: #800020;
   --sidebar-foreground: #FFFFFF;
   --sidebar-primary: #FFFFFF;
-  --sidebar-primary-foreground: #2454FF;
-  --sidebar-accent: #2454FF;
+  --sidebar-primary-foreground: #800020;
+  --sidebar-accent: #800020;
   /* Adjusted to blend or stand out? */
   --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: #FFFFFF;
