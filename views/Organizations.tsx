@@ -283,11 +283,11 @@ export default function Organizations() {
             header: 'Organization',
             cell: (org) => (
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold shadow-emerald-500/20 shadow-md text-xs uppercase">
+                    <div className="h-10 w-10 rounded-lg bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold shadow-blue-500/20 shadow-md text-xs uppercase">
                         {org.name?.charAt(0) || 'O'}
                     </div>
                     <div>
-                        <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="font-bold text-slate-900 hover:text-emerald-600 hover:underline block">
+                        <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="font-bold text-slate-900 hover:text-blue-600 hover:underline block">
                             {org.name}
                         </Link>
                         <p className="text-[10px] text-slate-400 font-mono tracking-tight">{org.code}</p>
@@ -318,7 +318,7 @@ export default function Organizations() {
         {
             header: 'Vendors',
             cell: (org) => (
-                <Link href={createPageUrl(`OrganizationMembers?id=${org.id}&tab=vendors`)} className="text-slate-600 hover:text-emerald-600 font-bold">
+                <Link href={createPageUrl(`OrganizationMembers?id=${org.id}&tab=vendors`)} className="text-slate-600 hover:text-blue-600 font-bold">
                     {orgStats[org.id]?.vendorCount || 0} <span className="text-slate-400 font-normal">/ {org.max_vendors}</span>
                 </Link>
             )
@@ -326,7 +326,7 @@ export default function Organizations() {
         {
             header: 'Users',
             cell: (org) => (
-                <Link href={createPageUrl(`OrganizationMembers?id=${org.id}&tab=users`)} className="text-slate-600 hover:text-emerald-600 font-bold">
+                <Link href={createPageUrl(`OrganizationMembers?id=${org.id}&tab=users`)} className="text-slate-600 hover:text-blue-600 font-bold">
                     {orgStats[org.id]?.userCount || 0} <span className="text-slate-400 font-normal">/ {org.max_users}</span>
                 </Link>
             )
@@ -341,7 +341,7 @@ export default function Organizations() {
             cell: (org) => (
                 <div className="flex justify-end items-center gap-1">
                     <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)}>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600">
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600">
                             <Eye className="h-4 w-4" />
                         </Button>
                     </Link>
@@ -361,7 +361,7 @@ export default function Organizations() {
             <PageHeader title={t('organizations') || 'Organizations'} subtitle="Manage organizations and their members">
                 <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
                     <DialogTrigger asChild>
-                        <Button className="bg-emerald-600 hover:bg-emerald-700">
+                        <Button className="bg-blue-600 hover:bg-blue-700">
                             <Plus className="h-4 w-4 mr-2" />
                             Add Organization
                         </Button>
@@ -439,7 +439,7 @@ export default function Organizations() {
                         </div>
                         <DialogFooter>
                             <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
-                            <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleSubmit} disabled={createOrgMutation.isPending || updateOrgMutation.isPending}>
+                            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleSubmit} disabled={createOrgMutation.isPending || updateOrgMutation.isPending}>
                                 {(createOrgMutation.isPending || updateOrgMutation.isPending) ? <Loader2Icon className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />} Save
                             </Button>
                         </DialogFooter>
@@ -493,9 +493,9 @@ export default function Organizations() {
                             const loc = locations.find(l => l.id === org.location_id);
                             return (
                                 <Card key={org.id} className="group hover:shadow-lg transition-all duration-300 border-slate-200 overflow-hidden bg-white">
-                                    <div className="h-1.5 w-full bg-emerald-500/10 group-hover:bg-emerald-500 transition-colors" />
+                                    <div className="h-1.5 w-full bg-blue-500/10 group-hover:bg-blue-500 transition-colors" />
                                     <CardHeader className="flex flex-row items-start justify-between space-y-0 p-5 pb-2">
-                                        <div className="h-12 w-12 rounded-xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg shadow-emerald-500/20 shadow-md uppercase">
+                                        <div className="h-12 w-12 rounded-xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-blue-500/20 shadow-md uppercase">
                                             {org.name?.charAt(0) || 'O'}
                                         </div>
                                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -509,7 +509,7 @@ export default function Organizations() {
                                     </CardHeader>
                                     <CardContent className="p-5 pt-4 space-y-4">
                                         <div>
-                                            <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="font-bold text-lg text-slate-900 hover:text-emerald-600 hover:underline block truncate">
+                                            <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="font-bold text-lg text-slate-900 hover:text-blue-600 hover:underline block truncate">
                                                 {org.name}
                                             </Link>
                                             <div className="flex items-center gap-2 mt-1.5">
@@ -533,7 +533,7 @@ export default function Organizations() {
                                         </div>
                                         <div className="pt-2">
                                             <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="w-full">
-                                                <Button variant="outline" className="w-full h-10 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200 font-semibold text-xs uppercase tracking-wide">View Full Details</Button>
+                                                <Button variant="outline" className="w-full h-10 hover:bg-blue-50 hover:text-blue-700 hover:border-blue-200 font-semibold text-xs uppercase tracking-wide">View Full Details</Button>
                                             </Link>
                                         </div>
                                     </CardContent>

@@ -29,8 +29,8 @@ export default function LowStockAlert({ products = [] }: LowStockAlertProps) {
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
         <h3 className="text-lg font-bold text-slate-800 mb-4 tracking-tight">Low Stock Alerts</h3>
         <div className="flex flex-col items-center justify-center py-10 text-center">
-          <div className="h-14 w-14 rounded-2xl bg-emerald-50 flex items-center justify-center mb-4 ring-1 ring-emerald-100">
-            <Package className="h-7 w-7 text-emerald-500" />
+          <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 ring-1 ring-primary/20">
+            <Package className="h-7 w-7 text-primary" />
           </div>
           <p className="text-sm font-medium text-slate-600">Inventory Levels are Healthy</p>
           <p className="text-xs text-slate-400 mt-1">All variants are above reorder points</p>

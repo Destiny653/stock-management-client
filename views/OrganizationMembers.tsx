@@ -58,7 +58,7 @@ const OrganizationMap = dynamic(
         ssr: false,
         loading: () => (
             <div className="h-full w-full flex items-center justify-center bg-slate-50 min-h-[300px]">
-                <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
             </div>
         )
     }
@@ -67,7 +67,7 @@ const OrganizationMap = dynamic(
 // Payment status colors
 const paymentStatusColors: Record<string, string> = {
     pending: "bg-amber-100 text-amber-700",
-    completed: "bg-emerald-100 text-emerald-700",
+    completed: "bg-blue-100 text-blue-700",
     failed: "bg-rose-100 text-rose-700",
     refunded: "bg-blue-100 text-blue-700",
     cancelled: "bg-slate-100 text-slate-600"
@@ -88,7 +88,7 @@ function useSafeLanguage() {
 }
 
 const statusColors: Record<string, string> = {
-    active: "bg-emerald-100 text-emerald-700",
+    active: "bg-blue-100 text-blue-700",
     inactive: "bg-slate-100 text-slate-600",
     pending: "bg-amber-100 text-amber-700",
     suspended: "bg-rose-100 text-rose-700"
@@ -648,7 +648,7 @@ export default function OrganizationMembers() {
             className: 'w-12',
             cell: (vendor) => (
                 <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600" onClick={(e) => { e.stopPropagation(); handleViewDetails(vendor, 'vendor'); }}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600" onClick={(e) => { e.stopPropagation(); handleViewDetails(vendor, 'vendor'); }}>
                         <Eye className="h-4 w-4" />
                     </Button>
                     {isManagerOrAdmin && (
@@ -712,7 +712,7 @@ export default function OrganizationMembers() {
             className: 'w-12',
             cell: (user) => (
                 <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600" onClick={(e) => { e.stopPropagation(); handleViewDetails(user, 'user'); }}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600" onClick={(e) => { e.stopPropagation(); handleViewDetails(user, 'user'); }}>
                         <Eye className="h-4 w-4" />
                     </Button>
                     {isManagerOrAdmin && (
@@ -779,7 +779,7 @@ export default function OrganizationMembers() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleConfirmPayment(payment)}
-                                className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 h-8 px-2"
+                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-8 px-2"
                             >
                                 Confirm
                             </Button>

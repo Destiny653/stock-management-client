@@ -18,14 +18,14 @@ interface TooltipProps {
 const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-slate-900 text-white px-4 py-3 rounded-lg shadow-xl">
+      <div className="bg-popover text-popover-foreground px-4 py-3 rounded-lg shadow-xl border border-border">
         <p className="text-sm font-medium mb-1">{label}</p>
-        <p className="text-xs text-slate-300">
-          Stock Value: <span className="text-white font-semibold">${payload[0].value.toLocaleString()}</span>
+        <p className="text-xs text-muted-foreground">
+          Stock Value: <span className="text-foreground font-semibold">${payload[0].value.toLocaleString()}</span>
         </p>
         {payload[1] && (
-          <p className="text-xs text-slate-300">
-            Units: <span className="text-white font-semibold">{payload[1].value.toLocaleString()}</span>
+          <p className="text-xs text-muted-foreground">
+            Units: <span className="text-foreground font-semibold">{payload[1].value.toLocaleString()}</span>
           </p>
         )}
       </div>
@@ -38,20 +38,20 @@ export default function InventoryChart({ data = [] }: { data: any[] }) {
   const chartData = data;
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6">
+    <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h3 className="text-lg font-semibold text-slate-900">Inventory Value Trend</h3>
-          <p className="text-sm text-slate-500 mt-0.5">Stock value over time</p>
+          <h3 className="text-lg font-semibold text-foreground">Inventory Value Trend</h3>
+          <p className="text-sm text-muted-foreground mt-0.5">Stock value over time</p>
         </div>
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-emerald-500" />
-            <span className="text-xs text-slate-600">Value ($)</span>
+            <div className="h-3 w-3 rounded-full bg-primary" />
+            <span className="text-xs text-muted-foreground">Value ($)</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded-full bg-violet-500" />
-            <span className="text-xs text-slate-600">Units</span>
+            <div className="h-3 w-3 rounded-full bg-muted-foreground" />
+            <span className="text-xs text-muted-foreground">Units</span>
           </div>
         </div>
       </div>
@@ -61,35 +61,39 @@ export default function InventoryChart({ data = [] }: { data: any[] }) {
           <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#059669" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#059669" stopOpacity={0} />
-              </linearGradient>
-              <linearGradient id="colorUnits" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.2} />
-                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.2} />
+                <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
             <XAxis
               dataKey="name"
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#64748b', fontSize: 12 }}
+              tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
             />
             <YAxis
               axisLine={false}
               tickLine={false}
-              tick={{ fill: '#64748b', fontSize: 12 }}
+              tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }}
               tickFormatter={(value) => `$${(value / 1000)}k`}
             />
             <Tooltip content={<CustomTooltip />} />
             <Area
               type="monotone"
               dataKey="value"
-              stroke="#059669"
+              stroke="var(--primary)"
               strokeWidth={2}
               fillOpacity={1}
               fill="url(#colorValue)"
+            />
+            <Area
+              type="monotone"
+              dataKey="units"
+              stroke="var(--muted-foreground)"
+              strokeWidth={2}
+              fillOpacity={0}
+              strokeDasharray="4 4"
             />
           </AreaChart>
         </ResponsiveContainer>

@@ -289,7 +289,7 @@ export default function Inventory() {
         </Button>
         {canEdit && (
           <Link href={createPageUrl("ProductDetail?mode=new")}>
-            <Button className="bg-emerald-600 hover:bg-emerald-700">
+            <Button className="bg-primary hover:bg-primary/90">
               <Plus className="h-4 w-4 mr-2" />
               {t('addProduct')}
             </Button>
@@ -337,24 +337,24 @@ export default function Inventory() {
 
       {/* Products Display */}
       {isLoading ? (
-        <div className="flex items-center justify-center h-64 bg-white rounded-2xl border border-slate-200">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <div className="flex items-center justify-center h-64 bg-card rounded-2xl border border-border">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : viewMode === 'grid' ? (
         /* Grid View */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {filteredProducts.length === 0 ? (
             <div className="col-span-full text-center py-12">
-              <Package className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-slate-600">{t('noProductsFound') || 'No products found'}</p>
+              <Package className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+              <p className="text-muted-foreground">{t('noProductsFound') || 'No products found'}</p>
             </div>
           ) : (
             filteredProducts.map((product) => {
               const statusStyles: Record<string, { label: string; class: string }> = {
-                active: { label: t('inStock') || 'In Stock', class: "bg-emerald-100 text-emerald-700" },
-                low_stock: { label: t('lowStock') || 'Low Stock', class: "bg-amber-100 text-amber-700" },
-                out_of_stock: { label: t('outOfStock') || 'Out of Stock', class: "bg-rose-100 text-rose-700" },
-                discontinued: { label: t('discontinued') || 'Discontinued', class: "bg-slate-100 text-slate-600" }
+                active: { label: t('inStock') || 'In Stock', class: "bg-primary/20 text-primary" },
+                low_stock: { label: t('lowStock') || 'Low Stock', class: "bg-primary/10 text-primary border border-primary/20" },
+                out_of_stock: { label: t('outOfStock') || 'Out of Stock', class: "bg-muted text-muted-foreground" },
+                discontinued: { label: t('discontinued') || 'Discontinued', class: "bg-muted text-muted-foreground opacity-70" }
               };
               const status = statusStyles[product.status] || statusStyles.active;
 
@@ -362,7 +362,7 @@ export default function Inventory() {
                 <Card key={product.id} className="hover:shadow-lg transition-shadow">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-3">
-                      <div className="h-16 w-16 rounded-xl bg-slate-100 flex items-center justify-center overflow-hidden">
+                      <div className="h-16 w-16 rounded-xl bg-muted flex items-center justify-center overflow-hidden">
                         {product.image_url ? (
                           <img
                             src={getImageUrl(product.image_url)}
@@ -370,7 +370,7 @@ export default function Inventory() {
                             className="h-full w-full object-cover"
                           />
                         ) : (
-                          <Package className="h-8 w-8 text-slate-400" />
+                          <Package className="h-8 w-8 text-muted-foreground" />
                         )}
                       </div>
                       <DropdownMenu>
@@ -394,7 +394,7 @@ export default function Inventory() {
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
-                                className="text-rose-600"
+                                className="text-destructive"
                                 onClick={() => handleDelete(product.id)}
                               >
                                 <Trash2 className="h-4 w-4 mr-2" /> {t('delete') || 'Delete'}
@@ -408,11 +408,11 @@ export default function Inventory() {
                     <div className="mb-3">
                       <Link
                         href={createPageUrl(`ProductDetail?id=${product.id}`)}
-                        className="font-semibold text-slate-900 hover:text-emerald-600 transition-colors line-clamp-1"
+                        className="font-semibold text-foreground hover:text-primary transition-colors line-clamp-1"
                       >
                         {product.name}
                       </Link>
-                      <p className="text-sm text-slate-500 font-mono">
+                      <p className="text-sm text-muted-foreground font-mono">
                         {product.variants?.[0]?.sku || 'No SKU'}
                         {product.variants && product.variants.length > 1 && ` (+${product.variants.length - 1} more)`}
                       </p>
@@ -422,26 +422,26 @@ export default function Inventory() {
                       <Badge className={cn("font-medium", status.class)}>
                         {status.label}
                       </Badge>
-                      <span className="text-sm text-slate-500">{product.category}</span>
+                      <span className="text-sm text-muted-foreground">{product.category}</span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3 pt-3 border-t">
                       <div className="text-center">
-                        <p className="text-lg font-bold text-slate-900">
+                        <p className="text-lg font-bold text-foreground">
                           {product.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0}
                         </p>
-                        <p className="text-xs text-slate-500">Stock</p>
+                        <p className="text-xs text-muted-foreground">Stock</p>
                       </div>
                       <div className="text-center">
-                        <p className="text-lg font-bold text-emerald-600">
+                        <p className="text-lg font-bold text-primary">
                           ${product.variants?.[0]?.unit_price?.toFixed(2) || '0.00'}
                         </p>
-                        <p className="text-xs text-slate-500">{t('price') || 'Price'}</p>
+                        <p className="text-xs text-muted-foreground">{t('price') || 'Price'}</p>
                       </div>
                     </div>
 
                     {product.location && (
-                      <p className="text-xs text-slate-500 mt-2 text-center">
+                      <p className="text-xs text-muted-foreground mt-2 text-center">
                         📍 {product.location}
                       </p>
                     )}
@@ -484,11 +484,11 @@ export default function Inventory() {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader className="flex flex-col items-center text-center space-y-3">
-            <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
-              <AlertTriangle className="h-6 w-6 text-rose-600" />
+            <div className="h-12 w-12 rounded-full bg-destructive/10 flex items-center justify-center">
+              <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
             <DialogTitle className="text-xl">Delete Product?</DialogTitle>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-muted-foreground">
               Are you sure you want to delete this product? This action will remove all variants and cannot be undone.
             </p>
           </DialogHeader>
@@ -508,11 +508,11 @@ export default function Inventory() {
       <Dialog open={isBulkDeleteDialogOpen} onOpenChange={setIsBulkDeleteDialogOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader className="flex flex-col items-center text-center space-y-3">
-            <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
-              <AlertTriangle className="h-6 w-6 text-rose-600" />
+            <div className="h-12 w-12 rounded-full bg-destructive/10 flex items-center justify-center">
+              <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
             <DialogTitle className="text-xl">Delete {selectedIds.length} Products?</DialogTitle>
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-muted-foreground">
               This will permanently delete multiple products and all their variants. This action cannot be undone.
             </p>
           </DialogHeader>

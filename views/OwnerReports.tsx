@@ -58,7 +58,7 @@ function useSafeLanguage() {
 const COLORS = ['#059669', '#8b5cf6', '#f59e0b', '#ef4444', '#3b82f6', '#10b981', '#6366f1', '#ec4899'];
 
 const statusColors: Record<string, string> = {
-    active: "bg-emerald-100 text-emerald-700",
+    active: "bg-blue-100 text-blue-700",
     inactive: "bg-slate-100 text-slate-600",
     suspended: "bg-rose-100 text-rose-700",
     pending: "bg-amber-100 text-amber-700"
@@ -213,7 +213,7 @@ export default function OwnerReports() {
         },
         {
             header: 'Revenue',
-            className: 'font-medium text-emerald-600',
+            className: 'font-medium text-blue-600',
             cell: (org) => `$${org.revenue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
         }
     ];
@@ -259,7 +259,7 @@ export default function OwnerReports() {
                 <div className="flex items-center gap-2">
                     <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
                         <div
-                            className="h-full bg-emerald-500 rounded-full"
+                            className="h-full bg-blue-500 rounded-full"
                             style={{ width: `${(org.storageKB / totalStats.totalStorage) * 100}%` }}
                         />
                     </div>
@@ -345,7 +345,7 @@ export default function OwnerReports() {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center h-96">
-                <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
             </div>
         );
     }
@@ -382,8 +382,8 @@ export default function OwnerReports() {
                 <Card>
                     <CardContent className="p-4 py-12">
                         <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                                <Building2 className="h-6 w-6 text-emerald-600" />
+                            <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                                <Building2 className="h-6 w-6 text-blue-600" />
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-slate-900">{totalStats.totalOrgs}</p>
@@ -396,8 +396,8 @@ export default function OwnerReports() {
                 <Card>
                     <CardContent className="p-4 py-12">
                         <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-emerald-100 flex items-center justify-center">
-                                <DollarSign className="h-6 w-6 text-emerald-600" />
+                            <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
+                                <DollarSign className="h-6 w-6 text-blue-600" />
                             </div>
                             <div>
                                 <p className="text-2xl font-bold text-slate-900">
@@ -445,16 +445,16 @@ export default function OwnerReports() {
             {/* Tabs */}
             <Tabs defaultValue="overview" className="space-y-6">
                 <TabsList className="bg-slate-100 p-1 rounded-xl">
-                    <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 px-6 font-semibold">
+                    <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-600 px-6 font-semibold">
                         Overview
                     </TabsTrigger>
-                    <TabsTrigger value="performance" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 px-6 font-semibold">
+                    <TabsTrigger value="performance" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-600 px-6 font-semibold">
                         Performance
                     </TabsTrigger>
-                    <TabsTrigger value="growth" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 px-6 font-semibold">
+                    <TabsTrigger value="growth" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-600 px-6 font-semibold">
                         Growth
                     </TabsTrigger>
-                    <TabsTrigger value="storage" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-emerald-600 px-6 font-semibold">
+                    <TabsTrigger value="storage" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-blue-600 px-6 font-semibold">
                         Storage
                     </TabsTrigger>
                 </TabsList>
@@ -478,7 +478,7 @@ export default function OwnerReports() {
                                             <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="#94a3b8" angle={-45} textAnchor="end" height={80} />
                                             <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" />
                                             <Tooltip />
-                                            <Bar dataKey="revenue" fill="#10b981" radius={[4, 4, 0, 0]} name="Revenue ($)" />
+                                            <Bar dataKey="revenue" fill="#2454FF" radius={[4, 4, 0, 0]} name="Revenue ($)" />
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>
@@ -578,8 +578,8 @@ export default function OwnerReports() {
                                     <AreaChart data={growthData}>
                                         <defs>
                                             <linearGradient id="orgGrad" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                                                <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                                                <stop offset="5%" stopColor="#2454FF" stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor="#2454FF" stopOpacity={0} />
                                             </linearGradient>
                                             <linearGradient id="vendorGrad" x1="0" y1="0" x2="0" y2="1">
                                                 <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
@@ -595,7 +595,7 @@ export default function OwnerReports() {
                                         <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" />
                                         <Tooltip />
                                         <Legend />
-                                        <Area type="monotone" dataKey="organizations" stroke="#10b981" fill="url(#orgGrad)" strokeWidth={2} name="Organizations" />
+                                        <Area type="monotone" dataKey="organizations" stroke="#2454FF" fill="url(#orgGrad)" strokeWidth={2} name="Organizations" />
                                         <Area type="monotone" dataKey="vendors" stroke="#8b5cf6" fill="url(#vendorGrad)" strokeWidth={2} name="Vendors" />
                                         <Area type="monotone" dataKey="users" stroke="#3b82f6" fill="url(#userGrad)" strokeWidth={2} name="Users" />
                                     </AreaChart>

@@ -16,6 +16,7 @@ interface StepLocationProps {
 
 export default function StepLocation({ onNext, onBack, initialData }: StepLocationProps) {
     const [locationData, setLocationData] = useState({
+        name: initialData?.name || '',
         latitude: initialData?.latitude || null,
         longitude: initialData?.longitude || null,
         address: initialData?.address || '',
@@ -24,6 +25,13 @@ export default function StepLocation({ onNext, onBack, initialData }: StepLocati
     });
 
     const handleNext = () => {
+        // Validate name
+        const name = locationData.name.trim();
+        if (!name) {
+            toast.error("Please enter a name for this location");
+            return;
+        }
+
         // Validate coordinates
         if (!locationData.latitude || !locationData.longitude) {
             toast.error("Please select a location on the map");
@@ -65,6 +73,7 @@ export default function StepLocation({ onNext, onBack, initialData }: StepLocati
         // Pass validated and trimmed data
         onNext({
             ...locationData,
+            name,
             address,
             city,
             country
@@ -75,12 +84,23 @@ export default function StepLocation({ onNext, onBack, initialData }: StepLocati
         <div className="space-y-6">
             <div className="text-center mb-6">
                 <h2 className="text-xl font-semibold flex items-center justify-center gap-2">
-                    <MapPin className="h-5 w-5 text-emerald-600" />
+                    <MapPin className="h-5 w-5 text-primary" />
                     Select Location
                 </h2>
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-muted-foreground">
                     Verify your business location on the map.
                 </p>
+            </div>
+
+            <div className="space-y-4">
+                <div className="space-y-2">
+                    <Label>Location Name (e.g. Headquarters) *</Label>
+                    <Input
+                        value={locationData.name}
+                        onChange={(e) => setLocationData(prev => ({ ...prev, name: e.target.value }))}
+                        placeholder="Headquarters"
+                    />
+                </div>
             </div>
 
             <div className="border rounded-xl overflow-hidden p-1">
@@ -133,7 +153,7 @@ export default function StepLocation({ onNext, onBack, initialData }: StepLocati
                         <ArrowLeft className="mr-2 h-4 w-4" /> Back
                     </Button>
                 )}
-                <Button onClick={handleNext} className={`${onBack ? 'flex-1' : 'w-full'} bg-emerald-600 hover:bg-emerald-700`}>
+                <Button onClick={handleNext} className={`${onBack ? 'flex-1' : 'w-full'} bg-primary hover:bg-primary/90`}>
                     Confirm Location <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
             </div>

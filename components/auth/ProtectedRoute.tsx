@@ -16,7 +16,11 @@ export default function ProtectedRoute({ children, allowedRoles }: ProtectedRout
 
     useEffect(() => {
         if (!isLoading) {
-            if (!isAuthenticated && window.location.href != '/') {
+            const isPublicRoute = window.location.pathname === '/' ||
+                window.location.pathname === '/register' ||
+                window.location.pathname === '/login';
+
+            if (!isAuthenticated && !isPublicRoute) {
                 router.push('/login');
             } else if (allowedRoles && user && !allowedRoles.includes(user.user_type)) {
                 // Redirect to appropriate dashboard if user doesn't have access

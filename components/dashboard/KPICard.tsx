@@ -22,17 +22,17 @@ export default function KPICard({
   variant = "default"
 }: KPICardProps) {
   const variants = {
-    default: "bg-white border-slate-200",
-    primary: "bg-gradient-to-br from-emerald-600 to-emerald-700 text-white border-emerald-700",
-    warning: "bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200",
-    danger: "bg-gradient-to-br from-rose-50 to-red-50 border-rose-200"
+    default: "bg-card border-border",
+    primary: "bg-primary text-primary-foreground border-primary",
+    warning: "bg-gradient-to-br from-orange-500/10 to-amber-500/10 border-orange-200/50",
+    danger: "bg-gradient-to-br from-destructive/10 to-red-500/10 border-destructive/20"
   };
 
   const iconVariants = {
-    default: "bg-slate-100 text-slate-600",
-    primary: "bg-white/20 text-white",
-    warning: "bg-amber-100 text-amber-600",
-    danger: "bg-rose-100 text-rose-600"
+    default: "bg-muted text-muted-foreground",
+    primary: "bg-primary-foreground/20 text-primary-foreground",
+    warning: "bg-orange-100 text-orange-600",
+    danger: "bg-destructive/10 text-destructive"
   };
 
   return (
@@ -44,21 +44,21 @@ export default function KPICard({
         <div className="space-y-3">
           <p className={cn(
             "text-sm font-medium tracking-wide uppercase",
-            variant === "primary" ? "text-emerald-100" : "text-slate-500"
+            variant === "primary" ? "text-primary-foreground/90" : "text-muted-foreground"
           )}>
             {title}
           </p>
           <div className="space-y-1">
             <h3 className={cn(
               "text-3xl font-bold tracking-tight",
-              variant === "primary" ? "text-white" : "text-slate-900"
+              variant === "primary" ? "text-primary-foreground" : "text-foreground"
             )}>
               {value}
             </h3>
             {subtitle && (
               <p className={cn(
                 "text-sm",
-                variant === "primary" ? "text-emerald-100" : "text-slate-500"
+                variant === "primary" ? "text-primary-foreground/80" : "text-muted-foreground"
               )}>
                 {subtitle}
               </p>
@@ -67,13 +67,13 @@ export default function KPICard({
           {trend && (
             <div className="flex items-center gap-1.5">
               {trend === "up" ? (
-                <TrendingUp className="h-4 w-4 text-emerald-500" />
+                <TrendingUp className="h-4 w-4 text-primary" />
               ) : (
                 <TrendingDown className="h-4 w-4 text-rose-500" />
               )}
               <span className={cn(
                 "text-sm font-medium",
-                trend === "up" ? "text-emerald-600" : "text-rose-600"
+                trend === "up" ? "text-foreground" : "text-foreground"
               )}>
                 {trendValue}
               </span>
@@ -88,13 +88,15 @@ export default function KPICard({
             <Icon className="h-6 w-6" />
           </div>
         )}
-      </div>
+      </div >
 
       {/* Decorative element */}
-      <div className={cn(
-        "absolute -right-8 -bottom-8 h-32 w-32 rounded-full opacity-10",
-        variant === "primary" ? "bg-white" : "bg-slate-900"
-      )} />
-    </div>
+      < div className={
+        cn(
+          "absolute -right-8 -bottom-8 h-32 w-32 rounded-full opacity-10",
+          variant === "primary" ? "bg-white" : "bg-primary"
+        )
+      } />
+    </div >
   );
 }

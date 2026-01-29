@@ -36,10 +36,10 @@ const StoreMapDynamic = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-full flex items-center justify-center bg-slate-50">
+      <div className="h-full flex items-center justify-center bg-background">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto mb-2" />
-          <p className="text-sm text-slate-500">Loading map...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+          <p className="text-sm text-muted-foreground">Loading map...</p>
         </div>
       </div>
     ),
@@ -58,11 +58,12 @@ function useSafeLanguage() {
   }
 }
 
+// Strict theme mapping for statuses
 const statusColors: Record<string, string> = {
-  active: "bg-emerald-100 text-emerald-700",
-  inactive: "bg-slate-100 text-slate-600",
-  pending: "bg-amber-100 text-amber-700",
-  suspended: "bg-rose-100 text-rose-700"
+  active: "bg-primary/20 text-primary border-primary/20",
+  inactive: "bg-muted text-muted-foreground border-border",
+  pending: "bg-primary/10 text-primary border-primary/20 dashed border",
+  suspended: "bg-muted text-primary border-primary/40"
 };
 
 export default function StoreLocations() {
@@ -173,15 +174,15 @@ export default function StoreLocations() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('storeLocations')}</h1>
-            <p className="text-slate-500 mt-1">{vendorsWithLocation.length} {t('storesOnMap')}</p>
+            <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('storeLocations')}</h1>
+            <p className="text-muted-foreground mt-1">{vendorsWithLocation.length} {t('storesOnMap')}</p>
           </div>
         </div>
         <div className="flex gap-2">
           <Button
             variant={viewMode === 'map' ? 'default' : 'outline'}
             onClick={() => setViewMode('map')}
-            className={viewMode === 'map' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+            className={viewMode === 'map' ? 'bg-primary hover:bg-primary/90' : ''}
           >
             <Map className="h-4 w-4 mr-2" />
             {t('mapView')}
@@ -189,7 +190,7 @@ export default function StoreLocations() {
           <Button
             variant={viewMode === 'list' ? 'default' : 'outline'}
             onClick={() => setViewMode('list')}
-            className={viewMode === 'list' ? 'bg-emerald-600 hover:bg-emerald-700' : ''}
+            className={viewMode === 'list' ? 'bg-primary hover:bg-primary/90' : ''}
           >
             <List className="h-4 w-4 mr-2" />
             {t('listView')}
@@ -201,16 +202,16 @@ export default function StoreLocations() {
       <div>
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder={t('searchPlaceholder')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 rounded-sm max-w-[60%] py-5 bg-white border-slate-200 focus:bg-white"
+              className="pl-10 rounded-sm max-w-[60%] py-5 bg-background border-border focus:bg-background"
             />
           </div>
           <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40 bg-white rounded-sm py-5">
+            <SelectTrigger className="w-40 bg-background rounded-sm py-5">
               <SelectValue placeholder={t('status')} />
             </SelectTrigger>
             <SelectContent>
@@ -225,7 +226,7 @@ export default function StoreLocations() {
 
       {isLoading ? (
         <div className="flex items-center justify-center h-96">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : viewMode === 'map' ? (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -247,10 +248,10 @@ export default function StoreLocations() {
                     t={t as (key: string, params?: Record<string, string | number>) => string}
                   />
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full bg-slate-50">
-                    <MapPin className="h-12 w-12 text-slate-300 mb-3" />
-                    <p className="text-slate-600">{t('noLocationData')}</p>
-                    <p className="text-sm text-slate-500">{t('addLocationHint')}</p>
+                  <div className="flex flex-col items-center justify-center h-full bg-background">
+                    <MapPin className="h-12 w-12 text-muted-foreground/50 mb-3" />
+                    <p className="text-muted-foreground">{t('noLocationData')}</p>
+                    <p className="text-sm text-muted-foreground/70">{t('addLocationHint')}</p>
                   </div>
                 )}
               </div>
@@ -264,26 +265,26 @@ export default function StoreLocations() {
                 key={vendor.id}
                 className={cn(
                   "cursor-pointer transition-all hover:shadow-md",
-                  selectedVendor?.id === vendor.id && "ring-2 ring-emerald-500"
+                  selectedVendor?.id === vendor.id && "ring-2 ring-primary"
                 )}
                 onClick={() => setSelectedVendor(vendor)}
               >
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
+                      <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-semibold">
                         {vendor.store_name?.charAt(0) || 'V'}
                       </div>
                       <div>
-                        <h3 className="font-medium text-slate-900">{vendor.store_name}</h3>
-                        <p className="text-sm text-slate-500">{vendor.city}, {vendor.country}</p>
+                        <h3 className="font-medium text-foreground">{vendor.store_name}</h3>
+                        <p className="text-sm text-muted-foreground">{vendor.city}, {vendor.country}</p>
                       </div>
                     </div>
                     <Badge className={statusColors[vendor.status]}>{vendor.status}</Badge>
                   </div>
                   {vendor.address && (
-                    <div className="mt-3 flex items-start gap-2 text-sm text-slate-600">
-                      <MapPin className="h-4 w-4 text-slate-400 mt-0.5" />
+                    <div className="mt-3 flex items-start gap-2 text-sm text-muted-foreground">
+                      <MapPin className="h-4 w-4 text-muted-foreground/70 mt-0.5" />
                       {vendor.address}
                     </div>
                   )}
@@ -300,8 +301,8 @@ export default function StoreLocations() {
             ))}
             {filteredVendors.length === 0 && (
               <div className="text-center py-8">
-                <Store className="h-12 w-12 text-slate-300 mx-auto mb-3" />
-                <p className="text-slate-600">{t('noResults')}</p>
+                <Store className="h-12 w-12 text-muted-foreground/50 mx-auto mb-3" />
+                <p className="text-muted-foreground">{t('noResults')}</p>
               </div>
             )}
           </div>
@@ -314,12 +315,12 @@ export default function StoreLocations() {
               <CardContent className="p-5">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg">
+                    <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg">
                       {vendor.store_name?.charAt(0) || 'V'}
                     </div>
                     <div>
-                      <h3 className="font-semibold text-slate-900">{vendor.store_name}</h3>
-                      <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.full_name || 'No contact'}</p>
+                      <h3 className="font-semibold text-foreground">{vendor.store_name}</h3>
+                      <p className="text-sm text-muted-foreground">{userMap[vendor.user_id!]?.full_name || 'No contact'}</p>
                     </div>
                   </div>
                   <Badge className={statusColors[vendor.status]}>{vendor.status}</Badge>
@@ -327,25 +328,25 @@ export default function StoreLocations() {
 
                 <div className="space-y-2 mb-4">
                   {vendor.address && (
-                    <div className="flex items-start gap-2 text-sm text-slate-600">
-                      <MapPin className="h-4 w-4 text-slate-400 mt-0.5" />
+                    <div className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <MapPin className="h-4 w-4 text-muted-foreground/70 mt-0.5" />
                       <span>{vendor.address}, {vendor.city}, {vendor.country}</span>
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-sm text-slate-600">
-                    <Mail className="h-4 w-4 text-slate-400" />
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Mail className="h-4 w-4 text-muted-foreground/70" />
                     {vendor.email || 'No email'}
                   </div>
                   {vendor.phone && (
-                    <div className="flex items-center gap-2 text-sm text-slate-600">
-                      <Phone className="h-4 w-4 text-slate-400" />
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Phone className="h-4 w-4 text-muted-foreground/70" />
                       {vendor.phone}
                     </div>
                   )}
                 </div>
 
                 {vendor.latitude && vendor.longitude && (
-                  <p className="text-xs text-slate-400 mb-3">
+                  <p className="text-xs text-muted-foreground/50 mb-3">
                     📍 {vendor.latitude.toFixed(4)}, {vendor.longitude.toFixed(4)}
                   </p>
                 )}

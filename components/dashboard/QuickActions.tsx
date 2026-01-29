@@ -29,7 +29,7 @@ export default function QuickActions() {
       description: "Create a new inventory item",
       icon: Plus,
       href: "ProductDetail?mode=new",
-      color: "bg-emerald-600 hover:bg-emerald-700 text-white",
+      color: "bg-blue-600 hover:bg-blue-700 text-white",
       roles: ['owner', 'admin', 'manager']
     },
     {
@@ -37,7 +37,7 @@ export default function QuickActions() {
       description: "Record a new sale",
       icon: ShoppingBag,
       href: "DirectSales",
-      color: "bg-emerald-600 hover:bg-emerald-700 text-white",
+      color: "bg-primary hover:bg-primary/90 text-primary-foreground",
       roles: ['staff', 'manager', 'vendor']
     },
     {

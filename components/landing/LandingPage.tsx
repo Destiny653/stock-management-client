@@ -114,47 +114,41 @@ const plans = [
     }
 ];
 
-// Features data with enhanced icons
+// Features data with unified styling
 const features = [
     {
         icon: Package,
         title: 'Real-time Inventory',
         description: 'Track stock levels instantly with live updates and smart low-stock alerts.',
-        gradient: 'from-emerald-500 to-teal-500'
     },
     {
         icon: Store,
         title: 'Multi-Vendor Hub',
         description: 'Manage multiple vendors, track sales, and automate commission payouts.',
-        gradient: 'from-violet-500 to-purple-500'
     },
     {
         icon: BarChart3,
         title: 'Smart Analytics',
         description: 'AI-powered insights and beautiful dashboards for data-driven decisions.',
-        gradient: 'from-blue-500 to-cyan-500'
     },
     {
         icon: Zap,
         title: 'Lightning Fast',
         description: 'Blazing fast performance with real-time sync across all your devices.',
-        gradient: 'from-amber-500 to-orange-500'
     },
     {
         icon: Globe,
         title: 'Multi-Location',
         description: 'Seamlessly manage inventory across warehouses and store locations.',
-        gradient: 'from-emerald-500 to-green-500'
     },
     {
         icon: Shield,
         title: 'Enterprise Security',
         description: 'Bank-level encryption with role-based access control.',
-        gradient: 'from-rose-500 to-pink-500'
     }
 ];
 
-// Stats with enhanced styling
+// Stats with unified styling
 const stats = [
     { value: '10K+', label: 'Active Users', icon: Users },
     { value: '500+', label: 'Organizations', icon: Building2 },
@@ -196,38 +190,38 @@ export default function LandingPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#004030]">
-                <Loader2 className="h-8 w-8 animate-spin text-emerald-400" />
+            <div className="min-h-screen flex items-center justify-center bg-primary">
+                <Loader2 className="h-8 w-8 animate-spin text-primary-foreground" />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-white overflow-x-hidden">
+        <div className="min-h-screen bg-background overflow-x-hidden">
             {/* Navigation */}
-            <nav className="fixed top-0 left-0 right-0 z-50 bg-[#004030]/95 backdrop-blur-md border-b border-emerald-900/50">
+            <nav className="fixed top-0 left-0 right-0 z-50 bg-primary/95 backdrop-blur-md border-b border-primary-foreground/20">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between h-16">
                         {/* Logo */}
                         <Link href="/" className="flex items-center gap-3 group">
-                            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/30 group-hover:shadow-emerald-500/50 transition-shadow">
-                                <Package className="h-5 w-5 text-white" />
+                            <div className="h-10 w-10 rounded-xl bg-primary-foreground flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
+                                <Package className="h-5 w-5 text-primary" />
                             </div>
-                            <span className="text-xl font-bold text-white">StockFlow</span>
+                            <span className="text-xl font-bold text-primary-foreground">StockFlow</span>
                         </Link>
 
                         {/* Desktop Nav */}
                         <div className="hidden md:flex items-center gap-8">
-                            <a href="#features" className="text-sm font-medium text-emerald-100/80 hover:text-white transition-colors">Features</a>
-                            <a href="#pricing" className="text-sm font-medium text-emerald-100/80 hover:text-white transition-colors">Pricing</a>
-                            <a href="#testimonials" className="text-sm font-medium text-emerald-100/80 hover:text-white transition-colors">Testimonials</a>
+                            <a href="#features" className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors">Features</a>
+                            <a href="#pricing" className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors">Pricing</a>
+                            <a href="#testimonials" className="text-sm font-medium text-primary-foreground/80 hover:text-primary-foreground transition-colors">Testimonials</a>
                         </div>
 
                         {/* CTA Buttons */}
                         <div className="hidden md:flex items-center gap-3">
                             {isAuthenticated ? (
                                 <Link href="/Dashboard">
-                                    <Button className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all">
+                                    <Button className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold shadow-lg transition-all">
                                         Go to Dashboard
                                         <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
@@ -235,13 +229,13 @@ export default function LandingPage() {
                             ) : (
                                 <>
                                     <Link href="/login">
-                                        <Button variant="ghost" className="text-emerald-100 hover:text-white hover:bg-white/10">
+                                        <Button variant="ghost" className="text-primary-foreground hover:text-primary-foreground hover:bg-primary-foreground/10">
                                             Sign In
                                         </Button>
                                     </Link>
                                     <Button
                                         onClick={() => handleOpenRegister()}
-                                        className="bg-emerald-500 hover:bg-emerald-400 text-white font-semibold shadow-lg shadow-emerald-500/25 hover:shadow-emerald-500/40 transition-all"
+                                        className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold shadow-lg transition-all"
                                     >
                                         Start Free Trial
                                     </Button>
@@ -251,7 +245,7 @@ export default function LandingPage() {
 
                         {/* Mobile Menu Button */}
                         <button
-                            className="md:hidden p-2 text-emerald-100 hover:text-white"
+                            className="md:hidden p-2 text-primary-foreground hover:text-primary-foreground"
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         >
                             {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
@@ -263,17 +257,17 @@ export default function LandingPage() {
                         <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="md:hidden py-4 border-t border-emerald-800/50"
+                            className="md:hidden py-4 border-t border-primary-foreground/20"
                         >
                             <div className="flex flex-col gap-3">
-                                <a href="#features" className="text-sm font-medium text-emerald-100 hover:text-white py-2">Features</a>
-                                <a href="#pricing" className="text-sm font-medium text-emerald-100 hover:text-white py-2">Pricing</a>
-                                <a href="#testimonials" className="text-sm font-medium text-emerald-100 hover:text-white py-2">Testimonials</a>
+                                <a href="#features" className="text-sm font-medium text-primary-foreground hover:text-primary-foreground py-2">Features</a>
+                                <a href="#pricing" className="text-sm font-medium text-primary-foreground hover:text-primary-foreground py-2">Pricing</a>
+                                <a href="#testimonials" className="text-sm font-medium text-primary-foreground hover:text-primary-foreground py-2">Testimonials</a>
                                 <div className="flex gap-2 pt-2">
                                     <Link href="/login" className="flex-1">
-                                        <Button variant="outline" className="w-full border-emerald-600 text-emerald-100 hover:bg-emerald-800">Sign In</Button>
+                                        <Button variant="outline" className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10">Sign In</Button>
                                     </Link>
-                                    <Button onClick={() => handleOpenRegister()} className="flex-1 bg-emerald-500 hover:bg-emerald-400">
+                                    <Button onClick={() => handleOpenRegister()} className="flex-1 bg-primary-foreground text-primary hover:bg-primary-foreground/90">
                                         Start Free
                                     </Button>
                                 </div>
@@ -284,14 +278,7 @@ export default function LandingPage() {
             </nav>
 
             {/* Hero Section */}
-            <section className="relative min-h-screen flex items-center pt-16 overflow-hidden bg-gradient-to-br from-[#004030] via-[#003025] to-[#002018]">
-                <div className="absolute inset-0 overflow-hidden">
-                    <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-500/20 rounded-full blur-3xl animate-pulse" />
-                    <div className="absolute bottom-20 right-10 w-96 h-96 bg-teal-500/15 rounded-full blur-3xl animate-pulse delay-1000" />
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-emerald-600/10 rounded-full blur-3xl" />
-                    <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:50px_50px]" />
-                </div>
-
+            <section className="relative min-h-screen flex items-center pt-16 overflow-hidden bg-primary">
                 <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
                     <div className="grid lg:grid-cols-2 gap-12 items-center">
                         {/* Left Content */}
@@ -302,7 +289,7 @@ export default function LandingPage() {
                             className="text-center lg:text-left"
                         >
                             <motion.div variants={fadeInUp}>
-                                <Badge className="mb-6 bg-emerald-500/20 text-emerald-300 border-emerald-500/30 hover:bg-emerald-500/30 px-4 py-1.5">
+                                <Badge className="mb-6 bg-primary-foreground/20 text-primary-foreground border-primary-foreground/30 px-4 py-1.5">
                                     <Sparkles className="h-3.5 w-3.5 mr-2" />
                                     Now with AI-powered insights
                                 </Badge>
@@ -310,18 +297,18 @@ export default function LandingPage() {
 
                             <motion.h1
                                 variants={fadeInUp}
-                                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight"
+                                className="text-4xl sm:text-5xl lg:text-6xl font-bold text-primary-foreground leading-tight"
                             >
                                 Inventory Management
                                 <br />
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400">
+                                <span className="text-primary-foreground/80">
                                     Reimagined
                                 </span>
                             </motion.h1>
 
                             <motion.p
                                 variants={fadeInUp}
-                                className="mt-6 text-lg sm:text-xl text-emerald-100/70 max-w-xl mx-auto lg:mx-0"
+                                className="mt-6 text-lg sm:text-xl text-primary-foreground/70 max-w-xl mx-auto lg:mx-0"
                             >
                                 The all-in-one platform that empowers businesses to track inventory, manage vendors, and drive growth with real-time insights.
                             </motion.p>
@@ -333,7 +320,7 @@ export default function LandingPage() {
                                 <Button
                                     size="lg"
                                     onClick={() => handleOpenRegister()}
-                                    className="h-14 px-8 text-lg bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-semibold shadow-2xl shadow-emerald-500/30 transition-all hover:scale-105 hover:shadow-emerald-500/50"
+                                    className="h-14 px-8 text-lg bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold shadow-2xl transition-all hover:scale-105"
                                 >
                                     Start Free Trial
                                     <ArrowRight className="ml-2 h-5 w-5" />
@@ -341,7 +328,7 @@ export default function LandingPage() {
                                 <Button
                                     size="lg"
                                     variant="outline"
-                                    className="h-14 px-8 text-lg border-emerald-500/50 text-emerald-100 hover:bg-emerald-500/10 hover:border-emerald-400"
+                                    className="h-14 px-8 text-lg border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10 hover:border-primary-foreground"
                                 >
                                     <Play className="mr-2 h-5 w-5" />
                                     Watch Demo
@@ -351,14 +338,14 @@ export default function LandingPage() {
                             <motion.div variants={fadeInUp} className="mt-12 flex items-center justify-center lg:justify-start gap-6">
                                 <div className="flex -space-x-2">
                                     {[...Array(4)].map((_, i) => (
-                                        <div key={i} className="h-10 w-10 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 border-2 border-[#004030] flex items-center justify-center text-white text-xs font-medium">
+                                        <div key={i} className="h-10 w-10 rounded-full bg-primary-foreground border-2 border-primary flex items-center justify-center text-primary text-xs font-medium">
                                             {String.fromCharCode(65 + i)}
                                         </div>
                                     ))}
                                 </div>
                                 <div className="text-left">
-                                    <p className="text-emerald-100 font-semibold">Join 10K+ businesses</p>
-                                    <p className="text-emerald-100/60 text-sm">already using StockFlow</p>
+                                    <p className="text-primary-foreground font-semibold">Join 10K+ businesses</p>
+                                    <p className="text-primary-foreground/60 text-sm">already using StockFlow</p>
                                 </div>
                             </motion.div>
                         </motion.div>
@@ -371,17 +358,13 @@ export default function LandingPage() {
                             className="relative"
                         >
                             <div className="relative">
-                                {/* Glow Effect */}
-                                <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/20 to-teal-500/20 rounded-3xl blur-2xl" />
-
                                 {/* Dashboard Image */}
-                                <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-emerald-500/20">
+                                <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-primary-foreground/20">
                                     <img
                                         src="/images/landing/dashboard-hero.png"
                                         alt="StockFlow Dashboard"
                                         className="w-full h-auto"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-[#004030]/50 to-transparent pointer-events-none" />
                                 </div>
 
                                 {/* Floating Stats Cards */}
@@ -389,15 +372,15 @@ export default function LandingPage() {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.8 }}
-                                    className="absolute -bottom-6 -left-6 bg-white rounded-xl p-4 shadow-xl border border-slate-200"
+                                    className="absolute -bottom-6 -left-6 bg-background rounded-xl p-4 shadow-xl border border-border"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                                            <TrendingUp className="h-5 w-5 text-emerald-600" />
+                                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                            <TrendingUp className="h-5 w-5 text-primary" />
                                         </div>
                                         <div>
-                                            <p className="text-2xl font-bold text-slate-900">+147%</p>
-                                            <p className="text-xs text-slate-500">Efficiency Increase</p>
+                                            <p className="text-2xl font-bold text-foreground">+147%</p>
+                                            <p className="text-xs text-muted-foreground">Efficiency Increase</p>
                                         </div>
                                     </div>
                                 </motion.div>
@@ -406,15 +389,15 @@ export default function LandingPage() {
                                     initial={{ opacity: 0, y: -20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 1 }}
-                                    className="absolute -top-4 -right-4 bg-white rounded-xl p-4 shadow-xl border border-slate-200"
+                                    className="absolute -top-4 -right-4 bg-background rounded-xl p-4 shadow-xl border border-border"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-lg bg-violet-100 flex items-center justify-center">
-                                            <Clock className="h-5 w-5 text-violet-600" />
+                                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                            <Clock className="h-5 w-5 text-primary" />
                                         </div>
                                         <div>
-                                            <p className="text-2xl font-bold text-slate-900">-80%</p>
-                                            <p className="text-xs text-slate-500">Time Saved</p>
+                                            <p className="text-2xl font-bold text-foreground">-80%</p>
+                                            <p className="text-xs text-muted-foreground">Time Saved</p>
                                         </div>
                                     </div>
                                 </motion.div>
@@ -422,29 +405,10 @@ export default function LandingPage() {
                         </motion.div>
                     </div>
                 </div>
-
-                {/* Scroll Indicator */}
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 1.5 }}
-                    className="absolute bottom-8 left-1/2 -translate-x-1/2"
-                >
-                    <div className="flex flex-col items-center gap-2 text-emerald-300/60">
-                        <span className="text-xs uppercase tracking-widest">Scroll to explore</span>
-                        <motion.div
-                            animate={{ y: [0, 8, 0] }}
-                            transition={{ repeat: Infinity, duration: 1.5 }}
-                            className="h-10 w-6 rounded-full border-2 border-emerald-300/30 flex items-start justify-center p-1"
-                        >
-                            <div className="h-2 w-1 bg-emerald-400 rounded-full" />
-                        </motion.div>
-                    </div>
-                </motion.div>
             </section>
 
             {/* Stats Section */}
-            <section className="py-16 bg-slate-50 border-y border-slate-200">
+            <section className="py-16 bg-muted/30 border-y border-border">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial="hidden"
@@ -459,11 +423,11 @@ export default function LandingPage() {
                                 variants={fadeInUp}
                                 className="text-center group"
                             >
-                                <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-white shadow-lg shadow-slate-200/50 mb-4 group-hover:shadow-emerald-500/20 group-hover:scale-110 transition-all">
-                                    <stat.icon className="h-6 w-6 text-emerald-600" />
+                                <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-background shadow-lg mb-4 group-hover:scale-110 transition-all">
+                                    <stat.icon className="h-6 w-6 text-primary" />
                                 </div>
-                                <p className="text-3xl sm:text-4xl font-bold text-slate-900">{stat.value}</p>
-                                <p className="text-sm text-slate-500 mt-1">{stat.label}</p>
+                                <p className="text-3xl sm:text-4xl font-bold text-foreground">{stat.value}</p>
+                                <p className="text-sm text-muted-foreground mt-1">{stat.label}</p>
                             </motion.div>
                         ))}
                     </motion.div>
@@ -471,7 +435,7 @@ export default function LandingPage() {
             </section>
 
             {/* Features Section */}
-            <section id="features" className="py-24 bg-white">
+            <section id="features" className="py-24 bg-background">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial="hidden"
@@ -480,15 +444,15 @@ export default function LandingPage() {
                         variants={fadeInUp}
                         className="text-center max-w-3xl mx-auto mb-16"
                     >
-                        <Badge className="mb-4 bg-emerald-100 text-emerald-700 border-emerald-200">Features</Badge>
-                        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-slate-900">
+                        <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">Features</Badge>
+                        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-foreground">
                             Everything you need to
                             <br />
-                            <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-600">
+                            <span className="text-primary">
                                 manage inventory
                             </span>
                         </h2>
-                        <p className="mt-4 text-lg text-slate-600">
+                        <p className="mt-4 text-lg text-muted-foreground">
                             Powerful features built for modern businesses. Start simple, scale infinitely.
                         </p>
                     </motion.div>
@@ -504,18 +468,15 @@ export default function LandingPage() {
                             <motion.div
                                 key={index}
                                 variants={fadeInUp}
-                                className="group p-8 rounded-2xl border border-slate-200 hover:border-emerald-200 bg-white hover:bg-gradient-to-br hover:from-emerald-50 hover:to-teal-50/50 transition-all duration-300 hover:shadow-xl hover:shadow-emerald-500/10"
+                                className="group p-8 rounded-2xl border border-border hover:border-primary bg-background hover:bg-muted/50 transition-all duration-300 hover:shadow-xl"
                             >
-                                <div className={cn(
-                                    "h-14 w-14 rounded-2xl bg-gradient-to-br flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform",
-                                    feature.gradient
-                                )}>
-                                    <feature.icon className="h-7 w-7 text-white" />
+                                <div className="h-14 w-14 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
+                                    <feature.icon className="h-7 w-7 text-primary-foreground" />
                                 </div>
-                                <h3 className="text-xl font-bold text-slate-900 mb-3 group-hover:text-emerald-700 transition-colors">
+                                <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
                                     {feature.title}
                                 </h3>
-                                <p className="text-slate-600 leading-relaxed">
+                                <p className="text-muted-foreground leading-relaxed">
                                     {feature.description}
                                 </p>
                             </motion.div>
@@ -525,7 +486,7 @@ export default function LandingPage() {
             </section>
 
             {/* Team Section */}
-            <section className="py-24 bg-gradient-to-br from-slate-50 to-emerald-50/30 overflow-hidden">
+            <section className="py-24 bg-muted/30 overflow-hidden">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid lg:grid-cols-2 gap-16 items-center">
                         {/* Image */}
@@ -542,10 +503,7 @@ export default function LandingPage() {
                                     alt="Team collaboration"
                                     className="w-full h-[500px] object-cover"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-[#004030]/60 to-transparent" />
                             </div>
-                            <div className="absolute -top-8 -left-8 w-32 h-32 bg-emerald-200 rounded-full blur-3xl opacity-50" />
-                            <div className="absolute -bottom-8 -right-8 w-40 h-40 bg-teal-200 rounded-full blur-3xl opacity-50" />
                         </motion.div>
 
                         {/* Content */}
@@ -556,13 +514,13 @@ export default function LandingPage() {
                             variants={fadeInRight}
                             className="order-1 lg:order-2"
                         >
-                            <Badge className="mb-4 bg-emerald-100 text-emerald-700 border-emerald-200">Collaboration</Badge>
-                            <h2 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-6">
+                            <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">Collaboration</Badge>
+                            <h2 className="text-3xl sm:text-4xl font-bold text-foreground mb-6">
                                 Empower your entire
                                 <br />
-                                <span className="text-emerald-600">workforce</span>
+                                <span className="text-primary">workforce</span>
                             </h2>
-                            <p className="text-lg text-slate-600 mb-8">
+                            <p className="text-lg text-muted-foreground mb-8">
                                 From the warehouse floor to the executive suite, StockFlow provides the tools your team needs to collaborate efficiently and keep inventory moving.
                             </p>
 
@@ -574,17 +532,17 @@ export default function LandingPage() {
                                     'Complete audit logs for accountability'
                                 ].map((item, index) => (
                                     <div key={index} className="flex items-center gap-3">
-                                        <div className="h-6 w-6 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-                                            <Check className="h-4 w-4 text-emerald-600" />
+                                        <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                                            <Check className="h-4 w-4 text-primary" />
                                         </div>
-                                        <span className="text-slate-700">{item}</span>
+                                        <span className="text-muted-foreground">{item}</span>
                                     </div>
                                 ))}
                             </div>
 
                             <Button
                                 size="lg"
-                                className="mt-8 bg-[#004030] hover:bg-[#003025] text-white"
+                                className="mt-8 bg-primary text-primary-foreground hover:bg-primary/90"
                                 onClick={() => handleOpenRegister()}
                             >
                                 Get Started
@@ -596,7 +554,7 @@ export default function LandingPage() {
             </section>
 
             {/* Testimonials Section */}
-            <section id="testimonials" className="py-24 bg-white">
+            <section id="testimonials" className="py-24 bg-background">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial="hidden"
@@ -605,11 +563,11 @@ export default function LandingPage() {
                         variants={fadeInUp}
                         className="text-center max-w-3xl mx-auto mb-16"
                     >
-                        <Badge className="mb-4 bg-violet-100 text-violet-700 border-violet-200">Testimonials</Badge>
-                        <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">
+                        <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">Testimonials</Badge>
+                        <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
                             Loved by businesses worldwide
                         </h2>
-                        <p className="mt-4 text-lg text-slate-600">
+                        <p className="mt-4 text-lg text-muted-foreground">
                             See what our customers have to say about StockFlow
                         </p>
                     </motion.div>
@@ -625,23 +583,23 @@ export default function LandingPage() {
                             <motion.div
                                 key={index}
                                 variants={fadeInUp}
-                                className="p-8 rounded-2xl bg-gradient-to-br from-slate-50 to-slate-100 border border-slate-200 hover:shadow-xl transition-all duration-300"
+                                className="p-8 rounded-2xl bg-muted/30 border border-border hover:shadow-xl transition-all duration-300"
                             >
                                 <div className="flex items-center gap-1 mb-4">
                                     {[...Array(5)].map((_, i) => (
-                                        <Award key={i} className="h-5 w-5 text-amber-400 fill-amber-400" />
+                                        <Award key={i} className="h-5 w-5 text-primary fill-primary" />
                                     ))}
                                 </div>
-                                <p className="text-slate-700 italic mb-6 leading-relaxed">
+                                <p className="text-muted-foreground italic mb-6 leading-relaxed">
                                     "{testimonial.quote}"
                                 </p>
                                 <div className="flex items-center gap-3">
-                                    <div className="h-12 w-12 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center text-white font-bold">
+                                    <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold">
                                         {testimonial.author.charAt(0)}
                                     </div>
                                     <div>
-                                        <p className="font-semibold text-slate-900">{testimonial.author}</p>
-                                        <p className="text-sm text-slate-500">{testimonial.role}, {testimonial.company}</p>
+                                        <p className="font-semibold text-foreground">{testimonial.author}</p>
+                                        <p className="text-sm text-muted-foreground">{testimonial.role}, {testimonial.company}</p>
                                     </div>
                                 </div>
                             </motion.div>
@@ -651,7 +609,7 @@ export default function LandingPage() {
             </section>
 
             {/* Pricing Section */}
-            <section id="pricing" className="py-24 bg-slate-50">
+            <section id="pricing" className="py-24 bg-muted/30">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <motion.div
                         initial="hidden"
@@ -660,21 +618,21 @@ export default function LandingPage() {
                         variants={fadeInUp}
                         className="text-center max-w-3xl mx-auto mb-12"
                     >
-                        <Badge className="mb-4 bg-emerald-100 text-emerald-700 border-emerald-200">Pricing</Badge>
-                        <h2 className="text-3xl sm:text-4xl font-bold text-slate-900">
+                        <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">Pricing</Badge>
+                        <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
                             Simple, transparent pricing
                         </h2>
-                        <p className="mt-4 text-lg text-slate-600">
+                        <p className="mt-4 text-lg text-muted-foreground">
                             Start free, upgrade when you're ready
                         </p>
 
                         {/* Billing Toggle */}
-                        <div className="mt-8 inline-flex items-center gap-4 p-1.5 bg-white rounded-full shadow-sm border border-slate-200">
+                        <div className="mt-8 inline-flex items-center gap-4 p-1.5 bg-background rounded-full shadow-sm border border-border">
                             <button
                                 onClick={() => setBillingCycle('monthly')}
                                 className={cn(
                                     "px-6 py-2.5 rounded-full text-sm font-medium transition-all",
-                                    billingCycle === 'monthly' ? "bg-[#004030] text-white shadow-md" : "text-slate-600 hover:text-slate-900"
+                                    billingCycle === 'monthly' ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:text-foreground"
                                 )}
                             >
                                 Monthly
@@ -683,11 +641,11 @@ export default function LandingPage() {
                                 onClick={() => setBillingCycle('yearly')}
                                 className={cn(
                                     "px-6 py-2.5 rounded-full text-sm font-medium transition-all flex items-center gap-2",
-                                    billingCycle === 'yearly' ? "bg-[#004030] text-white shadow-md" : "text-slate-600 hover:text-slate-900"
+                                    billingCycle === 'yearly' ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:text-foreground"
                                 )}
                             >
                                 Yearly
-                                <Badge className="bg-emerald-100 text-emerald-700 text-xs">Save 20%</Badge>
+                                <Badge className="bg-primary/20 text-primary text-xs">Save 20%</Badge>
                             </button>
                         </div>
                     </motion.div>
@@ -704,38 +662,38 @@ export default function LandingPage() {
                                 key={plan.id}
                                 variants={scaleIn}
                                 className={cn(
-                                    "relative p-8 rounded-3xl border-2 bg-white transition-all duration-300",
+                                    "relative p-8 rounded-3xl border-2 bg-background transition-all duration-300",
                                     plan.isPopular
-                                        ? "border-emerald-500 shadow-2xl shadow-emerald-500/20 scale-105"
-                                        : "border-slate-200 hover:border-emerald-300 hover:shadow-xl"
+                                        ? "border-primary shadow-2xl shadow-primary/20 scale-105"
+                                        : "border-border hover:border-primary/50 hover:shadow-xl"
                                 )}
                             >
                                 {plan.isPopular && (
                                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                                        <Badge className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0 px-4 py-1 shadow-lg">
+                                        <Badge className="bg-primary text-primary-foreground border-0 px-4 py-1 shadow-lg">
                                             Most Popular
                                         </Badge>
                                     </div>
                                 )}
 
                                 <div className="text-center mb-6">
-                                    <h3 className="text-xl font-bold text-slate-900">{plan.name}</h3>
-                                    <p className="text-sm text-slate-500 mt-1">{plan.description}</p>
+                                    <h3 className="text-xl font-bold text-foreground">{plan.name}</h3>
+                                    <p className="text-sm text-muted-foreground mt-1">{plan.description}</p>
                                 </div>
 
                                 <div className="text-center mb-8">
-                                    <span className="text-5xl font-bold text-slate-900">
+                                    <span className="text-5xl font-bold text-foreground">
                                         ${billingCycle === 'monthly' ? plan.priceMonthly : plan.priceYearly}
                                     </span>
-                                    <span className="text-slate-500">
+                                    <span className="text-muted-foreground">
                                         {billingCycle === 'monthly' ? '/month' : '/year'}
                                     </span>
                                 </div>
 
                                 <ul className="space-y-3 mb-8">
                                     {plan.features.map((feature, i) => (
-                                        <li key={i} className="flex items-center gap-3 text-sm text-slate-600">
-                                            <Check className="h-5 w-5 text-emerald-500 shrink-0" />
+                                        <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
+                                            <Check className="h-5 w-5 text-primary shrink-0" />
                                             {feature}
                                         </li>
                                     ))}
@@ -746,8 +704,8 @@ export default function LandingPage() {
                                     className={cn(
                                         "w-full h-12 font-semibold",
                                         plan.isPopular
-                                            ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/25"
-                                            : "bg-slate-100 hover:bg-slate-200 text-slate-900"
+                                            ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
+                                            : "bg-muted text-foreground hover:bg-muted/80"
                                     )}
                                 >
                                     Get Started
@@ -760,12 +718,7 @@ export default function LandingPage() {
             </section>
 
             {/* CTA Section */}
-            <section className="py-24 bg-gradient-to-br from-[#004030] via-[#003025] to-[#002018] relative overflow-hidden">
-                <div className="absolute inset-0">
-                    <div className="absolute top-10 left-10 w-64 h-64 bg-emerald-500/20 rounded-full blur-3xl" />
-                    <div className="absolute bottom-10 right-10 w-80 h-80 bg-teal-500/15 rounded-full blur-3xl" />
-                </div>
-
+            <section className="py-24 bg-primary relative overflow-hidden">
                 <motion.div
                     initial="hidden"
                     whileInView="visible"
@@ -773,21 +726,21 @@ export default function LandingPage() {
                     variants={fadeInUp}
                     className="relative z-10 max-w-4xl mx-auto text-center px-4"
                 >
-                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-white">
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-primary-foreground">
                         Ready to transform your
                         <br />
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">
+                        <span className="text-primary-foreground/90">
                             inventory management?
                         </span>
                     </h2>
-                    <p className="mt-6 text-lg text-emerald-100/70 max-w-2xl mx-auto">
+                    <p className="mt-6 text-lg text-primary-foreground/70 max-w-2xl mx-auto">
                         Join thousands of businesses already using StockFlow to streamline their operations and boost efficiency.
                     </p>
                     <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
                         <Button
                             size="lg"
                             onClick={() => handleOpenRegister()}
-                            className="h-14 px-10 text-lg bg-white text-[#004030] hover:bg-emerald-50 font-semibold shadow-xl hover:scale-105 transition-all"
+                            className="h-14 px-10 text-lg bg-background text-primary hover:bg-background/90 font-semibold shadow-xl hover:scale-105 transition-all"
                         >
                             Start Free Trial
                             <ArrowRight className="ml-2 h-5 w-5" />
@@ -796,7 +749,7 @@ export default function LandingPage() {
                             <Button
                                 size="lg"
                                 variant="outline"
-                                className="h-14 px-10 text-lg border-emerald-400/50 text-emerald-100 hover:bg-emerald-500/10"
+                                className="h-14 px-10 text-lg border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10"
                             >
                                 Sign In
                             </Button>
@@ -806,53 +759,53 @@ export default function LandingPage() {
             </section>
 
             {/* Footer */}
-            <footer className="py-16 bg-[#004030]">
+            <footer className="py-16 bg-primary border-t border-primary-foreground/10">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
                         <div className="col-span-2 md:col-span-1">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center">
-                                    <Package className="h-5 w-5 text-white" />
+                                <div className="h-10 w-10 rounded-xl bg-primary-foreground flex items-center justify-center">
+                                    <Package className="h-5 w-5 text-primary" />
                                 </div>
-                                <span className="text-xl font-bold text-white">StockFlow</span>
+                                <span className="text-xl font-bold text-primary-foreground">StockFlow</span>
                             </div>
-                            <p className="text-sm text-emerald-200/60">
+                            <p className="text-sm text-primary-foreground/70">
                                 The modern inventory management platform for growing businesses.
                             </p>
                         </div>
 
                         <div>
-                            <h4 className="font-semibold text-white mb-4">Product</h4>
-                            <ul className="space-y-2 text-sm text-emerald-200/60">
-                                <li><a href="#features" className="hover:text-white transition-colors">Features</a></li>
-                                <li><a href="#pricing" className="hover:text-white transition-colors">Pricing</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Integrations</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">API</a></li>
+                            <h4 className="font-semibold text-primary-foreground mb-4">Product</h4>
+                            <ul className="space-y-2 text-sm text-primary-foreground/70">
+                                <li><a href="#features" className="hover:text-primary-foreground transition-colors">Features</a></li>
+                                <li><a href="#pricing" className="hover:text-primary-foreground transition-colors">Pricing</a></li>
+                                <li><a href="#" className="hover:text-primary-foreground transition-colors">Integrations</a></li>
+                                <li><a href="#" className="hover:text-primary-foreground transition-colors">API</a></li>
                             </ul>
                         </div>
 
                         <div>
-                            <h4 className="font-semibold text-white mb-4">Company</h4>
-                            <ul className="space-y-2 text-sm text-emerald-200/60">
-                                <li><a href="#" className="hover:text-white transition-colors">About Us</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Careers</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Blog</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Contact</a></li>
+                            <h4 className="font-semibold text-primary-foreground mb-4">Company</h4>
+                            <ul className="space-y-2 text-sm text-primary-foreground/70">
+                                <li><a href="#" className="hover:text-primary-foreground transition-colors">About Us</a></li>
+                                <li><a href="#" className="hover:text-primary-foreground transition-colors">Careers</a></li>
+                                <li><a href="#" className="hover:text-primary-foreground transition-colors">Blog</a></li>
+                                <li><a href="#" className="hover:text-primary-foreground transition-colors">Contact</a></li>
                             </ul>
                         </div>
 
                         <div>
-                            <h4 className="font-semibold text-white mb-4">Legal</h4>
-                            <ul className="space-y-2 text-sm text-emerald-200/60">
-                                <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-                                <li><a href="#" className="hover:text-white transition-colors">Cookie Policy</a></li>
+                            <h4 className="font-semibold text-primary-foreground mb-4">Legal</h4>
+                            <ul className="space-y-2 text-sm text-primary-foreground/70">
+                                <li><a href="#" className="hover:text-primary-foreground transition-colors">Terms of Service</a></li>
+                                <li><a href="#" className="hover:text-primary-foreground transition-colors">Privacy Policy</a></li>
+                                <li><a href="#" className="hover:text-primary-foreground transition-colors">Cookie Policy</a></li>
                             </ul>
                         </div>
                     </div>
 
-                    <div className="pt-8 border-t border-emerald-800/50 text-center">
-                        <p className="text-sm text-emerald-200/50">
+                    <div className="pt-8 border-t border-primary-foreground/20 text-center">
+                        <p className="text-sm text-primary-foreground/50">
                             © {new Date().getFullYear()} StockFlow. All rights reserved.
                         </p>
                     </div>

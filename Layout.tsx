@@ -120,24 +120,24 @@ function NavLink({ item, currentPage, mobile = false, collapsed = false }: { ite
 
   const linkContent = (
     <Link
-      href={item.href === 'OrganizationMembers' ? `${createPageUrl(item.href)}?id=${base44.auth.getOrganizationId()}` : createPageUrl(item.href)}
+      href={createPageUrl(item.href)}
       className={cn(
         "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
         mobile
           ? isActive
-            ? "bg-emerald-50 text-emerald-700"
-            : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+            ? "bg-primary/10 text-primary"
+            : "text-muted-foreground hover:bg-muted hover:text-foreground"
           : isActive
-            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
-            : "text-slate-400 hover:bg-white/5 hover:text-slate-200",
+            ? "bg-sidebar-primary text-sidebar-primary-foreground font-bold shadow-md shadow-sidebar-primary/20"
+            : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
         collapsed && "justify-center px-2"
       )}
     >
       <Icon className={cn(
         "h-5 w-5 flex-shrink-0 transition-colors",
         mobile
-          ? isActive ? "text-emerald-600" : "text-slate-400"
-          : isActive ? "text-emerald-400" : "text-slate-500"
+          ? isActive ? "text-primary" : "text-muted-foreground"
+          : isActive ? "text-sidebar-primary-foreground" : "text-sidebar-foreground/70"
       )} />
       {!collapsed && (
         <span className="truncate">{translatedName}</span>
@@ -222,31 +222,31 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Top Header - Dark theme */}
-      <header className="fixed top-0 left-0 right-0 h-16 bg-[#002820] border-b border-emerald-900/50 z-40">
+    <div className="min-h-screen bg-background">
+      {/* Top Header */}
+      <header className="fixed top-0 left-0 right-0 h-16 bg-sidebar border-b border-sidebar-border z-40">
         <div className="flex items-center h-full">
           {/* Left Section - Logo area with sidebar width */}
           <div className={cn(
-            "hidden lg:flex items-center justify-between h-full border-r border-emerald-900/50 px-4 transition-all duration-300 ease-in-out",
+            "hidden lg:flex items-center justify-between h-full border-r border-sidebar-border px-4 transition-all duration-300 ease-in-out",
             sidebarCollapsed ? "w-[72px]" : "w-64"
           )}>
             <Link href={createPageUrl("Dashboard")} className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
-                <Package className="h-5 w-5 text-white" />
+              <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-sidebar-primary/25">
+                <Package className="h-5 w-5 text-primary-foreground" />
               </div>
               {!sidebarCollapsed && (
                 <div>
-                  <h1 className="font-bold text-white text-lg tracking-tight">StockFlow</h1>
+                  <h1 className="font-bold text-sidebar-foreground text-lg tracking-tight">StockFlow</h1>
                 </div>
               )}
             </Link>
-            {/* Sidebar Toggle Button - positioned at the right edge near the border */}
+            {/* Sidebar Toggle Button */}
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="h-8 w-8 text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+              className="h-8 w-8 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
             >
               {sidebarCollapsed ? (
                 <PanelLeft className="h-5 w-5" />
@@ -260,19 +260,19 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
           <div className="flex lg:hidden items-center gap-4 px-4">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-slate-300 hover:text-white hover:bg-white/10">
+                <Button variant="ghost" size="icon" className="text-sidebar-foreground hover:bg-sidebar-accent">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-72 p-0 bg-white">
-                <div className="p-6 border-b border-slate-200">
+              <SheetContent side="left" className="w-72 p-0 bg-background">
+                <div className="p-6 border-b border-border">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
-                      <Package className="h-5 w-5 text-white" />
+                    <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25">
+                      <Package className="h-5 w-5 text-primary-foreground" />
                     </div>
                     <div>
-                      <h1 className="font-bold text-slate-900">StockFlow</h1>
-                      <p className="text-xs text-slate-500">Inventory Management</p>
+                      <h1 className="font-bold text-foreground">StockFlow</h1>
+                      <p className="text-xs text-muted-foreground">Inventory Management</p>
                     </div>
                   </div>
                 </div>
@@ -290,11 +290,11 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
             </Sheet>
 
             <Link href={createPageUrl("Dashboard")} className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center shadow-lg shadow-emerald-500/25">
-                <Package className="h-5 w-5 text-white" />
+              <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25">
+                <Package className="h-5 w-5 text-primary-foreground" />
               </div>
               <div className="block sm:block">
-                <h1 className="font-bold text-white text-lg tracking-tight">StockFlow</h1>
+                <h1 className="font-bold text-sidebar-foreground text-lg tracking-tight">StockFlow</h1>
               </div>
             </Link>
           </div>
@@ -302,11 +302,11 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
           {/* Center - Search (Desktop) */}
           <div className="hidden lg:flex flex-1 max-w-xl mx-8">
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sidebar-foreground/50" />
               <input
                 type="text"
                 placeholder="Search products, orders, suppliers..."
-                className="w-full h-10 pl-10 pr-4 rounded-xl bg-slate-800/50 border border-emerald-800/50 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-slate-800 transition-all"
+                className="w-full h-10 pl-10 pr-4 rounded-xl bg-sidebar-accent border border-sidebar-border text-sm text-sidebar-foreground placeholder:text-sidebar-foreground/50 focus:outline-none focus:ring-2 focus:ring-sidebar-ring focus:border-sidebar-ring focus:bg-sidebar-accent transition-all"
               />
             </div>
           </div>
@@ -316,10 +316,10 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
             <LanguageSelector />
 
             <Link href={createPageUrl("Alerts")}>
-              <Button variant="ghost" size="icon" className="relative text-slate-400 hover:text-white hover:bg-white/10">
+              <Button variant="ghost" size="icon" className="relative text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent">
                 <Bell className="h-5 w-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 h-5 w-5 rounded-full bg-rose-500 text-white text-xs flex items-center justify-center font-medium">
+                  <span className="absolute -top-0.5 -right-0.5 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">
                     {unreadCount > 9 ? '9+' : unreadCount}
                   </span>
                 )}
@@ -328,20 +328,20 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="gap-2 px-2 text-slate-300 hover:text-white hover:bg-white/10">
-                  <div className="h-8 w-8 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-sm font-medium shadow-lg shadow-emerald-500/25">
+                <Button variant="ghost" className="gap-2 px-2 text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent">
+                  <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium shadow-lg shadow-primary/25">
                     {user?.full_name?.charAt(0) || 'U'}
                   </div>
                   <span className="hidden sm:block text-sm font-medium">
                     {user?.full_name || 'User'}
                   </span>
-                  <ChevronDown className="h-4 w-4 text-slate-500" />
+                  <ChevronDown className="h-4 w-4 text-sidebar-foreground/50" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-56 bg-white">
                 <div className="px-2 py-1.5">
-                  <p className="text-sm font-medium text-slate-900">{user?.full_name}</p>
-                  <p className="text-xs text-slate-500">{user?.email}</p>
+                  <p className="text-sm font-medium text-foreground">{user?.full_name}</p>
+                  <p className="text-xs text-muted-foreground">{user?.email}</p>
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
@@ -356,7 +356,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  className="text-rose-600"
+                  className="text-primary"
                   onClick={() => {
                     logout();
                     router.push('/login');
@@ -370,9 +370,9 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
         </div>
       </header>
 
-      {/* Desktop Sidebar - Dark theme */}
+      {/* Desktop Sidebar */}
       <aside className={cn(
-        "hidden lg:flex fixed left-0 top-16 bottom-0 bg-[#002820] border-r border-emerald-900/50 flex-col transition-all duration-300 ease-in-out",
+        "hidden lg:flex fixed left-0 top-16 bottom-0 bg-sidebar border-r border-sidebar-border flex-col transition-all duration-300 ease-in-out",
         sidebarCollapsed ? "w-[72px]" : "w-64"
       )}>
         <TooltipProvider>
@@ -392,11 +392,11 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
         </TooltipProvider>
 
         {!sidebarCollapsed && (
-          <div className="p-4 border-t border-emerald-900/50">
-            <div className="rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-700 p-4 text-white shadow-lg shadow-emerald-500/20">
+          <div className="p-4 border-t border-sidebar-border">
+            <div className="rounded-xl bg-primary p-4 text-primary-foreground shadow-lg shadow-primary/20">
               <p className="font-semibold text-sm">Need Help?</p>
-              <p className="text-xs text-emerald-100 mt-1">Check our documentation or contact support.</p>
-              <Button size="sm" variant="secondary" className="mt-3 w-full bg-white text-emerald-700 hover:bg-emerald-50">
+              <p className="text-xs text-primary-foreground/80 mt-1">Check our documentation or contact support.</p>
+              <Button size="sm" variant="secondary" className="mt-3 w-full bg-background text-primary hover:bg-muted">
                 View Docs
               </Button>
             </div>
@@ -406,7 +406,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
 
       {/* Main Content */}
       <main className={cn(
-        "pt-16 min-h-screen transition-all duration-300 ease-in-out bg-slate-50",
+        "pt-16 min-h-screen transition-all duration-300 ease-in-out bg-[#f9fafb70]",
         sidebarCollapsed ? "lg:pl-[72px]" : "lg:pl-64"
       )}>
         <div className="p-4 lg:p-8">

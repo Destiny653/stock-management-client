@@ -140,10 +140,10 @@ export default function InventoryTable({
   );
 
   return (
-    <div className="bg-white overflow-hidden">
+    <div className="bg-card overflow-hidden">
       <Table>
         <TableHeader>
-          <TableRow className="bg-emerald-600/10 hover:bg-emerald-600/10 text-[11px] font-bold uppercase tracking-wider text-slate-700 border-b border-slate-100">
+          <TableRow className="bg-muted/50 hover:bg-muted/50 text-[11px] font-bold uppercase tracking-wider text-muted-foreground border-b border-border">
             <TableHead className="w-12 text-center p-0"></TableHead>
             {!readOnly && (
               <TableHead className="w-12 text-center p-0">
@@ -155,12 +155,12 @@ export default function InventoryTable({
                 </div>
               </TableHead>
             )}
-            <TableHead className="px-6 py-4 text-left font-bold text-slate-500">Product Details</TableHead>
-            <TableHead className="px-6 py-4 text-left font-bold text-slate-500">Category</TableHead>
-            <TableHead className="px-6 py-4 text-left font-bold text-slate-500">Variants</TableHead>
-            <TableHead className="px-6 py-4 text-left font-bold text-slate-500">Total Stock</TableHead>
-            <TableHead className="px-6 py-4 text-left font-bold text-slate-500">Status</TableHead>
-            <TableHead className="px-6 py-4 text-right font-bold text-slate-500">Actions</TableHead>
+            <TableHead className="px-6 py-4 text-left font-bold text-muted-foreground">Product Details</TableHead>
+            <TableHead className="px-6 py-4 text-left font-bold text-muted-foreground">Category</TableHead>
+            <TableHead className="px-6 py-4 text-left font-bold text-muted-foreground">Variants</TableHead>
+            <TableHead className="px-6 py-4 text-left font-bold text-muted-foreground">Total Stock</TableHead>
+            <TableHead className="px-6 py-4 text-left font-bold text-muted-foreground">Status</TableHead>
+            <TableHead className="px-6 py-4 text-right font-bold text-muted-foreground">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -168,9 +168,9 @@ export default function InventoryTable({
             <TableRow>
               <TableCell colSpan={readOnly ? 7 : 8} className="h-48">
                 <div className="flex flex-col items-center justify-center text-center">
-                  <Package className="h-12 w-12 text-slate-300 mb-3" />
-                  <p className="text-slate-600 font-medium">No products found</p>
-                  <p className="text-sm text-slate-400 mt-1">Add your first product to get started</p>
+                  <Package className="h-12 w-12 text-muted-foreground/50 mb-3" />
+                  <p className="text-muted-foreground font-medium">No products found</p>
+                  <p className="text-sm text-muted-foreground/70 mt-1">Add your first product to get started</p>
                 </div>
               </TableCell>
             </TableRow>
@@ -189,15 +189,15 @@ export default function InventoryTable({
                     router.push(createPageUrl(`ProductDetail?id=${product.id}`));
                   }}
                   className={cn(
-                    "group transition-colors hover:bg-slate-50 border-b border-slate-50 cursor-pointer",
-                    isExpanded && "bg-indigo-50/30",
-                    isSelected && "bg-emerald-50/50"
+                    "group transition-colors hover:bg-muted/50 border-b border-border cursor-pointer",
+                    isExpanded && "bg-muted/30",
+                    isSelected && "bg-primary/5"
                   )}>
                   <td className="w-12 p-0 text-center align-middle">
                     <div className="flex justify-center items-center w-full h-full">
                       <button
                         onClick={() => toggleExpand(product.id)}
-                        className="p-1 hover:bg-white rounded transition-colors text-slate-400 group-hover:text-indigo-600"
+                        className="p-1 hover:bg-card rounded transition-colors text-muted-foreground group-hover:text-primary"
                       >
                         {isExpanded ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
                       </button>
@@ -215,30 +215,30 @@ export default function InventoryTable({
                   )}
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center overflow-hidden shadow-sm">
+                      <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center overflow-hidden shadow-sm">
                         {product.image_url ? (
                           <img src={getImageUrl(product.image_url)} className="w-full h-full object-cover" alt={product.name} />
                         ) : (
-                          <Package className="h-5 w-5 text-slate-400" />
+                          <Package className="h-5 w-5 text-muted-foreground" />
                         )}
                       </div>
                       <div>
                         <Link
                           href={createPageUrl(`ProductDetail?id=${product.id}`)}
-                          className="text-sm font-bold text-slate-800 hover:text-indigo-600 transition-colors"
+                          className="text-sm font-bold text-foreground hover:text-primary transition-colors"
                         >
                           {product.name}
                         </Link>
                         {product.description && (
-                          <p className="text-[10px] text-slate-400 line-clamp-1 max-w-[200px]">{product.description}</p>
+                          <p className="text-[10px] text-muted-foreground line-clamp-1 max-w-[200px]">{product.description}</p>
                         )}
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4 text-xs font-medium text-slate-600">
-                    <span className="bg-slate-100 text-slate-600 px-2 py-1 rounded-full">{product.category}</span>
+                  <td className="px-6 py-4 text-xs font-medium text-muted-foreground">
+                    <span className="bg-muted text-muted-foreground px-2 py-1 rounded-full">{product.category}</span>
                   </td>
-                  <td className="px-6 py-4 text-xs font-semibold text-slate-600">
+                  <td className="px-6 py-4 text-xs font-semibold text-muted-foreground">
                     {product.variants?.length || 0} SKU(s)
                   </td>
                   <td className="px-6 py-4">
@@ -251,10 +251,10 @@ export default function InventoryTable({
                           className="w-16 h-8 text-xs px-2"
                           autoFocus
                         />
-                        <Button size="icon" variant="ghost" className="h-8 w-8 text-emerald-600" onClick={() => handleSaveEdit(product.id)}>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-primary" onClick={() => handleSaveEdit(product.id)}>
                           <Check className="h-4 w-4" />
                         </Button>
-                        <Button size="icon" variant="ghost" className="h-8 w-8 text-slate-400" onClick={handleCancelEdit}>
+                        <Button size="icon" variant="ghost" className="h-8 w-8 text-muted-foreground" onClick={handleCancelEdit}>
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
@@ -262,8 +262,8 @@ export default function InventoryTable({
                       <button
                         onClick={() => handleStartEdit(product)}
                         className={cn(
-                          "text-xs font-bold px-2 py-1 rounded hover:bg-white/50 transition-colors",
-                          isLowStock ? "text-rose-500" : "text-slate-800"
+                          "text-xs font-bold px-2 py-1 rounded hover:bg-card transition-colors",
+                          isLowStock ? "text-destructive" : "text-foreground"
                         )}
                       >
                         {totalStock} units
@@ -273,24 +273,24 @@ export default function InventoryTable({
                   <td className="px-6 py-4">
                     <span className={cn(
                       "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide",
-                      isLowStock ? "bg-rose-100 text-rose-600" : "bg-emerald-100 text-emerald-600"
+                      isLowStock ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"
                     )}>
                       {isLowStock ? 'Low Stock' : 'In Stock'}
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex justify-end space-x-1">
-                      <Link href={createPageUrl(`ProductDetail?id=${product.id}`)} className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-all">
+                      <Link href={createPageUrl(`ProductDetail?id=${product.id}`)} className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded transition-all">
                         <Eye size={16} />
                       </Link>
                       {!readOnly && (
                         <>
-                          <Link href={createPageUrl(`ProductDetail?id=${product.id}&mode=edit`)} className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded transition-all">
+                          <Link href={createPageUrl(`ProductDetail?id=${product.id}&mode=edit`)} className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded transition-all">
                             <Edit2 size={16} />
                           </Link>
                           <button
                             onClick={() => onDelete?.(product.id)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-all"
+                            className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded transition-all"
                           >
                             <Trash2 size={16} />
                           </button>
@@ -302,33 +302,33 @@ export default function InventoryTable({
 
                 {/* Nested Variant View */}
                 {isExpanded && product.variants && product.variants.length > 0 && (
-                  <tr className="bg-slate-50/50">
+                  <tr className="bg-muted/30">
                     <td colSpan={readOnly ? 7 : 8} className="px-12 py-4">
-                      <div className="bg-white border border-slate-100 rounded-lg shadow-inner overflow-hidden">
+                      <div className="bg-card border border-border rounded-lg shadow-inner overflow-hidden">
                         <table className="w-full text-[11px] text-left">
-                          <thead className="bg-emerald-600/5 border-b border-slate-100">
+                          <thead className="bg-muted/50 border-b border-border">
                             <tr>
-                              <th className="px-4 py-2 font-bold text-slate-500">SKU</th>
-                              <th className="px-4 py-2 font-bold text-slate-500">Attributes</th>
-                              <th className="px-4 py-2 font-bold text-slate-500">Stock</th>
-                              <th className="px-4 py-2 font-bold text-slate-500">Cost</th>
-                              <th className="px-4 py-2 font-bold text-slate-500">Price</th>
-                              <th className="px-4 py-2 font-bold text-slate-500 text-right">Value</th>
+                              <th className="px-4 py-2 font-bold text-muted-foreground">SKU</th>
+                              <th className="px-4 py-2 font-bold text-muted-foreground">Attributes</th>
+                              <th className="px-4 py-2 font-bold text-muted-foreground">Stock</th>
+                              <th className="px-4 py-2 font-bold text-muted-foreground">Cost</th>
+                              <th className="px-4 py-2 font-bold text-muted-foreground">Price</th>
+                              <th className="px-4 py-2 font-bold text-muted-foreground text-right">Value</th>
                               <th className="w-10"></th>
                             </tr>
                           </thead>
-                          <tbody className="divide-y divide-slate-50">
+                          <tbody className="divide-y divide-border">
                             {product.variants.map((variant) => {
                               const isVariantEditing = editingId === product.id && editingSku === variant.sku;
                               const variantValue = (variant.stock || 0) * (variant.unit_price || 0);
 
                               return (
-                                <tr key={variant.sku} className="hover:bg-slate-50 transition-colors">
-                                  <td className="px-4 py-3 font-mono text-indigo-600">{variant.sku}</td>
+                                <tr key={variant.sku} className="hover:bg-muted/50 transition-colors">
+                                  <td className="px-4 py-3 font-mono text-primary">{variant.sku}</td>
                                   <td className="px-4 py-3">
                                     <div className="flex flex-wrap gap-1">
                                       {Object.entries(variant.attributes || {}).map(([k, v]) => (
-                                        <span key={k} className="bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded text-[9px] font-medium uppercase">
+                                        <span key={k} className="bg-muted text-muted-foreground px-1.5 py-0.5 rounded text-[9px] font-medium uppercase">
                                           {v}
                                         </span>
                                       ))}
@@ -344,10 +344,10 @@ export default function InventoryTable({
                                           className="w-16 h-7 text-[10px] px-1"
                                           autoFocus
                                         />
-                                        <Button size="icon" variant="ghost" className="h-7 w-7 text-emerald-600" onClick={() => handleSaveEdit(product.id)}>
+                                        <Button size="icon" variant="ghost" className="h-7 w-7 text-primary" onClick={() => handleSaveEdit(product.id)}>
                                           <Check className="h-3 w-3" />
                                         </Button>
-                                        <Button size="icon" variant="ghost" className="h-7 w-7 text-slate-400" onClick={handleCancelEdit}>
+                                        <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground" onClick={handleCancelEdit}>
                                           <X className="h-3 w-3" />
                                         </Button>
                                       </div>
@@ -355,17 +355,17 @@ export default function InventoryTable({
                                       <button
                                         onClick={() => handleStartEdit(product, variant.sku, variant.stock)}
                                         className={cn(
-                                          "font-bold px-2 py-0.5 rounded hover:bg-slate-100 transition-colors",
-                                          variant.stock <= (product.reorder_point || 0) ? "text-rose-500" : "text-slate-700"
+                                          "font-bold px-2 py-0.5 rounded hover:bg-muted transition-colors",
+                                          variant.stock <= (product.reorder_point || 0) ? "text-destructive" : "text-foreground"
                                         )}
                                       >
                                         {variant.stock}
                                       </button>
                                     )}
                                   </td>
-                                  <td className="px-4 py-3 text-slate-500">${variant.cost_price?.toFixed(2) || '0.00'}</td>
-                                  <td className="px-4 py-3 font-semibold text-slate-800">${variant.unit_price?.toFixed(2) || '0.00'}</td>
-                                  <td className="px-4 py-3 text-right font-bold text-slate-800">
+                                  <td className="px-4 py-3 text-muted-foreground">${variant.cost_price?.toFixed(2) || '0.00'}</td>
+                                  <td className="px-4 py-3 font-semibold text-foreground">${variant.unit_price?.toFixed(2) || '0.00'}</td>
+                                  <td className="px-4 py-3 text-right font-bold text-foreground">
                                     ${variantValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                   </td>
                                   <td></td>

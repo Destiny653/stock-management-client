@@ -18,6 +18,12 @@ export default function RegisterPage() {
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState('');
+    const [registrationState, setRegistrationState] = useState({
+        planId: '',
+        locationId: '',
+        organizationId: '',
+    });
+
     const [data, setData] = useState({
         plan: null as SubscriptionPlan | null,
         location: null as any,
@@ -26,77 +32,78 @@ export default function RegisterPage() {
     });
 
     const handlePlanNext = (plan: SubscriptionPlan) => {
+        const planId = plan._id || plan.id;
         setData(prev => ({ ...prev, plan }));
+        setRegistrationState(prev => ({ ...prev, planId }));
         setStep(2);
     };
 
-    const handleLocationNext = (locationData: any) => {
-        setData(prev => ({ ...prev, location: locationData }));
-        setStep(3);
+    const handleLocationNext = async (locationData: any) => {
+        setIsSubmitting(true);
+        setLoadingMessage("Saving location...");
+        try {
+            const response = await apiClient.post('/locations/', {
+                name: locationData.name || "HQ",
+                address: locationData.address,
+                city: locationData.city,
+                country: locationData.country,
+                latitude: locationData.latitude,
+                longitude: locationData.longitude
+            });
+            const locationId = response.data.id;
+            setData(prev => ({ ...prev, location: locationData }));
+            setRegistrationState(prev => ({ ...prev, locationId }));
+            setStep(3);
+        } catch (error: any) {
+            toast.error(error.response?.data?.detail || "Failed to save location");
+        } finally {
+            setIsSubmitting(false);
+            setLoadingMessage('');
+        }
     };
 
-    const handleOrganizationNext = (orgData: any) => {
-        setData(prev => ({ ...prev, organization: orgData }));
-        setStep(4);
+    const handleOrganizationNext = async (orgData: any) => {
+        setIsSubmitting(true);
+        setLoadingMessage("Creating organization...");
+        try {
+            const response = await apiClient.post('/organizations/', {
+                name: orgData.name,
+                code: orgData.code,
+                phone: orgData.phone,
+                website: orgData.website,
+                location_id: registrationState.locationId,
+                subscription_plan_id: registrationState.planId,
+                status: 'active'
+            });
+            const organizationId = response.data.id;
+            setData(prev => ({ ...prev, organization: orgData }));
+            setRegistrationState(prev => ({ ...prev, organizationId }));
+            setStep(4);
+        } catch (error: any) {
+            toast.error(error.response?.data?.detail || "Failed to create organization");
+        } finally {
+            setIsSubmitting(false);
+            setLoadingMessage('');
+        }
     };
 
     const handleFinalSubmit = async (userData: any) => {
         setIsSubmitting(true);
-        const finalData = { ...data, user: userData };
-
+        setLoadingMessage("Creating admin account...");
         try {
-            if (!finalData.plan) {
-                toast.error("Please select a subscription plan");
-                setIsSubmitting(false);
-                return;
-            }
-
-            setLoadingMessage("Creating your account...");
-
-            // Use the atomic register-organization endpoint
-            const planId = finalData.plan._id || finalData.plan.id;
-
-            const registrationPayload = {
-                user: {
-                    full_name: userData.full_name,
-                    email: userData.email,
-                    username: userData.email,
-                    password: userData.password,
-                    role: 'admin',
-                    user_type: 'admin'
-                },
-                organization: {
-                    name: finalData.organization.name,
-                    code: finalData.organization.code,
-                    phone: finalData.organization.phone || null,
-                    website: finalData.organization.website || null,
-                    description: '',
-                    subscription_plan_id: planId,
-                    status: 'active'
-                },
-                location: {
-                    name: `${finalData.organization.name} HQ`,
-                    address: finalData.location.address,
-                    city: finalData.location.city,
-                    country: finalData.location.country,
-                    latitude: finalData.location.latitude,
-                    longitude: finalData.location.longitude
-                }
-            };
-
-            await apiClient.post('/auth/register-organization', registrationPayload);
-
-            setLoadingMessage("Finalizing setup...");
+            await apiClient.post('/auth/register', {
+                full_name: userData.full_name,
+                email: userData.email,
+                username: userData.email, // using email as username
+                password: userData.password,
+                organization_id: registrationState.organizationId,
+                role: 'admin',
+                user_type: 'admin'
+            });
             toast.success("Registration successful! Please login.");
             router.push('/login');
         } catch (error: any) {
-            console.error("Registration error:", error);
-            const msg = error.response?.data?.detail || "Registration failed";
-            if (typeof msg === 'object') {
-                toast.error(JSON.stringify(msg));
-            } else {
-                toast.error(msg);
-            }
+            toast.error(error.response?.data?.detail || "Failed to create user");
         } finally {
             setIsSubmitting(false);
             setLoadingMessage('');

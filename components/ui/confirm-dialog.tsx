@@ -36,15 +36,15 @@ export function ConfirmDialog({
     isLoading = false
 }: ConfirmDialogProps) {
     const iconMap = {
-        destructive: <AlertTriangle className="h-6 w-6 text-rose-600" />,
-        warning: <AlertTriangle className="h-6 w-6 text-amber-600" />,
-        default: <AlertTriangle className="h-6 w-6 text-blue-600" />
+        destructive: <AlertTriangle className="h-6 w-6 text-primary" />,
+        warning: <AlertTriangle className="h-6 w-6 text-primary" />,
+        default: <AlertTriangle className="h-6 w-6 text-primary" />
     };
 
     const bgMap = {
-        destructive: "bg-rose-100",
-        warning: "bg-amber-100",
-        default: "bg-blue-100"
+        destructive: "bg-primary/10",
+        warning: "bg-primary/10",
+        default: "bg-primary/10"
     };
 
     return (
@@ -58,7 +58,7 @@ export function ConfirmDialog({
                         {iconMap[variant]}
                     </div>
                     <DialogTitle className="text-xl">{title}</DialogTitle>
-                    <p className="text-sm text-slate-500">
+                    <p className="text-sm text-muted-foreground">
                         {description}
                     </p>
                 </DialogHeader>
@@ -75,7 +75,7 @@ export function ConfirmDialog({
                         onClick={onConfirm}
                         disabled={isLoading}
                         className={cn(
-                            variant === 'warning' && "bg-amber-600 hover:bg-amber-700 text-white"
+                            variant === 'warning' && "bg-primary hover:bg-primary/90 text-primary-foreground"
                         )}
                     >
                         {isLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}

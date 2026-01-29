@@ -1,7 +1,7 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
-const COLORS = ['#059669', '#8b5cf6', '#f59e0b', '#ef4444', '#3b82f6', '#10b981', '#6366f1', '#ec4899'];
+const COLORS = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)'];
 
 interface TooltipPayloadItem {
   name: string;
@@ -21,13 +21,13 @@ interface CustomTooltipProps {
 const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-slate-900 text-white px-4 py-3 rounded-lg shadow-xl">
+      <div className="bg-popover text-popover-foreground px-4 py-3 rounded-lg shadow-xl border border-border">
         <p className="text-sm font-medium">{payload[0].name}</p>
-        <p className="text-xs text-slate-300 mt-1">
-          Value: <span className="text-white font-semibold">${payload[0].value.toLocaleString()}</span>
+        <p className="text-xs text-muted-foreground mt-1">
+          Value: <span className="text-foreground font-semibold">${payload[0].value.toLocaleString()}</span>
         </p>
-        <p className="text-xs text-slate-300">
-          Share: <span className="text-white font-semibold">{((payload[0].value / payload[0].payload.total) * 100).toFixed(1)}%</span>
+        <p className="text-xs text-muted-foreground">
+          Share: <span className="text-foreground font-semibold">{((payload[0].value / payload[0].payload.total) * 100).toFixed(1)}%</span>
         </p>
       </div>
     );
@@ -51,10 +51,10 @@ export default function CategoryDistribution({ data = [] }: CategoryDistribution
   const dataWithTotal = chartData.map(item => ({ ...item, total }));
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6">
+    <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-slate-900">Category Distribution</h3>
-        <p className="text-sm text-slate-500 mt-0.5">Stock value by category</p>
+        <h3 className="text-lg font-semibold text-foreground">Category Distribution</h3>
+        <p className="text-sm text-muted-foreground mt-0.5">Stock value by category</p>
       </div>
 
       <div className="flex items-center gap-6">
@@ -87,9 +87,9 @@ export default function CategoryDistribution({ data = [] }: CategoryDistribution
                   className="h-3 w-3 rounded-full"
                   style={{ backgroundColor: COLORS[index % COLORS.length] }}
                 />
-                <span className="text-sm text-slate-600">{item.name}</span>
+                <span className="text-sm text-muted-foreground">{item.name}</span>
               </div>
-              <span className="text-sm font-medium text-slate-900">
+              <span className="text-sm font-medium text-foreground">
                 ${(item.value / 1000).toFixed(1)}k
               </span>
             </div>
