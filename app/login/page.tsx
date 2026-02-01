@@ -16,6 +16,7 @@ import {
     Store,
     Loader2
 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function LoginPage() {
     const [username, setUsername] = useState('');
@@ -60,25 +61,7 @@ export default function LoginPage() {
         setIsSubmitting(false);
     };
 
-    const handleDemoLogin = async (type: 'admin' | 'vendor') => {
-        setError('');
-        setIsSubmitting(true);
 
-        const credentials = type === 'admin'
-            ? { username: 'Destiny', password: 'fokundem653@' }
-            : { username: 'Employee', password: 'employee123' };
-
-        setUsername(credentials.username);
-        setPassword(credentials.password);
-
-        const result = await login(credentials.username, credentials.password);
-
-        if (!result.success) {
-            setError(result.error || 'Login failed');
-        }
-
-        setIsSubmitting(false);
-    };
 
     if (isLoading) {
         return (
@@ -115,15 +98,17 @@ export default function LoginPage() {
 
                 {/* Logo */}
                 <div className="relative z-10">
-                    <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 rounded-md bg-white/10 flex items-center justify-center shadow-white/5">
-                            <Package className="h-6 w-6 text-white" />
+                    <Link href="/">
+                        <div className="flex items-center gap-3">
+                            <div className="h-12 w-12 rounded-md bg-white/10 flex items-center justify-center shadow-white/5">
+                                <Package className="h-6 w-6 text-white" />
+                            </div>
+                            <div>
+                                <h1 className="text-2xl font-bold text-white">StockFlow</h1>
+                                <p className="text-sm text-slate-400">Inventory Management</p>
+                            </div>
                         </div>
-                        <div>
-                            <h1 className="text-2xl font-bold text-white">StockFlow</h1>
-                            <p className="text-sm text-slate-400">Inventory Management</p>
-                        </div>
-                    </div>
+                    </Link>
                 </div>
 
                 {/* Main Content */}
@@ -259,48 +244,7 @@ export default function LoginPage() {
                             </Button>
                         </form>
 
-                        {/* Divider */}
-                        <div className="relative my-8">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-border" />
-                            </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-4 bg-background text-muted-foreground">Quick demo access</span>
-                            </div>
-                        </div>
 
-                        {/* Demo Login Buttons */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <button
-                                type="button"
-                                onClick={() => handleDemoLogin('admin')}
-                                disabled={isSubmitting}
-                                className="flex flex-col items-center gap-2 p-4 rounded-md border-2 border-border hover:border-primary hover:bg-primary/5 transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center shadow-primary/30">
-                                    <Shield className="h-5 w-5 text-white" />
-                                </div>
-                                <div className="text-center">
-                                    <p className="font-semibold text-foreground group-hover:text-primary">Admin</p>
-                                    <p className="text-xs text-muted-foreground">Destiny / fokundem653@</p>
-                                </div>
-                            </button>
-
-                            <button
-                                type="button"
-                                onClick={() => handleDemoLogin('vendor')}
-                                disabled={isSubmitting}
-                                className="flex flex-col items-center gap-2 p-4 rounded-md border-2 border-border hover:border-secondary-foreground hover:bg-secondary transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                                <div className="h-10 w-10 rounded-full bg-secondary-foreground flex items-center justify-center shadow-secondary-foreground/30">
-                                    <Store className="h-5 w-5 text-white" />
-                                </div>
-                                <div className="text-center">
-                                    <p className="font-semibold text-foreground group-hover:text-secondary-foreground">Vendor</p>
-                                    <p className="text-xs text-muted-foreground">Employee / employee123</p>
-                                </div>
-                            </button>
-                        </div>
                     </div>
 
                     {/* Mobile Footer */}

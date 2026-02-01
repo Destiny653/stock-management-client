@@ -119,7 +119,7 @@
   --destructive: #FFFFFF;
 
   --border: #FFFFFF;
-  --input: #FFFFFF;
+  --input: #e2e8f0;
   --ring: #FFFFFF;
 
   --chart-1: #FFFFFF;
@@ -170,5 +170,9 @@
 
 * {
   box-shadow: none !important;
-  border: none !important;
+  /* border: none !important; */
+}
+input, textarea, select {
+  /* background-color: var(--input) !important; */
+  /* color: var(--foreground) !important; */
 }
