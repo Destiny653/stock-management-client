@@ -21,7 +21,7 @@ interface CustomTooltipProps {
 const CustomTooltip = ({ active, payload }: CustomTooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-popover text-popover-foreground px-4 py-3 rounded-lg shadow-xl border border-border">
+      <div className="bg-popover text-popover-foreground px-4 py-3 rounded-md shadow-xl border border-border">
         <p className="text-sm font-medium">{payload[0].name}</p>
         <p className="text-xs text-muted-foreground mt-1">
           Value: <span className="text-foreground font-semibold">${payload[0].value.toLocaleString()}</span>
@@ -51,7 +51,7 @@ export default function CategoryDistribution({ data = [] }: CategoryDistribution
   const dataWithTotal = chartData.map(item => ({ ...item, total }));
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
+    <div className="bg-card rounded-md border border-border p-6 shadow-sm">
       <div className="mb-6">
         <h3 className="text-lg font-semibold text-foreground">Category Distribution</h3>
         <p className="text-sm text-muted-foreground mt-0.5">Stock value by category</p>

@@ -52,12 +52,12 @@ function useSafeLanguage() {
     }
 }
 
-const COLORS = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)', 'var(--primary)', '#6366f1', '#ec4899'];
+const COLORS = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)', 'var(--primary)', 'var(--chart-1)', 'var(--chart-2)'];
 
 const CustomTooltip = ({ active, payload, label, valuePrefix = '', valueSuffix = '' }: any) => {
     if (active && payload && payload.length) {
         return (
-            <div className="bg-slate-900 text-white px-4 py-3 rounded-lg shadow-xl">
+            <div className="bg-popover text-popover-foreground px-4 py-3 rounded-md border border-border">
                 <p className="text-sm font-medium mb-1">{label}</p>
                 {payload.map((entry: any, index: number) => (
                     <p key={index} className="text-xs" style={{ color: entry.color }}>
@@ -75,7 +75,7 @@ export default function Reports() {
     const { user } = useAuth();
 
     // Check if user is SuperAdmin/Owner - they see organization-focused reports
-    const isSuperAdmin = user?.role === 'admin' || user?.role === 'owner';
+    const isSuperAdmin = user?.user_type === 'platform-staff';
 
     // If SuperAdmin/Owner, render the OwnerReports instead
     if (isSuperAdmin) {
@@ -324,12 +324,12 @@ function OrgReports() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('reportsAnalytics')}</h1>
-                    <p className="text-slate-500 mt-1">{t('insightsInventory')}</p>
+                    <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('reportsAnalytics')}</h1>
+                    <p className="text-muted-foreground mt-1">{t('insightsInventory')}</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <Select value={dateRange} onValueChange={setDateRange}>
-                        <SelectTrigger className="w-40 bg-white rounded-sm py-5">
+                        <SelectTrigger className="w-40 bg-background rounded-sm py-5">
                             <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -351,8 +351,8 @@ function OrgReports() {
                     <CardContent className="p-6 py-12">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-slate-500">{t('totalStockValue')}</p>
-                                <p className="text-2xl font-bold text-slate-900 mt-1">${(totalValue / 1000).toFixed(1)}k</p>
+                                <p className="text-sm text-muted-foreground">{t('totalStockValue')}</p>
+                                <p className="text-2xl font-bold text-foreground mt-1">${(totalValue / 1000).toFixed(1)}k</p>
                                 <div className={cn(
                                     "flex items-center gap-1 mt-1",
                                     valueTrend.trend === "up" ? "text-primary" : "text-rose-600"
@@ -361,7 +361,7 @@ function OrgReports() {
                                     <span className="text-xs">{valueTrend.trend === "up" ? '+' : '-'}{valueTrend.value}</span>
                                 </div>
                             </div>
-                            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center">
                                 <DollarSign className="h-6 w-6 text-primary" />
                             </div>
                         </div>
@@ -372,11 +372,11 @@ function OrgReports() {
                     <CardContent className="p-6 py-12">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-slate-500">{t('totalUnits')}</p>
-                                <p className="text-2xl font-bold text-slate-900 mt-1">{totalUnits.toLocaleString()}</p>
-                                <p className="text-xs text-slate-400 mt-1">{products.length} SKUs</p>
+                                <p className="text-sm text-muted-foreground">{t('totalUnits')}</p>
+                                <p className="text-2xl font-bold text-foreground mt-1">{totalUnits.toLocaleString()}</p>
+                                <p className="text-xs text-muted-foreground mt-1">{products.length} SKUs</p>
                             </div>
-                            <div className="h-12 w-12 rounded-xl bg-violet-100 flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-md bg-violet-100 flex items-center justify-center">
                                 <Package className="h-6 w-6 text-violet-600" />
                             </div>
                         </div>
@@ -387,11 +387,11 @@ function OrgReports() {
                     <CardContent className="p-6 py-12">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-slate-500">{t('inventoryCost')}</p>
-                                <p className="text-2xl font-bold text-slate-900 mt-1">${(totalCost / 1000).toFixed(1)}k</p>
-                                <p className="text-xs text-slate-400 mt-1">{t('profitMargin')}: {totalCost > 0 ? ((totalValue - totalCost) / totalCost * 100).toFixed(1) : 0}%</p>
+                                <p className="text-sm text-muted-foreground">{t('inventoryCost')}</p>
+                                <p className="text-2xl font-bold text-foreground mt-1">${(totalCost / 1000).toFixed(1)}k</p>
+                                <p className="text-xs text-muted-foreground mt-1">{t('profitMargin')}: {totalCost > 0 ? ((totalValue - totalCost) / totalCost * 100).toFixed(1) : 0}%</p>
                             </div>
-                            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center">
                                 <TrendingUp className="h-6 w-6 text-primary" />
                             </div>
                         </div>
@@ -402,11 +402,11 @@ function OrgReports() {
                     <CardContent className="p-6 py-12">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-slate-500">{t('lowStockItems')}</p>
-                                <p className="text-2xl font-bold text-slate-900 mt-1">{lowStockCount}</p>
+                                <p className="text-sm text-muted-foreground">{t('lowStockItems')}</p>
+                                <p className="text-2xl font-bold text-foreground mt-1">{lowStockCount}</p>
                                 <p className="text-xs text-amber-600 mt-1">{t('needsAttention')}</p>
                             </div>
-                            <div className="h-12 w-12 rounded-xl bg-amber-100 flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-md bg-amber-100 flex items-center justify-center">
                                 <Clock className="h-6 w-6 text-amber-600" />
                             </div>
                         </div>
@@ -432,9 +432,9 @@ function OrgReports() {
                                             <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                                    <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} />
                                     <Tooltip content={<CustomTooltip valuePrefix="$" />} />
                                     <Area type="monotone" dataKey="value" stroke="var(--primary)" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" name={t('value')} />
                                 </AreaChart>
@@ -476,7 +476,7 @@ function OrgReports() {
                                     <div key={index} className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
                                             <div className="h-3 w-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                                            <span className="text-sm text-slate-600">{item.name}</span>
+                                            <span className="text-sm text-muted-foreground">{item.name}</span>
                                         </div>
                                         <span className="text-sm font-medium">${(item.value / 1000).toFixed(1)}k</span>
                                     </div>
@@ -497,12 +497,12 @@ function OrgReports() {
                         <div className="h-72">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={topMovers} layout="vertical">
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={true} vertical={false} />
-                                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 11 }} width={100} />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={true} vertical={false} />
+                                    <XAxis type="number" axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
+                                    <YAxis type="category" dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 11 }} width={100} />
                                     <Tooltip content={<CustomTooltip valueSuffix={` ${t('units')}`} />} />
                                     <Bar dataKey="received" fill="var(--primary)" name={t('received')} radius={[0, 4, 4, 0]} />
-                                    <Bar dataKey="dispatched" fill="#3b82f6" name={t('dispatched')} radius={[0, 4, 4, 0]} />
+                                    <Bar dataKey="dispatched" fill="var(--chart-2)" name={t('dispatched')} radius={[0, 4, 4, 0]} />
                                 </BarChart>
                             </ResponsiveContainer>
                         </div>
@@ -519,15 +519,15 @@ function OrgReports() {
                         <div className="h-72">
                             <ResponsiveContainer width="100%" height="100%">
                                 <BarChart data={agingData}>
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} />
+                                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                                    <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} />
+                                    <YAxis axisLine={false} tickLine={false} tick={{ fill: 'var(--muted-foreground)', fontSize: 12 }} tickFormatter={(v: number) => `$${(v / 1000).toFixed(0)}k`} />
                                     <Tooltip content={<CustomTooltip valuePrefix="$" />} />
                                     <Bar dataKey="value" name={t('value')} radius={[4, 4, 0, 0]}>
                                         {agingData.map((entry: any, index: number) => (
                                             <Cell
                                                 key={`cell-${index}`}
-                                                fill={index === 3 ? '#ef4444' : index === 2 ? '#f59e0b' : index === 1 ? '#3b82f6' : 'var(--primary)'}
+                                                fill={index === 3 ? 'var(--destructive)' : index === 2 ? 'var(--chart-4)' : index === 1 ? 'var(--chart-2)' : 'var(--primary)'}
                                             />
                                         ))}
                                     </Bar>
@@ -550,21 +550,21 @@ function OrgReports() {
                             <FileSpreadsheet className="h-8 w-8 mr-4 text-primary" />
                             <div className="text-left">
                                 <p className="font-medium">{t('inventoryValuation')}</p>
-                                <p className="text-xs text-slate-500">{t('fullStockListValues')}</p>
+                                <p className="text-xs text-muted-foreground">{t('fullStockListValues')}</p>
                             </div>
                         </Button>
                         <Button variant="outline" className="h-auto p-4 justify-start" onClick={exportMovementsCSV}>
                             <FileSpreadsheet className="h-8 w-8 mr-4 text-primary" />
                             <div className="text-left">
                                 <p className="font-medium">{t('stockMovements')}</p>
-                                <p className="text-xs text-slate-500">{t('allInventoryTransactions')}</p>
+                                <p className="text-xs text-muted-foreground">{t('allInventoryTransactions')}</p>
                             </div>
                         </Button>
                         <Button variant="outline" className="h-auto p-4 justify-start" onClick={() => toast.info(t('comingSoon'))}>
                             <FileSpreadsheet className="h-8 w-8 mr-4 text-violet-600" />
                             <div className="text-left">
                                 <p className="font-medium">{t('purchaseOrders')}</p>
-                                <p className="text-xs text-slate-500">{t('poHistoryStatus')}</p>
+                                <p className="text-xs text-muted-foreground">{t('poHistoryStatus')}</p>
                             </div>
                         </Button>
                     </div>

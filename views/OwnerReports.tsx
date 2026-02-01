@@ -55,13 +55,13 @@ function useSafeLanguage() {
     }
 }
 
-const COLORS = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)', 'var(--primary)', '#6366f1', '#ec4899'];
+const COLORS = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)', 'var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)'];
 
 const statusColors: Record<string, string> = {
     active: "bg-primary/10 text-primary",
-    inactive: "bg-slate-100 text-slate-600",
-    suspended: "bg-rose-100 text-rose-700",
-    pending: "bg-amber-100 text-amber-700"
+    inactive: "bg-muted text-muted-foreground",
+    suspended: "bg-destructive/10 text-destructive",
+    pending: "bg-yellow-500/10 text-yellow-600"
 };
 
 export default function OwnerReports() {
@@ -181,8 +181,8 @@ export default function OwnerReports() {
             header: 'Organization',
             cell: (org) => (
                 <div>
-                    <p className="font-medium text-slate-900">{org.name}</p>
-                    <p className="text-sm text-slate-500 font-mono">{org.code}</p>
+                    <p className="font-medium text-foreground">{org.name}</p>
+                    <p className="text-sm text-muted-foreground font-mono">{org.code}</p>
                 </div>
             )
         },
@@ -223,8 +223,8 @@ export default function OwnerReports() {
             header: 'Organization',
             cell: (org) => (
                 <div>
-                    <p className="font-medium text-slate-900">{org.name}</p>
-                    <p className="text-sm text-slate-500 font-mono">{org.code}</p>
+                    <p className="font-medium text-foreground">{org.name}</p>
+                    <p className="text-sm text-muted-foreground font-mono">{org.code}</p>
                 </div>
             )
         },
@@ -257,13 +257,13 @@ export default function OwnerReports() {
             header: '% of Total',
             cell: (org) => (
                 <div className="flex items-center gap-2">
-                    <div className="flex-1 h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
                         <div
                             className="h-full bg-primary rounded-full"
                             style={{ width: `${(org.storageKB / totalStats.totalStorage) * 100}%` }}
                         />
                     </div>
-                    <span className="text-sm text-slate-600">
+                    <span className="text-sm text-muted-foreground">
                         {((org.storageKB / totalStats.totalStorage) * 100).toFixed(1)}%
                     </span>
                 </div>
@@ -355,12 +355,12 @@ export default function OwnerReports() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Platform Reports</h1>
-                    <p className="text-slate-500 mt-1">Organization performance and analytics</p>
+                    <h1 className="text-2xl font-bold text-foreground tracking-tight">Platform Reports</h1>
+                    <p className="text-muted-foreground mt-1">Organization performance and analytics</p>
                 </div>
                 <div className="flex items-center gap-3">
                     <Select value={dateRange} onValueChange={setDateRange}>
-                        <SelectTrigger className="w-40 bg-white rounded-sm py-5">
+                        <SelectTrigger className="w-40 bg-background rounded-sm py-5">
                             <SelectValue placeholder="Date Range" />
                         </SelectTrigger>
                         <SelectContent>
@@ -382,12 +382,12 @@ export default function OwnerReports() {
                 <Card>
                     <CardContent className="p-4 py-12">
                         <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center">
                                 <Building2 className="h-6 w-6 text-primary" />
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-slate-900">{totalStats.totalOrgs}</p>
-                                <p className="text-sm text-slate-500">Organizations</p>
+                                <p className="text-2xl font-bold text-foreground">{totalStats.totalOrgs}</p>
+                                <p className="text-sm text-muted-foreground">Organizations</p>
                             </div>
                         </div>
                     </CardContent>
@@ -396,14 +396,14 @@ export default function OwnerReports() {
                 <Card>
                     <CardContent className="p-4 py-12">
                         <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center">
                                 <DollarSign className="h-6 w-6 text-primary" />
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-slate-900">
+                                <p className="text-2xl font-bold text-foreground">
                                     ${totalStats.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                 </p>
-                                <p className="text-sm text-slate-500">Total Revenue ({dateRange}d)</p>
+                                <p className="text-sm text-muted-foreground">Total Revenue ({dateRange}d)</p>
                             </div>
                         </div>
                     </CardContent>
@@ -412,12 +412,12 @@ export default function OwnerReports() {
                 <Card>
                     <CardContent className="p-4 py-12">
                         <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-violet-100 flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-md bg-violet-100 flex items-center justify-center">
                                 <Store className="h-6 w-6 text-violet-600" />
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-slate-900">{totalStats.totalVendors}</p>
-                                <p className="text-sm text-slate-500">Total Vendors</p>
+                                <p className="text-2xl font-bold text-foreground">{totalStats.totalVendors}</p>
+                                <p className="text-sm text-muted-foreground">Total Vendors</p>
                             </div>
                         </div>
                     </CardContent>
@@ -426,7 +426,7 @@ export default function OwnerReports() {
                 <Card>
                     <CardContent className="p-4 py-12">
                         <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center">
                                 <HardDrive className="h-6 w-6 text-primary" />
                             </div>
                             <div>
@@ -435,7 +435,7 @@ export default function OwnerReports() {
                                         ? `${(totalStats.totalStorage / 1024).toFixed(1)} MB`
                                         : `${totalStats.totalStorage.toFixed(0)} KB`}
                                 </p>
-                                <p className="text-sm text-slate-500">Total Storage</p>
+                                <p className="text-sm text-muted-foreground">Total Storage</p>
                             </div>
                         </div>
                     </CardContent>
@@ -444,17 +444,17 @@ export default function OwnerReports() {
 
             {/* Tabs */}
             <Tabs defaultValue="overview" className="space-y-6">
-                <TabsList className="bg-slate-100 p-1 rounded-xl">
-                    <TabsTrigger value="overview" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-primary px-6 font-semibold">
+                <TabsList className="bg-muted p-1 rounded-md">
+                    <TabsTrigger value="overview" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-primary px-6 font-semibold">
                         Overview
                     </TabsTrigger>
-                    <TabsTrigger value="performance" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-primary px-6 font-semibold">
+                    <TabsTrigger value="performance" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-primary px-6 font-semibold">
                         Performance
                     </TabsTrigger>
-                    <TabsTrigger value="growth" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-primary px-6 font-semibold">
+                    <TabsTrigger value="growth" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-primary px-6 font-semibold">
                         Growth
                     </TabsTrigger>
-                    <TabsTrigger value="storage" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-primary px-6 font-semibold">
+                    <TabsTrigger value="storage" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-primary px-6 font-semibold">
                         Storage
                     </TabsTrigger>
                 </TabsList>
@@ -466,7 +466,7 @@ export default function OwnerReports() {
                         <Card className='py-6'>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <TrendingUp className="h-5 w-5 text-slate-400" />
+                                    <TrendingUp className="h-5 w-5 text-muted-foreground" />
                                     Revenue by Organization
                                 </CardTitle>
                             </CardHeader>
@@ -474,9 +474,9 @@ export default function OwnerReports() {
                                 <div className="h-64">
                                     <ResponsiveContainer width="100%" height="100%">
                                         <BarChart data={revenueByOrgData}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                                            <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="#94a3b8" angle={-45} textAnchor="end" height={80} />
-                                            <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" />
+                                            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                                            <XAxis dataKey="name" tick={{ fontSize: 10 }} stroke="var(--muted-foreground)" angle={-45} textAnchor="end" height={80} />
+                                            <YAxis tick={{ fontSize: 12 }} stroke="var(--muted-foreground)" />
                                             <Tooltip />
                                             <Bar dataKey="revenue" fill="var(--primary)" radius={[4, 4, 0, 0]} name="Revenue ($)" />
                                         </BarChart>
@@ -489,7 +489,7 @@ export default function OwnerReports() {
                         <Card className='py-6'>
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
-                                    <Activity className="h-5 w-5 text-slate-400" />
+                                    <Activity className="h-5 w-5 text-muted-foreground" />
                                     Organization Status
                                 </CardTitle>
                             </CardHeader>
@@ -527,10 +527,10 @@ export default function OwnerReports() {
                         <CardContent>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 {planDistribution.map((plan, index) => (
-                                    <div key={plan.name} className="p-4 rounded-xl bg-slate-50 text-center">
-                                        <p className="text-3xl font-bold text-slate-900">{plan.value}</p>
-                                        <p className="text-sm text-slate-500 capitalize">{plan.name}</p>
-                                        <div className="mt-2 h-2 bg-slate-200 rounded-full overflow-hidden">
+                                    <div key={plan.name} className="p-4 rounded-md bg-muted/30 text-center">
+                                        <p className="text-3xl font-bold text-foreground">{plan.value}</p>
+                                        <p className="text-sm text-muted-foreground capitalize">{plan.name}</p>
+                                        <div className="mt-2 h-2 bg-muted rounded-full overflow-hidden">
                                             <div
                                                 className="h-full rounded-full"
                                                 style={{
@@ -568,7 +568,7 @@ export default function OwnerReports() {
                     <Card className='py-6'>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <TrendingUp className="h-5 w-5 text-slate-400" />
+                                <TrendingUp className="h-5 w-5 text-muted-foreground" />
                                 Platform Growth (Last 6 Months)
                             </CardTitle>
                         </CardHeader>
@@ -582,22 +582,22 @@ export default function OwnerReports() {
                                                 <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                                             </linearGradient>
                                             <linearGradient id="vendorGrad" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                                                <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                                                <stop offset="5%" stopColor="var(--chart-2)" stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor="var(--chart-2)" stopOpacity={0} />
                                             </linearGradient>
                                             <linearGradient id="userGrad" x1="0" y1="0" x2="0" y2="1">
-                                                <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
-                                                <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
+                                                <stop offset="5%" stopColor="var(--chart-3)" stopOpacity={0.3} />
+                                                <stop offset="95%" stopColor="var(--chart-3)" stopOpacity={0} />
                                             </linearGradient>
                                         </defs>
-                                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                                        <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#94a3b8" />
-                                        <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" />
+                                        <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                                        <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="var(--muted-foreground)" />
+                                        <YAxis tick={{ fontSize: 12 }} stroke="var(--muted-foreground)" />
                                         <Tooltip />
                                         <Legend />
                                         <Area type="monotone" dataKey="organizations" stroke="var(--primary)" fill="url(#orgGrad)" strokeWidth={2} name="Organizations" />
-                                        <Area type="monotone" dataKey="vendors" stroke="#8b5cf6" fill="url(#vendorGrad)" strokeWidth={2} name="Vendors" />
-                                        <Area type="monotone" dataKey="users" stroke="#3b82f6" fill="url(#userGrad)" strokeWidth={2} name="Users" />
+                                        <Area type="monotone" dataKey="vendors" stroke="var(--chart-2)" fill="url(#vendorGrad)" strokeWidth={2} name="Vendors" />
+                                        <Area type="monotone" dataKey="users" stroke="var(--chart-3)" fill="url(#userGrad)" strokeWidth={2} name="Users" />
                                     </AreaChart>
                                 </ResponsiveContainer>
                             </div>
@@ -610,7 +610,7 @@ export default function OwnerReports() {
                     <Card className='py-6'>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
-                                <HardDrive className="h-5 w-5 text-slate-400" />
+                                <HardDrive className="h-5 w-5 text-muted-foreground" />
                                 Storage Usage by Organization
                             </CardTitle>
                             <CardDescription>Estimated storage consumption based on data volume</CardDescription>

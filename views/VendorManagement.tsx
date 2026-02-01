@@ -71,14 +71,14 @@ function useSafeLanguage() {
 }
 
 const statusColors: Record<string, string> = {
-  active: "bg-emerald-100 text-emerald-700",
+  active: "bg-primary/10 text-primary",
   inactive: "bg-slate-100 text-slate-600",
   pending: "bg-amber-100 text-amber-700",
   suspended: "bg-rose-100 text-rose-700"
 };
 
 const paymentStatusColors: Record<string, string> = {
-  paid: "bg-emerald-100 text-emerald-700",
+  paid: "bg-primary/10 text-primary",
   pending: "bg-amber-100 text-amber-700",
   overdue: "bg-rose-100 text-rose-700",
   grace_period: "bg-orange-100 text-orange-700"
@@ -142,7 +142,7 @@ export default function VendorManagement() {
   });
 
   const { user: currentUser } = useAuth();
-  const isSuperAdmin = currentUser?.role === 'admin' || currentUser?.role === 'owner';
+  const isSuperAdmin = currentUser?.user_type === 'platform-staff';
 
   const { data: organizations = [] } = useQuery({
     queryKey: ['organizations'],
@@ -365,11 +365,11 @@ export default function VendorManagement() {
       header: 'Vendor',
       cell: (vendor) => (
         <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-semibold">
+          <div className="h-10 w-10 rounded-md bg-linear-to-br from-primary to-primary/80 flex items-center justify-center text-white font-semibold">
             {vendor.store_name?.charAt(0) || 'V'}
           </div>
           <div>
-            <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)} className="font-medium text-slate-900 hover:text-emerald-600 hover:underline">
+            <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)} className="font-medium text-slate-900 hover:text-primary hover:underline">
               {vendor.store_name}
             </Link>
             <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.full_name || 'No contact'}</p>
@@ -472,7 +472,7 @@ export default function VendorManagement() {
             setIsAddDialogOpen(open);
           }}>
             <DialogTrigger asChild>
-              <Button className="bg-emerald-600 hover:bg-emerald-700">
+              <Button className="bg-primary hover:bg-primary/90">
                 <Plus className="h-4 w-4 mr-2" />
                 {t('addVendor')}
               </Button>
@@ -666,7 +666,7 @@ export default function VendorManagement() {
                     {t('cancel')}
                   </Button>
                   <Button
-                    className="bg-emerald-600 hover:bg-emerald-700"
+                    className="bg-primary hover:bg-primary/90"
                     onClick={handleSubmit}
                     disabled={createVendorMutation.isPending || updateVendorMutation.isPending}
                   >
@@ -691,8 +691,8 @@ export default function VendorManagement() {
                 <p className="text-sm text-slate-500">{t('totalVendors')}</p>
                 <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
               </div>
-              <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                <Store className="h-5 w-5 text-emerald-600" />
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <Store className="h-5 w-5 text-primary" />
               </div>
             </div>
           </CardContent>
@@ -702,10 +702,10 @@ export default function VendorManagement() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-slate-500">{t('active')}</p>
-                <p className="text-2xl font-bold text-emerald-600">{stats.active}</p>
+                <p className="text-2xl font-bold text-primary">{stats.active}</p>
               </div>
-              <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                <CheckCircle className="h-5 w-5 text-emerald-600" />
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <CheckCircle className="h-5 w-5 text-primary" />
               </div>
             </div>
           </CardContent>
@@ -773,7 +773,7 @@ export default function VendorManagement() {
               <SelectItem value="overdue">{t('overdue')}</SelectItem>
             </SelectContent>
           </Select>
-          <div className="flex gap-1 border rounded-lg p-1">
+          <div className="flex gap-1 border rounded-md p-1">
             <Button
               variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
               size="icon"
@@ -797,18 +797,18 @@ export default function VendorManagement() {
       {/* Vendors Display */}
       {isLoading ? (
         <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredVendors.map(vendor => {
             const stats = vendorStats[vendor.id] || { totalSales: 0, totalOrders: 0 };
             return (
-              <Card key={vendor.id} className="hover:shadow-lg transition-shadow">
+              <Card key={vendor.id} className=" transition-shadow">
                 <CardContent className="p-5">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-lg">
+                      <div className="h-12 w-12 rounded-md bg-linear-to-br from-primary to-primary/80 flex items-center justify-center text-white font-bold text-lg">
                         {vendor.store_name?.charAt(0) || 'V'}
                       </div>
                       <div>

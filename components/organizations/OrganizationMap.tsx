@@ -18,7 +18,7 @@ if (typeof window !== 'undefined') {
 }
 
 const statusColors: Record<string, string> = {
-    active: "bg-emerald-100 text-emerald-700",
+    active: "bg-primary/10 text-primary border-primary/20",
     inactive: "bg-slate-100 text-slate-600",
     pending: "bg-amber-100 text-amber-700",
     suspended: "bg-rose-100 text-rose-700"
@@ -81,7 +81,7 @@ export default function OrganizationMap({ locations, center, zoom, onMarkerClick
                             <div className="p-2 min-w-48">
                                 <div className="flex items-center gap-2 mb-2">
                                     {location.type === 'organization' && (
-                                        <Badge className="bg-emerald-600 hover:bg-emerald-700">HQ</Badge>
+                                        <Badge className="bg-primary hover:bg-primary/90">HQ</Badge>
                                     )}
                                     {location.type === 'vendor' && (
                                         <Badge variant="outline">Vendor</Badge>
@@ -109,7 +109,7 @@ export default function OrganizationMap({ locations, center, zoom, onMarkerClick
                                 {onMarkerClick && location.type === 'vendor' && (
                                     <Button
                                         size="sm"
-                                        className="mt-2 w-full bg-emerald-600 hover:bg-emerald-700"
+                                        className="mt-2 w-full bg-primary hover:bg-primary/90"
                                         onClick={() => onMarkerClick(location)}
                                     >
                                         View Details

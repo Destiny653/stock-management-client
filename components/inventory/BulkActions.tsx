@@ -40,7 +40,7 @@ export default function BulkActions({
     return (
         <div className={cn(
             "fixed bottom-6 left-1/2 -translate-x-1/2 z-50",
-            "bg-slate-900 text-white rounded-2xl shadow-2xl",
+            "bg-popover text-popover-foreground rounded-md shadow-2xl border border-border",
             "px-6 py-4 flex items-center gap-4",
             "animate-in slide-in-from-bottom-4 duration-300"
         )}>
@@ -52,7 +52,7 @@ export default function BulkActions({
             <div className="flex items-center gap-2">
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="secondary" size="sm" className="bg-slate-800 hover:bg-slate-700 text-white border-0">
+                        <Button variant="secondary" size="sm" className="bg-muted hover:bg-muted/80 text-foreground border-0">
                             <Tag className="h-4 w-4 mr-2" />
                             Category
                             <ChevronDown className="h-4 w-4 ml-1" />

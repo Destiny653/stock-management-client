@@ -149,8 +149,8 @@ export default function Alerts() {
                             <div
                                 key={alert.id}
                                 className={cn(
-                                    "flex flex-col sm:flex-row gap-4 p-4 rounded-xl border bg-card relative overflow-hidden",
-                                    "transition-all hover:shadow-md border-border",
+                                    "flex flex-col sm:flex-row gap-4 p-4 rounded-md border bg-card relative overflow-hidden",
+                                    "transition-all  border-border",
                                     !alert.is_read && "border-l-4 border-l-primary bg-primary/5"
                                 )}
                             >
@@ -158,8 +158,8 @@ export default function Alerts() {
                                     <span className="absolute top-4 right-4 h-2 w-2 rounded-full bg-primary ring-4 ring-primary/10" />
                                 )}
 
-                                <div className="flex-shrink-0">
-                                    <div className={cn("h-10 w-10 rounded-lg flex items-center justify-center", config.bg)}>
+                                <div className="shrink-0">
+                                    <div className={cn("h-10 w-10 rounded-md flex items-center justify-center", config.bg)}>
                                         <Icon className={cn("h-5 w-5", config.color)} />
                                     </div>
                                 </div>
@@ -245,13 +245,13 @@ export default function Alerts() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <Card
                     className={cn(
-                        "cursor-pointer transition-all hover:border-primary/50 shadow-sm bg-card",
+                        "cursor-pointer transition-all hover:border-primary/50 bg-card",
                         activeTab === "low_stock" ? "ring-2 ring-primary border-primary" : "border-border"
                     )}
                     onClick={() => setActiveTab("low_stock")}
                 >
                     <CardContent className="p-4 py-6 flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-amber-100 flex items-center justify-center shadow-inner">
+                        <div className="h-12 w-12 rounded-md bg-amber-100 flex items-center justify-center ">
                             <AlertTriangle className="h-6 w-6 text-amber-600" />
                         </div>
                         <div>
@@ -262,13 +262,13 @@ export default function Alerts() {
                 </Card>
                 <Card
                     className={cn(
-                        "cursor-pointer transition-all hover:border-primary/50 shadow-sm bg-card",
+                        "cursor-pointer transition-all hover:border-primary/50 bg-card",
                         activeTab === "pending_approval" ? "ring-2 ring-primary border-primary" : "border-border"
                     )}
                     onClick={() => setActiveTab("pending_approval")}
                 >
                     <CardContent className="p-4 py-6 flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center shadow-inner">
+                        <div className="h-12 w-12 rounded-md bg-blue-100 flex items-center justify-center ">
                             <Clock className="h-6 w-6 text-blue-600" />
                         </div>
                         <div>
@@ -279,13 +279,13 @@ export default function Alerts() {
                 </Card>
                 <Card
                     className={cn(
-                        "cursor-pointer transition-all hover:border-primary/50 shadow-sm bg-card",
+                        "cursor-pointer transition-all hover:border-primary/50 bg-card",
                         activeTab === "unread" ? "ring-2 ring-primary border-primary" : "border-border"
                     )}
                     onClick={() => setActiveTab("unread")}
                 >
                     <CardContent className="p-4 py-6 flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-xl bg-rose-100 flex items-center justify-center shadow-inner">
+                        <div className="h-12 w-12 rounded-md bg-rose-100 flex items-center justify-center ">
                             <Bell className="h-6 w-6 text-rose-600" />
                         </div>
                         <div>
@@ -297,21 +297,21 @@ export default function Alerts() {
             </div>
 
             {/* Tabs */}
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-muted p-1 rounded-xl w-fit">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-muted p-1 rounded-md w-fit">
                 <TabsList className="bg-transparent gap-1">
-                    <TabsTrigger value="all" className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-6 font-semibold">{t('all') || "All"}</TabsTrigger>
-                    <TabsTrigger value="unread" className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-6 font-semibold">{t('unread') || "Unread"}</TabsTrigger>
-                    <TabsTrigger value="low_stock" className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-6 font-semibold">{t('lowStock') || "Low Stock"}</TabsTrigger>
-                    <TabsTrigger value="pending_approval" className="rounded-lg data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]:shadow-sm px-6 font-semibold">{t('approvals') || "Approvals"}</TabsTrigger>
+                    <TabsTrigger value="all" className="rounded-md data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]: px-6 font-semibold">{t('all') || "All"}</TabsTrigger>
+                    <TabsTrigger value="unread" className="rounded-md data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]: px-6 font-semibold">{t('unread') || "Unread"}</TabsTrigger>
+                    <TabsTrigger value="low_stock" className="rounded-md data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]: px-6 font-semibold">{t('lowStock') || "Low Stock"}</TabsTrigger>
+                    <TabsTrigger value="pending_approval" className="rounded-md data-[state=active]:bg-background data-[state=active]:text-primary data-[state=active]: px-6 font-semibold">{t('approvals') || "Approvals"}</TabsTrigger>
                 </TabsList>
             </Tabs>
 
             {/* Alerts List */}
             <div>
                 {filteredAlerts.length === 0 ? (
-                    <Card className="border-border border-dashed bg-transparent shadow-none">
+                    <Card className="border-border border-dashed bg-transparent">
                         <CardContent className="p-16 text-center">
-                            <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6 shadow-sm">
+                            <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center mx-auto mb-6">
                                 <CheckCircle className="h-10 w-10 text-muted-foreground" />
                             </div>
                             <h3 className="text-xl font-bold text-foreground">{t('allCaughtUp') || "All caught up"}</h3>

@@ -122,19 +122,19 @@ function NavLink({ item, currentPage, mobile = false, collapsed = false }: { ite
     <Link
       href={createPageUrl(item.href)}
       className={cn(
-        "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
+        "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-all duration-200",
         mobile
           ? isActive
             ? "bg-primary/10 text-primary"
             : "text-muted-foreground hover:bg-muted hover:text-foreground"
           : isActive
-            ? "bg-sidebar-primary text-sidebar-primary-foreground font-bold shadow-md shadow-sidebar-primary/20"
+            ? "bg-sidebar-primary text-sidebar-primary-foreground font-bold -primary/20"
             : "text-sidebar-foreground/70 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground",
         collapsed && "justify-center px-2"
       )}
     >
       <Icon className={cn(
-        "h-5 w-5 flex-shrink-0 transition-colors",
+        "h-5 w-5 shrink-0 transition-colors",
         mobile
           ? isActive ? "text-primary" : "text-muted-foreground"
           : isActive ? "text-sidebar-primary-foreground" : "text-sidebar-foreground/70"
@@ -196,28 +196,44 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
 
   const unreadCount = alerts.filter(a => !a.is_read).length;
 
-  // Determine user role and type for navigation
-  // role: 'admin' = super admin (full access), 'user' = regular
-  // user_type: 'admin' = org admin, 'manager', 'vendor', 'staff'
-  const isSuperAdmin = user?.role === 'admin' || user?.role === 'owner';
-  const isOrgAdmin = user?.user_type === 'admin';
-  const isManager = user?.user_type === 'manager' || user?.role === 'manager';
-  const isVendor = user?.user_type === 'vendor';
-  const isStaff = user?.user_type === 'staff' || user?.role === 'staff';
+  // Determine user access level based on role and user_type
+  // user_type determines SCOPE: 
+  //   - 'platform-staff' = manages the platform, can see ALL organizations
+  //   - 'business-staff' = manages their own organization only
+  // role determines PERMISSIONS within that scope:
+  //   - 'admin' = full admin permissions
+  //   - 'manager' = management permissions
+  //   - 'vendor' = vendor/sales permissions
+  //   - 'user' = basic user permissions
+
+  const isPlatformStaff = user?.user_type === 'platform-staff';
+  const isBusinessStaff = user?.user_type === 'business-staff';
+
+  // Platform staff with admin role = super admin (full platform access)
+  const isSuperAdmin = isPlatformStaff && user?.role === 'admin';
+  // Platform staff with other roles = can still see all orgs but limited permissions
+  const isPlatformManager = isPlatformStaff && user?.role === 'manager';
+
+  // Business staff roles - within their own organization only
+  const isOrgAdmin = isBusinessStaff && user?.role === 'admin';
+  const isManager = isBusinessStaff && user?.role === 'manager';
+  const isVendor = user?.role === 'vendor';
+  const isRegularUser = user?.role === 'user';
 
   let navigation;
-  if (isSuperAdmin) {
+  if (isSuperAdmin || isPlatformManager) {
+    // Platform staff can see all organizations
     navigation = superAdminNavigation;
   } else if (isOrgAdmin) {
+    // Business admin - full access to their own organization
     navigation = adminNavigation;
   } else if (isManager) {
+    // Business manager - management access in their organization
     navigation = managerNavigation;
   } else if (isVendor) {
     navigation = vendorNavigation;
-  } else if (isStaff) {
-    navigation = staffNavigation;
   } else {
-    // Default to minimum safe navigation
+    // Regular users and default
     navigation = staffNavigation;
   }
 
@@ -232,7 +248,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
             sidebarCollapsed ? "w-[72px]" : "w-64"
           )}>
             <Link href={createPageUrl("Dashboard")} className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-sidebar-primary/25">
+              <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center -primary/25">
                 <Package className="h-5 w-5 text-primary-foreground" />
               </div>
               {!sidebarCollapsed && (
@@ -267,7 +283,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
               <SheetContent side="left" className="w-72 p-0 bg-background">
                 <div className="p-6 border-b border-border">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25">
+                    <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center ">
                       <Package className="h-5 w-5 text-primary-foreground" />
                     </div>
                     <div>
@@ -290,7 +306,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
             </Sheet>
 
             <Link href={createPageUrl("Dashboard")} className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/25">
+              <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center ">
                 <Package className="h-5 w-5 text-primary-foreground" />
               </div>
               <div className="block sm:block">
@@ -306,7 +322,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
               <input
                 type="text"
                 placeholder="Search products, orders, suppliers..."
-                className="w-full h-10 pl-10 pr-4 rounded-xl bg-sidebar-accent border border-sidebar-border text-sm text-sidebar-foreground placeholder:text-sidebar-foreground/50 focus:outline-none focus:ring-2 focus:ring-sidebar-ring focus:border-sidebar-ring focus:bg-sidebar-accent transition-all"
+                className="w-full h-10 pl-10 pr-4 rounded-md bg-sidebar-accent border border-sidebar-border text-sm text-sidebar-foreground placeholder:text-sidebar-foreground/50 focus:outline-none focus:ring-2 focus:ring-sidebar-ring focus:border-sidebar-ring focus:bg-sidebar-accent transition-all"
               />
             </div>
           </div>
@@ -329,7 +345,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="gap-2 px-2 text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent">
-                  <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium shadow-lg shadow-primary/25">
+                  <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium ">
                     {user?.full_name?.charAt(0) || 'U'}
                   </div>
                   <span className="hidden sm:block text-sm font-medium">
@@ -393,7 +409,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
 
         {!sidebarCollapsed && (
           <div className="p-4 border-t border-sidebar-border">
-            <div className="rounded-xl bg-primary p-4 text-primary-foreground shadow-lg shadow-primary/20">
+            <div className="rounded-md bg-primary p-4 text-primary-foreground ">
               <p className="font-semibold text-sm">Need Help?</p>
               <p className="text-xs text-primary-foreground/80 mt-1">Check our documentation or contact support.</p>
               <Button size="sm" variant="secondary" className="mt-3 w-full bg-background text-primary hover:bg-muted">
@@ -406,7 +422,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
 
       {/* Main Content */}
       <main className={cn(
-        "pt-16 min-h-screen transition-all duration-300 ease-in-out bg-[#f9fafb86]",
+        "pt-16 min-h-screen transition-all duration-300 ease-in-out bg-muted/30",
         sidebarCollapsed ? "lg:pl-[72px]" : "lg:pl-64"
       )}>
         <div className="p-4 lg:p-8">

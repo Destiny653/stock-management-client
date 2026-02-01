@@ -271,8 +271,8 @@ export interface User {
     last_name?: string;
     full_name?: string;
     phone?: string;
-    role: 'owner' | 'admin' | 'manager' | 'staff' | 'viewer';
-    user_type: 'admin' | 'vendor' | 'manager' | 'staff' | 'viewer' | 'owner';
+    role: 'admin' | 'manager' | 'vendor' | 'user';
+    user_type: 'platform-staff' | 'business-staff';
     status: 'active' | 'inactive' | 'suspended' | 'pending';
     created_at: string;
     // Extended profile fields

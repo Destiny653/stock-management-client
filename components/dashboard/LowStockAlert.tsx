@@ -26,10 +26,10 @@ export default function LowStockAlert({ products = [] }: LowStockAlertProps) {
 
   if (lowStockVariants.length === 0) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+      <div className="bg-white rounded-md border border-slate-200 p-6 shadow-sm">
         <h3 className="text-lg font-bold text-slate-800 mb-4 tracking-tight">Low Stock Alerts</h3>
         <div className="flex flex-col items-center justify-center py-10 text-center">
-          <div className="h-14 w-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-4 ring-1 ring-primary/20">
+          <div className="h-14 w-14 rounded-md bg-primary/10 flex items-center justify-center mb-4 ring-1 ring-primary/20">
             <Package className="h-7 w-7 text-primary" />
           </div>
           <p className="text-sm font-medium text-slate-600">Inventory Levels are Healthy</p>
@@ -40,10 +40,10 @@ export default function LowStockAlert({ products = [] }: LowStockAlertProps) {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+    <div className="bg-white rounded-md border border-slate-200 p-6 shadow-sm">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 bg-amber-50 rounded-lg">
+          <div className="p-1.5 bg-amber-50 rounded-md">
             <AlertTriangle className="h-5 w-5 text-amber-500" />
           </div>
           <h3 className="text-lg font-bold text-slate-800 tracking-tight">Low Stock Alerts</h3>
@@ -66,9 +66,9 @@ export default function LowStockAlert({ products = [] }: LowStockAlertProps) {
               href={createPageUrl(`ProductDetail?id=${item.productId}`)}
               className="block group"
             >
-              <div className="flex items-center gap-4 p-3 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all">
+              <div className="flex items-center gap-4 p-3 rounded-md hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all">
                 <div className={cn(
-                  "h-11 w-11 rounded-xl flex items-center justify-center text-sm font-black shadow-sm",
+                  "h-11 w-11 rounded-md flex items-center justify-center text-sm font-black shadow-sm",
                   isOutOfStock ? "bg-rose-100 text-rose-600 ring-4 ring-rose-50" : "bg-amber-100 text-amber-600 ring-4 ring-amber-50"
                 )}>
                   {item.stock}

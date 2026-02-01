@@ -49,8 +49,8 @@ export default function Inventory() {
   });
 
   // Vendors can only view inventory, not edit
-  const isVendor = user?.user_type === 'vendor';
-  const canEdit = user && ['owner', 'admin', 'manager'].includes(user.role);
+  const isVendor = user?.role === 'vendor';
+  const canEdit = user && ['admin', 'manager'].includes(user.role);
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({
     category: "all",
@@ -312,7 +312,7 @@ export default function Inventory() {
               locations={locations}
             />
           </div>
-          <div className="flex gap-1 border rounded-lg p-1 h-fit self-start">
+          <div className="flex gap-1 border rounded-md p-1 h-fit self-start">
             <Button
               variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
               size="icon"
@@ -337,7 +337,7 @@ export default function Inventory() {
 
       {/* Products Display */}
       {isLoading ? (
-        <div className="flex items-center justify-center h-64 bg-card rounded-2xl border border-border">
+        <div className="flex items-center justify-center h-64 bg-card rounded-md border border-border">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : viewMode === 'grid' ? (
@@ -359,10 +359,10 @@ export default function Inventory() {
               const status = statusStyles[product.status] || statusStyles.active;
 
               return (
-                <Card key={product.id} className="hover:shadow-lg transition-shadow">
+                <Card key={product.id} className=" transition-shadow">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-3">
-                      <div className="h-16 w-16 rounded-xl bg-muted flex items-center justify-center overflow-hidden">
+                      <div className="h-16 w-16 rounded-md bg-muted flex items-center justify-center overflow-hidden">
                         {product.image_url ? (
                           <img
                             src={getImageUrl(product.image_url)}

@@ -264,7 +264,7 @@ export default function StoreLocations() {
               <Card
                 key={vendor.id}
                 className={cn(
-                  "cursor-pointer transition-all hover:shadow-md",
+                  "cursor-pointer transition-all ",
                   selectedVendor?.id === vendor.id && "ring-2 ring-primary"
                 )}
                 onClick={() => setSelectedVendor(vendor)}
@@ -272,7 +272,7 @@ export default function StoreLocations() {
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="h-10 w-10 rounded-lg bg-primary flex items-center justify-center text-primary-foreground font-semibold">
+                      <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-semibold">
                         {vendor.store_name?.charAt(0) || 'V'}
                       </div>
                       <div>
@@ -311,11 +311,11 @@ export default function StoreLocations() {
         // List View
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredVendors.map(vendor => (
-            <Card key={vendor.id} className="hover:shadow-lg transition-shadow">
+            <Card key={vendor.id} className=" transition-shadow">
               <CardContent className="p-5">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg">
+                    <div className="h-12 w-12 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-bold text-lg">
                       {vendor.store_name?.charAt(0) || 'V'}
                     </div>
                     <div>

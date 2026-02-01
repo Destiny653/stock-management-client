@@ -142,11 +142,12 @@ export default function Settings() {
     job_title: '',
     bio: '',
     avatar: '',
-    role: 'staff',
-    user_type: 'staff',
+    role: 'user',
+    user_type: 'business-staff',
     permissions: [] as string[],
     warehouse_access: [] as string[],
     password: '',
+    status: 'active' as string,
   });
 
   const { data: currentUser } = useQuery({
@@ -154,7 +155,7 @@ export default function Settings() {
     queryFn: () => base44.auth.me(),
   });
 
-  const isSuperAdmin = !currentUser?.organization_id && (currentUser?.role === 'admin' || currentUser?.role === 'owner');
+  const isSuperAdmin = currentUser?.user_type === 'platform-staff';
 
   const { data: warehouses = [], isLoading: loadingWarehouses } = useQuery({
     queryKey: ['warehouses', currentUser?.organization_id],
@@ -389,11 +390,12 @@ export default function Settings() {
       job_title: '',
       bio: '',
       avatar: '',
-      role: 'staff',
-      user_type: 'staff',
+      role: 'user',
+      user_type: 'business-staff',
       permissions: [],
       warehouse_access: [],
       password: '',
+      status: 'active',
     });
     setEditingUserId(null);
   };
@@ -411,11 +413,12 @@ export default function Settings() {
       job_title: u.job_title || '',
       bio: u.bio || '',
       avatar: u.avatar || '',
-      role: u.role || 'staff',
-      user_type: u.user_type || 'staff',
+      role: u.role || 'user',
+      user_type: u.user_type || 'business-staff',
       permissions: u.permissions || [],
       warehouse_access: u.warehouse_access || [],
       password: '', // Don't pre-fill password
+      status: u.status || 'active',
     });
     setUserDialogOpen(true);
   };
@@ -584,7 +587,7 @@ export default function Settings() {
       header: t('status'),
       cell: (w) => (
         <Badge variant="outline" className={cn(
-          w.status === 'active' && "bg-emerald-50 text-emerald-700",
+          w.status === 'active' && "bg-primary/10 text-primary",
           w.status === 'inactive' && "bg-slate-50 text-slate-600",
           w.status === 'maintenance' && "bg-amber-50 text-amber-700"
         )}>
@@ -636,7 +639,7 @@ export default function Settings() {
       header: t('status'),
       cell: (u) => (
         <Badge variant="outline" className={cn(
-          u.status === 'active' && "bg-emerald-50 text-emerald-700",
+          u.status === 'active' && "bg-primary/10 text-primary",
           u.status === 'pending' && "bg-amber-50 text-amber-700",
           u.status === 'suspended' && "bg-rose-50 text-rose-700"
         )}>
@@ -649,7 +652,7 @@ export default function Settings() {
       className: 'text-right',
       cell: (u) => (
         <div className="flex items-center justify-end gap-1">
-          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-emerald-600" onClick={() => handleEditUser(u)}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-primary" onClick={() => handleEditUser(u)}>
             <Edit2 className="h-4 w-4" />
           </Button>
           <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600" onClick={() => handleDeleteUser(u.id)} disabled={u.id === user?.id}>
@@ -693,7 +696,7 @@ export default function Settings() {
             </div>
             <Dialog open={warehouseDialogOpen} onOpenChange={(open) => { setWarehouseDialogOpen(open); if (!open) resetWarehouseForm(); }}>
               <DialogTrigger asChild>
-                <Button className="bg-emerald-600 hover:bg-emerald-700">
+                <Button className="bg-primary hover:bg-primary/90">
                   <Plus className="h-4 w-4 mr-2" /> {t('addWarehouse')}
                 </Button>
               </DialogTrigger>
@@ -751,7 +754,7 @@ export default function Settings() {
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => { setWarehouseDialogOpen(false); resetWarehouseForm(); }}>{t('cancel')}</Button>
-                  <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleSaveWarehouse}>
+                  <Button className="bg-primary hover:bg-primary/90" onClick={handleSaveWarehouse}>
                     <Save className="h-4 w-4 mr-2" /> {t('save')}
                   </Button>
                 </DialogFooter>
@@ -778,7 +781,7 @@ export default function Settings() {
             </div>
             <Dialog open={supplierDialogOpen} onOpenChange={(open) => { setSupplierDialogOpen(open); if (!open) resetSupplierForm(); }}>
               <DialogTrigger asChild>
-                <Button className="bg-emerald-600 hover:bg-emerald-700">
+                <Button className="bg-primary hover:bg-primary/90">
                   <Plus className="h-4 w-4 mr-2" /> {t('add')} {t('supplier')}
                 </Button>
               </DialogTrigger>
@@ -856,7 +859,7 @@ export default function Settings() {
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => { setSupplierDialogOpen(false); resetSupplierForm(); }}>{t('cancel')}</Button>
-                  <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleSaveSupplier}>
+                  <Button className="bg-primary hover:bg-primary/90" onClick={handleSaveSupplier}>
                     <Save className="h-4 w-4 mr-2" /> {t('save')}
                   </Button>
                 </DialogFooter>
@@ -867,13 +870,13 @@ export default function Settings() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {loadingSuppliers ? (
               <div className="col-span-full flex justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
               </div>
             ) : suppliers.length === 0 ? (
               <div className="col-span-full text-center py-8 text-slate-500">{t('noData')}</div>
             ) : (
               suppliers.map((s: Supplier) => (
-                <Card key={s.id} className="hover:shadow-md transition-shadow">
+                <Card key={s.id} className=" transition-shadow">
                   <CardContent className="p-4">
                     <div className="flex items-start justify-between mb-3">
                       <div>
@@ -881,7 +884,7 @@ export default function Settings() {
                         <p className="text-sm text-slate-500">{userMap[s.user_id!]?.full_name || 'No contact person'}</p>
                       </div>
                       <Badge variant="outline" className={cn(
-                        s.status === 'active' && "bg-emerald-50 text-emerald-700",
+                        s.status === 'active' && "bg-primary/10 text-primary border-primary/20",
                         s.status === 'inactive' && "bg-slate-50 text-slate-600",
                         s.status === 'blocked' && "bg-rose-50 text-rose-700"
                       )}>
@@ -924,7 +927,7 @@ export default function Settings() {
             </div>
             <Dialog open={userDialogOpen} onOpenChange={(open) => { setUserDialogOpen(open); if (!open) resetUserForm(); }}>
               <DialogTrigger asChild>
-                <Button className="bg-emerald-600 hover:bg-emerald-700">
+                <Button className="bg-primary hover:bg-primary/90">
                   <UserPlus className="h-4 w-4 mr-2" /> {t('addUser')}
                 </Button>
               </DialogTrigger>
@@ -974,10 +977,19 @@ export default function Settings() {
                       <Select value={userForm.user_type} onValueChange={(v: any) => setUserForm(p => ({ ...p, user_type: v }))}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="staff">Staff</SelectItem>
-                          <SelectItem value="manager">Manager</SelectItem>
-                          <SelectItem value="admin">Admin</SelectItem>
-                          <SelectItem value="vendor">Vendor</SelectItem>
+                          <SelectItem value="platform-staff">Platform Staff</SelectItem>
+                          <SelectItem value="business-staff">Business Staff</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Status</Label>
+                      <Select value={userForm.status} onValueChange={(v: any) => setUserForm(p => ({ ...p, status: v }))}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                          <SelectItem value="suspended">Suspended</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -1021,7 +1033,7 @@ export default function Settings() {
                         <div key={wh.id} className="flex items-center space-x-2">
                           <input
                             type="checkbox"
-                            className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                            className="rounded border-slate-300 text-primary focus:ring-primary/50"
                             checked={userForm.warehouse_access.includes(wh.id)}
                             onChange={(e) => {
                               const checked = e.target.checked;
@@ -1041,7 +1053,7 @@ export default function Settings() {
                 </div>
                 <DialogFooter>
                   <Button variant="outline" onClick={() => { setUserDialogOpen(false); resetUserForm(); }}>{t('cancel')}</Button>
-                  <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleSaveUser} disabled={createUserMutation.isPending || updateUserMutation.isPending}>
+                  <Button className="bg-primary hover:bg-primary/90" onClick={handleSaveUser} disabled={createUserMutation.isPending || updateUserMutation.isPending}>
                     {(createUserMutation.isPending || updateUserMutation.isPending) ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
                     {t('save')}
                   </Button>
@@ -1068,7 +1080,7 @@ export default function Settings() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center gap-4">
-                <div className="h-16 w-16 rounded-full bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-2xl font-bold">
+                <div className="h-16 w-16 rounded-full bg-linear-to-br from-primary to-primary/80 flex items-center justify-center text-white text-2xl font-bold">
                   {user?.full_name?.charAt(0) || 'U'}
                 </div>
                 <div>

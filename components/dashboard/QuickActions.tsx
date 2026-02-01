@@ -30,7 +30,7 @@ export default function QuickActions() {
       icon: Plus,
       href: "ProductDetail?mode=new",
       color: "bg-blue-600 hover:bg-blue-700 text-white",
-      roles: ['owner', 'admin', 'manager']
+      roles: ['admin', 'manager']
     },
     {
       label: "POS / New Sale",
@@ -38,7 +38,7 @@ export default function QuickActions() {
       icon: ShoppingBag,
       href: "DirectSales",
       color: "bg-primary hover:bg-primary/90 text-primary-foreground",
-      roles: ['staff', 'manager', 'vendor']
+      roles: ['user', 'manager', 'vendor']
     },
     {
       label: "Manage Team",
@@ -46,7 +46,7 @@ export default function QuickActions() {
       icon: UserPlus,
       href: `OrganizationMembers?orgId=${orgId}`,
       color: "bg-blue-600 hover:bg-blue-700 text-white",
-      roles: ['owner', 'admin', 'manager'],
+      roles: ['admin', 'manager'],
       requireOrg: true
     },
     {
@@ -55,7 +55,7 @@ export default function QuickActions() {
       icon: FileText,
       href: "CreatePurchaseOrder",
       color: "bg-slate-900 hover:bg-slate-800 text-white",
-      roles: ['owner', 'admin', 'manager']
+      roles: ['admin', 'manager']
     },
     {
       label: "Receive Shipment",
@@ -63,7 +63,7 @@ export default function QuickActions() {
       icon: Truck,
       href: "PurchaseOrders?filter=ordered",
       color: "bg-white hover:bg-slate-50 text-slate-900 border border-slate-200",
-      roles: ['owner', 'admin', 'manager', 'staff']
+      roles: ['admin', 'manager', 'user']
     },
     {
       label: "View Reports",
@@ -71,7 +71,7 @@ export default function QuickActions() {
       icon: BarChart3,
       href: "Reports",
       color: "bg-white hover:bg-slate-50 text-slate-900 border border-slate-200",
-      roles: ['owner', 'admin', 'manager']
+      roles: ['admin', 'manager']
     }
   ];
 
@@ -81,7 +81,7 @@ export default function QuickActions() {
     return true;
   }).slice(0, 4);
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6">
+    <div className="bg-white rounded-md border border-slate-200 p-6">
       <h3 className="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h3>
 
       <div className="grid grid-cols-2 gap-3">
@@ -94,7 +94,7 @@ export default function QuickActions() {
               className="block"
             >
               <button className={`
-                w-full flex items-center gap-3 rounded-xl p-4 transition-all duration-200
+                w-full flex items-center gap-3 rounded-md p-4 transition-all duration-200
                 ${action.color}
                 group
               `}>

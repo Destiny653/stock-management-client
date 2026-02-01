@@ -204,7 +204,7 @@ export default function LandingPage() {
                     <div className="flex items-center justify-between h-16">
                         {/* Logo */}
                         <Link href="/" className="flex items-center gap-3 group">
-                            <div className="h-10 w-10 rounded-xl bg-primary-foreground flex items-center justify-center shadow-lg transition-transform group-hover:scale-105">
+                            <div className="h-10 w-10 rounded-md bg-primary-foreground flex items-center justify-center transition-transform group-hover:scale-105">
                                 <Package className="h-5 w-5 text-primary" />
                             </div>
                             <span className="text-xl font-bold text-primary-foreground">StockFlow</span>
@@ -221,7 +221,7 @@ export default function LandingPage() {
                         <div className="hidden md:flex items-center gap-3">
                             {isAuthenticated ? (
                                 <Link href="/Dashboard">
-                                    <Button className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold shadow-lg transition-all">
+                                    <Button className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold transition-all">
                                         Go to Dashboard
                                         <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
@@ -235,7 +235,7 @@ export default function LandingPage() {
                                     </Link>
                                     <Button
                                         onClick={() => handleOpenRegister()}
-                                        className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold shadow-lg transition-all"
+                                        className="bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold transition-all"
                                     >
                                         Start Free Trial
                                     </Button>
@@ -320,7 +320,7 @@ export default function LandingPage() {
                                 <Button
                                     size="lg"
                                     onClick={() => handleOpenRegister()}
-                                    className="h-14 px-8 text-lg bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold shadow-2xl transition-all hover:scale-105"
+                                    className="h-14 px-8 text-lg bg-primary-foreground text-primary hover:bg-primary-foreground/90 font-semibold transition-all hover:scale-105"
                                 >
                                     Start Free Trial
                                     <ArrowRight className="ml-2 h-5 w-5" />
@@ -359,7 +359,7 @@ export default function LandingPage() {
                         >
                             <div className="relative">
                                 {/* Dashboard Image */}
-                                <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-primary-foreground/20">
+                                <div className="relative rounded-md overflow-hidden border border-primary-foreground/20">
                                     <img
                                         src="/images/landing/dashboard-hero.png"
                                         alt="StockFlow Dashboard"
@@ -372,10 +372,10 @@ export default function LandingPage() {
                                     initial={{ opacity: 0, y: 20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 0.8 }}
-                                    className="absolute -bottom-6 -left-6 bg-background rounded-xl p-4 shadow-xl border border-border"
+                                    className="absolute -bottom-6 -left-6 bg-background rounded-md p-4 border border-border"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                        <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center">
                                             <TrendingUp className="h-5 w-5 text-primary" />
                                         </div>
                                         <div>
@@ -389,10 +389,10 @@ export default function LandingPage() {
                                     initial={{ opacity: 0, y: -20 }}
                                     animate={{ opacity: 1, y: 0 }}
                                     transition={{ delay: 1 }}
-                                    className="absolute -top-4 -right-4 bg-background rounded-xl p-4 shadow-xl border border-border"
+                                    className="absolute -top-4 -right-4 bg-background rounded-md p-4 border border-border"
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                        <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center">
                                             <Clock className="h-5 w-5 text-primary" />
                                         </div>
                                         <div>
@@ -423,7 +423,7 @@ export default function LandingPage() {
                                 variants={fadeInUp}
                                 className="text-center group"
                             >
-                                <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-background shadow-lg mb-4 group-hover:scale-110 transition-all">
+                                <div className="inline-flex items-center justify-center h-14 w-14 rounded-md bg-background mb-4 group-hover:scale-110 transition-all">
                                     <stat.icon className="h-6 w-6 text-primary" />
                                 </div>
                                 <p className="text-3xl sm:text-4xl font-bold text-foreground">{stat.value}</p>
@@ -468,9 +468,9 @@ export default function LandingPage() {
                             <motion.div
                                 key={index}
                                 variants={fadeInUp}
-                                className="group p-8 rounded-2xl border border-border hover:border-primary bg-background hover:bg-muted/50 transition-all duration-300 hover:shadow-xl"
+                                className="group p-8 rounded-md border border-border hover:border-primary bg-background hover:bg-muted/50 transition-all duration-300 "
                             >
-                                <div className="h-14 w-14 rounded-2xl bg-primary flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform">
+                                <div className="h-14 w-14 rounded-md bg-primary flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                                     <feature.icon className="h-7 w-7 text-primary-foreground" />
                                 </div>
                                 <h3 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors">
@@ -497,7 +497,7 @@ export default function LandingPage() {
                             variants={fadeInLeft}
                             className="relative order-2 lg:order-1"
                         >
-                            <div className="relative rounded-3xl overflow-hidden shadow-2xl">
+                            <div className="relative rounded-md overflow-hidden">
                                 <img
                                     src="/images/landing/team-warehouse.png"
                                     alt="Team collaboration"
@@ -583,7 +583,7 @@ export default function LandingPage() {
                             <motion.div
                                 key={index}
                                 variants={fadeInUp}
-                                className="p-8 rounded-2xl bg-muted/30 border border-border hover:shadow-xl transition-all duration-300"
+                                className="p-8 rounded-md bg-muted/30 border border-border  transition-all duration-300"
                             >
                                 <div className="flex items-center gap-1 mb-4">
                                     {[...Array(5)].map((_, i) => (
@@ -627,12 +627,12 @@ export default function LandingPage() {
                         </p>
 
                         {/* Billing Toggle */}
-                        <div className="mt-8 inline-flex items-center gap-4 p-1.5 bg-background rounded-full shadow-sm border border-border">
+                        <div className="mt-8 inline-flex items-center gap-4 p-1.5 bg-background rounded-full border border-border">
                             <button
                                 onClick={() => setBillingCycle('monthly')}
                                 className={cn(
                                     "px-6 py-2.5 rounded-full text-sm font-medium transition-all",
-                                    billingCycle === 'monthly' ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:text-foreground"
+                                    billingCycle === 'monthly' ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                                 )}
                             >
                                 Monthly
@@ -641,7 +641,7 @@ export default function LandingPage() {
                                 onClick={() => setBillingCycle('yearly')}
                                 className={cn(
                                     "px-6 py-2.5 rounded-full text-sm font-medium transition-all flex items-center gap-2",
-                                    billingCycle === 'yearly' ? "bg-primary text-primary-foreground shadow-md" : "text-muted-foreground hover:text-foreground"
+                                    billingCycle === 'yearly' ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                                 )}
                             >
                                 Yearly
@@ -662,15 +662,15 @@ export default function LandingPage() {
                                 key={plan.id}
                                 variants={scaleIn}
                                 className={cn(
-                                    "relative p-8 rounded-3xl border-2 bg-background transition-all duration-300",
+                                    "relative p-8 rounded-md border-2 bg-background transition-all duration-300",
                                     plan.isPopular
-                                        ? "border-primary shadow-2xl shadow-primary/20 scale-105"
-                                        : "border-border hover:border-primary/50 hover:shadow-xl"
+                                        ? "border-primary  scale-105"
+                                        : "border-border hover:border-primary/50 "
                                 )}
                             >
                                 {plan.isPopular && (
                                     <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                                        <Badge className="bg-primary text-primary-foreground border-0 px-4 py-1 shadow-lg">
+                                        <Badge className="bg-primary text-primary-foreground border-0 px-4 py-1">
                                             Most Popular
                                         </Badge>
                                     </div>
@@ -704,7 +704,7 @@ export default function LandingPage() {
                                     className={cn(
                                         "w-full h-12 font-semibold",
                                         plan.isPopular
-                                            ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg"
+                                            ? "bg-primary text-primary-foreground hover:bg-primary/90"
                                             : "bg-muted text-foreground hover:bg-muted/80"
                                     )}
                                 >
@@ -740,7 +740,7 @@ export default function LandingPage() {
                         <Button
                             size="lg"
                             onClick={() => handleOpenRegister()}
-                            className="h-14 px-10 text-lg bg-background text-primary hover:bg-background/90 font-semibold shadow-xl hover:scale-105 transition-all"
+                            className="h-14 px-10 text-lg bg-background text-primary hover:bg-background/90 font-semibold hover:scale-105 transition-all"
                         >
                             Start Free Trial
                             <ArrowRight className="ml-2 h-5 w-5" />
@@ -764,7 +764,7 @@ export default function LandingPage() {
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
                         <div className="col-span-2 md:col-span-1">
                             <div className="flex items-center gap-3 mb-6">
-                                <div className="h-10 w-10 rounded-xl bg-primary-foreground flex items-center justify-center">
+                                <div className="h-10 w-10 rounded-md bg-primary-foreground flex items-center justify-center">
                                     <Package className="h-5 w-5 text-primary" />
                                 </div>
                                 <span className="text-xl font-bold text-primary-foreground">StockFlow</span>

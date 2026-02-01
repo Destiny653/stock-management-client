@@ -15,9 +15,9 @@ const variants = {
         iconColor: "text-amber-600"
     },
     success: {
-        bg: "bg-emerald-50 border-emerald-200",
+        bg: "bg-primary/10 border-primary/20",
         icon: CheckCircle,
-        iconColor: "text-emerald-600"
+        iconColor: "text-primary"
     },
     error: {
         bg: "bg-rose-50 border-rose-200",
@@ -48,7 +48,7 @@ export default function AlertBanner({
 
     return (
         <div className={cn(
-            "rounded-xl border p-4 flex items-start gap-3",
+            "rounded-md border p-4 flex items-start gap-3",
             config.bg,
             className
         )}>

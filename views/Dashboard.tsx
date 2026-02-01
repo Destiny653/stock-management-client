@@ -34,7 +34,7 @@ export default function Dashboard() {
   const { user } = useAuth();
 
   // Check if user is SuperAdmin/Owner - they see the organization-focused dashboard
-  const isSuperAdmin = user?.role === 'admin' || user?.role === 'owner';
+  const isSuperAdmin = user?.user_type === 'platform-staff';
 
   // If SuperAdmin/Owner, render the OwnerDashboard instead
   if (isSuperAdmin) {

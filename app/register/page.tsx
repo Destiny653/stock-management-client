@@ -70,7 +70,9 @@ export default function RegisterPage() {
                 name: orgData.name,
                 code: orgData.code,
                 phone: orgData.phone,
+                email: orgData.email,
                 website: orgData.website,
+                description: orgData.description,
                 location_id: registrationState.locationId,
                 subscription_plan_id: registrationState.planId,
                 status: 'active'
@@ -93,12 +95,17 @@ export default function RegisterPage() {
         try {
             await apiClient.post('/auth/register', {
                 full_name: userData.full_name,
+                first_name: userData.first_name,
+                last_name: userData.last_name,
                 email: userData.email,
-                username: userData.email, // using email as username
+                username: userData.username,
                 password: userData.password,
+                phone: userData.phone || null,
+                department: userData.department,
+                job_title: userData.job_title,
                 organization_id: registrationState.organizationId,
                 role: 'admin',
-                user_type: 'admin'
+                user_type: 'business-staff'
             });
             toast.success("Registration successful! Please login.");
             router.push('/login');
@@ -128,7 +135,7 @@ export default function RegisterPage() {
                         exit={{ opacity: 0 }}
                         className="absolute inset-0 z-50 bg-white/80 backdrop-blur-sm flex flex-col items-center justify-center p-4"
                     >
-                        <div className="w-16 h-16 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mb-4" />
+                        <div className="w-16 h-16 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4" />
                         <h3 className="text-xl font-semibold text-slate-800 animate-pulse">{loadingMessage}</h3>
                         <p className="text-sm text-slate-500 mt-2">Please do not close this window.</p>
                     </motion.div>
@@ -136,7 +143,7 @@ export default function RegisterPage() {
             </AnimatePresence>
 
             <div className="mb-8 text-center">
-                <div className="inline-flex items-center justify-center h-12 w-12 rounded-xl bg-linear-to-br from-emerald-400 to-emerald-600 shadow-lg shadow-emerald-500/30 mb-4">
+                <div className="inline-flex items-center justify-center h-12 w-12 rounded-md bg-linear-to-br from-primary/80 to-primary shadow-primary/30 mb-4">
                     <Package className="h-6 w-6 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
@@ -147,18 +154,18 @@ export default function RegisterPage() {
             <div className="w-full max-w-2xl mb-8 flex items-center justify-between px-4 sm:px-8">
                 {steps.map((s, i) => (
                     <div key={s.number} className="flex flex-col items-center relative z-10 w-20">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors duration-300 ${step >= s.number ? 'bg-emerald-600 text-white' : 'bg-slate-200 text-slate-500'
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold transition-colors duration-300 ${step >= s.number ? 'bg-primary text-white' : 'bg-slate-200 text-slate-500'
                             }`}>
                             {step > s.number ? <Check className="h-4 w-4" /> : s.number}
                         </div>
-                        <span className={`text-xs mt-2 font-medium ${step >= s.number ? 'text-emerald-700' : 'text-slate-400'}`}>
+                        <span className={`text-xs mt-2 font-medium ${step >= s.number ? 'text-primary' : 'text-slate-400'}`}>
                             {s.title}
                         </span>
                     </div>
                 ))}
             </div>
 
-            <Card className="w-full max-w-3xl p-6 sm:p-8 bg-white shadow-xl shadow-slate-200/50">
+            <Card className="w-full max-w-3xl p-6 sm:p-8 bg-white shadow-slate-200/50">
                 <AnimatePresence mode="wait">
                     {step === 1 && (
                         <motion.div

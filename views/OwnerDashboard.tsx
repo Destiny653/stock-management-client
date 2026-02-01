@@ -71,12 +71,12 @@ function useSafeLanguage() {
     }
 }
 
-const COLORS = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)', '#ec4899'];
+const COLORS = ['var(--chart-1)', 'var(--chart-2)', 'var(--chart-3)', 'var(--chart-4)', 'var(--chart-5)', 'var(--chart-1)'];
 
 const statusColors: Record<string, string> = {
     active: "bg-primary/10 text-primary",
-    inactive: "bg-slate-100 text-slate-600",
-    suspended: "bg-rose-100 text-rose-700",
+    inactive: "bg-muted text-muted-foreground",
+    suspended: "bg-destructive/10 text-destructive",
     pending: "bg-amber-100 text-amber-700"
 };
 
@@ -153,12 +153,13 @@ export default function OwnerDashboard() {
     });
 
     // Payment status colors
+    // Payment status colors
     const paymentStatusColors: Record<string, string> = {
         pending: "bg-amber-100 text-amber-700",
         completed: "bg-primary/10 text-primary",
         failed: "bg-destructive/10 text-destructive",
         refunded: "bg-primary/10 text-primary",
-        cancelled: "bg-slate-100 text-slate-600"
+        cancelled: "bg-muted text-muted-foreground"
     };
 
     // Create payment mutation
@@ -496,12 +497,12 @@ export default function OwnerDashboard() {
                 const org = organizations.find(o => o.id === payment.organization_id);
                 return (
                     <div className="flex items-center gap-2">
-                        <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-medium text-sm">
+                        <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center text-primary font-medium text-sm">
                             {org?.name?.charAt(0) || '?'}
                         </div>
                         <div>
-                            <p className="font-medium text-slate-900">{org?.name || 'Unknown'}</p>
-                            <p className="text-sm text-slate-500">{org?.code}</p>
+                            <p className="font-medium text-foreground">{org?.name || 'Unknown'}</p>
+                            <p className="text-sm text-muted-foreground">{org?.code}</p>
                         </div>
                     </div>
                 );
@@ -513,7 +514,7 @@ export default function OwnerDashboard() {
                 <>
                     <span className="font-mono text-sm">{payment.invoice_number}</span>
                     {payment.reference_number && (
-                        <p className="text-xs text-slate-400">Ref: {payment.reference_number}</p>
+                        <p className="text-xs text-muted-foreground">Ref: {payment.reference_number}</p>
                     )}
                 </>
             )
@@ -522,11 +523,11 @@ export default function OwnerDashboard() {
             header: 'Amount',
             cell: (payment) => (
                 <>
-                    <span className="font-semibold text-slate-900">
+                    <span className="font-semibold text-foreground">
                         {payment.currency === 'USD' ? '$' : payment.currency === 'EUR' ? '€' : payment.currency === 'XAF' ? 'CFA ' : '£'}
                         {payment.amount.toLocaleString()}
                     </span>
-                    <p className="text-xs text-slate-400 capitalize">{payment.billing_period}</p>
+                    <p className="text-xs text-muted-foreground capitalize">{payment.billing_period}</p>
                 </>
             )
         },
@@ -579,7 +580,7 @@ export default function OwnerDashboard() {
                                 size="sm"
                                 onClick={() => handleRejectPayment(payment)}
                                 disabled={updatePaymentMutation.isPending}
-                                className="text-rose-600 hover:text-rose-700 hover:bg-rose-50"
+                                className="text-destructive hover:text-destructive hover:bg-destructive/10"
                             >
                                 <XCircle className="h-4 w-4" />
                             </Button>
@@ -592,7 +593,7 @@ export default function OwnerDashboard() {
                         </span>
                     )}
                     {payment.status === 'cancelled' && (
-                        <span className="text-xs text-slate-400">Cancelled</span>
+                        <span className="text-xs text-muted-foreground">Cancelled</span>
                     )}
                 </>
             )
@@ -604,7 +605,7 @@ export default function OwnerDashboard() {
             header: 'Organization',
             cell: (org) => (
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-semibold">
+                    <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center text-primary font-semibold">
                         {org.name?.charAt(0) || 'O'}
                     </div>
                     <div>
@@ -619,7 +620,7 @@ export default function OwnerDashboard() {
             cell: (org) => (
                 <>
                     <span className="font-medium">{org.vendorCount}</span>
-                    <span className="text-slate-400"> / {org.max_vendors}</span>
+                    <span className="text-muted-foreground"> / {org.max_vendors}</span>
                 </>
             )
         },
@@ -628,7 +629,7 @@ export default function OwnerDashboard() {
             cell: (org) => (
                 <>
                     <span className="font-medium">{org.userCount}</span>
-                    <span className="text-slate-400"> / {org.max_users}</span>
+                    <span className="text-muted-foreground"> / {org.max_users}</span>
                 </>
             )
         },
@@ -671,7 +672,7 @@ export default function OwnerDashboard() {
             header: 'Organization',
             cell: (org) => (
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-semibold">
+                    <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center text-primary font-semibold">
                         {org.name?.charAt(0) || 'O'}
                     </div>
                     <div>
@@ -686,9 +687,9 @@ export default function OwnerDashboard() {
             cell: (org) => (
                 <Badge className={cn(
                     "capitalize",
-                    org.subscription_plan === 'enterprise' && "bg-violet-100 text-violet-700",
-                    org.subscription_plan === 'business' && "bg-blue-100 text-blue-700",
-                    (!org.subscription_plan || org.subscription_plan === 'starter') && "bg-slate-100 text-slate-700"
+                    org.subscription_plan === 'enterprise' && "bg-primary/20 text-primary",
+                    org.subscription_plan === 'business' && "bg-primary/10 text-primary",
+                    (!org.subscription_plan || org.subscription_plan === 'starter') && "bg-muted text-muted-foreground"
                 )}>
                     <Crown className="h-3 w-3 mr-1" />
                     {org.subscription_plan || 'starter'}
@@ -718,13 +719,13 @@ export default function OwnerDashboard() {
             cell: (org) => (
                 org.lastPayment ? (
                     <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-slate-400" />
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span className="text-sm">
                             {format(new Date(org.lastPayment.payment_date || org.lastPayment.created_at), 'MMM d, yyyy')}
                         </span>
                     </div>
                 ) : (
-                    <span className="text-sm text-slate-400">No payment yet</span>
+                    <span className="text-sm text-muted-foreground">No payment yet</span>
                 )
             )
         },
@@ -733,16 +734,16 @@ export default function OwnerDashboard() {
             cell: (org) => (
                 org.nextBillingDate ? (
                     <div className="flex items-center gap-2">
-                        <Calendar className="h-4 w-4 text-slate-400" />
+                        <Calendar className="h-4 w-4 text-muted-foreground" />
                         <span className={cn(
                             "text-sm",
-                            new Date() > org.nextBillingDate && "text-rose-600 font-medium"
+                            new Date() > org.nextBillingDate && "text-destructive font-medium"
                         )}>
                             {format(org.nextBillingDate, 'MMM d, yyyy')}
                         </span>
                     </div>
                 ) : (
-                    <span className="text-sm text-slate-400">—</span>
+                    <span className="text-sm text-muted-foreground">—</span>
                 )
             )
         },
@@ -751,9 +752,9 @@ export default function OwnerDashboard() {
             cell: (org) => (
                 <Badge className={cn(
                     org.paymentStatus === 'paid' && "bg-primary/10 text-primary",
-                    org.paymentStatus === 'pending' && "bg-amber-100 text-amber-700",
-                    org.paymentStatus === 'overdue' && "bg-rose-100 text-rose-700",
-                    org.paymentStatus === 'no_payment' && "bg-slate-100 text-slate-600"
+                    org.paymentStatus === 'pending' && "bg-yellow-500/10 text-yellow-600",
+                    org.paymentStatus === 'overdue' && "bg-destructive/10 text-destructive",
+                    org.paymentStatus === 'no_payment' && "bg-muted text-muted-foreground"
                 )}>
                     {org.paymentStatus === 'paid' && <CheckCircle className="h-3 w-3 mr-1" />}
                     {org.paymentStatus === 'pending' && <Clock className="h-3 w-3 mr-1" />}
@@ -772,7 +773,7 @@ export default function OwnerDashboard() {
                             ${org.totalPaid.toLocaleString()}
                         </span>
                     </div>
-                    <p className="text-xs text-slate-400">{org.completedPaymentsCount} payments</p>
+                    <p className="text-xs text-muted-foreground">{org.completedPaymentsCount} payments</p>
                 </>
             )
         },
@@ -802,7 +803,7 @@ export default function OwnerDashboard() {
                             }));
                             setIsPaymentDialogOpen(true);
                         }}
-                        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        className="text-primary hover:text-primary/90 hover:bg-primary/10"
                     >
                         <Plus className="h-4 w-4 mr-1" />
                         Payment
@@ -852,11 +853,11 @@ export default function OwnerDashboard() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Platform Overview</h1>
-                    <p className="text-slate-500 mt-1">Manage and monitor all organizations</p>
+                    <h1 className="text-2xl font-bold text-foreground tracking-tight">Platform Overview</h1>
+                    <p className="text-muted-foreground mt-1">Manage and monitor all organizations</p>
                 </div>
                 <Link href={createPageUrl("Organizations")}>
-                    <Button className="bg-blue-600 hover:bg-blue-700">
+                    <Button className="bg-primary hover:bg-primary/90">
                         <Building2 className="h-4 w-4 mr-2" />
                         Manage Organizations
                     </Button>
@@ -868,12 +869,12 @@ export default function OwnerDashboard() {
                 <Card>
                     <CardContent className="p-4 py-12">
                         <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center">
                                 <Building2 className="h-6 w-6 text-primary" />
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-slate-900">{platformStats.totalOrganizations}</p>
-                                <p className="text-sm text-slate-500">Total Organizations</p>
+                                <p className="text-2xl font-bold text-foreground">{platformStats.totalOrganizations}</p>
+                                <p className="text-sm text-muted-foreground">Total Organizations</p>
                                 <p className="text-xs text-primary">{platformStats.activeOrganizations} active</p>
                             </div>
                         </div>
@@ -883,12 +884,12 @@ export default function OwnerDashboard() {
                 <Card>
                     <CardContent className="p-4 py-12">
                         <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-violet-100 flex items-center justify-center">
-                                <Store className="h-6 w-6 text-violet-600" />
+                            <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center">
+                                <Store className="h-6 w-6 text-primary" />
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-slate-900">{platformStats.totalVendors}</p>
-                                <p className="text-sm text-slate-500">Total Vendors</p>
+                                <p className="text-2xl font-bold text-foreground">{platformStats.totalVendors}</p>
+                                <p className="text-sm text-muted-foreground">Total Vendors</p>
                                 <p className="text-xs text-primary">{platformStats.activeVendors} active</p>
                             </div>
                         </div>
@@ -898,12 +899,12 @@ export default function OwnerDashboard() {
                 <Card>
                     <CardContent className="p-4 py-12">
                         <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-blue-100 flex items-center justify-center">
-                                <Users className="h-6 w-6 text-blue-600" />
+                            <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center">
+                                <Users className="h-6 w-6 text-primary" />
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-slate-900">{platformStats.totalUsers}</p>
-                                <p className="text-sm text-slate-500">Total Users</p>
+                                <p className="text-2xl font-bold text-foreground">{platformStats.totalUsers}</p>
+                                <p className="text-sm text-muted-foreground">Total Users</p>
                             </div>
                         </div>
                     </CardContent>
@@ -912,14 +913,14 @@ export default function OwnerDashboard() {
                 <Card>
                     <CardContent className="p-4 py-12">
                         <div className="flex items-center gap-4">
-                            <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                            <div className="h-12 w-12 rounded-md bg-primary/10 flex items-center justify-center">
                                 <DollarSign className="h-6 w-6 text-primary" />
                             </div>
                             <div>
-                                <p className="text-2xl font-bold text-slate-900">
+                                <p className="text-2xl font-bold text-foreground">
                                     ${platformStats.totalRevenue.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                 </p>
-                                <p className="text-sm text-slate-500">Platform Revenue (MTD)</p>
+                                <p className="text-sm text-muted-foreground">Platform Revenue (MTD)</p>
                             </div>
                         </div>
                     </CardContent>
@@ -931,31 +932,31 @@ export default function OwnerDashboard() {
                 <Card className='p-6'>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <HardDrive className="h-5 w-5 text-slate-400" />
+                            <HardDrive className="h-5 w-5 text-muted-foreground" />
                             Storage Usage
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
                             <div className="text-center">
-                                <p className="text-4xl font-bold text-blue-600">
+                                <p className="text-4xl font-bold text-primary">
                                     {platformStats.totalStorageKB > 1024
                                         ? `${(platformStats.totalStorageKB / 1024).toFixed(1)} MB`
                                         : `${platformStats.totalStorageKB.toFixed(0)} KB`}
                                 </p>
-                                <p className="text-sm text-slate-500 mt-1">Total Estimated Storage</p>
+                                <p className="text-sm text-muted-foreground mt-1">Total Estimated Storage</p>
                             </div>
                             <div className="pt-4 border-t space-y-2">
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-slate-600">Avg per Organization</span>
+                                    <span className="text-muted-foreground">Avg per Organization</span>
                                     <span className="font-medium">{platformStats.avgStoragePerOrg.toFixed(1)} KB</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-slate-600">Total Products</span>
+                                    <span className="text-muted-foreground">Total Products</span>
                                     <span className="font-medium">{platformStats.totalProducts}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-slate-600">Total Sales Records</span>
+                                    <span className="text-muted-foreground">Total Sales Records</span>
                                     <span className="font-medium">{platformStats.totalSales}</span>
                                 </div>
                             </div>
@@ -966,7 +967,7 @@ export default function OwnerDashboard() {
                 <Card className='p-6'>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Activity className="h-5 w-5 text-slate-400" />
+                            <Activity className="h-5 w-5 text-muted-foreground" />
                             Organization Status
                         </CardTitle>
                     </CardHeader>
@@ -995,7 +996,7 @@ export default function OwnerDashboard() {
                             {orgStatusData.map((entry, index) => (
                                 <div key={entry.name} className="flex items-center gap-2">
                                     <div className="h-3 w-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                                    <span className="text-sm text-slate-600 capitalize">{entry.name} ({entry.value})</span>
+                                    <span className="text-sm text-muted-foreground capitalize">{entry.name} ({entry.value})</span>
                                 </div>
                             ))}
                         </div>
@@ -1005,7 +1006,7 @@ export default function OwnerDashboard() {
                 <Card className='p-6'>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <TrendingUp className="h-5 w-5 text-slate-400" />
+                            <TrendingUp className="h-5 w-5 text-muted-foreground" />
                             Recent Activity
                         </CardTitle>
                     </CardHeader>
@@ -1015,14 +1016,14 @@ export default function OwnerDashboard() {
                         ) : (
                             <div className="space-y-3">
                                 {recentOrgActivity.map(org => (
-                                    <div key={org.id} className="flex items-center justify-between p-2 rounded-lg bg-slate-50">
+                                    <div key={org.id} className="flex items-center justify-between p-2 rounded-md bg-muted/30">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
+                                            <div className="h-8 w-8 rounded-md bg-primary/10 flex items-center justify-center text-primary font-semibold text-sm">
                                                 {org.name?.charAt(0) || 'O'}
                                             </div>
                                             <div>
-                                                <p className="text-sm font-medium text-slate-900">{org.name}</p>
-                                                <p className="text-xs text-slate-500">{format(new Date(org.created_at), 'MMM d, yyyy')}</p>
+                                                <p className="text-sm font-medium text-foreground">{org.name}</p>
+                                                <p className="text-xs text-muted-foreground">{format(new Date(org.created_at), 'MMM d, yyyy')}</p>
                                             </div>
                                         </div>
                                         <Badge className={statusColors[org.status]}>{org.status}</Badge>
@@ -1039,29 +1040,29 @@ export default function OwnerDashboard() {
                 <Card className='p-6'>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <CreditCard className="h-5 w-5 text-slate-400" />
+                            <CreditCard className="h-5 w-5 text-muted-foreground" />
                             Subscription Revenue
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-4">
                             <div className="text-center">
-                                <p className="text-4xl font-bold text-blue-600">
+                                <p className="text-4xl font-bold text-primary">
                                     ${estimatedMRR.toLocaleString()}
                                 </p>
-                                <p className="text-sm text-slate-500 mt-1">Estimated MRR</p>
+                                <p className="text-sm text-muted-foreground mt-1">Estimated MRR</p>
                             </div>
                             <div className="pt-4 border-t space-y-2">
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-slate-600">Active Subscriptions</span>
+                                    <span className="text-muted-foreground">Active Subscriptions</span>
                                     <span className="font-medium">{platformStats.activeOrganizations}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-slate-600">Annual Revenue (Est.)</span>
+                                    <span className="text-muted-foreground">Annual Revenue (Est.)</span>
                                     <span className="font-medium">${(estimatedMRR * 12).toLocaleString()}</span>
                                 </div>
                                 <div className="flex justify-between text-sm">
-                                    <span className="text-slate-600">Avg. Revenue/Org</span>
+                                    <span className="text-muted-foreground">Avg. Revenue/Org</span>
                                     <span className="font-medium">
                                         ${platformStats.activeOrganizations > 0
                                             ? Math.round(estimatedMRR / platformStats.activeOrganizations)
@@ -1076,7 +1077,7 @@ export default function OwnerDashboard() {
                 <Card className='p-6'>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <BarChart3 className="h-5 w-5 text-slate-400" />
+                            <BarChart3 className="h-5 w-5 text-muted-foreground" />
                             Plan Distribution
                         </CardTitle>
                     </CardHeader>
@@ -1105,7 +1106,7 @@ export default function OwnerDashboard() {
                             {subscriptionPlanData.map((entry, index) => (
                                 <div key={entry.name} className="flex items-center gap-2">
                                     <div className="h-3 w-3 rounded-full" style={{ backgroundColor: COLORS[index % COLORS.length] }} />
-                                    <span className="text-sm text-slate-600">{entry.name} ({entry.value})</span>
+                                    <span className="text-sm text-muted-foreground">{entry.name} ({entry.value})</span>
                                 </div>
                             ))}
                         </div>
@@ -1115,7 +1116,7 @@ export default function OwnerDashboard() {
                 <Card className='p-6'>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
-                            <Clock className="h-5 w-5 text-slate-400" />
+                            <Clock className="h-5 w-5 text-muted-foreground" />
                             Pending Approvals
                         </CardTitle>
                     </CardHeader>
@@ -1125,19 +1126,19 @@ export default function OwnerDashboard() {
                                 <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
                                     <CheckCircle className="h-6 w-6 text-primary" />
                                 </div>
-                                <p className="text-sm text-slate-500">No pending organizations</p>
+                                <p className="text-sm text-muted-foreground">No pending organizations</p>
                             </div>
                         ) : (
                             <div className="space-y-3">
                                 {pendingOrganizations.slice(0, 5).map(org => (
-                                    <div key={org.id} className="flex items-center justify-between p-2 rounded-lg bg-amber-50 border border-amber-200">
+                                    <div key={org.id} className="flex items-center justify-between p-2 rounded-md bg-amber-50 border border-amber-200">
                                         <div className="flex items-center gap-3">
-                                            <div className="h-8 w-8 rounded-lg bg-amber-100 flex items-center justify-center">
+                                            <div className="h-8 w-8 rounded-md bg-amber-100 flex items-center justify-center">
                                                 <AlertCircle className="h-4 w-4 text-amber-600" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-medium text-slate-900">{org.name}</p>
-                                                <p className="text-xs text-slate-500 capitalize">{org.subscription_plan || 'starter'} plan</p>
+                                                <p className="text-sm font-medium text-foreground">{org.name}</p>
+                                                <p className="text-xs text-muted-foreground capitalize">{org.subscription_plan || 'starter'} plan</p>
                                             </div>
                                         </div>
                                         <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)}>
@@ -1162,8 +1163,8 @@ export default function OwnerDashboard() {
             <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                        <h2 className="text-xl font-bold text-slate-900">Payment Management</h2>
-                        <p className="text-sm text-slate-500">Track and confirm subscription payments</p>
+                        <h2 className="text-xl font-bold text-foreground">Payment Management</h2>
+                        <p className="text-sm text-muted-foreground">Track and confirm subscription payments</p>
                     </div>
                     <Dialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
                         <DialogTrigger asChild>
@@ -1368,14 +1369,14 @@ export default function OwnerDashboard() {
                     <Card>
                         <CardContent className="p-4">
                             <div className="flex items-center gap-4">
-                                <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center">
                                     <Banknote className="h-5 w-5 text-primary" />
                                 </div>
                                 <div>
                                     <p className="text-xl font-bold text-primary">
                                         ${paymentStats.totalRevenue.toLocaleString()}
                                     </p>
-                                    <p className="text-sm text-slate-500">Total Confirmed</p>
+                                    <p className="text-sm text-muted-foreground">Total Confirmed</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -1383,14 +1384,14 @@ export default function OwnerDashboard() {
                     <Card>
                         <CardContent className="p-4">
                             <div className="flex items-center gap-4">
-                                <div className="h-10 w-10 rounded-lg bg-amber-100 flex items-center justify-center">
+                                <div className="h-10 w-10 rounded-md bg-amber-100 flex items-center justify-center">
                                     <Clock className="h-5 w-5 text-amber-600" />
                                 </div>
                                 <div>
                                     <p className="text-xl font-bold text-amber-600">
                                         ${paymentStats.pendingAmount.toLocaleString()}
                                     </p>
-                                    <p className="text-sm text-slate-500">{paymentStats.pendingPayments} Pending</p>
+                                    <p className="text-sm text-muted-foreground">{paymentStats.pendingPayments} Pending</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -1398,14 +1399,14 @@ export default function OwnerDashboard() {
                     <Card>
                         <CardContent className="p-4">
                             <div className="flex items-center gap-4">
-                                <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                                    <TrendingUp className="h-5 w-5 text-blue-600" />
+                                <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center">
+                                    <TrendingUp className="h-5 w-5 text-primary" />
                                 </div>
                                 <div>
-                                    <p className="text-xl font-bold text-blue-600">
+                                    <p className="text-xl font-bold text-primary">
                                         ${paymentStats.thisMonthRevenue.toLocaleString()}
                                     </p>
-                                    <p className="text-sm text-slate-500">This Month</p>
+                                    <p className="text-sm text-muted-foreground">This Month</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -1413,14 +1414,14 @@ export default function OwnerDashboard() {
                     <Card>
                         <CardContent className="p-4">
                             <div className="flex items-center gap-4">
-                                <div className="h-10 w-10 rounded-lg bg-violet-100 flex items-center justify-center">
-                                    <FileCheck className="h-5 w-5 text-violet-600" />
+                                <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center">
+                                    <FileCheck className="h-5 w-5 text-primary" />
                                 </div>
                                 <div>
-                                    <p className="text-xl font-bold text-violet-600">
+                                    <p className="text-xl font-bold text-primary">
                                         {paymentStats.completedPayments}
                                     </p>
-                                    <p className="text-sm text-slate-500">Completed Payments</p>
+                                    <p className="text-sm text-muted-foreground">Completed Payments</p>
                                 </div>
                             </div>
                         </CardContent>
@@ -1431,12 +1432,12 @@ export default function OwnerDashboard() {
                 <Card className="p-4">
                     <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-4">
                         <CardTitle className="flex items-center gap-2">
-                            <Receipt className="h-5 w-5 text-slate-400" />
+                            <Receipt className="h-5 w-5 text-muted-foreground" />
                             Payment Records
                         </CardTitle>
                         <div className="flex flex-col sm:flex-row gap-2">
                             <div className="relative">
-                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     placeholder="Search payments..."
                                     className="pl-9 w-full sm:w-64"
@@ -1469,7 +1470,7 @@ export default function OwnerDashboard() {
                         />
                         {filteredPayments.length > 10 && (
                             <div className="text-center py-3 border-t">
-                                <p className="text-sm text-slate-500">
+                                <p className="text-sm text-muted-foreground">
                                     Showing 10 of {filteredPayments.length} payments
                                 </p>
                             </div>
@@ -1482,7 +1483,7 @@ export default function OwnerDashboard() {
             <Card className='p-6'>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
-                        <BarChart3 className="h-5 w-5 text-slate-400" />
+                        <BarChart3 className="h-5 w-5 text-muted-foreground" />
                         Platform Growth (Last 30 Days)
                     </CardTitle>
                 </CardHeader>
@@ -1496,16 +1497,16 @@ export default function OwnerDashboard() {
                                         <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                                     </linearGradient>
                                     <linearGradient id="vendorGradient" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                                        <stop offset="5%" stopColor="var(--chart-2)" stopOpacity={0.3} />
+                                        <stop offset="95%" stopColor="var(--chart-2)" stopOpacity={0} />
                                     </linearGradient>
                                 </defs>
-                                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                                <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="#94a3b8" />
-                                <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" />
+                                <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                                <XAxis dataKey="name" tick={{ fontSize: 12 }} stroke="var(--muted-foreground)" />
+                                <YAxis tick={{ fontSize: 12 }} stroke="var(--muted-foreground)" />
                                 <Tooltip />
                                 <Area type="monotone" dataKey="organizations" stroke="#10b981" fill="url(#orgGradient)" strokeWidth={2} name="Organizations" />
-                                <Area type="monotone" dataKey="vendors" stroke="#8b5cf6" fill="url(#vendorGradient)" strokeWidth={2} name="Vendors" />
+                                <Area type="monotone" dataKey="vendors" stroke="var(--chart-2)" fill="url(#vendorGradient)" strokeWidth={2} name="Vendors" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
@@ -1516,7 +1517,7 @@ export default function OwnerDashboard() {
             <Card className='p-4'>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="flex items-center gap-2">
-                        <Globe className="h-5 w-5 text-slate-400" />
+                        <Globe className="h-5 w-5 text-muted-foreground" />
                         All Organizations
                     </CardTitle>
                     <Link href={createPageUrl("Organizations")}>
@@ -1538,8 +1539,8 @@ export default function OwnerDashboard() {
             <div className="space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
-                        <h2 className="text-xl font-bold text-slate-900">Subscription Management</h2>
-                        <p className="text-sm text-slate-500">View and manage organization subscription plans and billing</p>
+                        <h2 className="text-xl font-bold text-foreground">Subscription Management</h2>
+                        <p className="text-sm text-muted-foreground">View and manage organization subscription plans and billing</p>
                     </div>
                 </div>
 
@@ -1693,7 +1694,7 @@ export default function OwnerDashboard() {
                         </div>
 
                         {/* Plan summary */}
-                        <div className="mt-2 p-4 bg-slate-50 rounded-lg">
+                        <div className="mt-2 p-4 bg-muted/30 rounded-md">
                             <h4 className="font-medium text-slate-900 mb-2">Plan Summary</h4>
                             <div className="space-y-1 text-sm">
                                 <div className="flex justify-between">
@@ -1727,7 +1728,7 @@ export default function OwnerDashboard() {
                         <Button
                             onClick={handleSaveSubscription}
                             disabled={updateOrganizationMutation.isPending}
-                            className="bg-blue-600 hover:bg-blue-700"
+                            className="bg-primary hover:bg-primary/90"
                         >
                             {updateOrganizationMutation.isPending ? (
                                 <>

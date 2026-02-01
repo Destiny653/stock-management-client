@@ -40,7 +40,7 @@ const statusConfig = {
     received: {
         label: "Received",
         icon: PackageCheck,
-        class: "bg-emerald-100 text-emerald-700 border-emerald-200"
+        class: "bg-primary/10 text-primary border-primary/20"
     },
     cancelled: {
         label: "Cancelled",

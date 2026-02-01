@@ -215,7 +215,7 @@ export default function InventoryTable({
                   )}
                   <td className="px-6 py-4">
                     <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center overflow-hidden shadow-sm">
+                      <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center overflow-hidden shadow-sm">
                         {product.image_url ? (
                           <img src={getImageUrl(product.image_url)} className="w-full h-full object-cover" alt={product.name} />
                         ) : (
@@ -304,7 +304,7 @@ export default function InventoryTable({
                 {isExpanded && product.variants && product.variants.length > 0 && (
                   <tr className="bg-muted/30">
                     <td colSpan={readOnly ? 7 : 8} className="px-12 py-4">
-                      <div className="bg-card border border-border rounded-lg shadow-inner overflow-hidden">
+                      <div className="bg-card border border-border rounded-md shadow-inner overflow-hidden">
                         <table className="w-full text-[11px] text-left">
                           <thead className="bg-muted/50 border-b border-border">
                             <tr>

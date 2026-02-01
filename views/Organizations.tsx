@@ -283,7 +283,7 @@ export default function Organizations() {
             header: 'Organization',
             cell: (org) => (
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold shadow-blue-500/20 shadow-md text-xs uppercase">
+                    <div className="h-10 w-10 rounded-md bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold -500/20 text-xs uppercase">
                         {org.name?.charAt(0) || 'O'}
                     </div>
                     <div>
@@ -414,7 +414,7 @@ export default function Organizations() {
                                         <SelectTrigger><SelectValue placeholder="Select owner" /></SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="none">No owner assigned</SelectItem>
-                                            {users.filter(u => u.user_type === 'admin' || u.role === 'admin').map(u => (
+                                            {users.filter(u => u.user_type === 'platform-staff' || u.role === 'admin').map(u => (
                                                 <SelectItem key={u.id} value={u.id}>{u.full_name || u.email}</SelectItem>
                                             ))}
                                         </SelectContent>
@@ -473,11 +473,11 @@ export default function Organizations() {
                         </SelectContent>
                     </Select>
                 </div>
-                <div className="flex items-center bg-white rounded-lg border border-slate-200 p-1 h-11">
-                    <Button variant="ghost" size="sm" onClick={() => setViewMode('list')} className={cn("rounded-md px-3 h-9", viewMode === 'list' ? "bg-slate-100 text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900")}>
+                <div className="flex items-center bg-white rounded-md border border-slate-200 p-1 h-11">
+                    <Button variant="ghost" size="sm" onClick={() => setViewMode('list')} className={cn("rounded-md px-3 h-9", viewMode === 'list' ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-900")}>
                         <List className="h-4 w-4 mr-2" /> List
                     </Button>
-                    <Button variant="ghost" size="sm" onClick={() => setViewMode('grid')} className={cn("rounded-md px-3 h-9", viewMode === 'grid' ? "bg-slate-100 text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900")}>
+                    <Button variant="ghost" size="sm" onClick={() => setViewMode('grid')} className={cn("rounded-md px-3 h-9", viewMode === 'grid' ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-900")}>
                         <LayoutGrid className="h-4 w-4 mr-2" /> Grid
                     </Button>
                 </div>
@@ -492,10 +492,10 @@ export default function Organizations() {
                         {filteredOrgs.map(org => {
                             const loc = locations.find(l => l.id === org.location_id);
                             return (
-                                <Card key={org.id} className="group hover:shadow-lg transition-all duration-300 border-slate-200 overflow-hidden bg-white">
+                                <Card key={org.id} className="group  transition-all duration-300 border-slate-200 overflow-hidden bg-white">
                                     <div className="h-1.5 w-full bg-blue-500/10 group-hover:bg-blue-500 transition-colors" />
                                     <CardHeader className="flex flex-row items-start justify-between space-y-0 p-5 pb-2">
-                                        <div className="h-12 w-12 rounded-xl bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg shadow-blue-500/20 shadow-md uppercase">
+                                        <div className="h-12 w-12 rounded-md bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg -500/20 uppercase">
                                             {org.name?.charAt(0) || 'O'}
                                         </div>
                                         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -521,11 +521,11 @@ export default function Organizations() {
                                             {loc?.city && <div className="flex items-center gap-2"><Building2 className="h-4 w-4 text-slate-400 shrink-0" /> <span className="truncate">{loc.city}, {loc.country}</span></div>}
                                             {org.email && <div className="flex items-center gap-2"><Mail className="h-4 w-4 text-slate-400 shrink-0" /> <span className="truncate">{org.email}</span></div>}
                                             <div className="grid grid-cols-2 gap-2 pt-1">
-                                                <div className="bg-slate-50 rounded-lg p-2 flex flex-col items-center">
+                                                <div className="bg-slate-50 rounded-md p-2 flex flex-col items-center">
                                                     <span className="font-bold text-slate-900">{orgStats[org.id]?.vendorCount || 0}</span>
                                                     <span className="text-[10px] uppercase text-slate-400 font-semibold tracking-wider">Vendors</span>
                                                 </div>
-                                                <div className="bg-slate-50 rounded-lg p-2 flex flex-col items-center">
+                                                <div className="bg-slate-50 rounded-md p-2 flex flex-col items-center">
                                                     <span className="font-bold text-slate-900">{orgStats[org.id]?.userCount || 0}</span>
                                                     <span className="text-[10px] uppercase text-slate-400 font-semibold tracking-wider">Users</span>
                                                 </div>

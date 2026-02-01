@@ -45,7 +45,7 @@ export function StatsCard({
     return (
         <Card
             className={cn(
-                "group relative overflow-hidden transition-all duration-300 hover:shadow-md",
+                "group relative overflow-hidden transition-all duration-300 ",
                 onClick && "cursor-pointer hover:-translate-y-0.5",
                 variants[variant]
             )}
@@ -92,7 +92,7 @@ export function StatsCard({
                     </div>
                     {Icon && (
                         <div className={cn(
-                            "rounded-xl p-2.5 transition-transform duration-300 group-hover:scale-110",
+                            "rounded-md p-2.5 transition-transform duration-300 group-hover:scale-110",
                             iconVariants[variant]
                         )}>
                             <Icon className="h-5 w-5" />

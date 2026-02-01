@@ -18,7 +18,7 @@ interface TooltipProps {
 const CustomTooltip = ({ active, payload, label }: TooltipProps) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-popover text-popover-foreground px-4 py-3 rounded-lg shadow-xl border border-border">
+      <div className="bg-popover text-popover-foreground px-4 py-3 rounded-md shadow-xl border border-border">
         <p className="text-sm font-medium mb-1">{label}</p>
         <p className="text-xs text-muted-foreground">
           Stock Value: <span className="text-foreground font-semibold">${payload[0].value.toLocaleString()}</span>
@@ -38,7 +38,7 @@ export default function InventoryChart({ data = [] }: { data: any[] }) {
   const chartData = data;
 
   return (
-    <div className="bg-card rounded-2xl border border-border p-6 shadow-sm">
+    <div className="bg-card rounded-md border border-border p-6 shadow-sm">
       <div className="flex items-center justify-between mb-6">
         <div>
           <h3 className="text-lg font-semibold text-foreground">Inventory Value Trend</h3>

@@ -109,7 +109,7 @@ export default function Profile() {
   // Find vendor profile if user is a vendor
   const myVendor = vendors.find(v => v.user_id === user?.id);
   const myLocation = (myVendor && locations) ? locations.find(l => l.id === myVendor.location_id) : null;
-  const isVendor = user?.user_type === 'vendor';
+  const isVendor = user?.role === 'vendor';
 
   // Calculate user stats
   const userSales = sales.filter(s => s.vendor_id === myVendor?.id);
@@ -208,7 +208,7 @@ export default function Profile() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
@@ -223,14 +223,14 @@ export default function Profile() {
             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
               {/* Avatar */}
               <div className="relative group">
-                <div className="h-28 w-28 rounded-2xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white text-4xl font-bold overflow-hidden">
+                <div className="h-28 w-28 rounded-md bg-linear-to-br from-primary to-primary/80 flex items-center justify-center text-white text-4xl font-bold overflow-hidden">
                   {profileData.avatar_url ? (
                     <img src={profileData.avatar_url} alt="Avatar" className="h-full w-full object-cover" />
                   ) : (
                     user?.full_name?.charAt(0) || user?.username?.charAt(0) || 'U'
                   )}
                 </div>
-                <label className="absolute inset-0 bg-black/50 rounded-2xl flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                <label className="absolute inset-0 bg-black/50 rounded-md flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
                   <Camera className="h-6 w-6 text-white" />
                   <input type="file" accept="image/*" className="hidden" onChange={handleAvatarUpload} />
                 </label>
@@ -246,7 +246,7 @@ export default function Profile() {
                   <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2">
                     <Badge className={cn(
                       "capitalize px-3 py-1",
-                      user?.role === 'admin' || user?.role === 'owner' ? 'bg-violet-100 text-violet-700' : 'bg-emerald-100 text-emerald-700'
+                      user?.role === 'admin' ? 'bg-violet-100 text-violet-700' : 'bg-primary/10 text-primary border-primary/20'
                     )}>
                       <Shield className="h-3 w-3 mr-1" />
                       {user?.role || 'user'}
@@ -294,8 +294,8 @@ export default function Profile() {
           <Card>
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                  <TrendingUp className="h-5 w-5 text-emerald-600" />
+                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <TrendingUp className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-slate-900">${totalSalesAmount.toLocaleString()}</p>
@@ -349,7 +349,7 @@ export default function Profile() {
                 variant={isEditing ? "default" : "outline"}
                 onClick={() => isEditing ? handleSaveProfile() : setIsEditing(true)}
                 disabled={updateProfileMutation.isPending}
-                className={isEditing ? "bg-emerald-600 hover:bg-emerald-700" : ""}
+                className={isEditing ? "bg-primary hover:bg-primary/90" : ""}
               >
                 {updateProfileMutation.isPending ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -555,7 +555,7 @@ export default function Profile() {
 
           <div className="flex justify-end">
             <Button
-              className="bg-emerald-600 hover:bg-emerald-700"
+              className="bg-primary hover:bg-primary/90"
               onClick={handleSaveProfile}
               disabled={updateProfileMutation.isPending}
             >
@@ -575,10 +575,10 @@ export default function Profile() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-xl">
+              <div className="flex items-center justify-between p-4 bg-slate-50 rounded-md">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                    <CheckCircle className="h-5 w-5 text-emerald-600" />
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <CheckCircle className="h-5 w-5 text-primary" />
                   </div>
                   <div>
                     <p className="font-medium text-slate-900">{t('accountVerified')}</p>
@@ -593,7 +593,7 @@ export default function Profile() {
                     <p className="font-medium text-slate-900">{t('email')}</p>
                     <p className="text-sm text-slate-500">{user?.email}</p>
                   </div>
-                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700">{t('accountVerified')}</Badge>
+                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">{t('accountVerified')}</Badge>
                 </div>
                 <div className="flex items-center justify-between">
                   <div>
@@ -649,10 +649,10 @@ export default function Profile() {
               ) : (
                 <div className="space-y-4">
                   {userActivities.map((activity, index) => (
-                    <div key={activity.id} className="flex items-start gap-4 p-4 hover:bg-slate-50 rounded-xl transition-colors">
+                    <div key={activity.id} className="flex items-start gap-4 p-4 hover:bg-slate-50 rounded-md transition-colors">
                       <div className={cn(
                         "h-10 w-10 rounded-full flex items-center justify-center shrink-0",
-                        activity.type === 'in' ? 'bg-emerald-100 text-emerald-600' :
+                        activity.type === 'in' ? 'bg-primary/10 text-primary' :
                           activity.type === 'out' ? 'bg-blue-100 text-blue-600' :
                             'bg-amber-100 text-amber-600'
                       )}>

@@ -12,7 +12,7 @@ const StoreMapComponent = dynamic(
     loading: () => (
       <div className="h-full flex items-center justify-center bg-slate-50">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600 mx-auto mb-2" />
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
           <p className="text-sm text-slate-500">Loading map...</p>
         </div>
       </div>

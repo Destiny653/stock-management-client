@@ -104,7 +104,7 @@ export default function PurchaseOrders() {
       cell: (po) => (
         <Link
           href={createPageUrl(`PurchaseOrderDetail?id=${po.id}`)}
-          className="font-medium text-slate-900 hover:text-emerald-600"
+          className="font-medium text-slate-900 hover:text-primary"
         >
           {po.po_number}
         </Link>
@@ -202,7 +202,7 @@ export default function PurchaseOrders() {
         subtitle={t('allPurchaseOrders')}
       >
         <Link href={createPageUrl("CreatePurchaseOrder")}>
-          <Button className="bg-emerald-600 hover:bg-emerald-700">
+          <Button className="bg-primary hover:bg-primary/90">
             <Plus className="h-4 w-4 mr-2" />
             {t('createNewPO')}
           </Button>

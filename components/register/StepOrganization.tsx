@@ -18,14 +18,18 @@ export default function StepOrganization({ onNext, onBack, initialData }: StepOr
         name: initialData?.name || '',
         code: initialData?.code || '',
         phone: initialData?.phone || '',
-        website: initialData?.website || ''
+        email: initialData?.email || '',
+        website: initialData?.website || '',
+        description: initialData?.description || ''
     });
 
     const handleNext = () => {
         const name = formData.name.trim();
         const code = formData.code.trim().toUpperCase();
         const phone = formData.phone?.trim() || '';
+        const email = formData.email?.trim().toLowerCase() || '';
         const website = formData.website?.trim() || '';
+        const description = formData.description?.trim() || '';
 
         // Validate name
         if (!name) {
@@ -35,6 +39,15 @@ export default function StepOrganization({ onNext, onBack, initialData }: StepOr
         if (name.length < 3) {
             toast.error("Organization name must be at least 3 characters");
             return;
+        }
+
+        // Validate email if provided
+        if (email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                toast.error("Please enter a valid organization email address");
+                return;
+            }
         }
 
         // Validate code format (alphanumeric only, 3-10 chars)
@@ -70,7 +83,9 @@ export default function StepOrganization({ onNext, onBack, initialData }: StepOr
             name,
             code,
             phone: phone || null,
-            website: website || null
+            email: email || null,
+            website: website || null,
+            description: description || null
         });
     };
 
@@ -78,7 +93,7 @@ export default function StepOrganization({ onNext, onBack, initialData }: StepOr
         <div className="space-y-6">
             <div className="text-center mb-6">
                 <h2 className="text-xl font-semibold flex items-center justify-center gap-2">
-                    <Building2 className="h-5 w-5 text-emerald-600" />
+                    <Building2 className="h-5 w-5 text-primary" />
                     Organization Details
                 </h2>
                 <p className="text-sm text-slate-500">
@@ -117,6 +132,16 @@ export default function StepOrganization({ onNext, onBack, initialData }: StepOr
                     />
                 </div>
                 <div className="space-y-2">
+                    <Label htmlFor="orgEmail">Organization Email (Optional)</Label>
+                    <Input
+                        id="orgEmail"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                        placeholder="contact@acme.com"
+                    />
+                </div>
+                <div className="space-y-2">
                     <Label htmlFor="orgWebsite">Website (Optional)</Label>
                     <Input
                         id="orgWebsite"
@@ -125,13 +150,22 @@ export default function StepOrganization({ onNext, onBack, initialData }: StepOr
                         placeholder="https://acme.com"
                     />
                 </div>
+                <div className="space-y-2">
+                    <Label htmlFor="orgDescription">Description (Optional)</Label>
+                    <Input
+                        id="orgDescription"
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                        placeholder="What does your company do?"
+                    />
+                </div>
             </div>
 
             <div className="flex gap-3">
                 <Button variant="outline" onClick={onBack} className="flex-1">
                     <ArrowLeft className="mr-2 h-4 w-4" /> Back
                 </Button>
-                <Button onClick={handleNext} className="flex-1 bg-emerald-600 hover:bg-emerald-700">
+                <Button onClick={handleNext} className="flex-1 bg-primary hover:bg-primary/90">
                     Next <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
             </div>

@@ -41,9 +41,9 @@ function useSafeLanguage() {
 
 const paymentStatusColors: Record<string, string> = {
     pending: "bg-amber-100 text-amber-700",
-    confirmed: "bg-emerald-100 text-emerald-700",
-    failed: "bg-rose-100 text-rose-700",
-    refunded: "bg-slate-100 text-slate-600"
+    confirmed: "bg-primary/10 text-primary",
+    failed: "bg-destructive/10 text-destructive",
+    refunded: "bg-muted text-muted-foreground"
 };
 
 export default function VendorPayments() {
@@ -118,7 +118,7 @@ export default function VendorPayments() {
             cell: (payment) => (
                 <Link
                     href={createPageUrl(`VendorDetail?id=${payment.vendor_id}`)}
-                    className="font-medium text-slate-900 hover:text-emerald-600"
+                    className="font-medium text-foreground hover:text-primary"
                 >
                     {payment.vendor_name}
                 </Link>
@@ -131,17 +131,17 @@ export default function VendorPayments() {
         },
         {
             header: t('amount'),
-            className: 'font-bold text-emerald-600',
+            className: 'font-bold text-primary',
             cell: (payment) => `$${payment.amount?.toLocaleString()}`
         },
         {
             header: t('method'),
-            className: 'capitalize text-slate-600',
+            className: 'capitalize text-muted-foreground',
             cell: (payment) => payment.payment_method?.replace('_', ' ')
         },
         {
             header: t('reference'),
-            className: 'text-slate-600 font-mono text-sm',
+            className: 'text-muted-foreground font-mono text-sm',
             cell: (payment) => payment.reference_number || '-'
         },
         {
@@ -154,7 +154,7 @@ export default function VendorPayments() {
         },
         {
             header: t('confirmedBy'),
-            className: 'text-sm text-slate-500',
+            className: 'text-sm text-muted-foreground',
             cell: (payment) => payment.confirmed_by || '-'
         },
         {
@@ -163,7 +163,7 @@ export default function VendorPayments() {
                 payment.status === 'pending' ? (
                     <Button
                         size="sm"
-                        className="bg-emerald-600 hover:bg-emerald-700"
+                        className="bg-primary hover:bg-primary/90"
                         onClick={() => handleConfirmPayment(payment)}
                         disabled={confirmPaymentMutation.isPending}
                     >
@@ -217,8 +217,8 @@ export default function VendorPayments() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('paymentManagement')}</h1>
-                    <p className="text-slate-500 mt-1">{t('reviewConfirmPayments')}</p>
+                    <h1 className="text-2xl font-bold text-foreground tracking-tight">{t('paymentManagement')}</h1>
+                    <p className="text-muted-foreground mt-1">{t('reviewConfirmPayments')}</p>
                 </div>
             </div>
 
@@ -228,11 +228,11 @@ export default function VendorPayments() {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-slate-500">{t('totalCollected')}</p>
-                                <p className="text-2xl font-bold text-slate-900">${stats.confirmed.toLocaleString()}</p>
+                                <p className="text-sm text-muted-foreground">{t('totalCollected')}</p>
+                                <p className="text-2xl font-bold text-foreground">${stats.confirmed.toLocaleString()}</p>
                             </div>
-                            <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                                <DollarSign className="h-5 w-5 text-emerald-600" />
+                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                <DollarSign className="h-5 w-5 text-primary" />
                             </div>
                         </div>
                     </CardContent>
@@ -241,7 +241,7 @@ export default function VendorPayments() {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-slate-500">{t('pendingAmount')}</p>
+                                <p className="text-sm text-muted-foreground">{t('pendingAmount')}</p>
                                 <p className="text-2xl font-bold text-amber-600">${stats.pending.toLocaleString()}</p>
                             </div>
                             <div className="h-10 w-10 rounded-full bg-amber-100 flex items-center justify-center">
@@ -254,11 +254,11 @@ export default function VendorPayments() {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-slate-500">{t('pendingReviews')}</p>
-                                <p className="text-2xl font-bold text-slate-900">{stats.pendingCount}</p>
+                                <p className="text-sm text-muted-foreground">{t('pendingReviews')}</p>
+                                <p className="text-2xl font-bold text-foreground">{stats.pendingCount}</p>
                             </div>
-                            <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
-                                <AlertTriangle className="h-5 w-5 text-slate-600" />
+                            <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
+                                <AlertTriangle className="h-5 w-5 text-muted-foreground" />
                             </div>
                         </div>
                     </CardContent>
@@ -267,11 +267,11 @@ export default function VendorPayments() {
                     <CardContent className="p-4">
                         <div className="flex items-center justify-between">
                             <div>
-                                <p className="text-sm text-slate-500">{t('totalPayments')}</p>
-                                <p className="text-2xl font-bold text-slate-900">{payments.length}</p>
+                                <p className="text-sm text-muted-foreground">{t('totalPayments')}</p>
+                                <p className="text-2xl font-bold text-foreground">{payments.length}</p>
                             </div>
-                            <div className="h-10 w-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                                <CreditCard className="h-5 w-5 text-emerald-600" />
+                            <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                                <CreditCard className="h-5 w-5 text-primary" />
                             </div>
                         </div>
                     </CardContent>
@@ -282,16 +282,16 @@ export default function VendorPayments() {
             <div>
                 <div className="flex flex-col sm:flex-row gap-4">
                     <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                             placeholder={t('searchByVendorReference')}
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 rounded-sm py-5 max-w-[60%] bg-white border-slate-200 focus:bg-white"
+                            className="pl-10 rounded-sm py-5 max-w-[60%] bg-background border-border focus:bg-background"
                         />
                     </div>
                     <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger className="w-40 bg-white rounded-sm py-5">
+                        <SelectTrigger className="w-40 bg-background rounded-sm py-5">
                             <SelectValue placeholder={t('status')} />
                         </SelectTrigger>
                         <SelectContent>
@@ -302,7 +302,7 @@ export default function VendorPayments() {
                         </SelectContent>
                     </Select>
                     <Select value={typeFilter} onValueChange={setTypeFilter}>
-                        <SelectTrigger className="w-40 bg-white rounded-sm py-5">
+                        <SelectTrigger className="w-40 bg-background rounded-sm py-5">
                             <SelectValue placeholder={t('paymentType')} />
                         </SelectTrigger>
                         <SelectContent>

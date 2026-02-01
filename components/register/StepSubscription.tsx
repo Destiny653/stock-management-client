@@ -108,7 +108,7 @@ export default function StepSubscription({ onNext, initialData }: StepSubscripti
                         <div
                             key={plan._id || plan.id || plan.code}
                             className={cn(
-                                "relative flex flex-col p-4 border-2 rounded-xl cursor-pointer transition-all hover:border-primary/50",
+                                "relative flex flex-col p-4 border-2 rounded-md cursor-pointer transition-all hover:border-primary/50",
                                 isSelected ? "border-primary bg-primary/5" : "border-border"
                             )}
                             onClick={() => setSelectedPlan(plan)}

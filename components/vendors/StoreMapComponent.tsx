@@ -62,7 +62,7 @@ const StoreMapComponent: React.FC<StoreMapComponentProps> = ({ vendors, center, 
                             <p className="text-sm text-slate-500">{vendor.address}</p>
                             <p className="text-sm text-slate-500">{vendor.city}, {vendor.country}</p>
                             <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)}>
-                                <Button size="sm" className="mt-2 w-full bg-emerald-600 hover:bg-emerald-700">
+                                <Button size="sm" className="mt-2 w-full bg-primary hover:bg-primary/90">
                                     {t('viewDetails')}
                                 </Button>
                             </Link>

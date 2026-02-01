@@ -34,7 +34,7 @@ interface ActivityTimelineProps {
 
 export default function ActivityTimeline({ activities = [] }: ActivityTimelineProps) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-6">
+    <div className="bg-white rounded-md border border-slate-200 p-6">
       <h3 className="text-lg font-semibold text-slate-900 mb-6">Recent Activity</h3>
 
       <div className="space-y-1">

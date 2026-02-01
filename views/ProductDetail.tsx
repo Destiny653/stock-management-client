@@ -187,13 +187,13 @@ export default function ProductDetail() {
   if (isLoading && productId) {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
   const statusColors: Record<string, string> = {
-    active: "bg-emerald-100 text-emerald-700",
+    active: "bg-primary/10 text-primary border-primary/20",
     low_stock: "bg-amber-100 text-amber-700",
     out_of_stock: "bg-rose-100 text-rose-700",
     discontinued: "bg-slate-100 text-slate-600"
@@ -209,7 +209,7 @@ export default function ProductDetail() {
       header: 'Type',
       cell: (m) => (
         <Badge variant="outline" className={cn(
-          m.type === 'in' && "bg-emerald-50 text-emerald-700",
+          m.type === 'in' && "bg-primary/10 text-primary",
           m.type === 'out' && "bg-blue-50 text-blue-700",
           m.type === 'adjustment' && "bg-amber-50 text-amber-700"
         )}>
@@ -221,7 +221,7 @@ export default function ProductDetail() {
       header: 'Quantity',
       className: 'font-medium',
       cell: (m) => (
-        <span className={cn(m.quantity > 0 ? "text-emerald-600" : "text-rose-600")}>
+        <span className={cn(m.quantity > 0 ? "text-primary" : "text-rose-600")}>
           {m.quantity > 0 ? '+' : ''}{m.quantity}
         </span>
       )
@@ -276,7 +276,7 @@ export default function ProductDetail() {
                 </Button>
               )}
               <Button
-                className="bg-emerald-600 hover:bg-emerald-700"
+                className="bg-primary hover:bg-primary/90"
                 onClick={handleSave}
                 disabled={createMutation.isPending || updateMutation.isPending}
               >
@@ -376,7 +376,7 @@ export default function ProductDetail() {
             </CardHeader>
             <CardContent>
               {formData.variants.reduce((acc, v) => acc + v.stock, 0) <= formData.reorder_point && formData.variants.reduce((acc, v) => acc + v.stock, 0) > 0 && (
-                <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-lg mb-4">
+                <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-md mb-4">
                   <AlertTriangle className="h-5 w-5 text-amber-600" />
                   <p className="text-sm text-amber-800">
                     Total stock is below reorder point. Consider creating a purchase order.
@@ -385,7 +385,7 @@ export default function ProductDetail() {
               )}
 
               {formData.variants.length === 0 ? (
-                <div className="text-center py-8 border-2 border-dashed rounded-xl">
+                <div className="text-center py-8 border-2 border-dashed rounded-md">
                   <p className="text-slate-500">No variants defined for this product</p>
                   {isEditing && (
                     <Button
@@ -405,7 +405,7 @@ export default function ProductDetail() {
               ) : (
                 <div className="space-y-4">
                   {formData.variants.map((variant, vIdx) => (
-                    <div key={vIdx} className="p-4 border rounded-xl bg-slate-50/50 space-y-4">
+                    <div key={vIdx} className="p-4 border rounded-md bg-slate-50/50 space-y-4">
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium">Variant #{vIdx + 1}</h4>
                         {isEditing && (
@@ -672,7 +672,7 @@ export default function ProductDetail() {
               <CardTitle>Product Image</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="aspect-square rounded-xl bg-slate-100 flex items-center justify-center overflow-hidden relative group">
+              <div className="aspect-square rounded-md bg-slate-100 flex items-center justify-center overflow-hidden relative group">
                 {formData.image_url ? (
                   <img
                     src={getImageUrl(formData.image_url)}
@@ -721,7 +721,7 @@ export default function ProductDetail() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-slate-600">Margin (Avg)</span>
-                  <span className="font-semibold text-emerald-600">
+                  <span className="font-semibold text-primary">
                     {formData.variants?.[0]?.cost_price > 0
                       ? `${(((formData.variants[0].unit_price - formData.variants[0].cost_price) / formData.variants[0].cost_price) * 100).toFixed(1)}%`
                       : '-'

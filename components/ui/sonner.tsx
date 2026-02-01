@@ -11,14 +11,14 @@ const Toaster = ({ ...props }: ToasterProps) => {
             toastOptions={{
                 classNames: {
                     toast:
-                        'group toast group-[.toaster]:bg-white group-[.toaster]:text-slate-950 group-[.toaster]:border-slate-200 group-[.toaster]:shadow-lg group-[.toaster]:rounded-xl dark:group-[.toaster]:bg-[#000032] dark:group-[.toaster]:text-slate-50 dark:group-[.toaster]:border-white/10',
-                    description: 'group-[.toast]:text-slate-500 dark:group-[.toast]:text-slate-400',
+                        'group toast group-[.toaster]:bg-popover group-[.toaster]:text-popover-foreground group-[.toaster]:border-border group-[.toaster]:shadow-lg group-[.toaster]:rounded-md',
+                    description: 'group-[.toast]:text-muted-foreground',
                     actionButton:
-                        'group-[.toast]:bg-[#0070FF] group-[.toast]:text-slate-50',
+                        'group-[.toast]:bg-primary group-[.toast]:text-primary-foreground',
                     cancelButton:
-                        'group-[.toast]:bg-slate-100 group-[.toast]:text-slate-500 dark:group-[.toast]:bg-slate-800 dark:group-[.toast]:text-slate-400',
-                    success: 'group-[.toast]:bg-emerald-50 group-[.toast]:text-emerald-700 group-[.toast]:border-emerald-200 dark:group-[.toast]:bg-emerald-500/10 dark:group-[.toast]:text-emerald-400 dark:group-[.toast]:border-emerald-500/20',
-                    error: 'group-[.toast]:bg-rose-50 group-[.toast]:text-rose-700 group-[.toast]:border-rose-200 dark:group-[.toast]:bg-rose-500/10 dark:group-[.toast]:text-rose-400 dark:group-[.toast]:border-rose-500/20',
+                        'group-[.toast]:bg-muted group-[.toast]:text-muted-foreground',
+                    success: 'group-[.toast]:bg-primary/10 group-[.toast]:text-primary group-[.toast]:border-primary/20 dark:group-[.toast]:bg-primary/20 dark:group-[.toast]:text-primary dark:group-[.toast]:border-primary/30',
+                    error: 'group-[.toast]:bg-destructive/10 group-[.toast]:text-destructive group-[.toast]:border-destructive/20',
                 },
             }}
             {...props}

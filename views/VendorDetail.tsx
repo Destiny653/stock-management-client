@@ -50,26 +50,153 @@ import { cn } from "@/lib/utils";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 
 const statusColors: Record<string, string> = {
-  active: "bg-primary/20 text-primary border-primary/20",
+  active: "bg-primary/10 text-primary border-primary/20",
   inactive: "bg-muted text-muted-foreground",
   pending: "bg-primary/10 text-primary border-primary/10 dashed border",
-  suspended: "bg-muted text-primary border-primary/40"
+  suspended: "bg-destructive/10 text-destructive border-destructive/40"
 };
 
 const paymentStatusColors: Record<string, string> = {
-  paid: "bg-primary/20 text-primary",
+  paid: "bg-primary/10 text-primary border-primary/20",
   pending: "bg-primary/10 text-primary dashed border",
   overdue: "bg-destructive/10 text-destructive",
-  confirmed: "bg-primary/20 text-primary",
+  confirmed: "bg-primary/10 text-primary border-primary/20",
   failed: "bg-destructive/10 text-destructive"
 };
 
 // ... (imports remain)
 
 export default function VendorDetail() {
-  // ... (hooks remain)
+  const searchParams = useSearchParams();
+  const vendorId = searchParams.get('id');
+  const queryClient = useQueryClient();
 
-  // ... (calculations remain)
+  // State
+  const [salesPeriod, setSalesPeriod] = useState<'daily' | 'weekly' | 'monthly' | 'yearly'>('monthly');
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [paymentForm, setPaymentForm] = useState<Partial<VendorPayment>>({
+    amount: 0,
+    payment_type: 'subscription',
+    payment_method: 'bank_transfer',
+    reference_number: '',
+    notes: '',
+    status: 'pending'
+  });
+
+  // Queries
+  const { data: vendor, isLoading: loadingVendor } = useQuery({
+    queryKey: ['vendor', vendorId],
+    queryFn: () => vendorId ? base44.entities.Vendor.get(vendorId) : Promise.reject('No ID'),
+    enabled: !!vendorId
+  });
+
+  const { data: vendorSales = [] } = useQuery({
+    queryKey: ['vendor-sales', vendorId],
+    queryFn: () => vendorId ? base44.entities.Sale.list({ vendor_id: vendorId }) : Promise.resolve([]),
+    enabled: !!vendorId
+  });
+
+  const { data: payments = [] } = useQuery({
+    queryKey: ['vendor-payments', vendorId],
+    queryFn: () => vendorId ? base44.entities.VendorPayment.list({ vendor_id: vendorId }) : Promise.resolve([]),
+    enabled: !!vendorId
+  });
+
+  const { data: linkedUser } = useQuery({
+    queryKey: ['user', vendor?.user_id],
+    queryFn: () => vendor?.user_id ? base44.entities.User.get(vendor.user_id) : Promise.resolve(null),
+    enabled: !!vendor?.user_id
+  });
+
+  const { data: location } = useQuery({
+    queryKey: ['location', vendor?.location_id],
+    queryFn: () => vendor?.location_id ? base44.entities.Location.get(vendor.location_id) : Promise.resolve(null),
+    enabled: !!vendor?.location_id
+  });
+
+  // Mutations
+  const confirmPaymentMutation = useMutation({
+    mutationFn: (payment: VendorPayment) => base44.entities.VendorPayment.update(payment.id, {
+      status: 'confirmed',
+      confirmed_by: 'Super Admin',
+      confirmed_date: new Date().toISOString()
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendor-payments', vendorId] });
+      toast.success("Payment confirmed successfully");
+    },
+    onError: () => toast.error("Failed to confirm payment")
+  });
+
+  const recordPaymentMutation = useMutation({
+    mutationFn: (data: Partial<VendorPayment>) => base44.entities.VendorPayment.create({
+      ...data,
+      vendor_id: vendorId as string,
+      created_at: new Date().toISOString(),
+      status: 'pending'
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendor-payments', vendorId] });
+      setIsPaymentDialogOpen(false);
+      setPaymentForm({
+        amount: 0,
+        payment_type: 'subscription',
+        payment_method: 'bank_transfer',
+        reference_number: '',
+        notes: '',
+        status: 'pending'
+      });
+      toast.success("Payment recorded successfully");
+    },
+    onError: () => toast.error("Failed to record payment")
+  });
+
+  // Handlers
+  const handleConfirmPayment = (payment: VendorPayment) => {
+    confirmPaymentMutation.mutate(payment);
+  };
+
+  const handleRecordPayment = () => {
+    if (!vendorId) return;
+    if (!paymentForm.amount || paymentForm.amount <= 0) {
+      toast.error("Please enter a valid amount");
+      return;
+    }
+    recordPaymentMutation.mutate(paymentForm);
+  };
+
+  // Calculations
+  const salesStats = useMemo(() => {
+    const now = new Date();
+    const todayStr = format(now, 'yyyy-MM-dd');
+    const startWeek = startOfWeek(now);
+    const startMonth = startOfMonth(now);
+    const startYear = startOfYear(now);
+
+    const filterSales = (startDate: Date) => {
+      const filtered = vendorSales.filter(s => new Date(s.created_at) >= startDate);
+      return {
+        total: filtered.reduce((acc, s) => acc + (s.total || 0), 0),
+        count: filtered.length
+      };
+    };
+
+    const dailySales = vendorSales.filter(s => s.created_at.startsWith(todayStr));
+
+    return {
+      daily: {
+        total: dailySales.reduce((acc, s) => acc + (s.total || 0), 0),
+        count: dailySales.length
+      },
+      weekly: filterSales(startWeek),
+      monthly: filterSales(startMonth),
+      yearly: filterSales(startYear),
+      all: {
+        total: vendorSales.reduce((acc, s) => acc + (s.total || 0), 0),
+        count: vendorSales.length
+      }
+    };
+  }, [vendorSales]);
 
   const paymentColumns: Column<VendorPayment>[] = [
     {
@@ -125,7 +252,29 @@ export default function VendorDetail() {
     }
   ];
 
-  // ... (salesColumns remain)
+  const salesColumns: Column<Sale>[] = [
+    {
+      header: 'Date',
+      cell: (s) => format(new Date(s.created_at), 'MMM d, yyyy')
+    },
+    {
+      header: 'Sale ID',
+      cell: (s) => s.sale_number
+    },
+    {
+      header: 'Items',
+      cell: (s) => s.items.length
+    },
+    {
+      header: 'Total',
+      className: 'font-medium',
+      cell: (s) => `$${s.total?.toLocaleString() || '0'}`
+    },
+    {
+      header: 'Status',
+      cell: (s) => <Badge variant="outline">{s.status}</Badge>
+    }
+  ];
 
   // Chart data
   const chartData = useMemo(() => {
@@ -145,9 +294,7 @@ export default function VendorDetail() {
     return last30Days;
   }, [vendorSales]);
 
-  // ... (mutations remain)
 
-  // ... (handlers remain)
 
   if (loadingVendor) {
     return (
@@ -179,7 +326,7 @@ export default function VendorDetail() {
             </Button>
           </Link>
           <div className="flex items-center gap-4">
-            <div className="h-14 w-14 rounded-xl bg-primary flex items-center justify-center text-primary-foreground font-bold text-xl">
+            <div className="h-14 w-14 rounded-md bg-primary flex items-center justify-center text-white font-bold text-xl">
               {vendor.store_name?.charAt(0) || 'V'}
             </div>
             <div>
@@ -217,7 +364,7 @@ export default function VendorDetail() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label>Payment Type</Label>
-                    <Select value={paymentForm.payment_type} onValueChange={(v) => setPaymentForm(prev => ({ ...prev, payment_type: v }))}>
+                    <Select value={paymentForm.payment_type} onValueChange={(v) => setPaymentForm(prev => ({ ...prev, payment_type: v as VendorPayment['payment_type'] }))}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -230,7 +377,7 @@ export default function VendorDetail() {
                   </div>
                   <div className="space-y-2">
                     <Label>Payment Method</Label>
-                    <Select value={paymentForm.payment_method} onValueChange={(v) => setPaymentForm(prev => ({ ...prev, payment_method: v }))}>
+                    <Select value={paymentForm.payment_method} onValueChange={(v) => setPaymentForm(prev => ({ ...prev, payment_method: v as VendorPayment['payment_method'] }))}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
@@ -325,15 +472,15 @@ export default function VendorDetail() {
                 <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#2454FF" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#2454FF" stopOpacity={0} />
+                      <stop offset="5%" stopColor="var(--primary)" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#94a3b8" />
-                  <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="var(--muted-foreground)" />
+                  <YAxis tick={{ fontSize: 12 }} stroke="var(--muted-foreground)" />
                   <Tooltip />
-                  <Area type="monotone" dataKey="sales" stroke="#2454FF" fill="url(#salesGradient)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="sales" stroke="var(--primary)" fill="url(#salesGradient)" strokeWidth={2} />
                 </AreaChart>
               </ResponsiveContainer>
             </div>

@@ -103,7 +103,7 @@ export default function StepLocation({ onNext, onBack, initialData }: StepLocati
                 </div>
             </div>
 
-            <div className="border rounded-xl overflow-hidden p-1">
+            <div className="border rounded-md overflow-hidden p-1">
                 <VendorLocationPicker
                     latitude={locationData.latitude}
                     longitude={locationData.longitude}

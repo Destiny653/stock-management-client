@@ -57,8 +57,8 @@ const OrganizationMap = dynamic(
     {
         ssr: false,
         loading: () => (
-            <div className="h-full w-full flex items-center justify-center bg-slate-50 min-h-[300px]">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <div className="h-full w-full flex items-center justify-center bg-muted/30 min-h-[300px]">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         )
     }
@@ -67,10 +67,10 @@ const OrganizationMap = dynamic(
 // Payment status colors
 const paymentStatusColors: Record<string, string> = {
     pending: "bg-amber-100 text-amber-700",
-    completed: "bg-blue-100 text-blue-700",
-    failed: "bg-rose-100 text-rose-700",
-    refunded: "bg-blue-100 text-blue-700",
-    cancelled: "bg-slate-100 text-slate-600"
+    completed: "bg-primary/10 text-primary",
+    failed: "bg-destructive/10 text-destructive",
+    refunded: "bg-primary/10 text-primary",
+    cancelled: "bg-muted text-muted-foreground"
 };
 
 const subscriptionPlanPricing: Record<string, { monthly: number; yearly: number; maxVendors: number; maxUsers: number }> = {
@@ -88,10 +88,10 @@ function useSafeLanguage() {
 }
 
 const statusColors: Record<string, string> = {
-    active: "bg-blue-100 text-blue-700",
-    inactive: "bg-slate-100 text-slate-600",
+    active: "bg-primary/10 text-primary",
+    inactive: "bg-muted text-muted-foreground",
     pending: "bg-amber-100 text-amber-700",
-    suspended: "bg-rose-100 text-rose-700"
+    suspended: "bg-destructive/10 text-destructive"
 };
 
 import { useRouter, useSearchParams } from "next/navigation";
@@ -116,8 +116,8 @@ export default function OrganizationMembers() {
         email: '',
         password: '',
         phone: '',
-        role: 'staff',
-        user_type: 'staff',
+        role: 'user',
+        user_type: 'business-staff',
         department: '',
         job_title: '',
         // For vendors
@@ -176,18 +176,15 @@ export default function OrganizationMembers() {
     });
 
     const roleColors: Record<string, string> = {
-        owner: "bg-violet-100 text-violet-700 border-violet-200",
-        admin: "bg-blue-100 text-blue-700 border-blue-200",
-        manager: "bg-emerald-100 text-emerald-700 border-emerald-200",
-        staff: "bg-slate-100 text-slate-700 border-slate-200",
-        viewer: "bg-amber-100 text-amber-700 border-amber-200",
+        admin: "bg-primary/10 text-primary border-primary/20",
+        manager: "bg-primary/10 text-primary border-primary/20",
+        vendor: "bg-purple-100 text-purple-700 border-purple-200",
+        user: "bg-muted text-muted-foreground border-border",
     };
 
     const typeColors: Record<string, string> = {
-        admin: "bg-blue-50 text-blue-600 border-blue-100",
-        vendor: "bg-purple-50 text-purple-600 border-purple-100",
-        manager: "bg-emerald-50 text-emerald-600 border-emerald-100",
-        staff: "bg-slate-50 text-slate-600 border-slate-100",
+        'platform-staff': "bg-primary/5 text-primary border-primary/10",
+        'business-staff': "bg-primary/10 text-primary border-primary/20",
     };
 
     const queryClient = useQueryClient(); // Renamed from mutationClient for consistency
@@ -197,13 +194,12 @@ export default function OrganizationMembers() {
         queryFn: () => base44.auth.me(),
     });
 
-    const isSuperAdmin = currentUser?.role === 'admin' || currentUser?.role === 'owner';
+    const isSuperAdmin = currentUser?.user_type === 'platform-staff';
     const isManagerOrAdmin = useMemo(() => {
         if (!currentUser) return false;
         return isSuperAdmin ||
             ['manager'].includes(currentUser.role) ||
-            currentUser.user_type === 'admin' ||
-            currentUser.user_type === 'manager';
+            currentUser.user_type === 'platform-staff';
     }, [currentUser, isSuperAdmin]);
 
     const { data: organization, isLoading: loadingOrg } = useQuery({
@@ -293,7 +289,7 @@ export default function OrganizationMembers() {
                     organization_id: organizationId,
                     username: data.email,
                     status: 'active',
-                    user_type: (data.role === 'viewer' ? 'staff' : data.role) as any // Map role to user_type appropriately
+                    user_type: 'business-staff' as any // Default to business-staff for org members
                 });
             } else {
                 // For vendors, create a User account first (stores contact info)
@@ -304,8 +300,8 @@ export default function OrganizationMembers() {
                     phone: data.phone,
                     organization_id: organizationId,
                     username: data.email,
-                    role: 'staff',
-                    user_type: 'vendor',
+                    role: 'vendor',
+                    user_type: 'business-staff',
                     status: 'active'
                 });
 
@@ -329,8 +325,8 @@ export default function OrganizationMembers() {
                 email: '',
                 password: '',
                 phone: '',
-                role: 'staff',
-                user_type: 'staff',
+                role: 'user',
+                user_type: 'business-staff',
                 department: '',
                 job_title: '',
                 store_name: '',
@@ -377,8 +373,8 @@ export default function OrganizationMembers() {
                 email: '',
                 password: '',
                 phone: '',
-                role: 'staff',
-                user_type: 'staff',
+                role: 'user',
+                user_type: 'business-staff',
                 department: '',
                 job_title: '',
                 store_name: '',
@@ -420,8 +416,8 @@ export default function OrganizationMembers() {
                 email: member.email || '',
                 password: '', // Don't pre-fill password
                 phone: member.phone || '',
-                role: member.role || 'staff',
-                user_type: member.user_type || 'staff',
+                role: member.role || 'user',
+                user_type: member.user_type || 'business-staff',
                 department: member.department || '',
                 job_title: member.job_title || '',
                 store_name: '',
@@ -435,8 +431,8 @@ export default function OrganizationMembers() {
                 email: linkedUser?.email || '',
                 password: '',
                 phone: linkedUser?.phone || '',
-                role: 'staff',
-                user_type: 'vendor',
+                role: 'user',
+                user_type: 'business-staff',
                 department: '',
                 job_title: '',
                 store_name: member.store_name || '',
@@ -605,12 +601,12 @@ export default function OrganizationMembers() {
             header: 'Vendor',
             cell: (vendor) => (
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-lg bg-linear-to-br from-violet-500 to-violet-600 flex items-center justify-center text-white font-semibold">
+                    <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center text-primary font-semibold">
                         {vendor.store_name?.charAt(0) || 'V'}
                     </div>
                     <div>
-                        <p className="font-medium text-slate-900">{vendor.store_name}</p>
-                        <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.full_name || 'No contact'}</p>
+                        <p className="font-medium text-foreground">{vendor.store_name}</p>
+                        <p className="text-sm text-muted-foreground">{userMap[vendor.user_id!]?.full_name || 'No contact'}</p>
                     </div>
                 </div>
             )
@@ -620,7 +616,7 @@ export default function OrganizationMembers() {
             cell: (vendor) => (
                 <div className="text-sm">
                     <div className="flex items-center gap-1"><Mail className="h-3 w-3" /> {userMap[vendor.user_id!]?.email || 'No email linked'}</div>
-                    {userMap[vendor.user_id!]?.phone && <div className="flex items-center gap-1 text-slate-500"><Phone className="h-3 w-3" /> {userMap[vendor.user_id!]?.phone}</div>}
+                    {userMap[vendor.user_id!]?.phone && <div className="flex items-center gap-1 text-muted-foreground"><Phone className="h-3 w-3" /> {userMap[vendor.user_id!]?.phone}</div>}
                 </div>
             )
         },
@@ -628,7 +624,7 @@ export default function OrganizationMembers() {
             header: 'Location',
             cell: (vendor) => (
                 vendor.location_id && locationMap[vendor.location_id] ? (
-                    <div className="flex items-center gap-1 text-slate-600">
+                    <div className="flex items-center gap-1 text-muted-foreground">
                         <MapPin className="h-3 w-3" /> {locationMap[vendor.location_id].city}, {locationMap[vendor.location_id].country}
                     </div>
                 ) : '-'
@@ -648,15 +644,15 @@ export default function OrganizationMembers() {
             className: 'w-12',
             cell: (vendor) => (
                 <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600" onClick={(e) => { e.stopPropagation(); handleViewDetails(vendor, 'vendor'); }}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={(e) => { e.stopPropagation(); handleViewDetails(vendor, 'vendor'); }}>
                         <Eye className="h-4 w-4" />
                     </Button>
                     {isManagerOrAdmin && (
                         <>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-indigo-600" onClick={(e) => handleEditMember(e, vendor, 'vendor')}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={(e) => handleEditMember(e, vendor, 'vendor')}>
                                 <Edit2 className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600" onClick={(e) => handleDeleteMember(e, vendor.id, 'vendor')}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={(e) => handleDeleteMember(e, vendor.id, 'vendor')}>
                                 <Trash2 className="h-4 w-4" />
                             </Button>
                         </>
@@ -671,25 +667,25 @@ export default function OrganizationMembers() {
             header: 'User',
             cell: (user) => (
                 <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-semibold">
+                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-semibold">
                         {user.full_name?.charAt(0) || 'U'}
                     </div>
                     <div>
-                        <p className="font-medium text-slate-900">{user.full_name}</p>
-                        <p className="text-sm text-slate-500">{user.job_title || 'Staff'}</p>
+                        <p className="font-medium text-foreground">{user.full_name}</p>
+                        <p className="text-sm text-muted-foreground">{user.job_title || 'Staff'}</p>
                     </div>
                 </div>
             )
         },
         {
             header: 'Email',
-            className: 'text-slate-600',
+            className: 'text-muted-foreground',
             cell: (user) => user.email
         },
         {
             header: 'Role',
             cell: (user) => (
-                <Badge variant="outline" className={cn("capitalize font-semibold", roleColors[user.role] || "bg-slate-100")}>
+                <Badge variant="outline" className={cn("capitalize font-semibold", roleColors[user.role] || "bg-muted text-muted-foreground border-border")}>
                     {user.role || 'user'}
                 </Badge>
             )
@@ -697,14 +693,14 @@ export default function OrganizationMembers() {
         {
             header: 'Type',
             cell: (user) => (
-                <div className={cn("text-xs font-medium px-2 py-1 rounded-md border inline-block capitalize", typeColors[user.user_type] || "bg-slate-50")}>
-                    {user.user_type || 'staff'}
+                <div className={cn("text-xs font-medium px-2 py-1 rounded-md border inline-block capitalize", typeColors[user.user_type] || "bg-muted/50 text-muted-foreground border-border")}>
+                    {user.user_type || 'business-staff'}
                 </div>
             )
         },
         {
             header: 'Joined',
-            className: 'text-slate-500',
+            className: 'text-muted-foreground',
             cell: (user) => (user.created_at ? format(new Date(user.created_at), 'MMM d, yyyy') : '-')
         },
         {
@@ -712,16 +708,16 @@ export default function OrganizationMembers() {
             className: 'w-12',
             cell: (user) => (
                 <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-blue-600" onClick={(e) => { e.stopPropagation(); handleViewDetails(user, 'user'); }}>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={(e) => { e.stopPropagation(); handleViewDetails(user, 'user'); }}>
                         <Eye className="h-4 w-4" />
                     </Button>
                     {isManagerOrAdmin && (
                         <>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-indigo-600" onClick={(e) => handleEditMember(e, user, 'user')}>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-primary" onClick={(e) => handleEditMember(e, user, 'user')}>
                                 <Edit2 className="h-4 w-4" />
                             </Button>
                             {user.id !== currentUser?.id && (
-                                <Button variant="ghost" size="icon" className="h-8 w-8 text-slate-400 hover:text-rose-600" onClick={(e) => handleDeleteMember(e, user.id, 'user')}>
+                                <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive" onClick={(e) => handleDeleteMember(e, user.id, 'user')}>
                                     <Trash2 className="h-4 w-4" />
                                 </Button>
                             )}
@@ -738,7 +734,7 @@ export default function OrganizationMembers() {
             cell: (payment) => (
                 <>
                     <div className="font-mono text-sm font-medium">{payment.invoice_number}</div>
-                    <div className="text-xs text-slate-500">{payment.payment_type}</div>
+                    <div className="text-xs text-muted-foreground">{payment.payment_type}</div>
                 </>
             )
         },
@@ -779,7 +775,7 @@ export default function OrganizationMembers() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleConfirmPayment(payment)}
-                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-8 px-2"
+                                className="text-primary hover:text-primary-foreground hover:bg-primary h-8 px-2"
                             >
                                 Confirm
                             </Button>
@@ -787,14 +783,14 @@ export default function OrganizationMembers() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleRejectPayment(payment)}
-                                className="text-rose-600 hover:text-rose-700 hover:bg-rose-50 h-8 px-2"
+                                className="text-destructive hover:text-destructive-foreground hover:bg-destructive h-8 px-2"
                             >
                                 Reject
                             </Button>
                         </>
                     )}
                     {payment.status === 'completed' && (
-                        <Button variant="ghost" size="sm" className="h-8 px-2 text-slate-500">
+                        <Button variant="ghost" size="sm" className="h-8 px-2 text-muted-foreground">
                             Download
                         </Button>
                     )}
@@ -905,7 +901,7 @@ export default function OrganizationMembers() {
     if (loadingOrg) {
         return (
             <div className="flex items-center justify-center h-96">
-                <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
         );
     }
@@ -933,7 +929,7 @@ export default function OrganizationMembers() {
                         </Button>
                     </Link>
                     <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 rounded-xl bg-linear-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white font-bold text-xl">
+                        <div className="h-12 w-12 rounded-md bg-linear-to-br from-primary to-primary/80 flex items-center justify-center text-white font-bold text-xl">
                             {organization?.name?.charAt(0) || 'O'}
                         </div>
                         <div>
@@ -954,14 +950,14 @@ export default function OrganizationMembers() {
                             if (!open) {
                                 setEditingMemberId(null);
                                 setMemberForm({
-                                    full_name: '', email: '', password: '', phone: '', role: 'staff',
-                                    user_type: 'staff', department: '', job_title: '', store_name: '',
+                                    full_name: '', email: '', password: '', phone: '', role: 'user',
+                                    user_type: 'business-staff', department: '', job_title: '', store_name: '',
                                     location_id: '', commission_rate: 0,
                                 });
                             }
                         }}>
                             <DialogTrigger asChild>
-                                <Button className="bg-emerald-600 hover:bg-emerald-700">
+                                <Button className="bg-primary hover:bg-primary/90">
                                     <UserPlus className="h-4 w-4 mr-2" /> Add Member
                                 </Button>
                             </DialogTrigger>
@@ -1074,7 +1070,7 @@ export default function OrganizationMembers() {
                                 </div>
                                 <DialogFooter>
                                     <Button variant="outline" onClick={() => setAddMemberDialogOpen(false)}>Cancel</Button>
-                                    <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleAddMember} disabled={createMemberMutation.isPending || updateMemberMutation.isPending}>
+                                    <Button className="bg-primary hover:bg-primary/90" onClick={handleAddMember} disabled={createMemberMutation.isPending || updateMemberMutation.isPending}>
                                         {(createMemberMutation.isPending || updateMemberMutation.isPending) ? (
                                             <Loader2 className="h-4 w-4 animate-spin mr-2" />
                                         ) : (
@@ -1098,7 +1094,7 @@ export default function OrganizationMembers() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 <Card>
                     <CardContent className="p-4 py-12 flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-violet-100 flex items-center justify-center">
+                        <div className="h-10 w-10 rounded-md bg-violet-100 flex items-center justify-center">
                             <Store className="h-5 w-5 text-violet-600" />
                         </div>
                         <div>
@@ -1109,7 +1105,7 @@ export default function OrganizationMembers() {
                 </Card>
                 <Card>
                     <CardContent className="p-4 py-12 flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center">
+                        <div className="h-10 w-10 rounded-md bg-blue-100 flex items-center justify-center">
                             <Users className="h-5 w-5 text-blue-600" />
                         </div>
                         <div>
@@ -1120,8 +1116,8 @@ export default function OrganizationMembers() {
                 </Card>
                 <Card>
                     <CardContent className="p-4 py-12 flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-                            <MapPin className="h-5 w-5 text-emerald-600" />
+                        <div className="h-10 w-10 rounded-md bg-primary/10 flex items-center justify-center">
+                            <MapPin className="h-5 w-5 text-primary" />
                         </div>
                         <div>
                             <p className="text-xl font-bold text-slate-900">{mapMarkers.length - (organization?.location_id ? 1 : 0)} (+1 HQ)</p>
@@ -1131,7 +1127,7 @@ export default function OrganizationMembers() {
                 </Card>
                 <Card>
                     <CardContent className="p-4 py-12 flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-lg bg-amber-100 flex items-center justify-center">
+                        <div className="h-10 w-10 rounded-md bg-amber-100 flex items-center justify-center">
                             <DollarSign className="h-5 w-5 text-amber-600" />
                         </div>
                         <div>
@@ -1148,7 +1144,7 @@ export default function OrganizationMembers() {
             {/* Tabs */}
             <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                    <TabsList className="bg-slate-100">
+                    <TabsList className="bg-muted">
                         <TabsTrigger value="vendors" className="flex items-center gap-2">
                             <Store className="h-4 w-4" /> Vendors ({orgVendors.length})
                         </TabsTrigger>
@@ -1210,7 +1206,7 @@ export default function OrganizationMembers() {
                                     onMarkerClick={(marker) => marker.type === 'vendor' ? handleViewDetails(marker, 'vendor') : null}
                                 />
                             ) : (
-                                <div className="flex flex-col items-center justify-center h-full bg-slate-50">
+                                <div className="flex flex-col items-center justify-center h-full bg-muted/30">
                                     <MapPin className="h-12 w-12 text-slate-300 mb-3" />
                                     <p className="text-slate-600">No locations found</p>
                                     <p className="text-sm text-slate-500">Add location data to organization or vendors to see them on the map</p>
@@ -1227,14 +1223,14 @@ export default function OrganizationMembers() {
                         <Card>
                             <CardHeader className="flex flex-row items-center justify-between pb-2">
                                 <CardTitle className="text-lg font-bold flex items-center gap-2">
-                                    <CreditCard className="h-5 w-5 text-emerald-600" />
+                                    <CreditCard className="h-5 w-5 text-primary" />
                                     Current Plan
                                 </CardTitle>
                                 <Badge className={cn(
                                     "capitalize",
                                     organization?.subscription_plan === 'enterprise' && "bg-violet-100 text-violet-700",
                                     organization?.subscription_plan === 'business' && "bg-blue-100 text-blue-700",
-                                    (!organization?.subscription_plan || organization?.subscription_plan === 'starter') && "bg-slate-100 text-slate-700"
+                                    (!organization?.subscription_plan || organization?.subscription_plan === 'starter') && "bg-muted text-muted-foreground"
                                 )}>
                                     {organization?.subscription_plan || 'starter'}
                                 </Badge>
@@ -1267,7 +1263,7 @@ export default function OrganizationMembers() {
                                         </div>
                                         <div className="flex justify-between text-sm">
                                             <span className="text-slate-600">Total Paid</span>
-                                            <span className="font-medium text-emerald-600">
+                                            <span className="font-medium text-primary">
                                                 ${subscriptionStats?.totalPaid.toLocaleString()}
                                             </span>
                                         </div>
@@ -1300,7 +1296,7 @@ export default function OrganizationMembers() {
                                             {orgVendors.length} / {organization?.max_vendors || 10}
                                         </span>
                                     </div>
-                                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                                    <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-violet-500 rounded-full"
                                             style={{ width: `${Math.min((orgVendors.length / (organization?.max_vendors || 10)) * 100, 100)}%` }}
@@ -1315,7 +1311,7 @@ export default function OrganizationMembers() {
                                             {orgUsers.length} / {organization?.max_users || 5}
                                         </span>
                                     </div>
-                                    <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
+                                    <div className="h-2 w-full bg-muted rounded-full overflow-hidden">
                                         <div
                                             className="h-full bg-blue-500 rounded-full"
                                             style={{ width: `${Math.min((orgUsers.length / (organization?.max_users || 5)) * 100, 100)}%` }}
@@ -1323,7 +1319,7 @@ export default function OrganizationMembers() {
                                     </div>
                                 </div>
 
-                                <div className="bg-slate-50 p-4 rounded-lg text-sm text-slate-600">
+                                <div className="bg-muted/50 p-4 rounded-md text-sm text-muted-foreground">
                                     <p>Need more capacity? Upgrade your plan to increase limits for vendors, users, and storage.</p>
                                 </div>
                             </CardContent>
@@ -1351,7 +1347,7 @@ export default function OrganizationMembers() {
                                                 setIsPaymentDialogOpen(true);
                                             }
                                         }}
-                                        className="bg-emerald-600 hover:bg-emerald-700"
+                                        className="bg-primary hover:bg-primary/90"
                                         size="sm"
                                     >
                                         <Plus className="h-4 w-4 mr-2" />
@@ -1377,7 +1373,7 @@ export default function OrganizationMembers() {
                         <CardHeader className="pb-4 border-b border-slate-100">
                             <div className="flex items-center justify-between">
                                 <CardTitle className="text-lg font-medium text-slate-900 flex items-center gap-2">
-                                    <CreditCard className="h-5 w-5 text-emerald-600" /> Subscription & Billing
+                                    <CreditCard className="h-5 w-5 text-primary" /> Subscription & Billing
                                 </CardTitle>
                                 <Button variant="outline" size="sm">Manage Plan</Button>
                             </div>
@@ -1388,16 +1384,16 @@ export default function OrganizationMembers() {
                                 <div className="space-y-6">
                                     <div>
                                         <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-4">Current Subscription</h3>
-                                        <div className="flex items-center gap-4 p-4 bg-emerald-50 rounded-xl border border-emerald-100">
-                                            <div className="h-14 w-14 rounded-full bg-emerald-100 flex items-center justify-center border-4 border-white shadow-sm">
-                                                <div className="font-bold text-emerald-700 text-xl uppercase">
+                                        <div className="flex items-center gap-4 p-4 bg-primary/5 rounded-md border border-primary/10">
+                                            <div className="h-14 w-14 rounded-full bg-primary/10 flex items-center justify-center border-4 border-white">
+                                                <div className="font-bold text-primary text-xl uppercase">
                                                     {organization?.subscription_plan?.charAt(0) || 'S'}
                                                 </div>
                                             </div>
                                             <div className="flex-1">
                                                 <div className="flex items-center justify-between">
                                                     <h3 className="font-bold text-lg text-slate-900 capitalize">{organization?.subscription_plan || 'Starter'} Plan</h3>
-                                                    <Badge className="bg-emerald-600 text-white border-none capitalize">
+                                                    <Badge className="bg-primary text-white border-none capitalize">
                                                         {organization?.status || 'Active'}
                                                     </Badge>
                                                 </div>
@@ -1411,17 +1407,17 @@ export default function OrganizationMembers() {
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-4">
-                                        <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
+                                        <div className="p-4 bg-muted/30 rounded-md border border-border">
                                             <p className="text-xs font-medium text-slate-500 uppercase mb-1">Start Date</p>
                                             <div className="flex items-center gap-2 text-slate-700 font-medium">
                                                 <Calendar className="h-4 w-4 text-slate-400" />
                                                 {organization?.created_at ? format(new Date(organization.created_at), 'MMM dd, yyyy') : '-'}
                                             </div>
                                         </div>
-                                        <div className="p-4 bg-slate-50 rounded-lg border border-slate-100">
+                                        <div className="p-4 bg-muted/30 rounded-md border border-border">
                                             <p className="text-xs font-medium text-slate-500 uppercase mb-1">Renewal Date</p>
                                             <div className="flex items-center gap-2 text-slate-700 font-medium">
-                                                <Calendar className="h-4 w-4 text-emerald-600" />
+                                                <Calendar className="h-4 w-4 text-primary" />
                                                 {organization?.created_at
                                                     ? format(new Date(new Date(organization.created_at).setFullYear(new Date(organization.created_at).getFullYear() + 1)), 'MMM dd, yyyy')
                                                     : '-'}
@@ -1434,8 +1430,8 @@ export default function OrganizationMembers() {
                                 <div className="space-y-6">
                                     <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-4">Payment Method</h3>
 
-                                    <div className="p-6 border border-slate-200 rounded-xl bg-white border-dashed flex flex-col items-center justify-center text-center space-y-3 min-h-[160px]">
-                                        <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
+                                    <div className="p-6 border border-slate-200 rounded-md bg-white border-dashed flex flex-col items-center justify-center text-center space-y-3 min-h-[160px]">
+                                        <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                                             <CreditCard className="h-5 w-5 text-slate-400" />
                                         </div>
                                         <div>
@@ -1472,7 +1468,7 @@ export default function OrganizationMembers() {
                             {/* Header */}
                             <div className="flex items-center gap-4">
                                 <div className={cn(
-                                    "h-16 w-16 rounded-xl flex items-center justify-center text-white font-bold text-2xl",
+                                    "h-16 w-16 rounded-md flex items-center justify-center text-white font-bold text-2xl",
                                     selectedMember.type === 'vendor'
                                         ? "bg-linear-to-br from-violet-500 to-violet-600"
                                         : "bg-linear-to-br from-blue-500 to-blue-600 rounded-full"
@@ -1553,20 +1549,20 @@ export default function OrganizationMembers() {
                                     </CardHeader>
                                     <CardContent>
                                         <div className="grid grid-cols-2 gap-4">
-                                            <div className="text-center p-3 bg-slate-50 rounded-lg">
+                                            <div className="text-center p-3 bg-muted/30 rounded-md">
                                                 <p className="text-2xl font-bold text-slate-900">
                                                     ${(selectedMember.total_sales || 0).toLocaleString()}
                                                 </p>
                                                 <p className="text-sm text-slate-500">Total Sales</p>
                                             </div>
-                                            <div className="text-center p-3 bg-slate-50 rounded-lg">
+                                            <div className="text-center p-3 bg-muted/30 rounded-md">
                                                 <p className="text-2xl font-bold text-slate-900">
                                                     {selectedMember.total_orders || 0}
                                                 </p>
                                                 <p className="text-sm text-slate-500">Orders</p>
                                             </div>
-                                            <div className="text-center p-3 bg-slate-50 rounded-lg col-span-2">
-                                                <p className="text-2xl font-bold text-emerald-600">
+                                            <div className="text-center p-3 bg-muted/30 rounded-md col-span-2">
+                                                <p className="text-2xl font-bold text-primary">
                                                     {selectedMember.commission_rate || 0}%
                                                 </p>
                                                 <p className="text-sm text-slate-500">Commission Rate</p>
@@ -1589,7 +1585,7 @@ export default function OrganizationMembers() {
                                         </div>
                                         <div className="flex justify-between">
                                             <span className="text-slate-500">Type</span>
-                                            <span className="capitalize">{selectedMember.user_type || 'staff'}</span>
+                                            <span className="capitalize">{selectedMember.user_type || 'business-staff'}</span>
                                         </div>
                                         {selectedMember.phone && (
                                             <div className="flex justify-between">
@@ -1629,7 +1625,7 @@ export default function OrganizationMembers() {
                                 )}
                                 {selectedMember.type === 'vendor' && (
                                     <Link href={createPageUrl(`VendorDetail?id=${selectedMember.id}`)} className="flex-1">
-                                        <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
+                                        <Button className="w-full bg-primary hover:bg-primary/90">
                                             <Building2 className="h-4 w-4 mr-2" /> Manage
                                         </Button>
                                     </Link>

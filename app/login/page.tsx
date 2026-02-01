@@ -30,7 +30,7 @@ export default function LoginPage() {
     // Redirect if already authenticated
     useEffect(() => {
         if (!isLoading && isAuthenticated && user) {
-            if (user.user_type === 'vendor') {
+            if (user.role === 'vendor') {
                 router.push('/VendorDashboard');
             } else {
                 router.push('/Dashboard');
@@ -85,7 +85,7 @@ export default function LoginPage() {
             <div className="min-h-screen flex items-center justify-center bg-background">
                 <div className="flex flex-col items-center gap-4">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <p className="text-slate-300">Loading...</p>
+                    <p className="text-muted-foreground">Loading...</p>
                 </div>
             </div>
         );
@@ -96,7 +96,7 @@ export default function LoginPage() {
             <div className="min-h-screen flex items-center justify-center bg-background">
                 <div className="flex flex-col items-center gap-4">
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    <p className="text-slate-300">Redirecting...</p>
+                    <p className="text-muted-foreground">Redirecting...</p>
                 </div>
             </div>
         );
@@ -116,7 +116,7 @@ export default function LoginPage() {
                 {/* Logo */}
                 <div className="relative z-10">
                     <div className="flex items-center gap-3">
-                        <div className="h-12 w-12 rounded-xl bg-white/10 flex items-center justify-center shadow-lg shadow-white/5">
+                        <div className="h-12 w-12 rounded-md bg-white/10 flex items-center justify-center shadow-white/5">
                             <Package className="h-6 w-6 text-white" />
                         </div>
                         <div>
@@ -129,13 +129,13 @@ export default function LoginPage() {
                 {/* Main Content */}
                 <div className="relative z-10 space-y-8">
                     <div>
-                        <h2 className="text-4xl font-bold text-white leading-tight">
+                        <h2 className="text-4xl font-bold text-sidebar-foreground leading-tight">
                             Manage your inventory<br />
-                            <span className="text-white">
+                            <span className="text-sidebar-foreground">
                                 with confidence
                             </span>
                         </h2>
-                        <p className="mt-4 text-lg text-slate-300 max-w-md">
+                        <p className="mt-4 text-lg text-sidebar-foreground/80 max-w-md">
                             Streamline your operations, track stock in real-time, and make data-driven decisions with our powerful inventory management system.
                         </p>
                     </div>
@@ -143,7 +143,7 @@ export default function LoginPage() {
                     {/* Features */}
                     <div className="space-y-4">
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-lg bg-white/10 flex items-center justify-center">
+                            <div className="h-10 w-10 rounded-md bg-white/10 flex items-center justify-center">
                                 <Shield className="h-5 w-5 text-white" />
                             </div>
                             <div>
@@ -152,7 +152,7 @@ export default function LoginPage() {
                             </div>
                         </div>
                         <div className="flex items-center gap-3">
-                            <div className="h-10 w-10 rounded-lg bg-white/10 flex items-center justify-center">
+                            <div className="h-10 w-10 rounded-md bg-white/10 flex items-center justify-center">
                                 <Store className="h-5 w-5 text-white" />
                             </div>
                             <div>
@@ -172,29 +172,29 @@ export default function LoginPage() {
             </div>
 
             {/* Right Panel - Login Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-slate-50">
+            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-muted/30">
                 <div className="w-full max-w-md">
                     {/* Mobile Logo */}
                     <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
-                        <div className="h-12 w-12 rounded-xl bg-primary flex items-center justify-center">
-                            <Package className="h-6 w-6 text-white" />
+                        <div className="h-12 w-12 rounded-md bg-primary flex items-center justify-center">
+                            <Package className="h-6 w-6 text-primary-foreground" />
                         </div>
                         <div>
-                            <h1 className="text-2xl font-bold text-slate-900">StockFlow</h1>
+                            <h1 className="text-2xl font-bold text-foreground">StockFlow</h1>
                         </div>
                     </div>
 
                     {/* Login Card */}
-                    <div className="bg-white rounded-2xl shadow-xl shadow-slate-200/50 p-8 border border-slate-200">
+                    <div className="bg-card rounded-md shadow-muted/50 p-8 border border-border">
                         <div className="text-center mb-8">
-                            <h2 className="text-2xl font-bold text-slate-900">Welcome back</h2>
-                            <p className="text-slate-500 mt-1">Sign in to your account to continue</p>
+                            <h2 className="text-2xl font-bold text-foreground">Welcome back</h2>
+                            <p className="text-muted-foreground mt-1">Sign in to your account to continue</p>
                         </div>
 
                         {/* Error Message */}
                         {error && (
-                            <div className="mb-6 p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-3">
-                                <AlertCircle className="h-5 w-5 text-destructive flex-shrink-0" />
+                            <div className="mb-6 p-4 rounded-md bg-destructive/10 border border-destructive/20 flex items-center gap-3">
+                                <AlertCircle className="h-5 w-5 text-destructive shrink-0" />
                                 <p className="text-sm text-destructive">{error}</p>
                             </div>
                         )}
@@ -202,7 +202,7 @@ export default function LoginPage() {
                         {/* Login Form */}
                         <form onSubmit={handleSubmit} className="space-y-5">
                             <div className="space-y-2">
-                                <Label htmlFor="username" className="text-slate-700 font-medium">
+                                <Label htmlFor="username" className="text-foreground font-medium">
                                     Username
                                 </Label>
                                 <Input
@@ -211,13 +211,13 @@ export default function LoginPage() {
                                     placeholder="Enter your username"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    className="h-12 rounded-xl border-slate-200 focus:border-primary focus:ring-primary"
+                                    className="h-12 rounded-md border-input bg-background focus:border-primary focus:ring-primary"
                                     disabled={isSubmitting}
                                 />
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="password" className="text-slate-700 font-medium">
+                                <Label htmlFor="password" className="text-foreground font-medium">
                                     Password
                                 </Label>
                                 <div className="relative">
@@ -227,13 +227,13 @@ export default function LoginPage() {
                                         placeholder="Enter your password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="h-12 rounded-xl border-slate-200 focus:border-primary focus:ring-primary pr-12"
+                                        className="h-12 rounded-md border-input bg-background focus:border-primary focus:ring-primary pr-12"
                                         disabled={isSubmitting}
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                                     >
                                         {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                     </button>
@@ -242,7 +242,7 @@ export default function LoginPage() {
 
                             <Button
                                 type="submit"
-                                className="w-full h-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-lg shadow-primary/30 transition-all duration-200"
+                                className="w-full h-12 rounded-md bg-primary hover:bg-primary/90 text-primary-foreground font-medium shadow-primary/30 transition-all duration-200"
                                 disabled={isSubmitting}
                             >
                                 {isSubmitting ? (
@@ -262,10 +262,10 @@ export default function LoginPage() {
                         {/* Divider */}
                         <div className="relative my-8">
                             <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-slate-200" />
+                                <div className="w-full border-t border-border" />
                             </div>
                             <div className="relative flex justify-center text-sm">
-                                <span className="px-4 bg-white text-slate-500">Quick demo access</span>
+                                <span className="px-4 bg-background text-muted-foreground">Quick demo access</span>
                             </div>
                         </div>
 
@@ -275,14 +275,14 @@ export default function LoginPage() {
                                 type="button"
                                 onClick={() => handleDemoLogin('admin')}
                                 disabled={isSubmitting}
-                                className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-slate-200 hover:border-primary hover:bg-primary/5 transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex flex-col items-center gap-2 p-4 rounded-md border-2 border-border hover:border-primary hover:bg-primary/5 transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
+                                <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center shadow-primary/30">
                                     <Shield className="h-5 w-5 text-white" />
                                 </div>
                                 <div className="text-center">
-                                    <p className="font-semibold text-slate-900 group-hover:text-primary">Admin</p>
-                                    <p className="text-xs text-slate-500">Destiny / fokundem653@</p>
+                                    <p className="font-semibold text-foreground group-hover:text-primary">Admin</p>
+                                    <p className="text-xs text-muted-foreground">Destiny / fokundem653@</p>
                                 </div>
                             </button>
 
@@ -290,14 +290,14 @@ export default function LoginPage() {
                                 type="button"
                                 onClick={() => handleDemoLogin('vendor')}
                                 disabled={isSubmitting}
-                                className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-slate-200 hover:border-secondary-foreground hover:bg-secondary transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
+                                className="flex flex-col items-center gap-2 p-4 rounded-md border-2 border-border hover:border-secondary-foreground hover:bg-secondary transition-all duration-200 group disabled:opacity-50 disabled:cursor-not-allowed"
                             >
-                                <div className="h-10 w-10 rounded-full bg-secondary-foreground flex items-center justify-center shadow-lg shadow-secondary-foreground/30">
+                                <div className="h-10 w-10 rounded-full bg-secondary-foreground flex items-center justify-center shadow-secondary-foreground/30">
                                     <Store className="h-5 w-5 text-white" />
                                 </div>
                                 <div className="text-center">
-                                    <p className="font-semibold text-slate-900 group-hover:text-secondary-foreground">Vendor</p>
-                                    <p className="text-xs text-slate-500">Employee / employee123</p>
+                                    <p className="font-semibold text-foreground group-hover:text-secondary-foreground">Vendor</p>
+                                    <p className="text-xs text-muted-foreground">Employee / employee123</p>
                                 </div>
                             </button>
                         </div>

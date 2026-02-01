@@ -48,6 +48,7 @@ import {
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/components/i18n/LanguageContext";
 
 const statusColors: Record<string, string> = {
     pending: "bg-primary/10 text-primary dashed border border-primary/20",
@@ -73,10 +74,39 @@ const availabilityColors: Record<string, string> = {
     on_order: "bg-muted text-muted-foreground"
 };
 
-export default function Orders() {
-    // ... (hooks remain same)
+function useSafeLanguage() {
+    try {
+        return useLanguage();
+    } catch (e) {
+        return { t: (key: string) => key, language: 'en', setLanguage: () => { } };
+    }
+}
 
-    // ... (query hooks remain same)
+
+export default function Orders() {
+    const { t } = useSafeLanguage();
+    const queryClient = useQueryClient();
+    const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [paymentFilter, setPaymentFilter] = useState("all");
+    const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
+    const { data: orders = [], isLoading } = useQuery({
+        queryKey: ['orders'],
+        queryFn: () => base44.entities.Order.list(),
+    });
+
+    const updateOrderMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: Partial<Order> }) => base44.entities.Order.update(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['orders'] });
+            toast.success("Order status updated");
+        },
+    });
+
+    const handleStatusChange = async (orderId: string, newStatus: string) => {
+        await updateOrderMutation.mutateAsync({ id: orderId, data: { status: newStatus as any } });
+    };
 
     const columns: Column<Order>[] = [
         {
@@ -148,9 +178,35 @@ export default function Orders() {
         }
     ];
 
-    // ... (filtering logic same)
+    const filteredOrders = useMemo(() => {
+        let result = [...orders];
 
-    // ... (stats calculation same)
+        if (searchTerm) {
+            const search = searchTerm.toLowerCase();
+            result = result.filter(order =>
+                order.order_number?.toLowerCase().includes(search) ||
+                order.client_name?.toLowerCase().includes(search) ||
+                order.client_email?.toLowerCase().includes(search)
+            );
+        }
+
+        if (statusFilter !== "all") {
+            result = result.filter(order => order.status === statusFilter);
+        }
+
+        if (paymentFilter !== "all") {
+            result = result.filter(order => order.payment_status === paymentFilter);
+        }
+
+        return result;
+    }, [orders, searchTerm, statusFilter, paymentFilter]);
+
+    const stats = useMemo(() => ({
+        total: orders.length,
+        pending: orders.filter(o => o.status === 'pending').length,
+        processing: orders.filter(o => o.status === 'processing').length,
+        unpaid: orders.filter(o => o.payment_status === 'unpaid').length,
+    }), [orders]);
 
     return (
         <div className="space-y-6">
@@ -243,7 +299,10 @@ export default function Orders() {
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all">All Status</SelectItem>
-                            {/* ... items ... */}
+                            <SelectItem value="pending">Pending</SelectItem>
+                            <SelectItem value="confirmed">Confirmed</SelectItem>
+                            <SelectItem value="processing">Processing</SelectItem>
+                            <SelectItem value="shipped">Shipped</SelectItem>
                             <SelectItem value="delivered">Delivered</SelectItem>
                             <SelectItem value="cancelled">Cancelled</SelectItem>
                         </SelectContent>
@@ -255,7 +314,9 @@ export default function Orders() {
                         <SelectContent>
                             <SelectItem value="all">All Payments</SelectItem>
                             <SelectItem value="unpaid">Unpaid</SelectItem>
-                            {/* ... items ... */}
+                            <SelectItem value="partial">Partial</SelectItem>
+                            <SelectItem value="paid">Paid</SelectItem>
+                            <SelectItem value="refunded">Refunded</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -282,19 +343,21 @@ export default function Orders() {
                         </DialogHeader>
                         <div className="space-y-6">
                             {/* Client Info */}
-                            <div className="grid grid-cols-2 gap-4 p-4 bg-muted rounded-lg">
-                                {/* ... (labels text-muted-foreground) */}
+                            <div className="grid grid-cols-2 gap-4 p-4 bg-muted rounded-md">
                                 <div>
-                                    <Label className="text-xs text-muted-foreground">Client Name</Label>
+                                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Client Name</Label>
                                     <p className="font-medium text-foreground">{selectedOrder.client_name}</p>
                                 </div>
                                 <div>
-                                    <Label className="text-xs text-muted-foreground">Email</Label>
+                                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Email</Label>
                                     <p className="font-medium text-foreground">{selectedOrder.client_email}</p>
                                 </div>
-                                {/* ... other fields ... */}
                                 <div>
-                                    <Label className="text-xs text-muted-foreground">Order Date</Label>
+                                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Phone</Label>
+                                    <p className="font-medium text-foreground">{selectedOrder.client_phone || '-'}</p>
+                                </div>
+                                <div>
+                                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Order Date</Label>
                                     <p className="font-medium text-foreground">{format(new Date(selectedOrder.created_at), 'MMM d, yyyy HH:mm')}</p>
                                 </div>
                             </div>
@@ -304,7 +367,7 @@ export default function Orders() {
                                 <h3 className="font-semibold mb-3 text-foreground">Order Items</h3>
                                 <div className="space-y-3">
                                     {selectedOrder.items?.map((item, idx) => (
-                                        <div key={idx} className="border border-border rounded-lg p-4">
+                                        <div key={idx} className="border border-border rounded-md p-4">
                                             <div className="flex justify-between items-start mb-2">
                                                 <div>
                                                     <p className="font-medium text-foreground">{item.product_name}</p>
@@ -319,7 +382,6 @@ export default function Orders() {
                                                     <p className="text-muted-foreground">
                                                         {item.specifications.size && <span className="mr-3"><strong>Size:</strong> {item.specifications.size}</span>}
                                                         {item.specifications.color && <span className="mr-3"><strong>Color:</strong> {item.specifications.color}</span>}
-                                                        {/* ... */}
                                                     </p>
                                                 </div>
                                             )}
@@ -345,7 +407,18 @@ export default function Orders() {
                                             <span>-${selectedOrder.discount?.toFixed(2)}</span>
                                         </div>
                                     )}
-                                    {/* ... */}
+                                    {selectedOrder.tax && selectedOrder.tax > 0 && (
+                                        <div className="flex justify-between">
+                                            <span className="text-muted-foreground">Tax</span>
+                                            <span className="text-foreground">${selectedOrder.tax?.toFixed(2)}</span>
+                                        </div>
+                                    )}
+                                    {selectedOrder.shipping && selectedOrder.shipping > 0 && (
+                                        <div className="flex justify-between">
+                                            <span className="text-muted-foreground">Shipping</span>
+                                            <span className="text-foreground">${selectedOrder.shipping?.toFixed(2)}</span>
+                                        </div>
+                                    )}
                                     <div className="flex justify-between text-lg font-bold pt-2 border-t border-border text-foreground">
                                         <span>Total</span>
                                         <span>${selectedOrder.total?.toFixed(2)}</span>
@@ -358,11 +431,16 @@ export default function Orders() {
                                 <div className="space-y-3">
                                     {selectedOrder.shipping_address && (
                                         <div>
-                                            <Label className="text-xs text-muted-foreground">Shipping Address</Label>
-                                            <p className="text-sm text-foreground">{selectedOrder.shipping_address}</p>
+                                            <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Shipping Address</Label>
+                                            <p className="text-sm text-foreground bg-white/50 p-3 rounded-md border border-border mt-1">{selectedOrder.shipping_address}</p>
                                         </div>
                                     )}
-                                    {/* ... */}
+                                    {selectedOrder.notes && (
+                                        <div>
+                                            <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Notes</Label>
+                                            <p className="text-sm text-foreground bg-white/50 p-3 rounded-md border border-border mt-1">{selectedOrder.notes}</p>
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>

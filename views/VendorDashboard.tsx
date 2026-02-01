@@ -166,7 +166,7 @@ export default function VendorDashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <div className="h-16 w-16 rounded-xl bg-white/20 flex items-center justify-center text-2xl font-bold">
+                <div className="h-16 w-16 rounded-md bg-white/20 flex items-center justify-center text-2xl font-bold">
                   {myVendor.store_name?.charAt(0) || 'V'}
                 </div>
                 <div>
@@ -177,7 +177,7 @@ export default function VendorDashboard() {
               <div className="text-right">
                 <Badge className={cn(
                   "text-sm",
-                  myVendor.status === 'active' ? 'bg-white/20 text-white' : 'bg-amber-400 text-amber-900'
+                  myVendor.status === 'active' ? 'bg-primary/10 text-primary' : 'bg-warning/10 text-warning'
                 )}>
                   {myVendor.status}
                 </Badge>
@@ -226,7 +226,7 @@ export default function VendorDashboard() {
           <CardContent className="p-4 py-12">
             <div className="flex items-center justify-between mb-2">
               <p className="text-sm text-slate-500">This Year</p>
-              <Package className="h-4 w-4 text-violet-500" />
+              <Package className="h-4 w-4 text-primary" />
             </div>
             <p className="text-2xl font-bold text-slate-900">${salesStats.yearly.total.toLocaleString()}</p>
             <p className="text-xs text-slate-500">{salesStats.yearly.count} orders</p>
@@ -263,9 +263,9 @@ export default function VendorDashboard() {
                       <stop offset="95%" stopColor="var(--primary)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="#94a3b8" />
-                  <YAxis tick={{ fontSize: 12 }} stroke="#94a3b8" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" />
+                  <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="var(--muted-foreground)" />
+                  <YAxis tick={{ fontSize: 12 }} stroke="var(--muted-foreground)" />
                   <Tooltip />
                   <Area type="monotone" dataKey="sales" stroke="var(--primary)" fill="url(#vendorSalesGradient)" strokeWidth={2} />
                 </AreaChart>
@@ -285,7 +285,7 @@ export default function VendorDashboard() {
           <CardContent className="space-y-4">
             {myVendor && (
               <>
-                <div className="p-4 rounded-xl bg-slate-50">
+                <div className="p-4 rounded-md bg-slate-50">
                   <div className="flex justify-between items-center mb-2">
                     <span className="text-sm text-slate-500">Monthly Fee</span>
                     <span className="font-semibold">${myVendor.monthly_fee || 0}</span>
@@ -298,8 +298,8 @@ export default function VendorDashboard() {
                     <span className="text-sm text-slate-500">Status</span>
                     <Badge className={cn(
                       myVendor.payment_status === 'paid' ? 'bg-primary/10 text-primary' :
-                        myVendor.payment_status === 'overdue' ? 'bg-rose-100 text-rose-700' :
-                          'bg-amber-100 text-amber-700'
+                        myVendor.payment_status === 'overdue' ? 'bg-destructive/10 text-destructive' :
+                          'bg-yellow-500/10 text-yellow-600'
                     )}>
                       {myVendor.payment_status || 'pending'}
                     </Badge>
@@ -307,7 +307,7 @@ export default function VendorDashboard() {
                 </div>
 
                 {myVendor.payment_status === 'overdue' && (
-                  <div className="flex items-center gap-2 p-3 bg-rose-50 border border-rose-200 rounded-lg">
+                  <div className="flex items-center gap-2 p-3 bg-rose-50 border border-rose-200 rounded-md">
                     <AlertTriangle className="h-5 w-5 text-rose-600" />
                     <p className="text-sm text-rose-800">Payment overdue. Please contact admin.</p>
                   </div>

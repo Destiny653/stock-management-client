@@ -37,7 +37,7 @@ export default function KPICard({
 
   return (
     <div className={cn(
-      "relative overflow-hidden rounded-2xl border p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5",
+      "relative overflow-hidden rounded-md border p-6 transition-all duration-300 hover:shadow-lg hover:-translate-y-0.5",
       variants[variant]
     )}>
       <div className="flex items-start justify-between">
@@ -82,7 +82,7 @@ export default function KPICard({
         </div>
         {Icon && (
           <div className={cn(
-            "rounded-xl p-3",
+            "rounded-md p-3",
             iconVariants[variant]
           )}>
             <Icon className="h-6 w-6" />
