@@ -189,6 +189,48 @@ export default function VendorManagement() {
     }, {} as Record<string, any>);
   }, [users]);
 
+  const vendorMap = useMemo(() => {
+    const map: Record<string, any> = {};
+    vendors.forEach((v: any) => {
+      if (v.user_id) map[v.user_id] = v;
+    });
+    return map;
+  }, [vendors]);
+
+  const orgVendors = useMemo(() => {
+    const vendorUsers = users.filter(u => u.role === 'vendor');
+
+    const result = vendorUsers.map(u => {
+      const profile = vendorMap[u.id];
+      return {
+        ...u,
+        ...profile,
+        id: profile?.id || u.id,
+        user_id: u.id,
+        store_name: profile?.store_name || u.full_name || u.username || 'New Vendor',
+        name: profile?.name || u.full_name || u.username
+      };
+    });
+
+    // Also include any vendors that don't have a linked user yet (safety)
+    vendors.forEach((v: any) => {
+      if (!v.user_id || !userMap[v.user_id]) {
+        const exists = result.some(ov => ov.id === v.id);
+        if (!exists) {
+          result.push({
+            ...v,
+            id: v.id,
+            store_name: v.store_name || v.name || 'External Vendor',
+            name: v.name || 'External Vendor',
+            status: v.status || 'active'
+          } as any);
+        }
+      }
+    });
+
+    return result;
+  }, [users, vendors, vendorMap, userMap]);
+
   const createVendorMutation = useMutation({
     mutationFn: (data: any) => base44.entities.Vendor.create({
       ...data,
@@ -334,17 +376,16 @@ export default function VendorManagement() {
   }, [sales]);
 
   const filteredVendors = useMemo(() => {
-    let result = [...(vendors as Vendor[])];
+    let result = [...orgVendors];
 
     if (searchTerm) {
       const search = searchTerm.toLowerCase();
       result = result.filter(v => {
         const loc = v.location_id ? locationMap[v.location_id] : null;
-        const user = v.user_id ? userMap[v.user_id] : null;
         return v.name?.toLowerCase().includes(search) ||
           v.store_name?.toLowerCase().includes(search) ||
-          user?.email?.toLowerCase().includes(search) ||
-          user?.full_name?.toLowerCase().includes(search) ||
+          v.email?.toLowerCase().includes(search) ||
+          v.full_name?.toLowerCase().includes(search) ||
           loc?.city?.toLowerCase().includes(search);
       });
     }
@@ -358,7 +399,7 @@ export default function VendorManagement() {
     }
 
     return result;
-  }, [vendors, searchTerm, statusFilter, paymentFilter, locationMap]);
+  }, [orgVendors, searchTerm, statusFilter, paymentFilter, locationMap]);
 
   const vendorListColumns: Column<any>[] = [
     {
@@ -442,10 +483,10 @@ export default function VendorManagement() {
 
   // Stats
   const stats = {
-    total: vendors.length,
-    active: (vendors as Vendor[]).filter(v => v.status === 'active').length,
-    pending: (vendors as Vendor[]).filter(v => v.status === 'pending').length,
-    overdue: (vendors as Vendor[]).filter(v => v.payment_status === 'overdue').length,
+    total: orgVendors.length,
+    active: orgVendors.filter(v => v.status === 'active').length,
+    pending: orgVendors.filter(v => v.status === 'pending').length,
+    overdue: orgVendors.filter(v => v.payment_status === 'overdue').length,
   };
 
 

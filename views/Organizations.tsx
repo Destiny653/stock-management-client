@@ -100,11 +100,6 @@ export default function Organizations() {
         queryFn: () => base44.entities.Location.list(),
     });
 
-    const { data: vendors = [] } = useQuery({
-        queryKey: ['vendors'],
-        queryFn: () => base44.entities.Vendor.list(),
-        initialData: [],
-    });
 
     const { data: users = [], isLoading: loadingUsers } = useQuery<User[]>({
         queryKey: ['users'],
@@ -251,13 +246,14 @@ export default function Organizations() {
     const orgStats = useMemo(() => {
         const stats: Record<string, { vendorCount: number; userCount: number }> = {};
         organizations.forEach(org => {
+            const orgUsers = users.filter(u => u.organization_id === org.id);
             stats[org.id] = {
-                vendorCount: vendors.filter(v => v.organization_id === org.id).length,
-                userCount: users.filter(u => u.organization_id === org.id).length
+                vendorCount: orgUsers.filter(u => u.role === 'vendor').length,
+                userCount: orgUsers.filter(u => u.role !== 'vendor').length
             };
         });
         return stats;
-    }, [organizations, vendors, users]);
+    }, [organizations, users]);
 
     const filteredOrgs = useMemo(() => {
         let result = [...organizations];
@@ -450,8 +446,8 @@ export default function Organizations() {
             {/* Stats Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <StatsCard title="Total Organizations" value={organizations.length} icon={Building2} variant="success" />
-                <StatsCard title="Total Vendors" value={vendors.length} icon={Store} variant="primary" />
-                <StatsCard title="Total Users" value={users.length} icon={Users} />
+                <StatsCard title="Total Vendors" value={users.filter(u => u.role === 'vendor').length} icon={Store} variant="primary" />
+                <StatsCard title="Total Users" value={users.filter(u => u.role !== 'vendor').length} icon={Users} />
             </div>
 
             {/* Filters & View Toggle */}

@@ -39,11 +39,10 @@
         "role": {
             "type": "string",
             "enum": [
-                "owner",
                 "admin",
                 "manager",
-                "staff",
-                "viewer"
+                "vendor",
+                "user"
             ],
             "description": "User role within the organization"
         },

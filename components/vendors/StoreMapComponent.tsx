@@ -1,23 +1,17 @@
 'use client';
 
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+import React, { useState, useCallback, useMemo } from 'react';
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { createPageUrl } from "@/utils";
 import type { Vendor } from '@/api/base44Client';
+import { Loader2 } from "lucide-react";
 
-// Fix for default marker icons in Leaflet
-if (typeof window !== 'undefined') {
-    delete (L.Icon.Default.prototype as any)._getIconUrl;
-    L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    });
-}
+const containerStyle = {
+    width: '100%',
+    height: '100%'
+};
 
 interface StoreMapComponentProps {
     vendors: (Vendor & { latitude: number; longitude: number; address?: string; city?: string; country?: string })[];
@@ -26,51 +20,81 @@ interface StoreMapComponentProps {
     t: (key: string, params?: Record<string, string | number>) => string;
 }
 
-const MapUpdater: React.FC<{ center: [number, number]; zoom?: number }> = ({ center, zoom }) => {
-    const map = useMap();
-    React.useEffect(() => {
-        if (center[0] !== 0 || center[1] !== 0) {
-            map.setView(center, zoom || map.getZoom());
-        }
-    }, [center, zoom, map]);
-    return null;
-};
-
 const StoreMapComponent: React.FC<StoreMapComponentProps> = ({ vendors, center, onVendorSelect, t }) => {
+    const { isLoaded } = useJsApiLoader({
+        id: 'google-map-script',
+        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""
+    });
+
+    const [selectedVendor, setSelectedVendor] = useState<any>(null);
+    const [map, setMap] = useState<google.maps.Map | null>(null);
+
+    const mapCenter = useMemo(() => ({
+        lat: center[0],
+        lng: center[1]
+    }), [center]);
+
+    const onLoad = useCallback(function callback(map: google.maps.Map) {
+        setMap(map);
+    }, []);
+
+    const onUnmount = useCallback(function callback(map: google.maps.Map) {
+        setMap(null);
+    }, []);
+
+    if (!isLoaded) {
+        return (
+            <div className="h-full flex items-center justify-center bg-slate-50">
+                <div className="text-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+                    <p className="text-sm text-slate-500">Loading Google Maps...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <MapContainer
-            center={center}
+        <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={mapCenter}
             zoom={4}
-            style={{ height: '100%', width: '100%' }}
+            onLoad={onLoad}
+            onUnmount={onUnmount}
+            options={{
+                streetViewControl: false,
+                mapTypeControl: false,
+                fullscreenControl: false,
+            }}
         >
-            <MapUpdater center={center} />
-            <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
             {vendors.map(vendor => (
                 <Marker
                     key={vendor.id}
-                    position={[vendor.latitude, vendor.longitude]}
-                    eventHandlers={{
-                        click: () => onVendorSelect(vendor)
+                    position={{ lat: vendor.latitude, lng: vendor.longitude }}
+                    onClick={() => {
+                        setSelectedVendor(vendor);
+                        onVendorSelect(vendor);
                     }}
-                >
-                    <Popup>
-                        <div className="p-2">
-                            <h3 className="font-semibold">{vendor.store_name}</h3>
-                            <p className="text-sm text-slate-500">{vendor.address}</p>
-                            <p className="text-sm text-slate-500">{vendor.city}, {vendor.country}</p>
-                            <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)}>
-                                <Button size="sm" className="mt-2 w-full bg-primary hover:bg-primary/90">
-                                    {t('viewDetails')}
-                                </Button>
-                            </Link>
-                        </div>
-                    </Popup>
-                </Marker>
+                />
             ))}
-        </MapContainer>
+
+            {selectedVendor && (
+                <InfoWindow
+                    position={{ lat: selectedVendor.latitude, lng: selectedVendor.longitude }}
+                    onCloseClick={() => setSelectedVendor(null)}
+                >
+                    <div className="p-2 text-foreground">
+                        <h3 className="font-semibold">{selectedVendor.store_name}</h3>
+                        <p className="text-sm text-slate-500">{selectedVendor.address}</p>
+                        <p className="text-sm text-slate-500">{selectedVendor.city}, {selectedVendor.country}</p>
+                        <Link href={createPageUrl(`VendorDetail?id=${selectedVendor.id}`)}>
+                            <Button size="sm" className="mt-2 w-full bg-primary hover:bg-primary/90">
+                                {t('viewDetails')}
+                            </Button>
+                        </Link>
+                    </div>
+                </InfoWindow>
+            )}
+        </GoogleMap>
     );
 };
 

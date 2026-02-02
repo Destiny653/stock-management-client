@@ -92,7 +92,7 @@ A comprehensive inventory management system built with Next.js, React, and TypeS
 ### Technical Features
 - **TypeScript**: Full type safety across the entire codebase
 - **Multi-tenant Architecture**: Organization-scoped data isolation
-- **Role-based Access Control**: Granular permissions (owner, admin, manager, staff, viewer)
+- **Role-based Access Control**: Granular permissions (admin, manager, vendor, user)
 - **Subscription Management**: Multiple plan tiers with usage limits
 - **Multi-language Support**: English and French (extensible)
 - **Custom Hooks**: Reusable entity management

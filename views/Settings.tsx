@@ -964,11 +964,10 @@ export default function Settings() {
                       <Select value={userForm.role} onValueChange={(v: any) => setUserForm(p => ({ ...p, role: v }))}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="owner">Owner</SelectItem>
                           <SelectItem value="admin">Admin</SelectItem>
                           <SelectItem value="manager">Manager</SelectItem>
-                          <SelectItem value="staff">Staff</SelectItem>
-                          <SelectItem value="viewer">Viewer</SelectItem>
+                          <SelectItem value="vendor">Vendor</SelectItem>
+                          <SelectItem value="user">User</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

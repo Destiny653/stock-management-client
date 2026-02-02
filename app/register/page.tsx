@@ -22,6 +22,7 @@ export default function RegisterPage() {
         planId: '',
         locationId: '',
         organizationId: '',
+        subscription_interval: 'monthly' as 'monthly' | 'yearly',
     });
 
     const [data, setData] = useState({
@@ -31,10 +32,10 @@ export default function RegisterPage() {
         user: null as any
     });
 
-    const handlePlanNext = (plan: SubscriptionPlan) => {
+    const handlePlanNext = (plan: SubscriptionPlan, interval: 'monthly' | 'yearly') => {
         const planId = plan._id || plan.id;
         setData(prev => ({ ...prev, plan }));
-        setRegistrationState(prev => ({ ...prev, planId }));
+        setRegistrationState(prev => ({ ...prev, planId, subscription_interval: interval }));
         setStep(2);
     };
 
@@ -75,6 +76,7 @@ export default function RegisterPage() {
                 description: orgData.description,
                 location_id: registrationState.locationId,
                 subscription_plan_id: registrationState.planId,
+                subscription_interval: registrationState.subscription_interval,
                 status: 'active'
             });
             const organizationId = response.data.id;
@@ -175,7 +177,13 @@ export default function RegisterPage() {
                             exit={{ opacity: 0, x: -20 }}
                             transition={{ duration: 0.2 }}
                         >
-                            <StepSubscription onNext={handlePlanNext} initialData={data.plan} />
+                            <StepSubscription
+                                onNext={handlePlanNext}
+                                initialData={{
+                                    plan: data.plan,
+                                    interval: registrationState.subscription_interval
+                                }}
+                            />
                         </motion.div>
                     )}
                     {step === 2 && (

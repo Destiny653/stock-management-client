@@ -252,23 +252,57 @@ export default function OrganizationMembers() {
         return map;
     }, [users]);
 
+    const vendorMap = useMemo(() => {
+        const map: Record<string, any> = {};
+        vendors.forEach((v: any) => {
+            if (v.user_id) map[v.user_id] = v;
+        });
+        return map;
+    }, [vendors]);
+
     // Filter by organization
     const orgVendors = useMemo(() => {
-        let result = vendors.filter(v => v.organization_id === orgId);
+        const vendorUsers = users.filter(u => u.organization_id === orgId && u.role === 'vendor');
+
+        // Merge user data with vendor profile data
+        let result = vendorUsers.map(u => {
+            const profile = vendorMap[u.id];
+            return {
+                ...u,
+                ...profile,
+                id: profile?.id || u.id,
+                user_id: u.id,
+                // Fallback store name if profile is missing
+                store_name: profile?.store_name || u.full_name || u.username || 'New Vendor'
+            };
+        });
+
+        // Also include any vendors that don't have a linked user yet (safety)
+        const linkedUserIds = new Set(vendorUsers.map(u => u.id));
+        vendors.forEach(v => {
+            if (v.organization_id === orgId && (!v.user_id || !linkedUserIds.has(v.user_id))) {
+                result.push({
+                    ...v,
+                    role: 'vendor'
+                });
+            }
+        });
+
         if (searchTerm) {
             const search = searchTerm.toLowerCase();
             result = result.filter(v => {
-                const linkedUser = v.user_id ? userMap[v.user_id] : null;
+                const userName = v.full_name || userMap[v.user_id!]?.full_name || '';
+                const userEmail = v.email || userMap[v.user_id!]?.email || '';
                 return v.store_name?.toLowerCase().includes(search) ||
-                    linkedUser?.email?.toLowerCase().includes(search) ||
-                    linkedUser?.full_name?.toLowerCase().includes(search);
+                    userEmail.toLowerCase().includes(search) ||
+                    userName.toLowerCase().includes(search);
             });
         }
         return result;
-    }, [vendors, orgId, searchTerm, userMap]);
+    }, [users, vendors, orgId, searchTerm, vendorMap, userMap]);
 
     const orgUsers = useMemo(() => {
-        let result = users.filter(u => u.organization_id === orgId);
+        let result = users.filter(u => u.organization_id === orgId && u.role !== 'vendor');
         if (searchTerm) {
             const search = searchTerm.toLowerCase();
             result = result.filter(u =>
@@ -343,24 +377,43 @@ export default function OrganizationMembers() {
     const updateMemberMutation = useMutation({
         mutationFn: async ({ id, data }: { id: string, data: any }) => {
             if (memberType === 'user') {
-                return base44.entities.User.update(id, data);
-            } else {
-                // Update vendor record
-                const vendor = await base44.entities.Vendor.update(id, {
-                    store_name: data.store_name,
-                    location_id: data.location_id || null,
-                    commission_rate: data.commission_rate || 0,
+                return base44.entities.User.update(id, {
+                    ...data,
+                    username: data.email,
                 });
+            } else {
+                // Determine if we have a vendor profile or just a user for this vendor
+                const profile = vendorMap[id] || vendors.find(v => v.id === id);
+                let vendorRecord;
 
-                // Update linked user's contact info
-                if (vendor.user_id) {
-                    await base44.entities.User.update(vendor.user_id, {
-                        full_name: data.full_name,
-                        email: data.email,
-                        phone: data.phone,
+                if (profile) {
+                    vendorRecord = await base44.entities.Vendor.update(profile.id, {
+                        store_name: data.store_name,
+                        location_id: data.location_id === 'no_location' ? null : (data.location_id || profile.location_id),
+                        commission_rate: data.commission_rate || 0,
+                    });
+                } else {
+                    // Create profile if missing
+                    vendorRecord = await base44.entities.Vendor.create({
+                        organization_id: (orgId || currentUser?.organization_id) ?? undefined,
+                        user_id: id,
+                        store_name: data.store_name,
+                        location_id: data.location_id === 'no_location' ? null : (data.location_id || undefined),
+                        commission_rate: data.commission_rate || 0,
+                        status: 'active'
                     });
                 }
-                return vendor;
+
+                // Update linked user's contact info
+                const userId = profile?.user_id || id;
+                await base44.entities.User.update(userId, {
+                    full_name: data.full_name,
+                    email: data.email,
+                    phone: data.phone,
+                    role: 'vendor' // Ensure role is still vendor 
+                });
+
+                return vendorRecord;
             }
         },
         onSuccess: () => {
@@ -804,7 +857,19 @@ export default function OrganizationMembers() {
             if (type === 'user') {
                 return base44.entities.User.delete(id);
             } else {
-                return base44.entities.Vendor.delete(id);
+                const profile = vendorMap[id] || vendors.find(v => v.id === id);
+                if (profile) {
+                    await base44.entities.Vendor.delete(profile.id);
+                }
+                const userId = profile?.user_id || id;
+                if (userId) {
+                    try {
+                        await base44.entities.User.delete(userId);
+                    } catch (e) {
+                        console.warn("Failed to delete user linked to vendor", e);
+                    }
+                }
+                return { success: true };
             }
         },
         onSuccess: () => {
@@ -1000,12 +1065,13 @@ export default function OrganizationMembers() {
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label>Role</Label>
-                                                    <Select value={memberForm.role} onValueChange={v => setMemberForm(p => ({ ...p, role: v, user_type: v }))}>
+                                                    <Select value={memberForm.role} onValueChange={v => setMemberForm(p => ({ ...p, role: v }))}>
                                                         <SelectTrigger><SelectValue /></SelectTrigger>
                                                         <SelectContent>
-                                                            <SelectItem value="staff">Staff</SelectItem>
+                                                            <SelectItem value="admin">Admin</SelectItem>
                                                             <SelectItem value="manager">Manager</SelectItem>
-                                                            <SelectItem value="viewer">Viewer</SelectItem>
+                                                            <SelectItem value="vendor">Vendor</SelectItem>
+                                                            <SelectItem value="user">User</SelectItem>
                                                         </SelectContent>
                                                     </Select>
                                                 </div>

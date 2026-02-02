@@ -381,64 +381,86 @@ const getEntityEndpoint = (entityName: string): string => {
 const createEntityMethods = <T extends { id: string }>(entityName: string): EntityMethods<T> => {
     const endpoint = getEntityEndpoint(entityName);
 
-    const getOrgId = () => {
+    const getUserInfo = () => {
         if (typeof window === 'undefined') return null;
         const userJson = localStorage.getItem('base44_currentUser');
         if (!userJson) return null;
-        const user = JSON.parse(userJson);
-        return user.organization_id;
+        return JSON.parse(userJson);
     };
 
     return {
         list: async (params = {}) => {
-            const orgId = getOrgId();
+            const user = getUserInfo();
+            const orgId = user?.organization_id;
+            const isPlatformStaff = user?.user_type === 'platform-staff';
+
             const combinedParams = {
                 ...params,
-                ...(orgId && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
+                // auto-inject orgId ONLY if:
+                // 1. User has an orgId
+                // 2. User is NOT platform-staff
+                // 3. It's not the Organization/Location entity
+                // 4. organization_id wasn't already manually provided in params
+                ...(orgId && !isPlatformStaff && !params.organization_id && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
             };
             const response = await apiClient.get<T[]>(endpoint, { params: combinedParams });
             return response.data;
         },
         get: async (id, params = {}) => {
-            const orgId = getOrgId();
+            const user = getUserInfo();
+            const orgId = user?.organization_id;
+            const isPlatformStaff = user?.user_type === 'platform-staff';
+
             const combinedParams = {
                 ...params,
-                ...(orgId && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
+                ...(orgId && !isPlatformStaff && !params.organization_id && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
             };
             const response = await apiClient.get<T>(`${endpoint}${id}`, { params: combinedParams });
             return response.data;
         },
         create: async (data) => {
-            const orgId = getOrgId();
+            const user = getUserInfo();
+            const orgId = user?.organization_id;
+            const isPlatformStaff = user?.user_type === 'platform-staff';
+
             const payload = {
                 ...data,
-                ...(orgId && !(data as any).organization_id && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
+                ...(orgId && !isPlatformStaff && !(data as any).organization_id && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
             };
             const response = await apiClient.post<T>(endpoint, payload);
             return response.data;
         },
         update: async (id, data) => {
-            const orgId = getOrgId();
+            const user = getUserInfo();
+            const orgId = user?.organization_id;
+            const isPlatformStaff = user?.user_type === 'platform-staff';
+
             const response = await apiClient.put<T>(`${endpoint}${id}`, data, {
                 params: {
-                    ...(orgId && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
+                    ...(orgId && !isPlatformStaff && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
                 }
             });
             return response.data;
         },
         delete: async (id, params = {}) => {
-            const orgId = getOrgId();
+            const user = getUserInfo();
+            const orgId = user?.organization_id;
+            const isPlatformStaff = user?.user_type === 'platform-staff';
+
             const combinedParams = {
                 ...params,
-                ...(orgId && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
+                ...(orgId && !isPlatformStaff && !params.organization_id && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
             };
             await apiClient.delete(`${endpoint}${id}`, { params: combinedParams });
         },
         filter: async (params) => {
-            const orgId = getOrgId();
+            const user = getUserInfo();
+            const orgId = user?.organization_id;
+            const isPlatformStaff = user?.user_type === 'platform-staff';
+
             const combinedParams = {
                 ...params,
-                ...(orgId && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
+                ...(orgId && !isPlatformStaff && !params.organization_id && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
             };
             const response = await apiClient.get<T[]>(endpoint, { params: combinedParams });
             return response.data;

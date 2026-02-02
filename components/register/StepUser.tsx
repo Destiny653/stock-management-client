@@ -36,35 +36,25 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
         const password = formData.password;
         let score = 0;
         const checks = {
-            length: password.length >= 8,
-            uppercase: /[A-Z]/.test(password),
-            lowercase: /[a-z]/.test(password),
-            number: /[0-9]/.test(password),
-            special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+            length: password.length >= 4,
+            number: /[0-9]/.test(password)
         };
 
         if (checks.length) score++;
-        if (checks.uppercase) score++;
-        if (checks.lowercase) score++;
         if (checks.number) score++;
-        if (checks.special) score++;
 
         return { score, checks };
     }, [formData.password]);
 
     const getStrengthLabel = () => {
         if (formData.password.length === 0) return '';
-        if (passwordStrength.score < 3) return 'Weak';
-        if (passwordStrength.score < 4) return 'Fair';
-        if (passwordStrength.score < 5) return 'Good';
-        return 'Strong';
+        if (passwordStrength.score < 2) return 'Weak';
+        return 'Good';
     };
 
     const getStrengthColor = () => {
-        if (passwordStrength.score < 3) return 'bg-red-500';
-        if (passwordStrength.score < 4) return 'bg-amber-500';
-        if (passwordStrength.score < 5) return 'bg-primary/60';
-        return 'bg-primary';
+        if (passwordStrength.score < 2) return 'bg-red-500';
+        return 'bg-green-500';
     };
 
     const handleSubmit = () => {
@@ -109,16 +99,8 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
             toast.error("Please enter a password");
             return;
         }
-        if (password.length < 8) {
-            toast.error("Password must be at least 8 characters long");
-            return;
-        }
-        if (!passwordStrength.checks.uppercase) {
-            toast.error("Password must contain at least one uppercase letter");
-            return;
-        }
-        if (!passwordStrength.checks.lowercase) {
-            toast.error("Password must contain at least one lowercase letter");
+        if (password.length < 4) {
+            toast.error("Password must be at least 4 characters long");
             return;
         }
         if (!passwordStrength.checks.number) {
@@ -269,7 +251,7 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                     {formData.password.length > 0 && (
                         <div className="space-y-2">
                             <div className="flex gap-1">
-                                {[1, 2, 3, 4, 5].map((level) => (
+                                {[1, 2].map((level) => (
                                     <div
                                         key={level}
                                         className={cn(
@@ -281,20 +263,13 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                             </div>
                             <p className={cn(
                                 "text-xs",
-                                passwordStrength.score < 3 ? "text-red-600" :
-                                    passwordStrength.score < 4 ? "text-amber-600" : "text-primary"
+                                passwordStrength.score < 2 ? "text-red-600" : "text-green-600"
                             )}>
                                 Password strength: {getStrengthLabel()}
                             </p>
                             <ul className="text-xs text-slate-500 space-y-0.5">
                                 <li className={passwordStrength.checks.length ? "text-primary" : ""}>
-                                    {passwordStrength.checks.length ? "✓" : "○"} At least 8 characters
-                                </li>
-                                <li className={passwordStrength.checks.uppercase ? "text-primary" : ""}>
-                                    {passwordStrength.checks.uppercase ? "✓" : "○"} One uppercase letter
-                                </li>
-                                <li className={passwordStrength.checks.lowercase ? "text-primary" : ""}>
-                                    {passwordStrength.checks.lowercase ? "✓" : "○"} One lowercase letter
+                                    {passwordStrength.checks.length ? "✓" : "○"} At least 4 characters
                                 </li>
                                 <li className={passwordStrength.checks.number ? "text-primary" : ""}>
                                     {passwordStrength.checks.number ? "✓" : "○"} One number

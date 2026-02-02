@@ -106,54 +106,81 @@ export default function StoreLocations() {
     return map;
   }, [users]);
 
-  // Filter vendors with location data
-  const vendorsWithLocation = React.useMemo(() => {
-    return (vendors as Vendor[]).map(v => {
-      const loc = v.location_id ? locationMap[v.location_id] : null;
+  const vendorMap = React.useMemo(() => {
+    const map: Record<string, any> = {};
+    vendors.forEach((v: any) => {
+      if (v.user_id) map[v.user_id] = v;
+    });
+    return map;
+  }, [vendors]);
+
+  const orgVendors = React.useMemo(() => {
+    const vendorUsers = users.filter(u => u.role === 'vendor');
+    const result = vendorUsers.map(u => {
+      const profile = vendorMap[u.id];
+      const loc = profile?.location_id ? locationMap[profile.location_id] : null;
+
       return {
-        ...v,
+        ...u,
+        ...profile,
+        id: profile?.id || u.id,
+        user_id: u.id,
+        store_name: profile?.store_name || u.full_name || u.username || 'New Vendor',
         latitude: loc?.latitude,
         longitude: loc?.longitude,
         address: loc?.address,
         city: loc?.city,
         country: loc?.country,
-        email: v.user_id ? userMap[v.user_id]?.email : '',
-        phone: v.user_id ? userMap[v.user_id]?.phone : ''
+        email: u.email,
+        phone: u.phone,
+        status: (profile?.status || 'pending') as Vendor['status']
       };
-    }).filter((v): v is Vendor & {
+    });
+
+    // Also include any vendors that don't have a linked user yet (safety)
+    vendors.forEach((v: any) => {
+      if (!v.user_id || !userMap[v.user_id]) {
+        const loc = v.location_id ? locationMap[v.location_id] : null;
+        const exists = result.some(ou => ou.id === v.id);
+        if (!exists) {
+          result.push({
+            ...v,
+            id: v.id,
+            store_name: v.store_name || v.name || 'External Vendor',
+            latitude: loc?.latitude,
+            longitude: loc?.longitude,
+            address: loc?.address,
+            city: loc?.city,
+            country: loc?.country,
+            status: v.status
+          } as any);
+        }
+      }
+    });
+
+    return result;
+  }, [users, vendors, vendorMap, locationMap, userMap]);
+
+  // Filter vendors with location data
+  const vendorsWithLocation = React.useMemo(() => {
+    return orgVendors.filter((v): v is typeof v & {
       latitude: number;
       longitude: number;
-      address: any;
-      city: any;
-      country: any;
-      email: any;
-      phone: any
     } =>
       typeof v.latitude === 'number' && typeof v.longitude === 'number'
     );
-  }, [vendors, locationMap]);
+  }, [orgVendors]);
 
   const filteredVendors = React.useMemo(() => {
-    return (vendors as Vendor[]).map(v => {
-      const loc = v.location_id ? locationMap[v.location_id] : null;
-      return {
-        ...v,
-        latitude: loc?.latitude,
-        longitude: loc?.longitude,
-        address: loc?.address,
-        city: loc?.city,
-        country: loc?.country,
-        email: (v.user_id ? userMap[v.user_id]?.email : '') || '',
-        phone: (v.user_id ? userMap[v.user_id]?.phone : '') || ''
-      };
-    }).filter(v => {
+    return orgVendors.filter(v => {
       const matchesSearch = !searchTerm ||
         v.store_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        v.city?.toLowerCase().includes(searchTerm.toLowerCase());
+        v.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        v.full_name?.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === "all" || v.status === statusFilter;
       return matchesSearch && matchesStatus;
     });
-  }, [vendors, searchTerm, statusFilter, locationMap]);
+  }, [orgVendors, searchTerm, statusFilter]);
 
   // Calculate map center
   const mapCenter: [number, number] = vendorsWithLocation.length > 0

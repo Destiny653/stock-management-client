@@ -1,21 +1,15 @@
 'use client';
 
-import React from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import 'leaflet/dist/leaflet.css';
-import L from 'leaflet';
+import React, { useState, useCallback, useMemo } from 'react';
+import { GoogleMap, useJsApiLoader, Marker, InfoWindow } from '@react-google-maps/api';
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Loader2 } from "lucide-react";
 
-// Fix for default marker icons in Leaflet
-if (typeof window !== 'undefined') {
-    delete (L.Icon.Default.prototype as any)._getIconUrl;
-    L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-        iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-        shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-    });
-}
+const containerStyle = {
+    width: '100%',
+    height: '100%'
+};
 
 const statusColors: Record<string, string> = {
     active: "bg-primary/10 text-primary border-primary/20",
@@ -46,80 +40,107 @@ interface OrganizationMapProps {
     onMarkerClick?: (location: LocationMarker) => void;
 }
 
-const MapUpdater: React.FC<{ center: [number, number]; zoom?: number }> = ({ center, zoom }) => {
-    const map = useMap();
-    React.useEffect(() => {
-        if (center[0] !== 0 || center[1] !== 0) {
-            map.setView(center, zoom || map.getZoom());
-        }
-    }, [center, zoom, map]);
-    return null;
-};
-
 export default function OrganizationMap({ locations, center, zoom, onMarkerClick }: OrganizationMapProps) {
+    const { isLoaded } = useJsApiLoader({
+        id: 'google-map-script',
+        googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ""
+    });
+
+    const [selectedMarker, setSelectedMarker] = useState<LocationMarker | null>(null);
+    const [map, setMap] = useState<google.maps.Map | null>(null);
+
+    const mapCenter = useMemo(() => ({
+        lat: center[0],
+        lng: center[1]
+    }), [center]);
+
+    const onLoad = useCallback(function callback(map: google.maps.Map) {
+        setMap(map);
+    }, []);
+
+    const onUnmount = useCallback(function callback(map: google.maps.Map) {
+        setMap(null);
+    }, []);
+
+    if (!isLoaded) {
+        return (
+            <div className="h-full flex items-center justify-center bg-slate-50">
+                <div className="text-center">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-2" />
+                    <p className="text-sm text-slate-500">Loading Google Maps...</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <MapContainer
-            center={center}
+        <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={mapCenter}
             zoom={zoom}
-            style={{ height: '100%', width: '100%' }}
+            onLoad={onLoad}
+            onUnmount={onUnmount}
+            options={{
+                streetViewControl: false,
+                mapTypeControl: false,
+                fullscreenControl: false,
+            }}
         >
-            <MapUpdater center={center} zoom={zoom} />
-            <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
             {locations.map(location => (
                 (location.latitude && location.longitude) ? (
                     <Marker
                         key={location.id}
-                        position={[location.latitude, location.longitude]}
-                        eventHandlers={{
-                            click: () => onMarkerClick && onMarkerClick(location)
-                        }}
-                    >
-                        <Popup>
-                            <div className="p-2 min-w-48">
-                                <div className="flex items-center gap-2 mb-2">
-                                    {location.type === 'organization' && (
-                                        <Badge className="bg-primary hover:bg-primary/90">HQ</Badge>
-                                    )}
-                                    {location.type === 'vendor' && (
-                                        <Badge variant="outline">Vendor</Badge>
-                                    )}
-                                </div>
-                                <h3 className="font-semibold">{location.store_name || location.name}</h3>
-                                {location.type === 'vendor' && location.name && (
-                                    <p className="text-sm text-slate-600">{location.name}</p>
-                                )}
-                                <p className="text-sm text-slate-500">{location.address}</p>
-                                <p className="text-sm text-slate-500">{location.city}, {location.country}</p>
-
-                                {location.type === 'vendor' && (
-                                    <div className="mt-2 pt-2 border-t flex justify-between text-sm">
-                                        <span>Sales: ${(location.total_sales || 0).toLocaleString()}</span>
-                                        <Badge className={statusColors[location.status || 'active'] || statusColors.active} variant="outline">{location.status}</Badge>
-                                    </div>
-                                )}
-                                {location.type === 'organization' && location.status && (
-                                    <div className="mt-2 pt-2 border-t flex justify-between text-sm">
-                                        <Badge className={statusColors[location.status] || statusColors.active} variant="outline">{location.status}</Badge>
-                                    </div>
-                                )}
-
-                                {onMarkerClick && location.type === 'vendor' && (
-                                    <Button
-                                        size="sm"
-                                        className="mt-2 w-full bg-primary hover:bg-primary/90"
-                                        onClick={() => onMarkerClick(location)}
-                                    >
-                                        View Details
-                                    </Button>
-                                )}
-                            </div>
-                        </Popup>
-                    </Marker>
+                        position={{ lat: location.latitude, lng: location.longitude }}
+                        onClick={() => setSelectedMarker(location)}
+                    />
                 ) : null
             ))}
-        </MapContainer>
+
+            {selectedMarker && selectedMarker.latitude && selectedMarker.longitude && (
+                <InfoWindow
+                    position={{ lat: selectedMarker.latitude, lng: selectedMarker.longitude }}
+                    onCloseClick={() => setSelectedMarker(null)}
+                >
+                    <div className="p-2 min-w-48 text-foreground">
+                        <div className="flex items-center gap-2 mb-2">
+                            {selectedMarker.type === 'organization' && (
+                                <Badge className="bg-primary hover:bg-primary/90">HQ</Badge>
+                            )}
+                            {selectedMarker.type === 'vendor' && (
+                                <Badge variant="outline">Vendor</Badge>
+                            )}
+                        </div>
+                        <h3 className="font-semibold">{selectedMarker.store_name || selectedMarker.name}</h3>
+                        {selectedMarker.type === 'vendor' && selectedMarker.name && (
+                            <p className="text-sm text-slate-600">{selectedMarker.name}</p>
+                        )}
+                        <p className="text-sm text-slate-500">{selectedMarker.address}</p>
+                        <p className="text-sm text-slate-500">{selectedMarker.city}, {selectedMarker.country}</p>
+
+                        {selectedMarker.type === 'vendor' && (
+                            <div className="mt-2 pt-2 border-t flex justify-between text-sm">
+                                <span>Sales: ${(selectedMarker.total_sales || 0).toLocaleString()}</span>
+                                <Badge className={statusColors[selectedMarker.status || 'active'] || statusColors.active} variant="outline">{selectedMarker.status}</Badge>
+                            </div>
+                        )}
+                        {selectedMarker.type === 'organization' && selectedMarker.status && (
+                            <div className="mt-2 pt-2 border-t flex justify-between text-sm">
+                                <Badge className={statusColors[selectedMarker.status] || statusColors.active} variant="outline">{selectedMarker.status}</Badge>
+                            </div>
+                        )}
+
+                        {onMarkerClick && selectedMarker.type === 'vendor' && (
+                            <Button
+                                size="sm"
+                                className="mt-2 w-full bg-primary hover:bg-primary/90"
+                                onClick={() => onMarkerClick(selectedMarker)}
+                            >
+                                View Details
+                            </Button>
+                        )}
+                    </div>
+                </InfoWindow>
+            )}
+        </GoogleMap>
     );
 }
