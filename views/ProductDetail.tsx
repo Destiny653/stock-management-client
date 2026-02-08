@@ -68,11 +68,18 @@ export default function ProductDetail() {
     variants: [] as ProductVariant[]
   });
 
-  const { data: productData, isLoading } = useQuery({
+  const { data: productData, isLoading, error } = useQuery({
     queryKey: ['product', productId],
     queryFn: () => base44.entities.Product.get(productId as string),
-    enabled: !!productId,
+    enabled: !!productId && mode !== 'new',
   });
+
+  useEffect(() => {
+    if (error) {
+      toast.error("Failed to load product details");
+      console.error("Product load error:", error);
+    }
+  }, [error]);
 
   const { data: movements = [] } = useQuery({
     queryKey: ['movements', productId],
@@ -92,9 +99,12 @@ export default function ProductDetail() {
 
   useEffect(() => {
     if (productData) {
+      // Use id or _id depending on what backend returns
+      const id = (productData as any).id || (productData as any)._id;
+
       setFormData({
-        name: productData.name,
-        category: productData.category,
+        name: productData.name || '',
+        category: productData.category || 'Other',
         description: productData.description || '',
         reorder_point: productData.reorder_point || 0,
         reorder_quantity: productData.reorder_quantity || 0,
@@ -184,10 +194,31 @@ export default function ProductDetail() {
     }
   };
 
-  if (isLoading && productId) {
+  if (isLoading && productId && mode !== 'new') {
     return (
       <div className="flex items-center justify-center h-96">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-sm text-muted-foreground font-medium uppercase tracking-widest">Loading Product...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Guard against missing data when in view/edit mode
+  if (!productData && productId && mode !== 'new' && !isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center h-96 text-center">
+        <div className="p-4 bg-rose-50 rounded-full mb-4">
+          <AlertTriangle className="h-8 w-8 text-rose-600" />
+        </div>
+        <h2 className="text-lg font-bold text-slate-900">Product Not Found</h2>
+        <p className="text-slate-500 max-w-xs mt-2">The product you are looking for does not exist or you do not have permission to view it.</p>
+        <Link href={createPageUrl("Inventory")} className="mt-6">
+          <Button>
+            <ArrowLeft className="mr-2 h-4 w-4" /> Back to Inventory
+          </Button>
+        </Link>
       </div>
     );
   }

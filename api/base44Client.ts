@@ -429,12 +429,13 @@ const createEntityMethods = <T extends { id: string }>(entityName: string): Enti
             const user = getUserInfo();
             const orgId = user?.organization_id;
             const isPlatformStaff = user?.user_type === 'platform-staff';
+            const idStr = String(id);
 
             const combinedParams = {
                 ...params,
                 ...(orgId && !isPlatformStaff && !params.organization_id && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
             };
-            const response = await apiClient.get<T>(`${endpoint}${id}`, { params: combinedParams });
+            const response = await apiClient.get<T>(`${endpoint}${idStr}`, { params: combinedParams });
             return response.data;
         },
         create: async (data) => {
@@ -453,8 +454,9 @@ const createEntityMethods = <T extends { id: string }>(entityName: string): Enti
             const user = getUserInfo();
             const orgId = user?.organization_id;
             const isPlatformStaff = user?.user_type === 'platform-staff';
+            const idStr = String(id);
 
-            const response = await apiClient.put<T>(`${endpoint}${id}`, cleanPayload(data), {
+            const response = await apiClient.put<T>(`${endpoint}${idStr}`, cleanPayload(data), {
                 params: {
                     ...(orgId && !isPlatformStaff && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
                 }
