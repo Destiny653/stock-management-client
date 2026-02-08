@@ -378,6 +378,25 @@ const getEntityEndpoint = (entityName: string): string => {
     return endpoints[entityName] || `${entityName.toLowerCase()}s/`;
 };
 
+const cleanPayload = (data: any): any => {
+    if (!data || typeof data !== 'object') return data;
+    if (data instanceof Date) return data;
+
+    const clean: any = Array.isArray(data) ? [] : {};
+    for (const key in data) {
+        const val = data[key];
+        // Skip empty strings and undefined values
+        if (val === '' || val === undefined) continue;
+
+        if (val !== null && typeof val === 'object' && !(val instanceof File)) {
+            clean[key] = cleanPayload(val);
+        } else {
+            clean[key] = val;
+        }
+    }
+    return clean;
+};
+
 const createEntityMethods = <T extends { id: string }>(entityName: string): EntityMethods<T> => {
     const endpoint = getEntityEndpoint(entityName);
 
@@ -424,7 +443,7 @@ const createEntityMethods = <T extends { id: string }>(entityName: string): Enti
             const isPlatformStaff = user?.user_type === 'platform-staff';
 
             const payload = {
-                ...data,
+                ...cleanPayload(data),
                 ...(orgId && !isPlatformStaff && !(data as any).organization_id && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
             };
             const response = await apiClient.post<T>(endpoint, payload);
@@ -435,7 +454,7 @@ const createEntityMethods = <T extends { id: string }>(entityName: string): Enti
             const orgId = user?.organization_id;
             const isPlatformStaff = user?.user_type === 'platform-staff';
 
-            const response = await apiClient.put<T>(`${endpoint}${id}`, data, {
+            const response = await apiClient.put<T>(`${endpoint}${id}`, cleanPayload(data), {
                 params: {
                     ...(orgId && !isPlatformStaff && entityName !== 'Organization' && entityName !== 'Location' ? { organization_id: orgId } : {})
                 }

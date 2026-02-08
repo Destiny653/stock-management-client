@@ -124,7 +124,10 @@ function OrgDashboard() {
     return acc;
   }, []);
 
-  // Calculate Inventory Trend (last 7 days)
+  // State for chart toggle
+  const [chartType, setChartType] = React.useState<'inventory' | 'sales'>('inventory');
+
+  // Calculate Inventory Trend and Sales History (last 7 days)
   const chartData = React.useMemo(() => {
     const days = 7;
     const data: any[] = [];
@@ -169,10 +172,16 @@ function OrgDashboard() {
         name: label,
         value: Math.max(0, totalValueAtDate),
         units: Math.max(0, totalStockAtDate),
+        sales: sales
+          .filter(s => {
+            const sDate = new Date(s.created_at);
+            return sDate.toDateString() === dateString && s.status !== 'cancelled';
+          })
+          .reduce((sum, s) => sum + (s.total || 0), 0)
       });
     }
     return data;
-  }, [products, movements, totalValue]);
+  }, [products, movements, totalValue, sales]);
 
   // Calculate trends
   const calculateTrend = (current: number, daysBack: number) => {
@@ -278,7 +287,11 @@ function OrgDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Charts */}
         <div className="lg:col-span-2 space-y-6">
-          <InventoryChart data={chartData} />
+          <InventoryChart
+            data={chartData}
+            activeTab={chartType}
+            onTabChange={setChartType}
+          />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <CategoryDistribution data={categoryData} />
