@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createPageUrl } from "@/utils";
 import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -51,6 +51,7 @@ interface PurchaseOrderItem {
   product_id: string;
   sku: string;
   product_name: string;
+  image_url?: string;
   quantity_ordered: number;
   quantity_received: number;
   unit_cost: number;
@@ -60,6 +61,8 @@ interface PurchaseOrderItem {
 export default function CreatePurchaseOrder() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const searchParams = useSearchParams();
+  const preSelectedProductId = searchParams?.get('product');
 
   const [formData, setFormData] = useState<{
     po_number: string;
@@ -111,6 +114,12 @@ export default function CreatePurchaseOrder() {
     queryFn: () => base44.entities.User.list(),
   });
 
+  const { data: preSelectedProduct } = useQuery({
+    queryKey: ['product', preSelectedProductId],
+    queryFn: () => base44.entities.Product.get(preSelectedProductId as string),
+    enabled: !!preSelectedProductId,
+  });
+
   const userMap = useMemo(() => {
     return users.reduce((acc, u) => {
       acc[u.id] = u;
@@ -134,6 +143,45 @@ export default function CreatePurchaseOrder() {
     setFormData(prev => ({ ...prev, subtotal, total }));
   }, [formData.items, formData.tax, formData.shipping]);
 
+  // Handle pre-population from query parameter
+  useEffect(() => {
+    if (preSelectedProduct && suppliers.length > 0 && formData.items.length === 0) {
+      const items: PurchaseOrderItem[] = (preSelectedProduct.variants || []).map(variant => ({
+        product_id: preSelectedProduct.id,
+        sku: variant.sku || 'N/A',
+        product_name: preSelectedProduct.name,
+        image_url: preSelectedProduct.image_url,
+        quantity_ordered: preSelectedProduct.reorder_quantity || 10,
+        quantity_received: 0,
+        unit_cost: variant.cost_price || 0,
+        total: (preSelectedProduct.reorder_quantity || 10) * (variant.cost_price || 0)
+      }));
+
+      if (items.length > 0) {
+        // Try to find supplier by name if it exists on product
+        let supplierId = '';
+        let supplierName = '';
+
+        if (preSelectedProduct.supplier_name) {
+          const matchedSupplier = suppliers.find((s: any) => s.name === preSelectedProduct.supplier_name);
+          if (matchedSupplier) {
+            supplierId = matchedSupplier.id;
+            supplierName = matchedSupplier.name;
+          }
+        }
+
+        setFormData(prev => ({
+          ...prev,
+          items,
+          supplier_id: supplierId || prev.supplier_id,
+          supplier_name: supplierName || prev.supplier_name
+        }));
+
+        toast.info(`Pre-populated with ${items.length} variants of ${preSelectedProduct.name}`);
+      }
+    }
+  }, [preSelectedProduct, suppliers, formData.items.length]);
+
   const handleSupplierChange = (supplierId: string) => {
     const supplier = suppliers.find((s: any) => s.id === supplierId);
     setFormData(prev => ({
@@ -156,6 +204,7 @@ export default function CreatePurchaseOrder() {
         product_id: product.id,
         sku: variant.sku || 'N/A',
         product_name: product.name,
+        image_url: product.image_url,
         quantity_ordered: product.reorder_quantity || 10,
         quantity_received: 0,
         unit_cost: variant.cost_price || 0,

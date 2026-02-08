@@ -8,6 +8,7 @@ import {
     TableHead,
     TableHeader,
     TableRow,
+    TableFooter,
 } from "@/components/ui/table";
 import { Loader2, Package, ArrowUpDown, ChevronUp, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -26,11 +27,14 @@ interface DataTableProps<T> {
     data: T[];
     columns: Column<T>[];
     isLoading?: boolean;
-    emptyMessage?: string;
+    emptyMessage?: React.ReactNode;
     onRowClick?: (item: T) => void;
     sortConfig?: { key: string; direction: 'asc' | 'desc' } | null;
     onSort?: (key: string) => void;
     rowClassName?: string | ((item: T) => string);
+    renderSubComponent?: (item: T) => React.ReactNode;
+    isRowExpanded?: (item: T) => boolean;
+    footer?: React.ReactNode;
 }
 
 export function DataTable<T extends { id: string | number }>({
@@ -41,7 +45,10 @@ export function DataTable<T extends { id: string | number }>({
     onRowClick,
     sortConfig,
     onSort,
-    rowClassName
+    rowClassName,
+    renderSubComponent,
+    isRowExpanded,
+    footer
 }: DataTableProps<T>) {
     if (isLoading) {
         return (
@@ -96,34 +103,53 @@ export function DataTable<T extends { id: string | number }>({
                         <TableRow>
                             <TableCell colSpan={columns.length} className="h-48">
                                 <div className="flex flex-col items-center justify-center text-center">
-                                    <Package className="h-10 w-10 text-muted mb-3" />
-                                    <p className="text-muted-foreground font-medium">{emptyMessage}</p>
+                                    {typeof emptyMessage === 'string' ? (
+                                        <>
+                                            <Package className="h-10 w-10 text-muted mb-3" />
+                                            <p className="text-muted-foreground font-medium">{emptyMessage}</p>
+                                        </>
+                                    ) : (
+                                        emptyMessage
+                                    )}
                                 </div>
                             </TableCell>
                         </TableRow>
                     ) : (
                         data.map((item) => (
-                            <TableRow
-                                key={item.id}
-                                onClick={() => onRowClick?.(item)}
-                                className={cn(
-                                    "hover:bg-muted/50 transition-colors border-b border-border/50",
-                                    onRowClick && "cursor-pointer",
-                                    typeof rowClassName === 'function' ? rowClassName(item) : rowClassName
+                            <React.Fragment key={item.id}>
+                                <TableRow
+                                    onClick={() => onRowClick?.(item)}
+                                    className={cn(
+                                        "hover:bg-muted/50 transition-colors border-b border-border/50",
+                                        onRowClick && "cursor-pointer",
+                                        typeof rowClassName === 'function' ? rowClassName(item) : rowClassName
+                                    )}
+                                >
+                                    {columns.map((column, cIdx) => (
+                                        <TableCell
+                                            key={cIdx}
+                                            className={cn("px-6 py-4 text-sm text-foreground", column.className)}
+                                        >
+                                            {column.cell ? column.cell(item) : (column.accessorKey ? (item as any)[column.accessorKey] : '-')}
+                                        </TableCell>
+                                    ))}
+                                </TableRow>
+                                {renderSubComponent && isRowExpanded?.(item) && (
+                                    <TableRow className="bg-muted/30 hover:bg-muted/30">
+                                        <TableCell colSpan={columns.length} className="p-0 border-b border-border/50">
+                                            {renderSubComponent(item)}
+                                        </TableCell>
+                                    </TableRow>
                                 )}
-                            >
-                                {columns.map((column, cIdx) => (
-                                    <TableCell
-                                        key={cIdx}
-                                        className={cn("px-6 py-4 text-sm text-foreground", column.className)}
-                                    >
-                                        {column.cell ? column.cell(item) : (column.accessorKey ? (item as any)[column.accessorKey] : '-')}
-                                    </TableCell>
-                                ))}
-                            </TableRow>
+                            </React.Fragment>
                         ))
                     )}
                 </TableBody>
+                {footer && (
+                    <TableFooter className="bg-muted/50 border-t border-border">
+                        {footer}
+                    </TableFooter>
+                )}
             </Table>
         </div>
     );
