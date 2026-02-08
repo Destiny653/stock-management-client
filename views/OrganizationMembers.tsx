@@ -98,9 +98,16 @@ import { useRouter, useSearchParams } from "next/navigation";
 
 export default function OrganizationMembers() {
     const { t } = useSafeLanguage();
+    const queryClient = useQueryClient();
     const searchParams = useSearchParams();
 
-    const orgId = searchParams?.get('id');
+    const { data: currentUser } = useQuery({
+        queryKey: ['currentUser'],
+        queryFn: () => base44.auth.me(),
+    });
+
+    const urlOrgId = searchParams?.get('id');
+    const orgId = urlOrgId || currentUser?.organization_id;
     const initialTab = searchParams?.get('tab') || 'vendors';
 
     const [activeTab, setActiveTab] = useState(initialTab);
@@ -187,13 +194,6 @@ export default function OrganizationMembers() {
         'business-staff': "bg-primary/10 text-primary border-primary/20",
     };
 
-    const queryClient = useQueryClient(); // Renamed from mutationClient for consistency
-
-    const { data: currentUser } = useQuery({
-        queryKey: ['currentUser'],
-        queryFn: () => base44.auth.me(),
-    });
-
     const isSuperAdmin = currentUser?.user_type === 'platform-staff';
     const isManagerOrAdmin = useMemo(() => {
         if (!currentUser) return false;
@@ -206,8 +206,7 @@ export default function OrganizationMembers() {
         queryKey: ['organization', orgId],
         queryFn: async () => {
             if (!orgId) return null;
-            const orgs = await base44.entities.Organization.filter({ id: orgId });
-            return orgs[0];
+            return base44.entities.Organization.get(orgId);
         },
         enabled: !!orgId,
     });
@@ -216,13 +215,13 @@ export default function OrganizationMembers() {
         queryKey: ['vendors', orgId],
         queryFn: () => base44.entities.Vendor.list({ organization_id: orgId || undefined }),
         initialData: [],
-        enabled: !!orgId || isSuperAdmin,
+        enabled: !!orgId,
     });
 
     const { data: users = [] } = useQuery({
         queryKey: ['users', orgId],
         queryFn: () => base44.entities.User.list({ organization_id: orgId || undefined }),
-        enabled: !!orgId || isSuperAdmin,
+        enabled: !!orgId,
     });
 
     const { data: locations = [] } = useQuery({
@@ -232,8 +231,8 @@ export default function OrganizationMembers() {
 
     const { data: payments = [] } = useQuery({
         queryKey: ['organizationPayments', orgId],
-        queryFn: () => base44.entities.OrganizationPayment.list({ organization_id: orgId }),
-        enabled: !!orgId || isSuperAdmin,
+        queryFn: () => base44.entities.OrganizationPayment.list({ organization_id: orgId || undefined }),
+        enabled: !!orgId,
     });
 
     const locationMap = useMemo(() => {

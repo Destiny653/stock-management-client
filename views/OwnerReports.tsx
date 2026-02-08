@@ -41,11 +41,20 @@ import {
     HardDrive,
     Activity,
     ArrowUpRight,
-    ArrowDownRight
+    ArrowDownRight,
+    FileText,
+    Table as TableIcon
 } from "lucide-react";
 import { format, subDays, startOfMonth, subMonths } from "date-fns";
 import { toast } from "sonner";
 import { useLanguage } from "@/components/i18n/LanguageContext";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { exportToCSV, exportToExcel, exportToPDF } from "@/lib/exportUtils";
 
 function useSafeLanguage() {
     try {
@@ -316,29 +325,27 @@ export default function OwnerReports() {
         };
     }, [orgPerformanceData, organizations, vendors, users]);
 
-    const exportReport = () => {
-        const csvContent = [
-            ['Organization', 'Code', 'Status', 'Plan', 'Vendors', 'Users', 'Products', 'Sales', 'Revenue', 'Storage (KB)'].join(','),
-            ...orgPerformanceData.map(org => [
-                org.name,
-                org.code,
-                org.status,
-                org.plan,
-                org.vendorCount,
-                org.userCount,
-                org.productCount,
-                org.salesCount,
-                org.revenue.toFixed(2),
-                org.storageKB.toFixed(1)
-            ].join(','))
-        ].join('\n');
+    const exportReport = (type: 'csv' | 'excel' | 'pdf') => {
+        const headers = ['Organization', 'Code', 'Status', 'Plan', 'Vendors', 'Users', 'Products', 'Sales', 'Revenue', 'Storage (KB)'];
+        const rows = orgPerformanceData.map(org => [
+            org.name,
+            org.code,
+            org.status,
+            org.plan,
+            org.vendorCount,
+            org.userCount,
+            org.productCount,
+            org.salesCount,
+            org.revenue.toFixed(2),
+            org.storageKB.toFixed(1)
+        ]);
 
-        const blob = new Blob([csvContent], { type: 'text/csv' });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `organization_report_${format(new Date(), 'yyyy-MM-dd')}.csv`;
-        a.click();
+        const filename = `organization_report_${format(new Date(), 'yyyy-MM-dd')}`;
+
+        if (type === 'csv') exportToCSV(headers, rows, filename);
+        else if (type === 'excel') exportToExcel(headers, rows, filename);
+        else exportToPDF(headers, rows, filename, 'Organization Performance Report');
+
         toast.success('Report exported successfully');
     };
 
@@ -370,10 +377,28 @@ export default function OwnerReports() {
                             <SelectItem value="365">Last year</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Button variant="outline" onClick={exportReport}>
-                        <Download className="h-4 w-4 mr-2" />
-                        Export
-                    </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline">
+                                <Download className="h-4 w-4 mr-2" />
+                                Export
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => exportReport('csv')}>
+                                <FileSpreadsheet className="h-4 w-4 mr-2 text-green-600" />
+                                CSV
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => exportReport('excel')}>
+                                <TableIcon className="h-4 w-4 mr-2 text-blue-600" />
+                                Excel
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => exportReport('pdf')}>
+                                <FileText className="h-4 w-4 mr-2 text-red-600" />
+                                PDF
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </div>
 

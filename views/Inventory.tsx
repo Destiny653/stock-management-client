@@ -27,7 +27,9 @@ import BulkActions from "@/components/inventory/BulkActions";
 import { toast } from "sonner";
 import { useLanguage } from "@/components/i18n/LanguageContext";
 import { cn } from "@/lib/utils";
-import { PageHeader } from "@/components/ui/page-header";
+import { exportToCSV, exportToExcel, exportToPDF } from "@/lib/exportUtils";
+import { FileText, Table as TableIcon, FileSpreadsheet } from "lucide-react";
+import { PageHeader } from '@/components/ui/page-header';
 
 // Safe language hook that works outside provider
 function useSafeLanguage() {
@@ -235,30 +237,26 @@ export default function Inventory() {
     setIsBulkDeleteDialogOpen(false);
   };
 
-  const handleExport = () => {
-    const exportData = filteredProducts.map(p => ({
-      SKU: p.variants?.[0]?.sku || 'N/A',
-      Name: p.name,
-      Category: p.category,
-      Stock: p.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0,
-      "Unit Price": p.variants?.[0]?.unit_price || 0,
-      Status: p.status,
-      Location: p.location,
-      Supplier: p.supplier_name
-    }));
+  const handleExport = (type: 'csv' | 'excel' | 'pdf') => {
+    const headers = ['SKU', 'Name', 'Category', 'Stock', 'Unit Price', 'Status', 'Location', 'Supplier'];
+    const rows = filteredProducts.map(p => [
+      p.variants?.[0]?.sku || 'N/A',
+      p.name,
+      p.category,
+      p.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0,
+      p.variants?.[0]?.unit_price || 0,
+      p.status,
+      p.location,
+      p.supplier_name
+    ]);
 
-    const csv = [
-      Object.keys(exportData[0] || {}).join(","),
-      ...exportData.map(row => Object.values(row).map(v => `"${v || ''}"`).join(","))
-    ].join("\n");
+    const filename = `inventory_export_${new Date().toISOString().split('T')[0]}`;
 
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "inventory_export.csv";
-    a.click();
-    toast.success("Export downloaded");
+    if (type === 'csv') exportToCSV(headers, rows, filename);
+    else if (type === 'excel') exportToExcel(headers, rows, filename);
+    else exportToPDF(headers, rows, filename, t('inventory'));
+
+    toast.success(t('reportExported') || "Export downloaded");
   };
 
   const handleBulkCategoryChange = async (category: string) => {
@@ -283,10 +281,28 @@ export default function Inventory() {
         title={t('inventory')}
         subtitle={`${filteredProducts.length} ${t('products')}`}
       >
-        <Button variant="outline" onClick={handleExport}>
-          <Download className="h-4 w-4 mr-2" />
-          {t('export')}
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline">
+              <Download className="h-4 w-4 mr-2" />
+              {t('export')}
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => handleExport('csv')}>
+              <FileSpreadsheet className="h-4 w-4 mr-2 text-green-600" />
+              CSV
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport('excel')}>
+              <TableIcon className="h-4 w-4 mr-2 text-blue-600" />
+              Excel
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={() => handleExport('pdf')}>
+              <FileText className="h-4 w-4 mr-2 text-red-600" />
+              PDF
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
         {canEdit && (
           <Link href={createPageUrl("ProductDetail?mode=new")}>
             <Button className="bg-primary hover:bg-primary/90">
@@ -474,7 +490,7 @@ export default function Inventory() {
         <BulkActions
           selectedCount={selectedIds.length}
           onDelete={handleBulkDelete}
-          onExport={handleExport}
+          onExport={() => handleExport('csv')} // Default to CSV for bulk action if not changed to dropdown
           onChangeCategory={handleBulkCategoryChange}
           onChangeLocation={handleBulkLocationChange}
           onArchive={() => toast.info("Archive feature coming soon")}

@@ -36,13 +36,22 @@ import {
     Loader2,
     FileSpreadsheet,
     ArrowUpRight,
-    ArrowDownRight
+    ArrowDownRight,
+    FileText,
+    Table as TableIcon
 } from "lucide-react";
 import { format, subDays, differenceInDays } from "date-fns";
 import { toast } from "sonner";
 import { useLanguage } from "@/components/i18n/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import OwnerReports from "./OwnerReports";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { exportToCSV, exportToExcel, exportToPDF } from "@/lib/exportUtils";
 
 function useSafeLanguage() {
     try {
@@ -260,8 +269,7 @@ function OrgReports() {
         return Object.entries(aging).map(([name, value]) => ({ name, value }));
     }, [products]);
 
-    // Export functions
-    const exportInventoryCSV = () => {
+    const exportInventory = (type: 'csv' | 'excel' | 'pdf') => {
         const headers = [t('sku'), t('name'), t('category'), t('quantity'), t('unitPrice'), t('totalValue'), t('status'), t('location'), t('supplier')];
         const rows = products.map((p: any) => {
             const stock = getProductStock(p);
@@ -279,17 +287,16 @@ function OrgReports() {
             ];
         });
 
-        const csv = [headers.join(','), ...rows.map((r: any) => r.map((v: any) => `"${v || ''}"`).join(','))].join('\n');
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `inventory_valuation_${format(new Date(), 'yyyy-MM-dd')}.csv`;
-        a.click();
+        const filename = `inventory_valuation_${format(new Date(), 'yyyy-MM-dd')}`;
+
+        if (type === 'csv') exportToCSV(headers, rows, filename);
+        else if (type === 'excel') exportToExcel(headers, rows, filename);
+        else exportToPDF(headers, rows, filename, t('inventoryValuation'));
+
         toast.success(t('reportExported'));
     };
 
-    const exportMovementsCSV = () => {
+    const exportMovements = (type: 'csv' | 'excel' | 'pdf') => {
         const headers = [t('date'), t('product'), t('sku'), t('type'), t('quantity'), t('reference'), t('performedBy')];
         const rows = movements.map((m: any) => [
             format(new Date(m.created_at), 'yyyy-MM-dd HH:mm'),
@@ -301,13 +308,12 @@ function OrgReports() {
             m.performed_by
         ]);
 
-        const csv = [headers.join(','), ...rows.map((r: any) => r.map((v: any) => `"${v || ''}"`).join(','))].join('\n');
-        const blob = new Blob([csv], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `stock_movements_${format(new Date(), 'yyyy-MM-dd')}.csv`;
-        a.click();
+        const filename = `stock_movements_${format(new Date(), 'yyyy-MM-dd')}`;
+
+        if (type === 'csv') exportToCSV(headers, rows, filename);
+        else if (type === 'excel') exportToExcel(headers, rows, filename);
+        else exportToPDF(headers, rows, filename, t('stockMovements'));
+
         toast.success(t('reportExported'));
     };
 
@@ -338,10 +344,28 @@ function OrgReports() {
                             <SelectItem value="90">{t('last90Days')}</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Button variant="outline" onClick={exportInventoryCSV}>
-                        <Download className="h-4 w-4 mr-2" />
-                        {t('exportCSV')}
-                    </Button>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline">
+                                <Download className="h-4 w-4 mr-2" />
+                                {t('export')}
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => exportInventory('csv')}>
+                                <FileSpreadsheet className="h-4 w-4 mr-2 text-green-600" />
+                                CSV
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => exportInventory('excel')}>
+                                <TableIcon className="h-4 w-4 mr-2 text-blue-600" />
+                                Excel
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => exportInventory('pdf')}>
+                                <FileText className="h-4 w-4 mr-2 text-red-600" />
+                                PDF
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </div>
 
@@ -546,20 +570,41 @@ function OrgReports() {
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <Button variant="outline" className="h-auto p-4 justify-start" onClick={exportInventoryCSV}>
-                            <FileSpreadsheet className="h-8 w-8 mr-4 text-primary" />
-                            <div className="text-left">
-                                <p className="font-medium">{t('inventoryValuation')}</p>
-                                <p className="text-xs text-muted-foreground">{t('fullStockListValues')}</p>
+                        <div className="flex flex-col gap-2">
+                            <Button variant="outline" className="h-auto p-4 justify-start" onClick={() => exportInventory('csv')}>
+                                <FileSpreadsheet className="h-8 w-8 mr-4 text-primary" />
+                                <div className="text-left">
+                                    <p className="font-medium">{t('inventoryValuation')}</p>
+                                    <p className="text-xs text-muted-foreground">{t('exportCSV')}</p>
+                                </div>
+                            </Button>
+                            <div className="flex gap-2">
+                                <Button variant="ghost" size="sm" className="flex-1" onClick={() => exportInventory('excel')}>
+                                    <TableIcon className="h-4 w-4 mr-2 text-blue-600" /> Excel
+                                </Button>
+                                <Button variant="ghost" size="sm" className="flex-1" onClick={() => exportInventory('pdf')}>
+                                    <FileText className="h-4 w-4 mr-2 text-red-600" /> PDF
+                                </Button>
                             </div>
-                        </Button>
-                        <Button variant="outline" className="h-auto p-4 justify-start" onClick={exportMovementsCSV}>
-                            <FileSpreadsheet className="h-8 w-8 mr-4 text-primary" />
-                            <div className="text-left">
-                                <p className="font-medium">{t('stockMovements')}</p>
-                                <p className="text-xs text-muted-foreground">{t('allInventoryTransactions')}</p>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <Button variant="outline" className="h-auto p-4 justify-start" onClick={() => exportMovements('csv')}>
+                                <FileSpreadsheet className="h-8 w-8 mr-4 text-primary" />
+                                <div className="text-left">
+                                    <p className="font-medium">{t('stockMovements')}</p>
+                                    <p className="text-xs text-muted-foreground">{t('exportCSV')}</p>
+                                </div>
+                            </Button>
+                            <div className="flex gap-2">
+                                <Button variant="ghost" size="sm" className="flex-1" onClick={() => exportMovements('excel')}>
+                                    <TableIcon className="h-4 w-4 mr-2 text-blue-600" /> Excel
+                                </Button>
+                                <Button variant="ghost" size="sm" className="flex-1" onClick={() => exportMovements('pdf')}>
+                                    <FileText className="h-4 w-4 mr-2 text-red-600" /> PDF
+                                </Button>
                             </div>
-                        </Button>
+                        </div>
                         <Button variant="outline" className="h-auto p-4 justify-start" onClick={() => toast.info(t('comingSoon'))}>
                             <FileSpreadsheet className="h-8 w-8 mr-4 text-violet-600" />
                             <div className="text-left">

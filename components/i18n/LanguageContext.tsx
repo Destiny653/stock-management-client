@@ -134,6 +134,7 @@ const translations = {
     viewDetails: "View Details",
     activate: "Activate",
     suspend: "Suspend",
+    completeProfile: "Complete Profile",
     storeLocation: "Store Location",
 
     // Payments
@@ -691,6 +692,7 @@ const translations = {
     viewDetails: "Ver Detalles",
     activate: "Activar",
     suspend: "Suspender",
+    completeProfile: "Completar Perfil",
     storeLocation: "Ubicación de la Tienda",
 
     // Payments
@@ -1161,6 +1163,7 @@ const translations = {
     viewDetails: "Voir Détails",
     activate: "Activer",
     suspend: "Suspendre",
+    completeProfile: "Compléter le Profil",
     storeLocation: "Emplacement du Magasin",
 
     // Payments
