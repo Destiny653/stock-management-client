@@ -68,7 +68,7 @@ const paymentStatusColors: Record<string, string> = {
 
 export default function VendorDetail() {
   const searchParams = useSearchParams();
-  const vendorId = searchParams.get('id');
+  const userId = searchParams.get('userId');
   const queryClient = useQueryClient();
 
   // State
@@ -83,30 +83,35 @@ export default function VendorDetail() {
     status: 'pending'
   });
 
-  // Queries
-  const { data: vendor, isLoading: loadingVendor } = useQuery({
-    queryKey: ['vendor', vendorId],
-    queryFn: () => vendorId ? base44.entities.Vendor.get(vendorId) : Promise.reject('No ID'),
-    enabled: !!vendorId
+  // Fetch the user first (the vendor is a user with role='vendor')
+  const { data: vendorUser, isLoading: loadingUser } = useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => userId ? base44.entities.User.get(userId) : Promise.reject('No user ID'),
+    enabled: !!userId
+  });
+
+  // Fetch the vendor business data by user_id
+  const { data: vendor, isLoading: loadingVendor, error: vendorError } = useQuery({
+    queryKey: ['vendor-by-user', userId],
+    queryFn: () => userId ? base44.entities.Vendor.getByUserId(userId) : Promise.reject('No user ID'),
+    enabled: !!userId,
+    retry: false  // Don't retry on 404 - vendor profile may not exist yet
   });
 
   const { data: vendorSales = [] } = useQuery({
-    queryKey: ['vendor-sales', vendorId],
-    queryFn: () => vendorId ? base44.entities.Sale.list({ vendor_id: vendorId }) : Promise.resolve([]),
-    enabled: !!vendorId
+    queryKey: ['vendor-sales', vendor?.id],
+    queryFn: () => vendor?.id ? base44.entities.Sale.list({ vendor_id: vendor.id }) : Promise.resolve([]),
+    enabled: !!vendor?.id
   });
 
   const { data: payments = [] } = useQuery({
-    queryKey: ['vendor-payments', vendorId],
-    queryFn: () => vendorId ? base44.entities.VendorPayment.list({ vendor_id: vendorId }) : Promise.resolve([]),
-    enabled: !!vendorId
+    queryKey: ['vendor-payments', vendor?.id],
+    queryFn: () => vendor?.id ? base44.entities.VendorPayment.list({ vendor_id: vendor.id }) : Promise.resolve([]),
+    enabled: !!vendor?.id
   });
 
-  const { data: linkedUser } = useQuery({
-    queryKey: ['user', vendor?.user_id],
-    queryFn: () => vendor?.user_id ? base44.entities.User.get(vendor.user_id) : Promise.resolve(null),
-    enabled: !!vendor?.user_id
-  });
+  // Use vendorUser directly since we already fetched the user
+  const linkedUser = vendorUser;
 
   const { data: location } = useQuery({
     queryKey: ['location', vendor?.location_id],
@@ -122,21 +127,22 @@ export default function VendorDetail() {
       confirmed_date: new Date().toISOString()
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vendor-payments', vendorId] });
+      queryClient.invalidateQueries({ queryKey: ['vendor-payments', vendor?.id] });
       toast.success("Payment confirmed successfully");
     },
     onError: () => toast.error("Failed to confirm payment")
   });
 
+
   const recordPaymentMutation = useMutation({
     mutationFn: (data: Partial<VendorPayment>) => base44.entities.VendorPayment.create({
       ...data,
-      vendor_id: vendorId as string,
+      vendor_id: vendor?.id as string,
       created_at: new Date().toISOString(),
       status: 'pending'
     }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['vendor-payments', vendorId] });
+      queryClient.invalidateQueries({ queryKey: ['vendor-payments', vendor?.id] });
       setIsPaymentDialogOpen(false);
       setPaymentForm({
         amount: 0,
@@ -157,7 +163,7 @@ export default function VendorDetail() {
   };
 
   const handleRecordPayment = () => {
-    if (!vendorId) return;
+    if (!vendor?.id) return;
     if (!paymentForm.amount || paymentForm.amount <= 0) {
       toast.error("Please enter a valid amount");
       return;
@@ -293,10 +299,44 @@ export default function VendorDetail() {
     }
     return last30Days;
   }, [vendorSales]);
+  // State for vendor registration form
+  const [registrationForm, setRegistrationForm] = useState<Partial<Vendor>>({
+    store_name: '',
+    name: '',
+    status: 'pending',
+    subscription_plan: 'basic',
+    commission_rate: 5,
+    monthly_fee: 0,
+    notes: ''
+  });
 
+  // Mutation for creating vendor profile
+  const createVendorMutation = useMutation({
+    mutationFn: (data: Partial<Vendor>) => base44.entities.Vendor.create({
+      ...data,
+      user_id: userId!,
+      organization_id: vendorUser?.organization_id || '',
+      join_date: new Date().toISOString().split('T')[0],
+      total_sales: 0,
+      total_orders: 0
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['vendor-by-user', userId] });
+      toast.success("Vendor profile created successfully");
+    },
+    onError: () => toast.error("Failed to create vendor profile")
+  });
 
+  const handleCreateVendorProfile = () => {
+    if (!registrationForm.store_name) {
+      toast.error("Please enter a store name");
+      return;
+    }
+    createVendorMutation.mutate(registrationForm);
+  };
 
-  if (loadingVendor) {
+  // Loading state
+  if (loadingUser || loadingVendor) {
     return (
       <div className="flex items-center justify-center h-96">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -304,13 +344,148 @@ export default function VendorDetail() {
     );
   }
 
-  if (!vendor) {
+  // User not found
+  if (!vendorUser) {
     return (
       <div className="text-center py-12">
-        <p className="text-muted-foreground">Vendor not found</p>
+        <Store className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+        <p className="text-muted-foreground">User not found</p>
         <Link href={createPageUrl("VendorManagement")}>
           <Button className="mt-4">Back to Vendors</Button>
         </Link>
+      </div>
+    );
+  }
+
+  // User exists but no Vendor profile - show registration form
+  if (!vendor) {
+    return (
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex items-center gap-4">
+          <Link href={createPageUrl("VendorManagement")}>
+            <Button variant="ghost" size="icon">
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+          </Link>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight">Complete Vendor Registration</h1>
+            <p className="text-muted-foreground">Set up the vendor profile for {vendorUser.full_name || vendorUser.username}</p>
+          </div>
+        </div>
+
+        {/* User Info Card */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">User Information</CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-muted-foreground" />
+              <span>{vendorUser.email}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-muted-foreground" />
+              <span>{vendorUser.phone || 'No phone'}</span>
+            </div>
+            <div>
+              <Badge variant="outline" className="capitalize">{vendorUser.role}</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Vendor Registration Form */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Vendor Profile Details</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="store_name">Store Name *</Label>
+                <Input
+                  id="store_name"
+                  placeholder="Enter store/business name"
+                  value={registrationForm.store_name || ''}
+                  onChange={(e) => setRegistrationForm({ ...registrationForm, store_name: e.target.value })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="name">Legal Business Name</Label>
+                <Input
+                  id="name"
+                  placeholder="Legal/registered name (optional)"
+                  value={registrationForm.name || ''}
+                  onChange={(e) => setRegistrationForm({ ...registrationForm, name: e.target.value })}
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label>Subscription Plan</Label>
+                <Select
+                  value={registrationForm.subscription_plan || 'basic'}
+                  onValueChange={(value) => setRegistrationForm({ ...registrationForm, subscription_plan: value })}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="basic">Basic</SelectItem>
+                    <SelectItem value="standard">Standard</SelectItem>
+                    <SelectItem value="premium">Premium</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="commission_rate">Commission Rate (%)</Label>
+                <Input
+                  id="commission_rate"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={registrationForm.commission_rate || 0}
+                  onChange={(e) => setRegistrationForm({ ...registrationForm, commission_rate: parseFloat(e.target.value) || 0 })}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="monthly_fee">Monthly Fee</Label>
+                <Input
+                  id="monthly_fee"
+                  type="number"
+                  min="0"
+                  value={registrationForm.monthly_fee || 0}
+                  onChange={(e) => setRegistrationForm({ ...registrationForm, monthly_fee: parseFloat(e.target.value) || 0 })}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                placeholder="Any additional notes about this vendor..."
+                value={registrationForm.notes || ''}
+                onChange={(e) => setRegistrationForm({ ...registrationForm, notes: e.target.value })}
+              />
+            </div>
+
+            <div className="flex justify-end gap-3 pt-4">
+              <Link href={createPageUrl("VendorManagement")}>
+                <Button variant="outline">Cancel</Button>
+              </Link>
+              <Button
+                onClick={handleCreateVendorProfile}
+                disabled={createVendorMutation.isPending}
+                className="bg-primary hover:bg-primary/90"
+              >
+                {createVendorMutation.isPending && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                Create Vendor Profile
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

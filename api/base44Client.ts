@@ -572,7 +572,13 @@ export const base44 = {
         StockMovement: createEntityMethods<StockMovement>('StockMovement'),
         Supplier: createEntityMethods<Supplier>('Supplier'),
         User: createEntityMethods<User>('User'),
-        Vendor: createEntityMethods<Vendor>('Vendor'),
+        Vendor: {
+            ...createEntityMethods<Vendor>('Vendor'),
+            getByUserId: async (userId: string, params: Record<string, any> = {}): Promise<Vendor> => {
+                const response = await apiClient.get<Vendor>(`vendors/by-user/${userId}`, { params });
+                return response.data;
+            }
+        },
         VendorPayment: createEntityMethods<VendorPayment>('VendorPayment'),
         Warehouse: createEntityMethods<Warehouse>('Warehouse'),
         Location: createEntityMethods<Location>('Location'),

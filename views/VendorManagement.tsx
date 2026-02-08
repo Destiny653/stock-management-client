@@ -207,6 +207,7 @@ export default function VendorManagement() {
         ...profile,
         id: profile?.id || u.id,
         user_id: u.id,
+        is_user_only: !profile,
         store_name: profile?.store_name || u.full_name || u.username || 'New Vendor',
         name: profile?.name || u.full_name || u.username
       };
@@ -410,7 +411,10 @@ export default function VendorManagement() {
             {vendor.store_name?.charAt(0) || 'V'}
           </div>
           <div>
-            <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)} className="font-medium text-slate-900 hover:text-primary hover:underline">
+            <Link
+              href={createPageUrl(`VendorDetail?userId=${vendor.user_id}`)}
+              className="font-medium text-slate-900 hover:text-primary hover:underline"
+            >
               {vendor.store_name}
             </Link>
             <p className="text-sm text-slate-500">{userMap[vendor.user_id!]?.full_name || 'No contact'}</p>
@@ -468,8 +472,8 @@ export default function VendorManagement() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem asChild>
-              <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)}>
-                <Eye className="h-4 w-4 mr-2" /> View
+              <Link href={createPageUrl(`VendorDetail?userId=${vendor.user_id}`)}>
+                <Eye className="h-4 w-4 mr-2" /> {vendor.is_user_only ? 'Complete Profile' : 'View'}
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleEdit(vendor)}>
@@ -865,8 +869,8 @@ export default function VendorManagement() {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem asChild>
-                          <Link href={createPageUrl(`VendorDetail?id=${vendor.id}`)}>
-                            <Eye className="h-4 w-4 mr-2" /> {t('viewDetails')}
+                          <Link href={createPageUrl(`VendorDetail?userId=${vendor.user_id}`)}>
+                            <Eye className="h-4 w-4 mr-2" /> {vendor.is_user_only ? t('completeProfile') || 'Complete Profile' : t('viewDetails')}
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem onClick={() => handleEdit(vendor)}>
