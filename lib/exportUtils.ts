@@ -1,14 +1,7 @@
 import { saveAs } from 'file-saver';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
-
-// Extend jsPDF with autotable
-declare module 'jspdf' {
-    interface jsPDF {
-        autoTable: (options: any) => jsPDF;
-    }
-}
+import autoTable from 'jspdf-autotable';
 
 /**
  * Export data to CSV format
@@ -67,8 +60,8 @@ export const exportToPDF = (headers: string[], data: any[][], filename: string, 
         doc.text(`Generated on: ${new Date().toLocaleString()}`, 14, 30);
     }
 
-    // @ts-ignore - autoTable is added by the plugin
-    doc.autoTable({
+    // Use the autoTable function directly
+    autoTable(doc, {
         head: [headers],
         body: data,
         startY: title ? 40 : 20,
