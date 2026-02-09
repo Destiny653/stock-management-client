@@ -84,6 +84,8 @@ const translations = {
     partiallyReceived: "Partially Received",
     allPurchaseOrders: "All Purchase Orders",
     createNewPO: "Create New PO",
+    statusUpdated: "Status updated successfully",
+    failedToUpdate: "Failed to update status",
 
     // Direct Sales
     newSale: "New Sale",
@@ -643,6 +645,8 @@ const translations = {
     partiallyReceived: "Parcialmente Recibido",
     allPurchaseOrders: "Todas las Órdenes de Compra",
     createNewPO: "Crear Nueva OC",
+    statusUpdated: "Estado actualizado con éxito",
+    failedToUpdate: "Error al actualizar el estado",
 
     // Direct Sales
     newSale: "Nueva Venta",
@@ -1114,6 +1118,8 @@ const translations = {
     partiallyReceived: "Partiellement Reçu",
     allPurchaseOrders: "Tous les Bons de Commande",
     createNewPO: "Créer Nouveau BC",
+    statusUpdated: "Statut mis à jour avec succès",
+    failedToUpdate: "Échec de la mise à jour du statut",
 
     // Direct Sales
     newSale: "Nouvelle Vente",

@@ -36,6 +36,7 @@ import { useLanguage } from "@/components/i18n/LanguageContext";
 import Link from 'next/link';
 import POBulkActions from "@/components/po/POBulkActions";
 import { exportToCSV, exportToPDF } from "@/lib/exportUtils";
+import { useAuth } from "@/contexts/AuthContext";
 
 // New reusable components
 import { PageHeader } from "@/components/ui/page-header";
@@ -52,6 +53,7 @@ function useSafeLanguage() {
 
 export default function PurchaseOrders() {
   const { t } = useSafeLanguage();
+  const { user } = useAuth();
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -89,8 +91,24 @@ export default function PurchaseOrders() {
     return result;
   }, [purchaseOrders, searchTerm, statusFilter]);
 
-  const handleStatusChange = async (poId: string | number, newStatus: string) => {
-    await updatePOMutation.mutateAsync({ id: poId as string, data: { status: newStatus } });
+  const handleStatusChange = async (poId: string | number, newStatus: PurchaseOrder['status']) => {
+    try {
+      if (newStatus === 'received') {
+        const organizationId = user?.organization_id;
+        if (!organizationId) {
+          toast.error("Organization ID not found");
+          return;
+        }
+        await base44.entities.PurchaseOrder.receive(poId as string, organizationId);
+      } else {
+        await updatePOMutation.mutateAsync({ id: poId as string, data: { status: newStatus } });
+      }
+      queryClient.invalidateQueries({ queryKey: ['products'] });
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
+      toast.success(t('statusUpdated') || "Status updated");
+    } catch (e) {
+      toast.error(t('failedToUpdate') || "Failed to update status");
+    }
   };
 
   const handleBulkDelete = async () => {
@@ -110,20 +128,31 @@ export default function PurchaseOrders() {
     }
   };
 
-  const handleBulkStatusChange = async (newStatus: string) => {
+  const handleBulkStatusChange = async (newStatus: PurchaseOrder['status']) => {
+    const organizationId = user?.organization_id;
+    if (newStatus === 'received' && !organizationId) {
+      toast.error("Organization ID not found");
+      return;
+    }
+
     try {
       for (const id of selectedIds) {
-        await base44.entities.PurchaseOrder.update(id, { status: newStatus });
+        if (newStatus === 'received') {
+          await base44.entities.PurchaseOrder.receive(id, organizationId!);
+        } else {
+          await base44.entities.PurchaseOrder.update(id, { status: newStatus });
+        }
       }
       setSelectedIds([]);
       queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
+      queryClient.invalidateQueries({ queryKey: ['products'] });
       toast.success(`Updated ${selectedIds.length} purchase orders`);
     } catch (e) {
       toast.error("Failed to update some purchase orders");
     }
   };
 
-  const handleBulkExport = (format: 'pdf' | 'csv') => {
+  const handleBulkExport = (exportFormat: 'pdf' | 'csv') => {
     const headers = ['PO Number', 'Supplier', 'Status', 'Items', 'Total', 'Expected Date', 'Created'];
     const rows = filteredOrders
       .filter(po => selectedIds.includes(po.id))
@@ -147,7 +176,7 @@ export default function PurchaseOrders() {
       });
 
     const filename = `purchase_orders_export_${new Date().toISOString().split('T')[0]}`;
-    if (format === 'csv') exportToCSV(headers, rows, filename);
+    if (exportFormat === 'csv') exportToCSV(headers, rows, filename);
     else exportToPDF(headers, rows, filename, "Purchase Orders Export");
 
     toast.success("Export downloaded");

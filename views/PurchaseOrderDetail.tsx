@@ -53,6 +53,8 @@ export default function PurchaseOrderDetail() {
       await base44.entities.PurchaseOrder.approve(poId!, purchaseOrder!.organization_id);
       queryClient.invalidateQueries({ queryKey: ['purchaseOrder', poId] });
       toast.success("Purchase order approved");
+    } else if (newStatus === 'received') {
+      await handleReceiveAll();
     } else {
       await updatePOMutation.mutateAsync({ status: newStatus });
     }

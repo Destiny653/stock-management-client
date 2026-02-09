@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from "@/components/ui/button";
+import { PurchaseOrder } from "@/api/base44Client";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -22,7 +23,7 @@ interface POBulkActionsProps {
     selectedCount: number;
     onDelete: () => void;
     onExport: (format: 'pdf' | 'csv') => void;
-    onChangeStatus: (status: string) => void;
+    onChangeStatus: (status: PurchaseOrder['status']) => void;
 }
 
 export default function POBulkActions({
