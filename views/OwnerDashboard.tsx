@@ -58,6 +58,7 @@ import {
     Crown,
     Wallet
 } from "lucide-react";
+import { DatePicker } from "@/components/ui/date-picker";
 import { cn } from "@/lib/utils";
 import { format, subDays, startOfMonth } from "date-fns";
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
@@ -1320,11 +1321,9 @@ export default function OwnerDashboard() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="date">Payment Date</Label>
-                                        <Input
-                                            id="date"
-                                            type="date"
-                                            value={paymentForm.payment_date}
-                                            onChange={(e) => setPaymentForm({ ...paymentForm, payment_date: e.target.value })}
+                                        <DatePicker
+                                            date={paymentForm.payment_date}
+                                            onChange={(date) => setPaymentForm({ ...paymentForm, payment_date: date })}
                                         />
                                     </div>
                                 </div>
@@ -1681,13 +1680,11 @@ export default function OwnerDashboard() {
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="trial_ends">Trial Ends At</Label>
-                            <Input
-                                id="trial_ends"
-                                type="date"
-                                value={subscriptionForm.trial_ends_at}
-                                onChange={(e) => setSubscriptionForm({
+                            <DatePicker
+                                date={subscriptionForm.trial_ends_at}
+                                onChange={(date) => setSubscriptionForm({
                                     ...subscriptionForm,
-                                    trial_ends_at: e.target.value
+                                    trial_ends_at: date
                                 })}
                             />
                             <p className="text-xs text-slate-400">Leave empty if no trial period</p>

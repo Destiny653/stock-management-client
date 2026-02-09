@@ -46,6 +46,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import POItemsTable from "@/components/po/POItemsTable";
+import { DatePicker } from "@/components/ui/date-picker";
 
 interface PurchaseOrderItem {
   product_id: string;
@@ -434,10 +435,10 @@ export default function CreatePurchaseOrder() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label>Expected Delivery Date</Label>
-                <Input
-                  type="date"
-                  value={formData.expected_date}
-                  onChange={(e) => setFormData(prev => ({ ...prev, expected_date: e.target.value }))}
+                <DatePicker
+                  date={formData.expected_date}
+                  onChange={(date) => setFormData(prev => ({ ...prev, expected_date: date }))}
+                  placeholder="Expected Delivery Date"
                 />
               </div>
               <div className="space-y-2">

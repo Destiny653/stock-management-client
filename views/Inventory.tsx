@@ -199,7 +199,7 @@ export default function Inventory() {
     const totalStock = variants.reduce((sum, v) => sum + (v.stock || 0), 0);
     let status: Product['status'] = "active";
     if (totalStock === 0) status = "out_of_stock";
-    else if (product.reorder_point && totalStock <= product.reorder_point) status = "low_stock";
+    else if (totalStock <= (product.reorder_point ?? 10)) status = "low_stock";
 
     try {
       await updateProductMutation.mutateAsync({

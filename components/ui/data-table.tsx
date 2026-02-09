@@ -14,7 +14,7 @@ import { Loader2, Package, ArrowUpDown, ChevronUp, ChevronDown } from "lucide-re
 import { cn } from "@/lib/utils";
 
 export interface Column<T> {
-    header: string;
+    header: string | React.ReactNode;
     accessorKey?: string;
     cell?: (item: T) => React.ReactNode;
     className?: string;

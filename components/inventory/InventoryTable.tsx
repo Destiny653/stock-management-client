@@ -200,7 +200,7 @@ export default function InventoryTable({
       sortable: true,
       cell: (product) => {
         const totalStock = product.variants?.reduce((acc, v) => acc + (v.stock || 0), 0) || 0;
-        const isLowStock = product.variants?.some(v => v.stock <= (product.reorder_point || 0)) || false;
+        const isLowStock = product.variants?.some(v => v.stock <= (product.reorder_point ?? 10)) || false;
         const isEditing = editingId === product.id && !editingSku;
 
         if (isEditing) {
@@ -244,7 +244,7 @@ export default function InventoryTable({
       accessorKey: 'status',
       sortable: true,
       cell: (product) => {
-        const isLowStock = product.variants?.some(v => v.stock <= (product.reorder_point || 0)) || false;
+        const isLowStock = product.variants?.some(v => v.stock <= (product.reorder_point ?? 10)) || false;
         return (
           <span className={cn(
             "inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide",
@@ -334,7 +334,7 @@ export default function InventoryTable({
                         onClick={() => handleStartEdit(product, variant.sku, variant.stock)}
                         className={cn(
                           "font-bold px-2 py-0.5 rounded hover:bg-muted transition-colors",
-                          variant.stock <= (product.reorder_point || 0) ? "text-destructive" : "text-foreground"
+                          variant.stock <= (product.reorder_point ?? 10) ? "text-destructive" : "text-foreground"
                         )}
                       >
                         {variant.stock} units

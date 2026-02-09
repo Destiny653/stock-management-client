@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Plus,
   Search,
@@ -33,6 +34,8 @@ import POStatusBadge from "@/components/po/POStatusBadge";
 import { toast } from "sonner";
 import { useLanguage } from "@/components/i18n/LanguageContext";
 import Link from 'next/link';
+import POBulkActions from "@/components/po/POBulkActions";
+import { exportToCSV, exportToPDF } from "@/lib/exportUtils";
 
 // New reusable components
 import { PageHeader } from "@/components/ui/page-header";
@@ -52,6 +55,8 @@ export default function PurchaseOrders() {
   const queryClient = useQueryClient();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { data: purchaseOrders = [], isLoading } = useQuery<PurchaseOrder[]>({
     queryKey: ['purchaseOrders'],
@@ -88,6 +93,82 @@ export default function PurchaseOrders() {
     await updatePOMutation.mutateAsync({ id: poId as string, data: { status: newStatus } });
   };
 
+  const handleBulkDelete = async () => {
+    if (!confirm(`Are you sure you want to delete ${selectedIds.length} purchase orders?`)) return;
+    setIsDeleting(true);
+    try {
+      for (const id of selectedIds) {
+        await base44.entities.PurchaseOrder.delete(id);
+      }
+      setSelectedIds([]);
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
+      toast.success("Purchase orders deleted");
+    } catch (e) {
+      toast.error("Failed to delete some purchase orders");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleBulkStatusChange = async (newStatus: string) => {
+    try {
+      for (const id of selectedIds) {
+        await base44.entities.PurchaseOrder.update(id, { status: newStatus });
+      }
+      setSelectedIds([]);
+      queryClient.invalidateQueries({ queryKey: ['purchaseOrders'] });
+      toast.success(`Updated ${selectedIds.length} purchase orders`);
+    } catch (e) {
+      toast.error("Failed to update some purchase orders");
+    }
+  };
+
+  const handleBulkExport = (format: 'pdf' | 'csv') => {
+    const headers = ['PO Number', 'Supplier', 'Status', 'Items', 'Total', 'Expected Date', 'Created'];
+    const rows = filteredOrders
+      .filter(po => selectedIds.includes(po.id))
+      .map(po => {
+        const total = (po as any).total ?? po.items?.reduce((sum: number, item: any) => {
+          const itemTotal = (item as any).total ??
+            ((item as any).quantity ?? (item as any).quantity_ordered ?? 0) *
+            ((item as any).unit_price ?? (item as any).unit_cost ?? 0);
+          return sum + itemTotal;
+        }, 0) ?? 0;
+
+        return [
+          po.po_number,
+          po.supplier_name,
+          po.status,
+          po.items?.length || 0,
+          `$${total.toFixed(2)}`,
+          po.expected_date ? format(new Date(po.expected_date), "MMM d, yyyy") : '-',
+          format(new Date(po.created_at), "MMM d, yyyy")
+        ];
+      });
+
+    const filename = `purchase_orders_export_${new Date().toISOString().split('T')[0]}`;
+    if (format === 'csv') exportToCSV(headers, rows, filename);
+    else exportToPDF(headers, rows, filename, "Purchase Orders Export");
+
+    toast.success("Export downloaded");
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(filteredOrders.map(po => po.id));
+    } else {
+      setSelectedIds([]);
+    }
+  };
+
+  const handleSelectOne = (id: string, checked: boolean) => {
+    if (checked) {
+      setSelectedIds(prev => [...prev, id]);
+    } else {
+      setSelectedIds(prev => prev.filter(i => i !== id));
+    }
+  };
+
   // Stats
   const stats = useMemo(() => ({
     draft: purchaseOrders.filter(p => p.status === 'draft').length,
@@ -98,6 +179,26 @@ export default function PurchaseOrders() {
 
   // Define Table Columns
   const columns: Column<PurchaseOrder>[] = [
+    {
+      header: (
+        <div className="flex justify-center items-center w-full">
+          <Checkbox
+            checked={filteredOrders.length > 0 && selectedIds.length === filteredOrders.length}
+            onCheckedChange={(checked) => handleSelectAll(checked === true)}
+          />
+        </div>
+      ),
+      headerClassName: 'w-12 p-0 text-center',
+      className: 'w-12 p-0 text-center',
+      cell: (po: PurchaseOrder) => (
+        <div className="flex justify-center items-center w-full" onClick={(e) => e.stopPropagation()}>
+          <Checkbox
+            checked={selectedIds.includes(po.id)}
+            onCheckedChange={(checked) => handleSelectOne(po.id, checked === true)}
+          />
+        </div>
+      )
+    },
     {
       header: t('poNumber'),
       accessorKey: 'po_number',
@@ -274,6 +375,13 @@ export default function PurchaseOrders() {
         columns={columns}
         isLoading={isLoading}
         emptyMessage={t('noResults')}
+      />
+
+      <POBulkActions
+        selectedCount={selectedIds.length}
+        onDelete={handleBulkDelete}
+        onExport={handleBulkExport}
+        onChangeStatus={handleBulkStatusChange}
       />
     </div>
   );
