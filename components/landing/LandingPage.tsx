@@ -763,13 +763,13 @@ export default function LandingPage() {
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
                         <div className="col-span-2 md:col-span-1">
-                            <div className="flex items-center gap-3 mb-6">
-                                <div className="h-10 w-10 rounded-md bg-primary-foreground flex items-center justify-center">
+                            <Link href="/" className="flex items-center gap-3 group">
+                                <div className="h-10 w-10 rounded-md bg-primary-foreground flex items-center justify-center transition-transform group-hover:scale-105">
                                     <Package className="h-5 w-5 text-primary" />
                                 </div>
                                 <span className="text-xl font-bold text-primary-foreground">StockFlow</span>
-                            </div>
-                            <p className="text-sm text-primary-foreground/70">
+                            </Link>
+                            <p className="text-sm text-primary-foreground/70 mt-4">
                                 The modern inventory management platform for growing businesses.
                             </p>
                         </div>

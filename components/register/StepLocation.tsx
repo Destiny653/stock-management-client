@@ -92,13 +92,14 @@ export default function StepLocation({ onNext, onBack, initialData }: StepLocati
                 </p>
             </div>
 
-            <div className="space-y-4">
-                <div className="space-y-2">
-                    <Label>Location Name (e.g. Headquarters) *</Label>
+            <div className="space-y-6">
+                <div className="space-y-3">
+                    <Label className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Location Name (e.g. Headquarters) *</Label>
                     <Input
                         value={locationData.name}
                         onChange={(e) => setLocationData(prev => ({ ...prev, name: e.target.value }))}
                         placeholder="Headquarters"
+                        className="input-minimal h-10"
                     />
                 </div>
             </div>
@@ -118,30 +119,33 @@ export default function StepLocation({ onNext, onBack, initialData }: StepLocati
                 />
             </div>
 
-            <div className="space-y-4">
-                <div className="space-y-2">
-                    <Label>Address *</Label>
+            <div className="space-y-6">
+                <div className="space-y-3">
+                    <Label className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Address *</Label>
                     <Input
                         value={locationData.address}
                         onChange={(e) => setLocationData(prev => ({ ...prev, address: e.target.value }))}
                         placeholder="123 Main St"
+                        className="input-minimal h-10"
                     />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label>City *</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                        <Label className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">City *</Label>
                         <Input
                             value={locationData.city}
                             onChange={(e) => setLocationData(prev => ({ ...prev, city: e.target.value }))}
                             placeholder="City"
+                            className="input-minimal h-10"
                         />
                     </div>
-                    <div className="space-y-2">
-                        <Label>Country *</Label>
+                    <div className="space-y-3">
+                        <Label className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Country *</Label>
                         <Input
                             value={locationData.country}
                             onChange={(e) => setLocationData(prev => ({ ...prev, country: e.target.value }))}
                             placeholder="Country"
+                            className="input-minimal h-10"
                         />
                     </div>
                 </div>

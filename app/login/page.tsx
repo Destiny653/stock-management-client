@@ -185,9 +185,9 @@ export default function LoginPage() {
                         )}
 
                         {/* Login Form */}
-                        <form onSubmit={handleSubmit} className="space-y-5">
-                            <div className="space-y-2">
-                                <Label htmlFor="username" className="text-foreground font-medium">
+                        <form onSubmit={handleSubmit} className="space-y-8">
+                            <div className="space-y-3">
+                                <Label htmlFor="username" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">
                                     Username
                                 </Label>
                                 <Input
@@ -196,13 +196,13 @@ export default function LoginPage() {
                                     placeholder="Enter your username"
                                     value={username}
                                     onChange={(e) => setUsername(e.target.value)}
-                                    className="h-12 rounded-md border-input bg-background focus:border-primary focus:ring-primary"
+                                    className="input-minimal h-10"
                                     disabled={isSubmitting}
                                 />
                             </div>
 
-                            <div className="space-y-2">
-                                <Label htmlFor="password" className="text-foreground font-medium">
+                            <div className="space-y-3">
+                                <Label htmlFor="password" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">
                                     Password
                                 </Label>
                                 <div className="relative">
@@ -212,13 +212,13 @@ export default function LoginPage() {
                                         placeholder="Enter your password"
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="h-12 rounded-md border-input bg-background focus:border-primary focus:ring-primary pr-12"
+                                        className="input-minimal h-10 pr-10"
                                         disabled={isSubmitting}
                                     />
                                     <button
                                         type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                        className="absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                                     >
                                         {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                     </button>

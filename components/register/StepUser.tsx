@@ -139,41 +139,44 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                 </p>
             </div>
 
-            <div className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name *</Label>
+            <div className="space-y-6 mt-8">
+                <div className="space-y-3">
+                    <Label htmlFor="fullName" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Full Name *</Label>
                     <Input
                         id="fullName"
                         value={formData.full_name}
                         onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                         placeholder="John Doe"
                         disabled={isSubmitting}
+                        className="input-minimal h-10"
                     />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="firstName">First Name</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                        <Label htmlFor="firstName" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">First Name</Label>
                         <Input
                             id="firstName"
                             value={formData.first_name}
                             onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
                             placeholder="John"
                             disabled={isSubmitting}
+                            className="input-minimal h-10"
                         />
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="lastName">Last Name</Label>
+                    <div className="space-y-3">
+                        <Label htmlFor="lastName" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Last Name</Label>
                         <Input
                             id="lastName"
                             value={formData.last_name}
                             onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
                             placeholder="Doe"
                             disabled={isSubmitting}
+                            className="input-minimal h-10"
                         />
                     </div>
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="email">Email Address *</Label>
+                <div className="space-y-3">
+                    <Label htmlFor="email" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Email Address *</Label>
                     <Input
                         id="email"
                         type="email"
@@ -181,20 +184,22 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="john@example.com"
                         disabled={isSubmitting}
+                        className="input-minimal h-10"
                     />
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="username">Username *</Label>
+                <div className="space-y-3">
+                    <Label htmlFor="username" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Username *</Label>
                     <Input
                         id="username"
                         value={formData.username}
                         onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                         placeholder="johndoe"
                         disabled={isSubmitting}
+                        className="input-minimal h-10"
                     />
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
+                <div className="space-y-3">
+                    <Label htmlFor="phone" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Phone Number</Label>
                     <Input
                         id="phone"
                         type="tel"
@@ -202,32 +207,35 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="+1234567890"
                         disabled={isSubmitting}
+                        className="input-minimal h-10"
                     />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="department">Department</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                        <Label htmlFor="department" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Department</Label>
                         <Input
                             id="department"
                             value={formData.department}
                             onChange={(e) => setFormData({ ...formData, department: e.target.value })}
                             placeholder="Engineering / Sales"
                             disabled={isSubmitting}
+                            className="input-minimal h-10"
                         />
                     </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="jobTitle">Job Title</Label>
+                    <div className="space-y-3">
+                        <Label htmlFor="jobTitle" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Job Title</Label>
                         <Input
                             id="jobTitle"
                             value={formData.job_title}
                             onChange={(e) => setFormData({ ...formData, job_title: e.target.value })}
                             placeholder="Director / Manager"
                             disabled={isSubmitting}
+                            className="input-minimal h-10"
                         />
                     </div>
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="password">Password *</Label>
+                <div className="space-y-3">
+                    <Label htmlFor="password" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Password *</Label>
                     <div className="relative">
                         <Input
                             id="password"
@@ -236,12 +244,12 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                             onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                             placeholder="••••••••"
                             disabled={isSubmitting}
-                            className="pr-10"
+                            className="input-minimal h-10 pr-10"
                         />
                         <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                             tabIndex={-1}
                         >
                             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -278,8 +286,8 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                         </div>
                     )}
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm Password *</Label>
+                <div className="space-y-3">
+                    <Label htmlFor="confirmPassword" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Confirm Password *</Label>
                     <div className="relative">
                         <Input
                             id="confirmPassword"
@@ -288,12 +296,12 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                             onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                             placeholder="••••••••"
                             disabled={isSubmitting}
-                            className="pr-10"
+                            className="input-minimal h-10 pr-10"
                         />
                         <button
                             type="button"
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                            className="absolute right-0 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
                             tabIndex={-1}
                         >
                             {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

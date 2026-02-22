@@ -244,11 +244,11 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
         <div className="flex items-center h-full">
           {/* Left Section - Logo area with sidebar width */}
           <div className={cn(
-            "hidden lg:flex items-center justify-between h-full border-r border-sidebar-border px-4 transition-all duration-300 ease-in-out",
+            "hidden md:flex items-center justify-between h-full border-r border-sidebar-border px-4 transition-all duration-300 ease-in-out",
             sidebarCollapsed ? "w-[72px]" : "w-64"
           )}>
             <Link href={createPageUrl("Dashboard")} className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center -primary/25">
+              <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center">
                 <Package className="h-5 w-5 text-primary-foreground" />
               </div>
               {!sidebarCollapsed && (
@@ -273,7 +273,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
           </div>
 
           {/* Mobile Logo & Menu */}
-          <div className="flex lg:hidden items-center gap-4 px-4">
+          <div className="flex md:hidden items-center gap-4 px-4">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
                 <Button variant="ghost" size="icon" className="text-sidebar-foreground hover:bg-sidebar-accent">
@@ -316,7 +316,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
           </div>
 
           {/* Center - Search (Desktop) */}
-          <div className="hidden lg:flex flex-1 max-w-xl mx-8">
+          <div className="hidden md:flex flex-1 max-w-xl mx-8">
             <div className="relative w-full">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sidebar-foreground/50" />
               <input
@@ -388,7 +388,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
 
       {/* Desktop Sidebar */}
       <aside className={cn(
-        "hidden lg:flex fixed left-0 top-16 bottom-0 bg-sidebar border-r border-sidebar-border flex-col transition-all duration-300 ease-in-out",
+        "hidden md:flex fixed left-0 top-16 bottom-0 bg-sidebar border-r border-sidebar-border flex-col transition-all duration-300 ease-in-out",
         sidebarCollapsed ? "w-[72px]" : "w-64"
       )}>
         <TooltipProvider>
@@ -423,9 +423,9 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
       {/* Main Content */}
       <main className={cn(
         "pt-16 min-h-screen transition-all duration-300 ease-in-out bg-muted/30",
-        sidebarCollapsed ? "lg:pl-[72px]" : "lg:pl-64"
+        sidebarCollapsed ? "md:pl-[72px]" : "md:pl-64"
       )}>
-        <div className="p-4 lg:p-8">
+        <div className="p-4 md:p-8">
           {children}
         </div>
       </main>

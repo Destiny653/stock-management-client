@@ -101,62 +101,68 @@ export default function StepOrganization({ onNext, onBack, initialData }: StepOr
                 </p>
             </div>
 
-            <div className="space-y-4">
-                <div className="space-y-2">
-                    <Label htmlFor="orgName">Organization Name *</Label>
+            <div className="space-y-6 mt-8">
+                <div className="space-y-3">
+                    <Label htmlFor="orgName" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Organization Name *</Label>
                     <Input
                         id="orgName"
                         value={formData.name}
                         onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                         placeholder="Acme Corp"
+                        className="input-minimal h-10"
                     />
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="orgCode">Organization Code *</Label>
+                <div className="space-y-3">
+                    <Label htmlFor="orgCode" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Organization Code *</Label>
                     <Input
                         id="orgCode"
                         value={formData.code}
                         onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                         placeholder="ACME"
+                        className="input-minimal h-10"
                         maxLength={10}
                     />
-                    <p className="text-xs text-slate-500">Unique identifier for your organization (e.g., shorter name)</p>
+                    <p className="text-xs text-slate-500 font-medium">Unique identifier for your organization (e.g., shorter name)</p>
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="orgPhone">Phone (Optional)</Label>
+                <div className="space-y-3">
+                    <Label htmlFor="orgPhone" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Phone (Optional)</Label>
                     <Input
                         id="orgPhone"
                         value={formData.phone}
                         onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                         placeholder="+1 234 567 890"
+                        className="input-minimal h-10"
                     />
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="orgEmail">Organization Email (Optional)</Label>
+                <div className="space-y-3">
+                    <Label htmlFor="orgEmail" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Organization Email (Optional)</Label>
                     <Input
                         id="orgEmail"
                         type="email"
                         value={formData.email}
                         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                         placeholder="contact@acme.com"
+                        className="input-minimal h-10"
                     />
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="orgWebsite">Website (Optional)</Label>
+                <div className="space-y-3">
+                    <Label htmlFor="orgWebsite" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Website (Optional)</Label>
                     <Input
                         id="orgWebsite"
                         value={formData.website}
                         onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                         placeholder="https://acme.com"
+                        className="input-minimal h-10"
                     />
                 </div>
-                <div className="space-y-2">
-                    <Label htmlFor="orgDescription">Description (Optional)</Label>
+                <div className="space-y-3">
+                    <Label htmlFor="orgDescription" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Description (Optional)</Label>
                     <Input
                         id="orgDescription"
                         value={formData.description}
                         onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                         placeholder="What does your company do?"
+                        className="input-minimal h-10"
                     />
                 </div>
             </div>

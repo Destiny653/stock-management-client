@@ -1,5 +1,4 @@
 @import "tailwindcss";
-/* @import "tw-animate-css"; */
 
 @custom-variant dark (&:is(.dark *));
 
@@ -46,7 +45,7 @@
 :root {
   --radius: 0.375rem;
 
-  /* Strict Theme: #800020, #FFFFFF, #f9fafb */
+  /* Strict Theme: #800020 (Maroon), #FFFFFF, #f9fafb */
   --background: #FFFFFF;
   --foreground: #020817;
 
@@ -82,7 +81,7 @@
   --chart-4: #e2e8f0;
   --chart-5: #94a3b8;
 
-  /* Sidebar - Blue theme (#800020) */
+  /* Sidebar - Maroon theme (#800020) */
   --sidebar: #800020;
   --sidebar-foreground: #FFFFFF;
   --sidebar-primary: #FFFFFF;
@@ -94,7 +93,6 @@
 }
 
 .dark {
-  /* Blueprint Style for Dark Mode */
   --background: #800020;
   --foreground: #FFFFFF;
 
@@ -133,7 +131,6 @@
   --sidebar-primary: #FFFFFF;
   --sidebar-primary-foreground: #800020;
   --sidebar-accent: #800020;
-  /* Adjusted to blend or stand out? */
   --sidebar-accent-foreground: #FFFFFF;
   --sidebar-border: #FFFFFF;
   --sidebar-ring: #FFFFFF;
@@ -168,11 +165,22 @@
   background: #475569;
 }
 
-* {
-  box-shadow: none !important;
-  /* border: none !important; */
-}
-input, textarea, select {
-  /* background-color: var(--input) !important; */
-  /* color: var(--foreground) !important; */
+@layer utilities {
+  .input-minimal {
+    border-top: none !important;
+    border-left: none !important;
+    border-right: none !important;
+    border-bottom: 2px solid var(--border) !important;
+    border-radius: 0 !important;
+    background-color: transparent !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    transition: border-color 0.2s ease-in-out !important;
+  }
+
+  .input-minimal:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    border-bottom-color: var(--primary) !important;
+  }
 }
