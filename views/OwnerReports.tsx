@@ -358,7 +358,7 @@ export default function OwnerReports() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
@@ -468,7 +468,7 @@ export default function OwnerReports() {
             </div>
 
             {/* Tabs */}
-            <Tabs defaultValue="overview" className="space-y-6">
+            <Tabs defaultValue="overview" className="flex flex-col gap-6">
                 <TabsList className="bg-muted p-1 rounded-md">
                     <TabsTrigger value="overview" className="rounded-md data-[state=active]:bg-white data-[state=active]:text-primary px-6 font-semibold">
                         Overview
@@ -485,7 +485,7 @@ export default function OwnerReports() {
                 </TabsList>
 
                 {/* Overview Tab */}
-                <TabsContent value="overview" className="space-y-6">
+                <TabsContent value="overview" className="flex flex-col gap-6">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Revenue by Organization */}
                         <Card className='py-6'>
@@ -572,7 +572,7 @@ export default function OwnerReports() {
                 </TabsContent>
 
                 {/* Performance Tab */}
-                <TabsContent value="performance" className="space-y-6">
+                <TabsContent value="performance" className="flex flex-col gap-6">
                     <Card className='py-6'>
                         <CardHeader>
                             <CardTitle>Organization Performance</CardTitle>
@@ -589,7 +589,7 @@ export default function OwnerReports() {
                 </TabsContent>
 
                 {/* Growth Tab */}
-                <TabsContent value="growth" className="space-y-6">
+                <TabsContent value="growth" className="flex flex-col gap-6">
                     <Card className='py-6'>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">
@@ -631,7 +631,7 @@ export default function OwnerReports() {
                 </TabsContent>
 
                 {/* Storage Tab */}
-                <TabsContent value="storage" className="space-y-6">
+                <TabsContent value="storage" className="flex flex-col gap-6">
                     <Card className='py-6'>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2">

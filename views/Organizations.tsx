@@ -353,7 +353,7 @@ export default function Organizations() {
     ];
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
             <PageHeader title={t('organizations') || 'Organizations'} subtitle="Manage organizations and their members">
                 <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
                     <DialogTrigger asChild>
@@ -364,26 +364,26 @@ export default function Organizations() {
                     </DialogTrigger>
                     <DialogContent className="max-w-lg">
                         <DialogHeader><DialogTitle>{editingOrg ? 'Edit Organization' : 'Add New Organization'}</DialogTitle></DialogHeader>
-                        <div className="space-y-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
+                        <div className="flex flex-col gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
+                                <div className="flex flex-col gap-2">
                                     <Label>Name *</Label>
                                     <Input value={formData.name} onChange={(e) => setFormData(p => ({ ...p, name: e.target.value }))} placeholder="Acme Corporation" />
                                 </div>
-                                <div className="space-y-2">
+                                <div className="flex flex-col gap-2">
                                     <Label>Code *</Label>
                                     <Input value={formData.code} onChange={(e) => setFormData(p => ({ ...p, code: e.target.value.toUpperCase() }))} placeholder="ACME" />
                                 </div>
                             </div>
-                            <div className="space-y-2">
+                            <div className="flex flex-col gap-2">
                                 <Label>Description</Label>
                                 <Textarea value={formData.description} onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))} rows={2} />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2"><Label>Email</Label><Input type="email" value={formData.email} onChange={(e) => setFormData(p => ({ ...p, email: e.target.value }))} /></div>
-                                <div className="space-y-2"><Label>Phone</Label><Input value={formData.phone} onChange={(e) => setFormData(p => ({ ...p, phone: e.target.value }))} /></div>
+                                <div className="flex flex-col gap-2"><Label>Email</Label><Input type="email" value={formData.email} onChange={(e) => setFormData(p => ({ ...p, email: e.target.value }))} /></div>
+                                <div className="flex flex-col gap-2"><Label>Phone</Label><Input value={formData.phone} onChange={(e) => setFormData(p => ({ ...p, phone: e.target.value }))} /></div>
                             </div>
-                            <div className="space-y-2"><Label>Address</Label><Input value={formData.address} onChange={(e) => setFormData(p => ({ ...p, address: e.target.value }))} /></div>
+                            <div className="flex flex-col gap-2"><Label>Address</Label><Input value={formData.address} onChange={(e) => setFormData(p => ({ ...p, address: e.target.value }))} /></div>
                             <LocationPicker
                                 latitude={formData.latitude || undefined}
                                 longitude={formData.longitude || undefined}
@@ -392,7 +392,7 @@ export default function Organizations() {
                                 label="Headquarters Location"
                             />
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
+                                <div className="flex flex-col gap-2">
                                     <Label>Status</Label>
                                     <Select value={formData.status} onValueChange={(v) => setFormData(p => ({ ...p, status: v }))}>
                                         <SelectTrigger><SelectValue /></SelectTrigger>
@@ -404,7 +404,7 @@ export default function Organizations() {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="space-y-2">
+                                <div className="flex flex-col gap-2">
                                     <Label>Assign Owner</Label>
                                     <Select value={formData.owner_id || 'none'} onValueChange={(v) => setFormData(p => ({ ...p, owner_id: v === 'none' ? '' : v }))}>
                                         <SelectTrigger><SelectValue placeholder="Select owner" /></SelectTrigger>
@@ -418,7 +418,7 @@ export default function Organizations() {
                                 </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
+                                <div className="flex flex-col gap-2">
                                     <Label>Plan</Label>
                                     <Select value={formData.subscription_plan} onValueChange={(v) => setFormData(p => ({ ...p, subscription_plan: v }))}>
                                         <SelectTrigger><SelectValue /></SelectTrigger>
@@ -429,9 +429,9 @@ export default function Organizations() {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="space-y-2"><Label>Max Vendors</Label><Input type="number" min={1} value={formData.max_vendors} onChange={(e) => setFormData(p => ({ ...p, max_vendors: parseInt(e.target.value) || 10 }))} /></div>
+                                <div className="flex flex-col gap-2"><Label>Max Vendors</Label><Input type="number" min={1} value={formData.max_vendors} onChange={(e) => setFormData(p => ({ ...p, max_vendors: parseInt(e.target.value) || 10 }))} /></div>
                             </div>
-                            <div className="space-y-2"><Label>Max Users</Label><Input type="number" min={1} value={formData.max_users} onChange={(e) => setFormData(p => ({ ...p, max_users: parseInt(e.target.value) || 5 }))} /></div>
+                            <div className="flex flex-col gap-2"><Label>Max Users</Label><Input type="number" min={1} value={formData.max_users} onChange={(e) => setFormData(p => ({ ...p, max_users: parseInt(e.target.value) || 5 }))} /></div>
                         </div>
                         <DialogFooter>
                             <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
@@ -490,7 +490,7 @@ export default function Organizations() {
                             return (
                                 <Card key={org.id} className="group  transition-all duration-300 border-slate-200 overflow-hidden bg-white">
                                     <div className="h-1.5 w-full bg-blue-500/10 group-hover:bg-blue-500 transition-colors" />
-                                    <CardHeader className="flex flex-row items-start justify-between space-y-0 p-5 pb-2">
+                                    <CardHeader className="flex flex-row items-start justify-between flex flex-col gap-0 p-5 pb-2">
                                         <div className="h-12 w-12 rounded-md bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg -500/20 uppercase">
                                             {org.name?.charAt(0) || 'O'}
                                         </div>
@@ -503,7 +503,7 @@ export default function Organizations() {
                                             </Button>
                                         </div>
                                     </CardHeader>
-                                    <CardContent className="p-5 pt-4 space-y-4">
+                                    <CardContent className="p-5 pt-4 flex flex-col gap-4">
                                         <div>
                                             <Link href={createPageUrl(`OrganizationMembers?id=${org.id}`)} className="font-bold text-lg text-slate-900 hover:text-blue-600 hover:underline block truncate">
                                                 {org.name}
@@ -513,7 +513,7 @@ export default function Organizations() {
                                                 <StatusBadge status={org.status} />
                                             </div>
                                         </div>
-                                        <div className="space-y-2.5 text-[13px] text-slate-600">
+                                        <div className="flex flex-col gap-2.5 text-[13px] text-slate-600">
                                             {loc?.city && <div className="flex items-center gap-2"><Building2 className="h-4 w-4 text-slate-400 shrink-0" /> <span className="truncate">{loc.city}, {loc.country}</span></div>}
                                             {org.email && <div className="flex items-center gap-2"><Mail className="h-4 w-4 text-slate-400 shrink-0" /> <span className="truncate">{org.email}</span></div>}
                                             <div className="grid grid-cols-2 gap-2 pt-1">

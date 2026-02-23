@@ -209,7 +209,7 @@ export default function Orders() {
     }), [orders]);
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
@@ -341,7 +341,7 @@ export default function Orders() {
                         <DialogHeader>
                             <DialogTitle>Order Details - {selectedOrder.order_number}</DialogTitle>
                         </DialogHeader>
-                        <div className="space-y-6">
+                        <div className="flex flex-col gap-6">
                             {/* Client Info */}
                             <div className="grid grid-cols-2 gap-4 p-4 bg-muted rounded-md">
                                 <div>
@@ -365,7 +365,7 @@ export default function Orders() {
                             {/* Order Items */}
                             <div>
                                 <h3 className="font-semibold mb-3 text-foreground">Order Items</h3>
-                                <div className="space-y-3">
+                                <div className="flex flex-col gap-3">
                                     {selectedOrder.items?.map((item, idx) => (
                                         <div key={idx} className="border border-border rounded-md p-4">
                                             <div className="flex justify-between items-start mb-2">
@@ -396,7 +396,7 @@ export default function Orders() {
 
                             {/* Order Summary */}
                             <div className="border-t border-border pt-4">
-                                <div className="space-y-2">
+                                <div className="flex flex-col gap-2">
                                     <div className="flex justify-between">
                                         <span className="text-muted-foreground">Subtotal</span>
                                         <span className="text-foreground">${selectedOrder.subtotal?.toFixed(2)}</span>
@@ -428,7 +428,7 @@ export default function Orders() {
 
                             {/* Additional Info */}
                             {(selectedOrder.shipping_address || selectedOrder.notes) && (
-                                <div className="space-y-3">
+                                <div className="flex flex-col gap-3">
                                     {selectedOrder.shipping_address && (
                                         <div>
                                             <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Shipping Address</Label>

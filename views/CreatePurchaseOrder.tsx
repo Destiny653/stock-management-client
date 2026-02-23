@@ -266,7 +266,7 @@ export default function CreatePurchaseOrder() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -302,7 +302,7 @@ export default function CreatePurchaseOrder() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 flex flex-col gap-6">
           {/* Supplier Selection */}
           <Card className='p-5'>
             <CardHeader>
@@ -426,14 +426,14 @@ export default function CreatePurchaseOrder() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
           {/* Delivery Details */}
           <Card className='p-5'>
             <CardHeader>
               <CardTitle>Delivery Details</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
+            <CardContent className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
                 <Label>Expected Delivery Date</Label>
                 <DatePicker
                   date={formData.expected_date}
@@ -441,7 +441,7 @@ export default function CreatePurchaseOrder() {
                   placeholder="Expected Delivery Date"
                 />
               </div>
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label>Destination Warehouse</Label>
                 <Select
                   value={formData.warehouse}
@@ -465,7 +465,7 @@ export default function CreatePurchaseOrder() {
             <CardHeader>
               <CardTitle>Order Summary</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="flex flex-col gap-3">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-600">Subtotal</span>
                 <span className="font-medium">${formData.subtotal.toFixed(2)}</span>

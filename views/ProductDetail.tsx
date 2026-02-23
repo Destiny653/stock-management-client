@@ -270,7 +270,7 @@ export default function ProductDetail() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -324,7 +324,7 @@ export default function ProductDetail() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Form */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 flex flex-col gap-6">
           {/* Basic Info */}
           <Card>
             <CardHeader>
@@ -333,9 +333,9 @@ export default function ProductDetail() {
                 Basic Information
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="flex flex-col gap-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="name">Product Name</Label>
                   <Input
                     id="name"
@@ -345,7 +345,7 @@ export default function ProductDetail() {
                     placeholder="e.g. Wireless Mouse"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="category">Category</Label>
                   <Select
                     value={formData.category}
@@ -364,7 +364,7 @@ export default function ProductDetail() {
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="description">Description</Label>
                 <Textarea
                   id="description"
@@ -434,9 +434,9 @@ export default function ProductDetail() {
                   )}
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="flex flex-col gap-4">
                   {formData.variants.map((variant, vIdx) => (
-                    <div key={vIdx} className="p-4 border rounded-md bg-slate-50/50 space-y-4">
+                    <div key={vIdx} className="p-4 border rounded-md bg-slate-50/50 flex flex-col gap-4">
                       <div className="flex items-center justify-between">
                         <h4 className="font-medium">Variant #{vIdx + 1}</h4>
                         {isEditing && (
@@ -457,7 +457,7 @@ export default function ProductDetail() {
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="space-y-2">
+                        <div className="flex flex-col gap-2">
                           <Label>Variant SKU</Label>
                           <Input
                             value={variant.sku}
@@ -470,7 +470,7 @@ export default function ProductDetail() {
                             placeholder="e.g. SKU-XL"
                           />
                         </div>
-                        <div className="space-y-2">
+                        <div className="flex flex-col gap-2">
                           <Label>Unit Price</Label>
                           <Input
                             type="number"
@@ -483,7 +483,7 @@ export default function ProductDetail() {
                             disabled={!isEditing}
                           />
                         </div>
-                        <div className="space-y-2">
+                        <div className="flex flex-col gap-2">
                           <Label>Cost Price</Label>
                           <Input
                             type="number"
@@ -496,7 +496,7 @@ export default function ProductDetail() {
                             disabled={!isEditing}
                           />
                         </div>
-                        <div className="space-y-2">
+                        <div className="flex flex-col gap-2">
                           <Label>Stock</Label>
                           <Input
                             type="number"
@@ -509,7 +509,7 @@ export default function ProductDetail() {
                             disabled={!isEditing}
                           />
                         </div>
-                        <div className="space-y-2">
+                        <div className="flex flex-col gap-2">
                           <Label>Barcode</Label>
                           <Input
                             value={variant.barcode || ''}
@@ -522,7 +522,7 @@ export default function ProductDetail() {
                             placeholder="Variant Barcode"
                           />
                         </div>
-                        <div className="space-y-2">
+                        <div className="flex flex-col gap-2">
                           <Label>Weight</Label>
                           <Input
                             type="number"
@@ -536,7 +536,7 @@ export default function ProductDetail() {
                             placeholder="Weight"
                           />
                         </div>
-                        <div className="space-y-2">
+                        <div className="flex flex-col gap-2">
                           <Label>Dimensions</Label>
                           <Input
                             value={variant.dimensions || ''}
@@ -551,7 +551,7 @@ export default function ProductDetail() {
                         </div>
                       </div>
 
-                      <div className="space-y-2">
+                      <div className="flex flex-col gap-2">
                         <Label>Attributes</Label>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                           {Object.entries(variant.attributes).map(([key, value], attrIdx) => (
@@ -628,9 +628,9 @@ export default function ProductDetail() {
                 Location & Supplier
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="flex flex-col gap-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="location">Inventory Location</Label>
                   <Select
                     value={formData.location_id}
@@ -647,7 +647,7 @@ export default function ProductDetail() {
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="supplier">Primary Supplier</Label>
                   <Select
                     value={formData.supplier_name}
@@ -696,7 +696,7 @@ export default function ProductDetail() {
         </div>
 
         {/* Sidebar */}
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
           {/* Product Image */}
           <Card>
             <CardHeader>
@@ -737,7 +737,7 @@ export default function ProductDetail() {
               <CardHeader>
                 <CardTitle>Status</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-slate-600">Status</span>
                   <Badge className={statusColors[formData.status]}>
@@ -769,7 +769,7 @@ export default function ProductDetail() {
               <CardHeader>
                 <CardTitle>Quick Actions</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-2">
+              <CardContent className="flex flex-col gap-2">
                 <Link href={createPageUrl(`CreatePurchaseOrder?product=${productId}`)} className="block">
                   <Button variant="outline" className="w-full justify-start">
                     <Plus className="h-4 w-4 mr-2" /> Create Purchase Order

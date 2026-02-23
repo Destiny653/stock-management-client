@@ -850,7 +850,7 @@ export default function OwnerDashboard() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
@@ -938,7 +938,7 @@ export default function OwnerDashboard() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
+                        <div className="flex flex-col gap-4">
                             <div className="text-center">
                                 <p className="text-4xl font-bold text-primary">
                                     {platformStats.totalStorageKB > 1024
@@ -947,7 +947,7 @@ export default function OwnerDashboard() {
                                 </p>
                                 <p className="text-sm text-muted-foreground mt-1">Total Estimated Storage</p>
                             </div>
-                            <div className="pt-4 border-t space-y-2">
+                            <div className="pt-4 border-t flex flex-col gap-2">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-muted-foreground">Avg per Organization</span>
                                     <span className="font-medium">{platformStats.avgStoragePerOrg.toFixed(1)} KB</span>
@@ -1015,7 +1015,7 @@ export default function OwnerDashboard() {
                         {recentOrgActivity.length === 0 ? (
                             <p className="text-sm text-slate-500 text-center py-4">No new organizations in the last 7 days</p>
                         ) : (
-                            <div className="space-y-3">
+                            <div className="flex flex-col gap-3">
                                 {recentOrgActivity.map(org => (
                                     <div key={org.id} className="flex items-center justify-between p-2 rounded-md bg-muted/30">
                                         <div className="flex items-center gap-3">
@@ -1046,14 +1046,14 @@ export default function OwnerDashboard() {
                         </CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
+                        <div className="flex flex-col gap-4">
                             <div className="text-center">
                                 <p className="text-4xl font-bold text-primary">
                                     ${estimatedMRR.toLocaleString()}
                                 </p>
                                 <p className="text-sm text-muted-foreground mt-1">Estimated MRR</p>
                             </div>
-                            <div className="pt-4 border-t space-y-2">
+                            <div className="pt-4 border-t flex flex-col gap-2">
                                 <div className="flex justify-between text-sm">
                                     <span className="text-muted-foreground">Active Subscriptions</span>
                                     <span className="font-medium">{platformStats.activeOrganizations}</span>
@@ -1130,7 +1130,7 @@ export default function OwnerDashboard() {
                                 <p className="text-sm text-muted-foreground">No pending organizations</p>
                             </div>
                         ) : (
-                            <div className="space-y-3">
+                            <div className="flex flex-col gap-3">
                                 {pendingOrganizations.slice(0, 5).map(org => (
                                     <div key={org.id} className="flex items-center justify-between p-2 rounded-md bg-amber-50 border border-amber-200">
                                         <div className="flex items-center gap-3">
@@ -1161,7 +1161,7 @@ export default function OwnerDashboard() {
             </div>
 
             {/* Payment Management Section */}
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                         <h2 className="text-xl font-bold text-foreground">Payment Management</h2>
@@ -1182,7 +1182,7 @@ export default function OwnerDashboard() {
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
-                                <div className="space-y-2">
+                                <div className="flex flex-col gap-2">
                                     <Label htmlFor="org">Organization *</Label>
                                     <Select
                                         value={paymentForm.organization_id}
@@ -1201,7 +1201,7 @@ export default function OwnerDashboard() {
                                     </Select>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
+                                    <div className="flex flex-col gap-2">
                                         <Label htmlFor="amount">Amount *</Label>
                                         <Input
                                             id="amount"
@@ -1212,7 +1212,7 @@ export default function OwnerDashboard() {
                                             onChange={(e) => setPaymentForm({ ...paymentForm, amount: e.target.value })}
                                         />
                                     </div>
-                                    <div className="space-y-2">
+                                    <div className="flex flex-col gap-2">
                                         <Label htmlFor="currency">Currency</Label>
                                         <Select
                                             value={paymentForm.currency}
@@ -1231,7 +1231,7 @@ export default function OwnerDashboard() {
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
+                                    <div className="flex flex-col gap-2">
                                         <Label htmlFor="method">Payment Method</Label>
                                         <Select
                                             value={paymentForm.payment_method}
@@ -1252,7 +1252,7 @@ export default function OwnerDashboard() {
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="space-y-2">
+                                    <div className="flex flex-col gap-2">
                                         <Label htmlFor="type">Payment Type</Label>
                                         <Select
                                             value={paymentForm.payment_type}
@@ -1273,7 +1273,7 @@ export default function OwnerDashboard() {
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
+                                    <div className="flex flex-col gap-2">
                                         <Label htmlFor="billing">Billing Period</Label>
                                         <Select
                                             value={paymentForm.billing_period}
@@ -1290,7 +1290,7 @@ export default function OwnerDashboard() {
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="space-y-2">
+                                    <div className="flex flex-col gap-2">
                                         <Label htmlFor="status">Status</Label>
                                         <Select
                                             value={paymentForm.status}
@@ -1310,7 +1310,7 @@ export default function OwnerDashboard() {
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
+                                    <div className="flex flex-col gap-2">
                                         <Label htmlFor="reference">Reference Number</Label>
                                         <Input
                                             id="reference"
@@ -1319,7 +1319,7 @@ export default function OwnerDashboard() {
                                             onChange={(e) => setPaymentForm({ ...paymentForm, reference_number: e.target.value })}
                                         />
                                     </div>
-                                    <div className="space-y-2">
+                                    <div className="flex flex-col gap-2">
                                         <Label htmlFor="date">Payment Date</Label>
                                         <DatePicker
                                             date={paymentForm.payment_date}
@@ -1327,7 +1327,7 @@ export default function OwnerDashboard() {
                                         />
                                     </div>
                                 </div>
-                                <div className="space-y-2">
+                                <div className="flex flex-col gap-2">
                                     <Label htmlFor="notes">Notes</Label>
                                     <Textarea
                                         id="notes"
@@ -1535,7 +1535,7 @@ export default function OwnerDashboard() {
             </Card>
 
             {/* Subscription Management Section */}
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div>
                         <h2 className="text-xl font-bold text-foreground">Subscription Management</h2>
@@ -1575,7 +1575,7 @@ export default function OwnerDashboard() {
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
-                        <div className="space-y-2">
+                        <div className="flex flex-col gap-2">
                             <Label htmlFor="plan">Subscription Plan</Label>
                             <Select
                                 value={subscriptionForm.subscription_plan}
@@ -1615,7 +1615,7 @@ export default function OwnerDashboard() {
                             </Select>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
+                            <div className="flex flex-col gap-2">
                                 <Label htmlFor="billing">Billing Cycle</Label>
                                 <Select
                                     value={subscriptionForm.billing_cycle}
@@ -1632,7 +1632,7 @@ export default function OwnerDashboard() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <div className="space-y-2">
+                            <div className="flex flex-col gap-2">
                                 <Label htmlFor="status">Status</Label>
                                 <Select
                                     value={subscriptionForm.status}
@@ -1653,7 +1653,7 @@ export default function OwnerDashboard() {
                             </div>
                         </div>
                         <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-2">
+                            <div className="flex flex-col gap-2">
                                 <Label htmlFor="max_vendors">Max Vendors</Label>
                                 <Input
                                     id="max_vendors"
@@ -1665,7 +1665,7 @@ export default function OwnerDashboard() {
                                     })}
                                 />
                             </div>
-                            <div className="space-y-2">
+                            <div className="flex flex-col gap-2">
                                 <Label htmlFor="max_users">Max Users</Label>
                                 <Input
                                     id="max_users"
@@ -1678,7 +1678,7 @@ export default function OwnerDashboard() {
                                 />
                             </div>
                         </div>
-                        <div className="space-y-2">
+                        <div className="flex flex-col gap-2">
                             <Label htmlFor="trial_ends">Trial Ends At</Label>
                             <DatePicker
                                 date={subscriptionForm.trial_ends_at}
@@ -1693,7 +1693,7 @@ export default function OwnerDashboard() {
                         {/* Plan summary */}
                         <div className="mt-2 p-4 bg-muted/30 rounded-md">
                             <h4 className="font-medium text-slate-900 mb-2">Plan Summary</h4>
-                            <div className="space-y-1 text-sm">
+                            <div className="flex flex-col gap-1 text-sm">
                                 <div className="flex justify-between">
                                     <span className="text-slate-600">Plan:</span>
                                     <span className="font-medium capitalize">{subscriptionForm.subscription_plan}</span>

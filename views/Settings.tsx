@@ -664,7 +664,7 @@ export default function Settings() {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-900 tracking-tight">{t('settings')}</h1>
@@ -688,7 +688,7 @@ export default function Settings() {
         </TabsList>
 
         {/* Warehouses Tab */}
-        <TabsContent value="warehouses" className="mt-6 space-y-6">
+        <TabsContent value="warehouses" className="mt-6 flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-900">{t('warehousesAndLocations')}</h2>
@@ -705,23 +705,23 @@ export default function Settings() {
                   <DialogTitle>{editingWarehouse ? t('edit') : t('addWarehouse')}</DialogTitle>
                 </DialogHeader>
                 <div className="max-h-[80vh] overflow-y-auto pr-2 -mr-2">
-                  <div className="space-y-4 py-4">
+                  <div className="flex flex-col gap-4 py-4">
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
+                      <div className="flex flex-col gap-2">
                         <Label>{t('warehouseName')} *</Label>
                         <Input value={warehouseForm.name} onChange={(e) => setWarehouseForm(p => ({ ...p, name: e.target.value }))} placeholder={t('warehouseName')} />
                       </div>
-                      <div className="space-y-2">
+                      <div className="flex flex-col gap-2">
                         <Label>{t('warehouseCode')} *</Label>
                         <Input value={warehouseForm.code} onChange={(e) => setWarehouseForm(p => ({ ...p, code: e.target.value }))} placeholder="WH-001" />
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
+                      <div className="flex flex-col gap-2">
                         <Label>{t('city')}</Label>
                         <Input value={warehouseForm.city} onChange={(e) => setWarehouseForm(p => ({ ...p, city: e.target.value }))} placeholder={t('city')} />
                       </div>
-                      <div className="space-y-2">
+                      <div className="flex flex-col gap-2">
                         <Label>{t('manager')}</Label>
                         <Input value={warehouseForm.manager} onChange={(e) => setWarehouseForm(p => ({ ...p, manager: e.target.value }))} placeholder={t('manager')} />
                       </div>
@@ -739,7 +739,7 @@ export default function Settings() {
                       }))}
                     />
 
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       <Label>{t('status')}</Label>
                       <Select value={warehouseForm.status} onValueChange={(v: any) => setWarehouseForm(p => ({ ...p, status: v }))}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
@@ -773,7 +773,7 @@ export default function Settings() {
         </TabsContent>
 
         {/* Suppliers Tab */}
-        <TabsContent value="suppliers" className="mt-6 space-y-6">
+        <TabsContent value="suppliers" className="mt-6 flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-900">{t('suppliers')}</h2>
@@ -790,13 +790,13 @@ export default function Settings() {
                   <DialogTitle>{editingSupplier ? t('edit') : t('add')} {t('supplier')}</DialogTitle>
                 </DialogHeader>
                 <div className="max-h-[80vh] overflow-y-auto pr-2 -mr-2">
-                  <div className="space-y-4 py-4">
-                    <div className="space-y-2">
+                  <div className="flex flex-col gap-4 py-4">
+                    <div className="flex flex-col gap-2">
                       <Label>{t('businessName')} *</Label>
                       <Input value={supplierForm.name} onChange={(e) => setSupplierForm(p => ({ ...p, name: e.target.value }))} placeholder={t('businessName')} />
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2 col-span-2">
+                      <div className="flex flex-col gap-2 col-span-2">
                         <Label>Linked Contact Person</Label>
                         <Select value={supplierForm.user_id || "none"} onValueChange={(v) => setSupplierForm(p => ({ ...p, user_id: v === "none" ? "" : v }))}>
                           <SelectTrigger>
@@ -812,7 +812,7 @@ export default function Settings() {
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2 col-span-2">
+                      <div className="flex flex-col gap-2 col-span-2">
                         <Label>{t('paymentTerms')}</Label>
                         <Select value={supplierForm.payment_terms} onValueChange={(v: any) => setSupplierForm(p => ({ ...p, payment_terms: v }))}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
@@ -839,11 +839,11 @@ export default function Settings() {
                     />
 
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
+                      <div className="flex flex-col gap-2">
                         <Label>{t('leadTime')}</Label>
                         <Input type="number" value={supplierForm.lead_time_days} onChange={(e) => setSupplierForm(p => ({ ...p, lead_time_days: parseInt(e.target.value) || 0 }))} />
                       </div>
-                      <div className="space-y-2">
+                      <div className="flex flex-col gap-2">
                         <Label>{t('status')}</Label>
                         <Select value={supplierForm.status} onValueChange={(v: any) => setSupplierForm(p => ({ ...p, status: v }))}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
@@ -891,7 +891,7 @@ export default function Settings() {
                         {s.status}
                       </Badge>
                     </div>
-                    <div className="space-y-2 text-sm">
+                    <div className="flex flex-col gap-2 text-sm">
                       <div className="flex items-center gap-2 text-slate-600">
                         <Mail className="h-4 w-4" /> {userMap[s.user_id!]?.email || 'No email linked'}
                       </div>
@@ -919,7 +919,7 @@ export default function Settings() {
           </div>
         </TabsContent>
         {/* Users Tab */}
-        <TabsContent value="users" className="mt-6 space-y-6">
+        <TabsContent value="users" className="mt-6 flex flex-col gap-6">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-900">{t('userManagement')}</h2>
@@ -935,31 +935,31 @@ export default function Settings() {
                 <DialogHeader>
                   <DialogTitle>{editingUserId ? t('editUser') : t('registerUser')}</DialogTitle>
                 </DialogHeader>
-                <div className="space-y-4 py-4">
+                <div className="flex flex-col gap-4 py-4">
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       <Label>{t('email')} *</Label>
                       <Input type="email" value={userForm.email} onChange={(e) => setUserForm(p => ({ ...p, email: e.target.value }))} placeholder="user@example.com" />
                     </div>
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       <Label>{t('username')} *</Label>
                       <Input value={userForm.username} onChange={(e) => setUserForm(p => ({ ...p, username: e.target.value }))} placeholder="username" />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       <Label>{t('firstName')}</Label>
                       <Input value={userForm.first_name} onChange={(e) => setUserForm(p => ({ ...p, first_name: e.target.value }))} placeholder="First Name" />
                     </div>
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       <Label>{t('lastName')}</Label>
                       <Input value={userForm.last_name} onChange={(e) => setUserForm(p => ({ ...p, last_name: e.target.value }))} placeholder="Last Name" />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       <Label>{t('role')}</Label>
                       <Select value={userForm.role} onValueChange={(v: any) => setUserForm(p => ({ ...p, role: v }))}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
@@ -971,7 +971,7 @@ export default function Settings() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       <Label>{t('userType')}</Label>
                       <Select value={userForm.user_type} onValueChange={(v: any) => setUserForm(p => ({ ...p, user_type: v }))}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
@@ -981,7 +981,7 @@ export default function Settings() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       <Label>Status</Label>
                       <Select value={userForm.status} onValueChange={(v: any) => setUserForm(p => ({ ...p, status: v }))}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
@@ -995,23 +995,23 @@ export default function Settings() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       <Label>{t('phone')}</Label>
                       <Input value={userForm.phone} onChange={(e) => setUserForm(p => ({ ...p, phone: e.target.value }))} placeholder="+1234567890" />
                     </div>
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       <Label>{t('department')}</Label>
                       <Input value={userForm.department} onChange={(e) => setUserForm(p => ({ ...p, department: e.target.value }))} placeholder="Sales / Logistics" />
                     </div>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label>{t('jobTitle')}</Label>
                     <Input value={userForm.job_title} onChange={(e) => setUserForm(p => ({ ...p, job_title: e.target.value }))} placeholder="Senior Manager" />
                   </div>
 
                   {!editingUserId && (
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       <Label>{t('password')} *</Label>
                       <div className="relative">
                         <Input type="password" value={userForm.password} onChange={(e) => setUserForm(p => ({ ...p, password: e.target.value }))} placeholder="••••••••" />
@@ -1020,12 +1020,12 @@ export default function Settings() {
                     </div>
                   )}
 
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label>{t('bio')}</Label>
                     <Input value={userForm.bio} onChange={(e) => setUserForm(p => ({ ...p, bio: e.target.value }))} placeholder="A short bio..." />
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label>{t('warehouseAccess')}</Label>
                     <div className="grid grid-cols-2 gap-2 mt-1">
                       {warehouses.map((wh: Warehouse) => (
@@ -1071,13 +1071,13 @@ export default function Settings() {
         </TabsContent>
 
         {/* Account Tab */}
-        <TabsContent value="account" className="mt-6 space-y-6">
+        <TabsContent value="account" className="mt-6 flex flex-col gap-6">
           <Card className='p-6'>
             <CardHeader>
               <CardTitle>{t('account')}</CardTitle>
               <CardDescription>{t('personalInformation')}</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="flex flex-col gap-4">
               <div className="flex items-center gap-4">
                 <div className="h-16 w-16 rounded-full bg-linear-to-br from-primary to-primary/80 flex items-center justify-center text-white text-2xl font-bold">
                   {user?.full_name?.charAt(0) || 'U'}
@@ -1095,7 +1095,7 @@ export default function Settings() {
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
         <DialogContent className="max-w-sm">
-          <DialogHeader className="flex flex-col items-center text-center space-y-3">
+          <DialogHeader className="flex flex-col items-center text-center flex flex-col gap-3">
             <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
               <AlertTriangle className="h-6 w-6 text-rose-600" />
             </div>

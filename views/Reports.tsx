@@ -326,7 +326,7 @@ function OrgReports() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
@@ -495,7 +495,7 @@ function OrgReports() {
                                     </PieChart>
                                 </ResponsiveContainer>
                             </div>
-                            <div className="w-1/2 space-y-2">
+                            <div className="w-1/2 flex flex-col gap-2">
                                 {categoryData.map((item: any, index: number) => (
                                     <div key={index} className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">

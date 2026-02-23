@@ -498,7 +498,7 @@ export default function VendorManagement() {
 
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -526,10 +526,10 @@ export default function VendorManagement() {
               <DialogHeader>
                 <DialogTitle>{editingVendor ? t('editVendor') : t('addVendor')}</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-2">
+              <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto pr-2">
                 {isSuperAdmin && (
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       <Label>Organization</Label>
                       <Select value={formData.organization_id || "none"} onValueChange={(v) => setFormData(prev => ({ ...prev, organization_id: v === "none" ? "" : v }))}>
                         <SelectTrigger>
@@ -543,7 +543,7 @@ export default function VendorManagement() {
                         </SelectContent>
                       </Select>
                     </div>
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       <Label>Linked User Account</Label>
                       <Select value={formData.user_id || "none"} onValueChange={(v) => setFormData(prev => ({ ...prev, user_id: v === "none" ? "" : v }))}>
                         <SelectTrigger>
@@ -562,7 +562,7 @@ export default function VendorManagement() {
                 )}
 
                 {!isSuperAdmin && (
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label>Linked User Account</Label>
                     <Select value={formData.user_id || "none"} onValueChange={(v) => setFormData(prev => ({ ...prev, user_id: v === "none" ? "" : v }))}>
                       <SelectTrigger>
@@ -580,7 +580,7 @@ export default function VendorManagement() {
                 )}
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2 col-span-2">
+                  <div className="flex flex-col gap-2 col-span-2">
                     <Label>{t('businessNameRequired')}</Label>
                     <Input
                       value={formData.name}
@@ -590,7 +590,7 @@ export default function VendorManagement() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label>{t('storeNameRequired')}</Label>
                   <Input
                     value={formData.store_name}
@@ -599,7 +599,7 @@ export default function VendorManagement() {
                   />
                 </div>
 
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label>{t('storeAddress')}</Label>
                   <Input
                     value={formData.address}
@@ -609,7 +609,7 @@ export default function VendorManagement() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label>{t('city')}</Label>
                     <Input
                       value={formData.city}
@@ -617,7 +617,7 @@ export default function VendorManagement() {
                       placeholder={t('city')}
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label>{t('country')}</Label>
                     <Input
                       value={formData.country}
@@ -645,7 +645,7 @@ export default function VendorManagement() {
                 />
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label>{t('status')}</Label>
                     <Select value={formData.status} onValueChange={(v) => setFormData(prev => ({ ...prev, status: v as any }))}>
                       <SelectTrigger>
@@ -659,7 +659,7 @@ export default function VendorManagement() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label>{t('subscriptionPlan')}</Label>
                     <Select value={formData.subscription_plan} onValueChange={(v) => setFormData(prev => ({ ...prev, subscription_plan: v }))}>
                       <SelectTrigger>
@@ -675,7 +675,7 @@ export default function VendorManagement() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label>{t('monthlyFee')} ($)</Label>
                     <Input
                       type="number"
@@ -684,7 +684,7 @@ export default function VendorManagement() {
                       onChange={(e) => setFormData(prev => ({ ...prev, monthly_fee: parseFloat(e.target.value) || 0 }))}
                     />
                   </div>
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label>{t('commissionRate')} (%)</Label>
                     <Input
                       type="number"
@@ -696,7 +696,7 @@ export default function VendorManagement() {
                   </div>
                 </div>
 
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label>{t('notes')}</Label>
                   <Textarea
                     value={formData.notes}
@@ -891,7 +891,7 @@ export default function VendorManagement() {
                     </DropdownMenu>
                   </div>
 
-                  <div className="space-y-2 mb-4">
+                  <div className="flex flex-col gap-2 mb-4">
                     <div className="flex items-center gap-2 text-sm text-slate-600">
                       <Mail className="h-4 w-4 text-slate-400" />
                       {userMap[vendor.user_id!]?.email || 'No email linked'}

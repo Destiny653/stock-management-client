@@ -191,7 +191,7 @@ export default function StoreLocations() {
     : [0, 0];
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -286,7 +286,7 @@ export default function StoreLocations() {
           </div>
 
           {/* Store List Sidebar */}
-          <div className="space-y-4 max-h-[600px] overflow-y-auto">
+          <div className="flex flex-col gap-4 max-h-[600px] overflow-y-auto">
             {filteredVendors.map(vendor => (
               <Card
                 key={vendor.id}
@@ -353,7 +353,7 @@ export default function StoreLocations() {
                   <Badge className={statusColors[vendor.status]}>{vendor.status}</Badge>
                 </div>
 
-                <div className="space-y-2 mb-4">
+                <div className="flex flex-col gap-2 mb-4">
                   {vendor.address && (
                     <div className="flex items-start gap-2 text-sm text-muted-foreground">
                       <MapPin className="h-4 w-4 text-muted-foreground/70 mt-0.5" />

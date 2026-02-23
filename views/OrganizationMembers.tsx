@@ -983,7 +983,7 @@ export default function OrganizationMembers() {
     }
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div className="flex items-center gap-4">
@@ -1029,8 +1029,8 @@ export default function OrganizationMembers() {
                                 <DialogHeader>
                                     <DialogTitle>{editingMemberId ? 'Edit Member' : 'Add New Member'}</DialogTitle>
                                 </DialogHeader>
-                                <div className="space-y-4 py-4">
-                                    <div className="space-y-2">
+                                <div className="flex flex-col gap-4 py-4">
+                                    <div className="flex flex-col gap-2">
                                         <Label>Member Type</Label>
                                         <Select value={memberType} onValueChange={(v: 'user' | 'vendor') => setMemberType(v)} disabled={!!editingMemberId}>
                                             <SelectTrigger><SelectValue /></SelectTrigger>
@@ -1043,26 +1043,26 @@ export default function OrganizationMembers() {
 
                                     {memberType === 'user' ? (
                                         <>
-                                            <div className="space-y-2">
+                                            <div className="flex flex-col gap-2">
                                                 <Label>Full Name</Label>
                                                 <Input value={memberForm.full_name} onChange={e => setMemberForm(p => ({ ...p, full_name: e.target.value }))} placeholder="John Doe" />
                                             </div>
-                                            <div className="space-y-2">
+                                            <div className="flex flex-col gap-2">
                                                 <Label>Email</Label>
                                                 <Input type="email" value={memberForm.email} onChange={e => setMemberForm(p => ({ ...p, email: e.target.value }))} placeholder="john@example.com" />
                                             </div>
                                             {!editingMemberId && (
-                                                <div className="space-y-2">
+                                                <div className="flex flex-col gap-2">
                                                     <Label>Password</Label>
                                                     <Input type="password" value={memberForm.password} onChange={e => setMemberForm(p => ({ ...p, password: e.target.value }))} placeholder="••••••••" />
                                                 </div>
                                             )}
                                             <div className="grid grid-cols-2 gap-4">
-                                                <div className="space-y-2">
+                                                <div className="flex flex-col gap-2">
                                                     <Label>Phone</Label>
                                                     <Input value={memberForm.phone} onChange={e => setMemberForm(p => ({ ...p, phone: e.target.value }))} placeholder="+1..." />
                                                 </div>
-                                                <div className="space-y-2">
+                                                <div className="flex flex-col gap-2">
                                                     <Label>Role</Label>
                                                     <Select value={memberForm.role} onValueChange={v => setMemberForm(p => ({ ...p, role: v }))}>
                                                         <SelectTrigger><SelectValue /></SelectTrigger>
@@ -1076,11 +1076,11 @@ export default function OrganizationMembers() {
                                                 </div>
                                             </div>
                                             <div className="grid grid-cols-2 gap-4">
-                                                <div className="space-y-2">
+                                                <div className="flex flex-col gap-2">
                                                     <Label>Job Title</Label>
                                                     <Input value={memberForm.job_title} onChange={e => setMemberForm(p => ({ ...p, job_title: e.target.value }))} placeholder="Sale Associate" />
                                                 </div>
-                                                <div className="space-y-2">
+                                                <div className="flex flex-col gap-2">
                                                     <Label>Department</Label>
                                                     <Input value={memberForm.department} onChange={e => setMemberForm(p => ({ ...p, department: e.target.value }))} placeholder="Sales" />
                                                 </div>
@@ -1088,32 +1088,32 @@ export default function OrganizationMembers() {
                                         </>
                                     ) : (
                                         <>
-                                            <div className="space-y-2">
+                                            <div className="flex flex-col gap-2">
                                                 <Label>Store/Display Name *</Label>
                                                 <Input value={memberForm.store_name} onChange={e => setMemberForm(p => ({ ...p, store_name: e.target.value }))} placeholder="Acme Store #12" />
                                             </div>
-                                            <div className="space-y-2">
+                                            <div className="flex flex-col gap-2">
                                                 <Label>Contact Person Name *</Label>
                                                 <Input value={memberForm.full_name} onChange={e => setMemberForm(p => ({ ...p, full_name: e.target.value }))} placeholder="John Doe" />
                                             </div>
                                             <div className="grid grid-cols-2 gap-4">
-                                                <div className="space-y-2">
+                                                <div className="flex flex-col gap-2">
                                                     <Label>Contact Email</Label>
                                                     <Input type="email" value={memberForm.email} onChange={e => setMemberForm(p => ({ ...p, email: e.target.value }))} placeholder="contact@acme.com" />
                                                 </div>
-                                                <div className="space-y-2">
+                                                <div className="flex flex-col gap-2">
                                                     <Label>Phone</Label>
                                                     <Input value={memberForm.phone} onChange={e => setMemberForm(p => ({ ...p, phone: e.target.value }))} placeholder="+1..." />
                                                 </div>
                                             </div>
                                             {!editingMemberId && (
-                                                <div className="space-y-2">
+                                                <div className="flex flex-col gap-2">
                                                     <Label>Login Password</Label>
                                                     <Input type="password" value={memberForm.password} onChange={e => setMemberForm(p => ({ ...p, password: e.target.value }))} placeholder="••••••••" />
                                                 </div>
                                             )}
                                             <div className="grid grid-cols-2 gap-4">
-                                                <div className="space-y-2">
+                                                <div className="flex flex-col gap-2">
                                                     <Label>Location</Label>
                                                     <Select value={memberForm.location_id} onValueChange={v => setMemberForm(p => ({ ...p, location_id: v }))}>
                                                         <SelectTrigger><SelectValue placeholder="Select location" /></SelectTrigger>
@@ -1125,7 +1125,7 @@ export default function OrganizationMembers() {
                                                         </SelectContent>
                                                     </Select>
                                                 </div>
-                                                <div className="space-y-2">
+                                                <div className="flex flex-col gap-2">
                                                     <Label>Commission Rate (%)</Label>
                                                     <Input type="number" value={memberForm.commission_rate} onChange={e => setMemberForm(p => ({ ...p, commission_rate: parseFloat(e.target.value) || 0 }))} />
                                                 </div>
@@ -1282,7 +1282,7 @@ export default function OrganizationMembers() {
                 </TabsContent>
 
                 {/* Subscription Tab */}
-                <TabsContent value="subscription" className="mt-6 space-y-6">
+                <TabsContent value="subscription" className="mt-6 flex flex-col gap-6">
                     {/* Subscription Overview */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <Card>
@@ -1301,7 +1301,7 @@ export default function OrganizationMembers() {
                                 </Badge>
                             </CardHeader>
                             <CardContent>
-                                <div className="space-y-4">
+                                <div className="flex flex-col gap-4">
                                     <div className="flex justify-between items-baseline">
                                         <span className="text-3xl font-bold text-slate-900">
                                             ${subscriptionStats?.billingAmount}
@@ -1311,7 +1311,7 @@ export default function OrganizationMembers() {
                                         </span>
                                     </div>
 
-                                    <div className="space-y-2 pt-4 border-t">
+                                    <div className="flex flex-col gap-2 pt-4 border-t">
                                         <div className="flex justify-between text-sm">
                                             <span className="text-slate-600">Status</span>
                                             <Badge variant="outline" className={statusColors[organization?.status || 'active']}>
@@ -1353,8 +1353,8 @@ export default function OrganizationMembers() {
                             <CardHeader>
                                 <CardTitle className="text-lg font-bold">Usage Limits</CardTitle>
                             </CardHeader>
-                            <CardContent className="space-y-6">
-                                <div className="space-y-2">
+                            <CardContent className="flex flex-col gap-6">
+                                <div className="flex flex-col gap-2">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-slate-600">Vendors</span>
                                         <span className="font-medium">
@@ -1369,7 +1369,7 @@ export default function OrganizationMembers() {
                                     </div>
                                 </div>
 
-                                <div className="space-y-2">
+                                <div className="flex flex-col gap-2">
                                     <div className="flex justify-between text-sm">
                                         <span className="text-slate-600">Users</span>
                                         <span className="font-medium">
@@ -1446,7 +1446,7 @@ export default function OrganizationMembers() {
                         <CardContent className="pt-6">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {/* Current Plan Info */}
-                                <div className="space-y-6">
+                                <div className="flex flex-col gap-6">
                                     <div>
                                         <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-4">Current Subscription</h3>
                                         <div className="flex items-center gap-4 p-4 bg-primary/5 rounded-md border border-primary/10">
@@ -1492,10 +1492,10 @@ export default function OrganizationMembers() {
                                 </div>
 
                                 {/* Billing Details / Payment Method Placeholder */}
-                                <div className="space-y-6">
+                                <div className="flex flex-col gap-6">
                                     <h3 className="text-sm font-medium text-slate-500 uppercase tracking-wider mb-4">Payment Method</h3>
 
-                                    <div className="p-6 border border-slate-200 rounded-md bg-white border-dashed flex flex-col items-center justify-center text-center space-y-3 min-h-[160px]">
+                                    <div className="p-6 border border-slate-200 rounded-md bg-white border-dashed flex flex-col items-center justify-center text-center flex flex-col gap-3 min-h-[160px]">
                                         <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center">
                                             <CreditCard className="h-5 w-5 text-slate-400" />
                                         </div>
@@ -1529,7 +1529,7 @@ export default function OrganizationMembers() {
                     </SheetHeader>
 
                     {selectedMember && (
-                        <div className="mt-6 space-y-6">
+                        <div className="mt-6 flex flex-col gap-6">
                             {/* Header */}
                             <div className="flex items-center gap-4">
                                 <div className={cn(
@@ -1563,7 +1563,7 @@ export default function OrganizationMembers() {
                                     <CardHeader className="pb-3">
                                         <CardTitle className="text-sm font-medium text-slate-500">Store Information</CardTitle>
                                     </CardHeader>
-                                    <CardContent className="space-y-3">
+                                    <CardContent className="flex flex-col gap-3">
                                         <div className="flex items-center gap-3">
                                             <Mail className="h-4 w-4 text-slate-400" />
                                             <span>{userMap[selectedMember.user_id!]?.email || 'No email linked'}</span>
@@ -1643,7 +1643,7 @@ export default function OrganizationMembers() {
                                     <CardHeader className="pb-3">
                                         <CardTitle className="text-sm font-medium text-slate-500">Account Info</CardTitle>
                                     </CardHeader>
-                                    <CardContent className="space-y-3">
+                                    <CardContent className="flex flex-col gap-3">
                                         <div className="flex justify-between">
                                             <span className="text-slate-500">Role</span>
                                             <Badge variant="outline">{selectedMember.role || 'user'}</Badge>
@@ -1704,7 +1704,7 @@ export default function OrganizationMembers() {
             {/* Delete Confirmation Dialog */}
             <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
                 <DialogContent className="max-w-sm">
-                    <DialogHeader className="flex flex-col items-center text-center space-y-3">
+                    <DialogHeader className="flex flex-col items-center text-center flex flex-col gap-3">
                         <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
                             <AlertTriangle className="h-6 w-6 text-rose-600" />
                         </div>

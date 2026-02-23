@@ -140,7 +140,7 @@ export default function Alerts() {
         return (
             <div className="mb-6">
                 {title && <h3 className="text-sm font-bold text-muted-foreground uppercase tracking-wider mb-3 ml-1">{title}</h3>}
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                     {groupAlerts.map(alert => {
                         const config = alertConfigMap[alert.type] || alertConfigMap.system;
                         const Icon = config.icon;
@@ -229,7 +229,7 @@ export default function Alerts() {
     }
 
     return (
-        <div className="space-y-6 max-w-5xl mx-auto p-6">
+        <div className="flex flex-col gap-6 max-w-5xl mx-auto p-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-foreground">Notifications</h1>

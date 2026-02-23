@@ -214,7 +214,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="flex flex-col gap-6 max-w-6xl mx-auto">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
         {/* Profile Card */}
@@ -359,9 +359,9 @@ export default function Profile() {
                 {isEditing ? t('saveChanges') : t('editProfile')}
               </Button>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="flex flex-col gap-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="full_name">{t('fullName')}</Label>
                   <Input
                     id="full_name"
@@ -371,7 +371,7 @@ export default function Profile() {
                     placeholder={t('yourFullName')}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="email">{t('email')}</Label>
                   <Input
                     id="email"
@@ -381,7 +381,7 @@ export default function Profile() {
                   />
                   <p className="text-xs text-slate-500">{t('emailCannotChange')}</p>
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="phone">{t('phone')}</Label>
                   <Input
                     id="phone"
@@ -391,7 +391,7 @@ export default function Profile() {
                     placeholder="+1 234 567 8900"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="job_title">{t('jobTitle')}</Label>
                   <Input
                     id="job_title"
@@ -401,7 +401,7 @@ export default function Profile() {
                     placeholder={t('egInventoryManager')}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="department">{t('department')}</Label>
                   <Input
                     id="department"
@@ -411,7 +411,7 @@ export default function Profile() {
                     placeholder={t('egOperations')}
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label htmlFor="timezone">{t('timezone')}</Label>
                   <Select
                     value={profileData.timezone}
@@ -434,7 +434,7 @@ export default function Profile() {
                   </Select>
                 </div>
               </div>
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="bio">{t('bio')}</Label>
                 <Textarea
                   id="bio"
@@ -484,7 +484,7 @@ export default function Profile() {
         </TabsContent>
 
         {/* Preferences Tab */}
-        <TabsContent value="preferences" className="mt-6 space-y-6">
+        <TabsContent value="preferences" className="mt-6 flex flex-col gap-6">
           <Card className='p-6'>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -492,7 +492,7 @@ export default function Profile() {
                 {t('notificationSettings')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="flex flex-col gap-6">
               {[
                 { key: 'email_notifications', label: t('emailNotifications'), desc: t('receiveUpdatesEmail') },
                 { key: 'push_notifications', label: t('pushNotifications'), desc: t('browserPushNotifications') },
@@ -521,7 +521,7 @@ export default function Profile() {
                 {t('appearance')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="flex flex-col gap-6">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-slate-900">{t('language')}</p>
@@ -566,7 +566,7 @@ export default function Profile() {
         </TabsContent>
 
         {/* Security Tab */}
-        <TabsContent value="security" className="mt-6 space-y-6">
+        <TabsContent value="security" className="mt-6 flex flex-col gap-6">
           <Card className='p-6'>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -574,7 +574,7 @@ export default function Profile() {
                 {t('accountSecurity')}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="flex flex-col gap-6">
               <div className="flex items-center justify-between p-4 bg-slate-50 rounded-md">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -587,7 +587,7 @@ export default function Profile() {
                 </div>
               </div>
 
-              <div className="space-y-4">
+              <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-slate-900">{t('email')}</p>
@@ -647,7 +647,7 @@ export default function Profile() {
                   <p className="text-slate-600">{t('noRecentActivity')}</p>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="flex flex-col gap-4">
                   {userActivities.map((activity, index) => (
                     <div key={activity.id} className="flex items-start gap-4 p-4 hover:bg-slate-50 rounded-md transition-colors">
                       <div className={cn(
