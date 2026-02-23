@@ -246,7 +246,7 @@ function OrgDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <PageHeader
         title={t('dashboard')}
         subtitle={t('welcomeBack')}
@@ -286,7 +286,7 @@ function OrgDashboard() {
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column - Charts */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 flex flex-col gap-6">
           <InventoryChart
             data={chartData}
             activeTab={chartType}
@@ -300,7 +300,7 @@ function OrgDashboard() {
         </div>
 
         {/* Right Column - Activity & Quick Actions */}
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
           <QuickActions />
           <ActivityTimeline activities={activities} />
         </div>

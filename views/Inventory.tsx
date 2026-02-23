@@ -276,7 +276,7 @@ export default function Inventory() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       <PageHeader
         title={t('inventory')}
         subtitle={`${filteredProducts.length} ${t('products')}`}
@@ -499,7 +499,7 @@ export default function Inventory() {
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="max-w-sm">
-          <DialogHeader className="flex flex-col items-center text-center space-y-3">
+          <DialogHeader className="flex flex-col items-center text-center gap-3">
             <div className="h-12 w-12 rounded-full bg-destructive/10 flex items-center justify-center">
               <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>
@@ -523,7 +523,7 @@ export default function Inventory() {
       {/* Bulk Delete Confirmation Dialog */}
       <Dialog open={isBulkDeleteDialogOpen} onOpenChange={setIsBulkDeleteDialogOpen}>
         <DialogContent className="max-w-sm">
-          <DialogHeader className="flex flex-col items-center text-center space-y-3">
+          <DialogHeader className="flex flex-col items-center text-center gap-3">
             <div className="h-12 w-12 rounded-full bg-destructive/10 flex items-center justify-center">
               <AlertTriangle className="h-6 w-6 text-destructive" />
             </div>

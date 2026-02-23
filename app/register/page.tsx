@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
 import { apiClient } from '@/lib/api-client';
 import { SubscriptionPlan } from '@/api/base44Client';
@@ -10,11 +11,12 @@ import StepSubscription from '@/components/register/StepSubscription';
 import StepLocation from '@/components/register/StepLocation';
 import StepOrganization from '@/components/register/StepOrganization';
 import StepUser from '@/components/register/StepUser';
-import { Package, Check } from "lucide-react";
+import { Package, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function RegisterPage() {
     const router = useRouter();
+    const { isAuthenticated, user, isLoading } = useAuth();
     const [step, setStep] = useState(1);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [loadingMessage, setLoadingMessage] = useState('');
@@ -24,6 +26,18 @@ export default function RegisterPage() {
         organizationId: '',
         subscription_interval: 'monthly' as 'monthly' | 'yearly',
     });
+
+    // Redirect if already authenticated
+    React.useEffect(() => {
+        if (!isLoading && isAuthenticated && user) {
+            if (user.role === 'vendor') {
+                router.push('/VendorDashboard');
+            } else {
+                router.push('/Dashboard');
+            }
+        }
+    }, [isAuthenticated, user, isLoading, router]);
+
 
     const [data, setData] = useState({
         plan: null as SubscriptionPlan | null,
@@ -125,6 +139,28 @@ export default function RegisterPage() {
         { number: 3, title: 'Organization' },
         { number: 4, title: 'Account' }
     ];
+
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <p className="text-muted-foreground">Loading...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (isAuthenticated) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <div className="flex flex-col items-center gap-4">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    <p className="text-muted-foreground">Redirecting...</p>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 relative">

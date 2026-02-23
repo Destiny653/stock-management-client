@@ -143,7 +143,7 @@ export default function VendorDashboard() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -282,7 +282,7 @@ export default function VendorDashboard() {
               Payment Status
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="flex flex-col gap-4">
             {myVendor && (
               <>
                 <div className="p-4 rounded-md bg-slate-50">
@@ -318,7 +318,7 @@ export default function VendorDashboard() {
                   {myPayments.length === 0 ? (
                     <p className="text-sm text-slate-500">No payment records</p>
                   ) : (
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                       {myPayments.slice(0, 3).map(payment => (
                         <div key={payment.id} className="flex justify-between items-center text-sm">
                           <span className="text-slate-600">
