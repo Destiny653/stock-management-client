@@ -121,6 +121,7 @@ export default function DirectSales() {
     notes: '',
     discount: 0
   });
+  const [isCartSheetOpen, setIsCartSheetOpen] = useState(false);
 
   const { data: products = [], isLoading: loadingProducts } = useQuery({
     queryKey: ['products'],
@@ -618,7 +619,7 @@ export default function DirectSales() {
                   <p className="text-slate-400 text-sm">{t('tryAdjustingFilters')}</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-2 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-6">
                   {filteredProducts.map((product) => {
                     const priceRange = getProductPriceRange(product);
                     const totalStock = getProductTotalStock(product);
@@ -633,7 +634,7 @@ export default function DirectSales() {
                       <div key={product.id} className="h-full">
                         <Card
                           className={cn(
-                            "group relative h-full overflow-hidden border-slate-200/60 transition-all duration-300   hover:-translate-y-1.5 bg-white/80 backdrop-blur-sm",
+                            "group relative h-full overflow-hidden border-slate-200/60 transition-all duration-300 hover:-translate-y-1.5 bg-white/80 backdrop-blur-sm",
                             isInCart && "ring-2 ring-primary/50  border-primary/20",
                             isExpanded && "ring-2 ring-primary border-primary/20"
                           )}
@@ -812,8 +813,8 @@ export default function DirectSales() {
               )}
             </div>
 
-            {/* Cart */}
-            <div className="flex flex-col gap-4">
+            {/* Cart - Desktop Sidebar */}
+            <div className="hidden lg:flex flex-col gap-4">
               <Card className="sticky py-5 top-4">
                 <CardHeader className="pb-3 border-b">
                   <CardTitle className="flex items-center gap-2">
