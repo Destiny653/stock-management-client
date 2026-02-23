@@ -233,32 +233,37 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background relative overflow-hidden">
+      {/* Background Glow - Reflects the theme under the transparent header */}
+      <div className="fixed top-0 left-0 right-0 h-96 bg-linear-to-b from-primary/10 via-primary/5 to-transparent pointer-events-none z-0" />
+      <div className="fixed -top-24 -left-24 h-96 w-96 bg-primary/10 rounded-full blur-3xl pointer-events-none z-0" />
+
       {/* Top Header */}
-      <header className="fixed top-0 left-0 right-0 h-16 bg-sidebar border-b border-sidebar-border z-40">
+      <header className="fixed top-0 left-0 right-0 h-16 bg-background/60 backdrop-blur-xl border-b border-primary/10 z-40 shadow-sm">
         <div className="flex items-center h-full">
           {/* Left Section - Logo area with sidebar width */}
           <div className={cn(
-            "hidden md:flex items-center justify-between h-full border-r border-gray-100/50 px-4 transition-all duration-300 ease-in-out",
-            sidebarCollapsed ? "w-[72px]" : "w-64"
+            "hidden md:flex items-center justify-between h-full border-r border-primary/10 px-6 transition-all duration-300 ease-in-out bg-background/40 backdrop-blur-sm",
+            sidebarCollapsed ? "w-[72px] px-4" : "w-64"
           )}>
-            <Link href="/" className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center">
+            <Link href="/" className="flex items-center gap-3 group">
+              <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center shadow-lg shadow-primary/20 transition-transform group-hover:scale-105">
                 <Package className="h-5 w-5 text-primary-foreground" />
               </div>
               {!sidebarCollapsed && (
-                <div>
-                  <h1 className="font-bold text-sidebar-foreground text-lg tracking-tight">StockFlow</h1>
+                <div className="flex flex-col">
+                  <h1 className="font-black text-foreground text-lg tracking-tighter leading-none">STOCKFLOW</h1>
+                  <span className="text-[10px] font-bold text-primary/60 tracking-widest uppercase">Inventory</span>
                 </div>
               )}
             </Link>
           </div>
 
           {/* Mobile Logo & Menu */}
-          <div className="flex md:hidden items-center gap-4 px-4">
+          <div className="flex md:hidden items-center gap-3 px-4">
             <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
               <SheetTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-sidebar-foreground hover:bg-sidebar-accent">
+                <Button variant="ghost" size="icon" className="text-foreground/70 hover:bg-muted">
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
@@ -320,23 +325,21 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
             </Sheet>
 
             <Link href="/" className="flex items-center gap-2">
-              <div className="h-9 w-9 rounded-md bg-primary flex items-center justify-center shrink-0">
-                <Package className="h-4.5 w-4.5 text-primary-foreground" />
+              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center shrink-0 shadow-md shadow-primary/20">
+                <Package className="h-4 w-4 text-primary-foreground" />
               </div>
-              <div className="block">
-                <h1 className="font-bold text-sidebar-foreground text-base tracking-tight truncate max-w-[100px] xs:max-w-none">StockFlow</h1>
-              </div>
+              <h1 className="font-black text-foreground text-base tracking-tighter">STOCKFLOW</h1>
             </Link>
           </div>
 
           {/* Center - Search (Desktop) */}
-          <div className="hidden md:flex gap-6 flex-1 max-w-xl mx-2">
+          <div className="hidden md:flex gap-4 flex-1 max-w-xl mx-8 relative z-10">
             {/* Sidebar Toggle Button */}
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="h-10 w-10 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+              className="h-10 w-10 text-primary/70 hover:text-primary hover:bg-primary/10 transition-all duration-200 rounded-lg"
             >
               {sidebarCollapsed ? (
                 <PanelLeft className="h-5 w-5" />
@@ -344,41 +347,42 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
                 <PanelLeftClose className="h-5 w-5" />
               )}
             </Button>
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sidebar-foreground/50" />
+            <div className="relative w-full group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary/40 transition-colors group-focus-within:text-primary" />
               <input
                 type="text"
-                placeholder="Search products, orders, suppliers..."
-                className="w-full h-10 pl-10 pr-4 rounded-md bg-sidebar-accent border border-sidebar-border text-sm text-sidebar-foreground placeholder:text-sidebar-foreground/50 focus:outline-none focus:ring-2 focus:ring-sidebar-ring focus:border-sidebar-ring focus:bg-sidebar-accent transition-all"
+                placeholder="Search resources..."
+                className="w-full h-10 pl-10 pr-4 rounded-xl bg-primary/5 border border-primary/10 text-sm text-foreground placeholder:text-primary/30 focus:outline-none focus:ring-4 focus:ring-primary/5 focus:border-primary/20 focus:bg-background transition-all"
               />
             </div>
           </div>
 
           {/* Right - Actions */}
-          <div className="flex items-center gap-2 ml-auto px-4 lg:px-6">
+          <div className="flex items-center gap-3 ml-auto px-4 lg:px-8 relative z-10">
             <LanguageSelector />
 
             <Link href={createPageUrl("Alerts")}>
-              <Button variant="ghost" size="icon" className="relative text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent">
+              <Button variant="ghost" size="icon" className="relative text-primary/70 hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
                 <Bell className="h-5 w-5" />
                 {unreadCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 h-5 w-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-medium">
-                    {unreadCount > 9 ? '9+' : unreadCount}
-                  </span>
+                  <span className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary ring-2 ring-background ring-offset-0 animate-pulse" />
                 )}
               </Button>
             </Link>
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="gap-2 px-1.5 sm:px-2 text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent">
-                  <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium shrink-0">
+                <Button variant="ghost" className="gap-2 px-1.5 sm:px-2 text-foreground hover:bg-primary/5 transition-all duration-200 rounded-xl border border-transparent border-hover:border-primary/10 shadow-sm hover:shadow-md">
+                  <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center text-primary text-xs font-black shrink-0 border border-primary/20">
                     {user?.full_name?.charAt(0) || 'U'}
                   </div>
-                  <span className="hidden lg:block text-sm font-medium truncate max-w-[100px]">
-                    {user?.full_name || 'User'}
-                  </span>
-                  <ChevronDown className="h-4 w-4 text-sidebar-foreground/50 hidden sm:block" />
+                  <div className="hidden lg:flex flex-col items-start leading-none text-left">
+                    <span className="text-[11px] font-black uppercase tracking-widest text-primary/70 mb-0.5">Account</span>
+                    <span className="text-sm font-bold truncate max-w-[100px]">
+                      {user?.full_name?.split(' ')[0] || 'User'}
+                    </span>
+                  </div>
+                  <ChevronDown className="h-4 w-4 text-primary/40 hidden sm:block ml-1 opacity-50" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 bg-white">
