@@ -54,6 +54,7 @@ import {
 import { LanguageProvider, useLanguage } from "@/components/i18n/LanguageContext";
 import LanguageSelector from "@/components/ui/LanguageSelector";
 import Link from 'next/link';
+import { Card } from './components/ui/card';
 
 // Super admin / owner navigation - organization management focus (NO inventory, orders, sales, payments)
 const superAdminNavigation = [
@@ -235,11 +236,11 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
   return (
     <div className="min-h-screen bg-background">
       {/* Top Header */}
-      <header className="fixed top-0 left-0 right-0 h-16 bg-sidebar border-b border-sidebar-border z-40">
-        <div className="flex items-center h-full">
+      <Card className="fixed top-0 left-0 right-0 h-16 bg-[#ffffff] text-[#000000] shadow-sm border-sidebar-border z-40">
+        <div className="flex items-center h-full relative">
           {/* Left Section - Logo area with sidebar width */}
           <div className={cn(
-            "hidden md:flex items-center justify-between h-full border-r border-sidebar-border px-4 transition-all duration-300 ease-in-out",
+            "hidden md:flex items-center justify-between h-full bg-sidebar border-r border-sidebar-border px-4 transition-all duration-300 ease-in-out",
             sidebarCollapsed ? "w-[72px]" : "w-64"
           )}>
             <Link href={createPageUrl("Dashboard")} className="flex items-center gap-3">
@@ -252,19 +253,6 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
                 </div>
               )}
             </Link>
-            {/* Sidebar Toggle Button */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={toggleSidebar}
-              className="h-8 w-8 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
-            >
-              {sidebarCollapsed ? (
-                <PanelLeft className="h-5 w-5" />
-              ) : (
-                <PanelLeftClose className="h-5 w-5" />
-              )}
-            </Button>
           </div>
 
           {/* Mobile Logo & Menu */}
@@ -343,13 +331,26 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
           </div>
 
           {/* Center - Search (Desktop) */}
-          <div className="hidden md:flex flex-1 max-w-xl mx-8">
+          <div className="hidden md:flex flex-1 gap-4 max-w-xl mx-8">
+              {/* Sidebar Toggle Button */}
+            <Button
+              variant="ghost"
+              // size="icon"
+              onClick={toggleSidebar}
+              className="h-10 w-10 text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-colors"
+            >
+              {sidebarCollapsed ? (
+                <PanelLeft className="h-8 w-8" />
+              ) : (
+                <PanelLeftClose className="h-8 w-8" />
+              )}
+            </Button>
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sidebar-foreground/50" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-sidebar" />
               <input
                 type="text"
                 placeholder="Search products, orders, suppliers..."
-                className="w-full h-10 pl-10 pr-4 rounded-md bg-sidebar-accent border border-sidebar-border text-sm text-sidebar-foreground placeholder:text-sidebar-foreground/50 focus:outline-none focus:ring-2 focus:ring-sidebar-ring focus:border-sidebar-ring focus:bg-sidebar-accent transition-all"
+                className="w-full h-10 pl-10 pr-4 text-gray-700 rounded-md bg-sidebar-accent border border-gray-200 text-sm placeholder:text-sidebar-foreground/50 focus:outline-none focus:ring-2 focus:ring-gray-200 focus:border-gray-200 focus:bg-sidebar-accent transition-all"
               />
             </div>
           </div>
@@ -371,7 +372,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="gap-2 px-1.5 sm:px-2 text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent">
+                <Button variant="ghost" className="gap-2 px-1.5 sm:px-2 text-black hover:text-black hover:bg-sidebar-accent">
                   <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium shrink-0">
                     {user?.full_name?.charAt(0) || 'U'}
                   </div>
@@ -408,7 +409,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
             </DropdownMenu>
           </div>
         </div>
-      </header>
+      </Card>
 
       {/* Desktop Sidebar */}
       <aside className={cn(
