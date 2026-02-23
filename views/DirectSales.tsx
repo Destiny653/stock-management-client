@@ -1122,6 +1122,128 @@ export default function DirectSales() {
           </SheetFooter>
         </SheetContent>
       </Sheet>
+
+      {/* Mobile Floating Cart Button */}
+      <div className="lg:hidden fixed bottom-6 right-6 z-50">
+        <Button
+          onClick={() => setIsCartSheetOpen(true)}
+          className="h-14 w-14 rounded-full shadow-2xl bg-primary hover:bg-primary/90 flex items-center justify-center relative border-4 border-white animate-in zoom-in-0 duration-300"
+        >
+          <ShoppingCart className="h-6 w-6 text-white" />
+          {cart.length > 0 && (
+            <span className="absolute -top-2 -right-2 bg-rose-600 text-white text-[10px] font-black h-6 w-6 rounded-full flex items-center justify-center ring-2 ring-white">
+              {cart.reduce((sum, item) => sum + item.quantity, 0)}
+            </span>
+          )}
+        </Button>
+      </div>
+
+      {/* Mobile Cart Sheet */}
+      <Sheet open={isCartSheetOpen} onOpenChange={setIsCartSheetOpen}>
+        <SheetContent side="bottom" className="h-[85vh] p-0 rounded-t-3xl overflow-hidden flex flex-col">
+          <SheetHeader className="p-6 border-b shrink-0 flex flex-row items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                <ShoppingCart className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <SheetTitle className="text-lg font-black uppercase tracking-tight">{t('yourCart')}</SheetTitle>
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{cart.length} {t('itemsInCart')}</p>
+              </div>
+            </div>
+            {/* <Button variant="ghost" size="icon" onClick={() => setIsCartSheetOpen(false)} className="rounded-full">
+              <X className="h-5 w-5" />
+            </Button> */}
+          </SheetHeader>
+
+          <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 custom-scrollbar">
+            {cart.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full py-12 text-center">
+                <div className="h-20 w-20 rounded-full bg-slate-50 flex items-center justify-center mb-4">
+                  <ShoppingCart className="h-10 w-10 text-slate-200" />
+                </div>
+                <p className="text-slate-600 font-bold uppercase tracking-widest text-sm">{t('cartEmpty')}</p>
+                <p className="text-slate-400 text-xs mt-2">{t('clickProductsToAdd')}</p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-3">
+                {cart.map((item, index) => (
+                  <div key={`${item.product_id}-${item.variant_sku}`} className="flex items-start gap-4 p-4 bg-white border border-slate-100 rounded-2xl shadow-sm">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-black text-slate-900 leading-tight mb-1">{item.product_name}</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-[9px] font-black font-mono text-primary bg-primary/5 px-2 py-0.5 rounded uppercase tracking-wider">
+                          {item.variant_sku}
+                        </span>
+                        {Object.keys(item.variant_attributes).length > 0 && (
+                          <span className="text-[10px] text-slate-500 font-medium uppercase tracking-tight">
+                            {formatAttributes(item.variant_attributes)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="mt-4 flex items-center justify-between">
+                        <div className="flex items-center gap-1 bg-slate-50 rounded-lg p-1">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 hover:bg-white hover:shadow-sm"
+                            onClick={() => updateCartQuantity(index, -1)}
+                          >
+                            <Minus className="h-3.5 w-3.5" />
+                          </Button>
+                          <span className="w-8 text-center text-sm font-black tabular-nums">{item.quantity}</span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 hover:bg-white hover:shadow-sm"
+                            onClick={() => updateCartQuantity(index, 1)}
+                          >
+                            <Plus className="h-3.5 w-3.5" />
+                          </Button>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-sm font-black text-slate-900 tabular-nums">${item.total.toFixed(2)}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {cart.length > 0 && (
+            <div className="p-6 bg-white border-t space-y-4 shadow-[0_-4px_20px_rgba(0,0,0,0.05)]">
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  <span>{t('subtotal')}</span>
+                  <span className="text-slate-900 font-black tabular-nums">${cartSubtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-xs font-bold text-slate-400 uppercase tracking-widest">
+                  <span>{t('tax')} (10%)</span>
+                  <span className="text-slate-900 font-black tabular-nums">${cartTax.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-lg font-black pt-2 border-t border-slate-50">
+                  <span className="uppercase tracking-tight">{t('totalAmount')}</span>
+                  <span className="text-primary tabular-nums">${cartTotal.toFixed(2)}</span>
+                </div>
+              </div>
+
+              <Button
+                className="w-full h-14 bg-primary hover:bg-primary/90 text-white font-black uppercase tracking-widest text-xs"
+                size="lg"
+                onClick={() => {
+                  setIsCartSheetOpen(false);
+                  handleOpenSaleDialog();
+                }}
+              >
+                <CheckCircle className="h-5 w-5 mr-3" />
+                {t('checkoutNow')}
+              </Button>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

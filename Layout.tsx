@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -161,6 +162,7 @@ interface LayoutProps {
 function LayoutContent({ children, currentPageName }: LayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const router = useRouter();
 
   // Load sidebar state from localStorage on mount
@@ -321,10 +323,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
                     <Button
                       variant="ghost"
                       className="w-full justify-start h-10 text-sm font-bold text-slate-700 hover:text-rose-600 hover:bg-rose-50 transition-colors"
-                      onClick={() => {
-                        logout();
-                        router.push('/login');
-                      }}
+                      onClick={() => setShowLogoutConfirm(true)}
                     >
                       <LogOut className="h-4 w-4 mr-3 text-rose-500" /> Sign Out
                     </Button>
@@ -401,10 +400,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="text-primary"
-                  onClick={() => {
-                    logout();
-                    router.push('/login');
-                  }}
+                  onClick={() => setShowLogoutConfirm(true)}
                 >
                   <LogOut className="h-4 w-4 mr-2" /> Sign Out
                 </DropdownMenuItem>
@@ -504,10 +500,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
               <DropdownMenuSeparator className="my-1 bg-slate-100" />
               <DropdownMenuItem
                 className="flex items-center gap-3 p-3 rounded-md text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer group m-1"
-                onClick={() => {
-                  logout();
-                  router.push('/login');
-                }}
+                onClick={() => setShowLogoutConfirm(true)}
               >
                 <div className="h-8 w-8 rounded-full bg-rose-100/50 flex items-center justify-center text-rose-500 group-hover:bg-rose-100">
                   <LogOut className="h-4 w-4" />
@@ -528,6 +521,21 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
           {children}
         </div>
       </main>
+
+      <ConfirmDialog
+        open={showLogoutConfirm}
+        onOpenChange={setShowLogoutConfirm}
+        title="Sign Out"
+        description="Are you sure you want to sign out of StockFlow? You will need to log in again to access your account."
+        onConfirm={() => {
+          logout();
+          router.push('/login');
+          setShowLogoutConfirm(false);
+        }}
+        confirmText="Sign Out"
+        cancelText="Stay logged in"
+        variant="destructive"
+      />
     </div>
   );
 }
