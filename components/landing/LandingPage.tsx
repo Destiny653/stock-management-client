@@ -327,8 +327,8 @@ export default function LandingPage() {
                                 </Button>
                                 <Button
                                     size="lg"
-                                    variant="outline"
-                                    className="h-14 px-8 text-lg border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10 hover:border-primary-foreground"
+                                    variant="secondary"
+                                    className="h-14 px-8 text-lg border-primary-foreground/50 text-primary hover:text-white hover:bg-primary-foreground/10 hover:border-primary-foreground"
                                 >
                                     <Play className="mr-2 h-5 w-5" />
                                     Watch Demo
@@ -749,7 +749,7 @@ export default function LandingPage() {
                             <Button
                                 size="lg"
                                 variant="outline"
-                                className="h-14 px-10 text-lg border-primary-foreground/50 text-primary-foreground hover:bg-primary-foreground/10"
+                                className="h-14 px-10 text-lg border-primary-foreground/50 text-primary hover:text-white hover:bg-primary-foreground/10"
                             >
                                 Sign In
                             </Button>
