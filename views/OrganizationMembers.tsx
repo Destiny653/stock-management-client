@@ -28,7 +28,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Trash2, Edit2, Shield, UserPlus, Lock } from "lucide-react";
+import { Plus, Trash2, Edit2, Shield, UserPlus, Lock, CheckCircle } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     ArrowLeft,
@@ -97,6 +97,7 @@ const statusColors: Record<string, string> = {
 };
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { Textarea } from '@/components/ui/textarea';
 
 export default function OrganizationMembers() {
     const { t } = useSafeLanguage();
@@ -1807,7 +1808,7 @@ export default function OrganizationMembers() {
                     <SheetFooter className="p-6 border-t shrink-0 flex-row gap-3">
                         <Button variant="ghost" className="flex-1 h-12" onClick={() => setIsSubscriptionDialogOpen(false)}>Cancel</Button>
                         <Button
-                            className="flex-[2] h-12 bg-primary hover:bg-primary/90 text-white font-bold"
+                            className="flex-2 h-12 bg-primary hover:bg-primary/90 text-white font-bold"
                             onClick={handleSaveSubscription}
                             disabled={updateOrganizationMutation.isPending}
                         >
@@ -1941,10 +1942,10 @@ export default function OrganizationMembers() {
                         <Button variant="ghost" className="flex-1 h-12" onClick={() => setIsPaymentDialogOpen(false)}>Cancel</Button>
                         <Button
                             className="flex-[2] h-12 bg-primary hover:bg-primary/90 text-white font-bold"
-                            onClick={handleRecordPayment}
-                            disabled={recordPaymentMutation.isPending}
+                            onClick={handleCreatePayment}
+                            disabled={createPaymentMutation.isPending}
                         >
-                            {recordPaymentMutation.isPending ? (
+                            {createPaymentMutation.isPending ? (
                                 <Loader2 className="h-5 w-5 mr-3 animate-spin" />
                             ) : (
                                 <CheckCircle className="h-5 w-5 mr-3" />
