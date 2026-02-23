@@ -265,7 +265,7 @@ export default function LandingPage() {
                                 <a href="#testimonials" className="text-sm font-medium text-primary-foreground hover:text-primary-foreground py-2">Testimonials</a>
                                 <div className="flex gap-2 pt-2">
                                     <Link href="/login" className="flex-1">
-                                        <Button variant="outline" className="w-full border-primary-foreground text-primary-foreground hover:bg-primary-foreground/10">Sign In</Button>
+                                        <Button variant="outline" className="w-full border-primary-foreground text-sidebar hover:bg-primary-foreground/10">Sign In</Button>
                                     </Link>
                                     <Button onClick={() => handleOpenRegister()} className="flex-1 bg-primary-foreground text-primary hover:bg-primary-foreground/90">
                                         Start Free

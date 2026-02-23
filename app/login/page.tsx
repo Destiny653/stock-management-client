@@ -160,14 +160,14 @@ export default function LoginPage() {
             <div className="w-full lg:w-1/2 flex items-center justify-center md:p-8 p-4 bg-muted/30">
                 <div className="w-full max-w-md">
                     {/* Mobile Logo */}
-                    <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
+                    <Link href="/" className="lg:hidden flex items-center justify-center gap-3 mb-8">
                         <div className="h-12 w-12 rounded-md bg-primary flex items-center justify-center">
                             <Package className="h-6 w-6 text-primary-foreground" />
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold text-foreground">StockFlow</h1>
                         </div>
-                    </div>
+                    </Link>
 
                     {/* Login Card */}
                     <div className="bg-card rounded-md shadow-muted/50 p-8 border border-border">

@@ -242,7 +242,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
             "hidden md:flex items-center justify-between h-full border-r border-gray-100/50 px-4 transition-all duration-300 ease-in-out",
             sidebarCollapsed ? "w-[72px]" : "w-64"
           )}>
-            <Link href={createPageUrl("Dashboard")} className="flex items-center gap-3">
+            <Link href="/" className="flex items-center gap-3">
               <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center">
                 <Package className="h-5 w-5 text-primary-foreground" />
               </div>
@@ -264,15 +264,15 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
               </SheetTrigger>
               <SheetContent side="left" className="w-[85%] max-w-72 p-0 bg-background flex flex-col">
                 <div className="p-6 border-b border-border">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center ">
+                  <Link href="/" className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center">
                       <Package className="h-5 w-5 text-primary-foreground" />
                     </div>
                     <div>
                       <h1 className="font-bold text-foreground">StockFlow</h1>
                       <p className="text-xs text-muted-foreground">Inventory Management</p>
                     </div>
-                  </div>
+                  </Link>
                 </div>
                 <nav className="p-4 flex-1 flex flex-col gap-1 overflow-y-auto">
                   {navigation.map((item) => (
@@ -319,7 +319,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
               </SheetContent>
             </Sheet>
 
-            <Link href={createPageUrl("Dashboard")} className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-2">
               <div className="h-9 w-9 rounded-md bg-primary flex items-center justify-center shrink-0">
                 <Package className="h-4.5 w-4.5 text-primary-foreground" />
               </div>
@@ -331,7 +331,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
 
           {/* Center - Search (Desktop) */}
           <div className="hidden md:flex gap-6 flex-1 max-w-xl mx-2">
-             {/* Sidebar Toggle Button */}
+            {/* Sidebar Toggle Button */}
             <Button
               variant="ghost"
               size="icon"

@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card } from '@/components/ui/card';
@@ -180,13 +181,13 @@ export default function RegisterPage() {
                 )}
             </AnimatePresence>
 
-            <div className="mb-8 text-center">
+            <Link href="/" className="mb-8 text-center block hover:opacity-80 transition-opacity">
                 <div className="inline-flex items-center justify-center h-12 w-12 rounded-md bg-linear-to-br from-primary/80 to-primary shadow-primary/30 mb-4">
                     <Package className="h-6 w-6 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold text-slate-900">Create your account</h1>
                 <p className="text-slate-500 mt-1">Get started with StockFlow in 4 easy steps</p>
-            </div>
+            </Link>
 
             {/* Progress Steps */}
             <div className="w-full max-w-2xl mb-8 flex items-center justify-between px-4 sm:px-8">
