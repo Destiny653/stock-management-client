@@ -55,7 +55,7 @@ export default function LowStockAlert({ products = [] }: LowStockAlertProps) {
         </Link>
       </div>
 
-      <div className="space-y-4">
+      <div className="flex flex-col gap-4">
         {lowStockVariants.map((item) => {
           const percentRemaining = (item.stock / (item.reorderPoint || 10)) * 100;
           const isOutOfStock = item.stock === 0;

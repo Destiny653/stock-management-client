@@ -81,7 +81,7 @@ export default function StepLocation({ onNext, onBack, initialData }: StepLocati
     };
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
             <div className="text-center mb-6">
                 <h2 className="text-xl font-semibold flex items-center justify-center gap-2">
                     <MapPin className="h-5 w-5 text-primary" />
@@ -92,8 +92,8 @@ export default function StepLocation({ onNext, onBack, initialData }: StepLocati
                 </p>
             </div>
 
-            <div className="space-y-6">
-                <div className="space-y-3">
+            <div className="flex flex-col gap-10">
+                <div className="flex flex-col gap-3">
                     <Label className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Location Name (e.g. Headquarters) *</Label>
                     <Input
                         value={locationData.name}
@@ -119,8 +119,8 @@ export default function StepLocation({ onNext, onBack, initialData }: StepLocati
                 />
             </div>
 
-            <div className="space-y-6">
-                <div className="space-y-3">
+            <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-3">
                     <Label className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Address *</Label>
                     <Input
                         value={locationData.address}
@@ -130,7 +130,7 @@ export default function StepLocation({ onNext, onBack, initialData }: StepLocati
                     />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
+                    <div className="flex flex-col gap-3">
                         <Label className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">City *</Label>
                         <Input
                             value={locationData.city}
@@ -139,7 +139,7 @@ export default function StepLocation({ onNext, onBack, initialData }: StepLocati
                             className="input-minimal h-10"
                         />
                     </div>
-                    <div className="space-y-3">
+                    <div className="flex flex-col gap-3">
                         <Label className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Country *</Label>
                         <Input
                             value={locationData.country}

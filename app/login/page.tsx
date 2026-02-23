@@ -157,7 +157,7 @@ export default function LoginPage() {
             </div>
 
             {/* Right Panel - Login Form */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-muted/30">
+            <div className="w-full lg:w-1/2 flex items-center justify-center md:p-8 p-4 bg-muted/30">
                 <div className="w-full max-w-md">
                     {/* Mobile Logo */}
                     <div className="lg:hidden flex items-center justify-center gap-3 mb-8">
@@ -185,8 +185,8 @@ export default function LoginPage() {
                         )}
 
                         {/* Login Form */}
-                        <form onSubmit={handleSubmit} className="space-y-8">
-                            <div className="space-y-3">
+                        <form onSubmit={handleSubmit} className="space-y-8 flex flex-col gap-10">
+                            <div className="space-y-3 flex flex-col gap-4">
                                 <Label htmlFor="username" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">
                                     Username
                                 </Label>
@@ -201,7 +201,7 @@ export default function LoginPage() {
                                 />
                             </div>
 
-                            <div className="space-y-3">
+                            <div className="space-y-3 flex flex-col gap-4">
                                 <Label htmlFor="password" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">
                                     Password
                                 </Label>

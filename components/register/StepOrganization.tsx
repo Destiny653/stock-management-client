@@ -90,7 +90,7 @@ export default function StepOrganization({ onNext, onBack, initialData }: StepOr
     };
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
             <div className="text-center mb-6">
                 <h2 className="text-xl font-semibold flex items-center justify-center gap-2">
                     <Building2 className="h-5 w-5 text-primary" />
@@ -101,8 +101,8 @@ export default function StepOrganization({ onNext, onBack, initialData }: StepOr
                 </p>
             </div>
 
-            <div className="space-y-6 mt-8">
-                <div className="space-y-3">
+            <div className="flex flex-col gap-6 mt-8">
+                <div className="flex flex-col gap-3">
                     <Label htmlFor="orgName" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Organization Name *</Label>
                     <Input
                         id="orgName"
@@ -112,7 +112,7 @@ export default function StepOrganization({ onNext, onBack, initialData }: StepOr
                         className="input-minimal h-10"
                     />
                 </div>
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                     <Label htmlFor="orgCode" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Organization Code *</Label>
                     <Input
                         id="orgCode"
@@ -124,7 +124,7 @@ export default function StepOrganization({ onNext, onBack, initialData }: StepOr
                     />
                     <p className="text-xs text-slate-500 font-medium">Unique identifier for your organization (e.g., shorter name)</p>
                 </div>
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                     <Label htmlFor="orgPhone" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Phone (Optional)</Label>
                     <Input
                         id="orgPhone"
@@ -134,7 +134,7 @@ export default function StepOrganization({ onNext, onBack, initialData }: StepOr
                         className="input-minimal h-10"
                     />
                 </div>
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                     <Label htmlFor="orgEmail" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Organization Email (Optional)</Label>
                     <Input
                         id="orgEmail"
@@ -145,7 +145,7 @@ export default function StepOrganization({ onNext, onBack, initialData }: StepOr
                         className="input-minimal h-10"
                     />
                 </div>
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                     <Label htmlFor="orgWebsite" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Website (Optional)</Label>
                     <Input
                         id="orgWebsite"
@@ -155,7 +155,7 @@ export default function StepOrganization({ onNext, onBack, initialData }: StepOr
                         className="input-minimal h-10"
                     />
                 </div>
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                     <Label htmlFor="orgDescription" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Description (Optional)</Label>
                     <Input
                         id="orgDescription"

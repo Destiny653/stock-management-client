@@ -128,7 +128,7 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
     };
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
             <div className="text-center mb-6">
                 <h2 className="text-xl font-semibold flex items-center justify-center gap-2">
                     <User className="h-5 w-5 text-primary" />
@@ -139,8 +139,8 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                 </p>
             </div>
 
-            <div className="space-y-6 mt-8">
-                <div className="space-y-3">
+            <div className="flex flex-col gap-6 mt-8">
+                <div className="flex flex-col gap-3">
                     <Label htmlFor="fullName" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Full Name *</Label>
                     <Input
                         id="fullName"
@@ -152,7 +152,7 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                     />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
+                    <div className="flex flex-col gap-3">
                         <Label htmlFor="firstName" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">First Name</Label>
                         <Input
                             id="firstName"
@@ -163,7 +163,7 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                             className="input-minimal h-10"
                         />
                     </div>
-                    <div className="space-y-3">
+                    <div className="flex flex-col gap-3">
                         <Label htmlFor="lastName" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Last Name</Label>
                         <Input
                             id="lastName"
@@ -175,7 +175,7 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                         />
                     </div>
                 </div>
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                     <Label htmlFor="email" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Email Address *</Label>
                     <Input
                         id="email"
@@ -187,7 +187,7 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                         className="input-minimal h-10"
                     />
                 </div>
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                     <Label htmlFor="username" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Username *</Label>
                     <Input
                         id="username"
@@ -198,7 +198,7 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                         className="input-minimal h-10"
                     />
                 </div>
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                     <Label htmlFor="phone" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Phone Number</Label>
                     <Input
                         id="phone"
@@ -211,7 +211,7 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                     />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
+                    <div className="flex flex-col gap-3">
                         <Label htmlFor="department" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Department</Label>
                         <Input
                             id="department"
@@ -222,7 +222,7 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                             className="input-minimal h-10"
                         />
                     </div>
-                    <div className="space-y-3">
+                    <div className="flex flex-col gap-3">
                         <Label htmlFor="jobTitle" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Job Title</Label>
                         <Input
                             id="jobTitle"
@@ -234,7 +234,7 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                         />
                     </div>
                 </div>
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                     <Label htmlFor="password" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Password *</Label>
                     <div className="relative">
                         <Input
@@ -257,7 +257,7 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                     </div>
                     {/* Password strength indicator */}
                     {formData.password.length > 0 && (
-                        <div className="space-y-2">
+                        <div className="flex flex-col gap-2">
                             <div className="flex gap-1">
                                 {[1, 2].map((level) => (
                                     <div
@@ -275,7 +275,7 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                             )}>
                                 Password strength: {getStrengthLabel()}
                             </p>
-                            <ul className="text-xs text-slate-500 space-y-0.5">
+                            <ul className="text-xs text-slate-500 flex flex-col gap-0.5">
                                 <li className={passwordStrength.checks.length ? "text-primary" : ""}>
                                     {passwordStrength.checks.length ? "✓" : "○"} At least 4 characters
                                 </li>
@@ -286,7 +286,7 @@ export default function StepUser({ onSubmit, onBack, initialData, isSubmitting }
                         </div>
                     )}
                 </div>
-                <div className="space-y-3">
+                <div className="flex flex-col gap-3">
                     <Label htmlFor="confirmPassword" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">Confirm Password *</Label>
                     <div className="relative">
                         <Input

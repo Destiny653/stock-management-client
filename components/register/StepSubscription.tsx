@@ -97,12 +97,12 @@ export default function StepSubscription({ onNext, initialData }: StepSubscripti
     }
 
     return (
-        <div className="space-y-6">
+        <div className="flex flex-col gap-6">
             <div className="text-center mb-6">
                 <h2 className="text-xl font-semibold">Choose your plan</h2>
                 <p className="text-sm text-muted-foreground">Select the plan that best fits your needs.</p>
 
-                <div className="flex items-center justify-center mt-4 space-x-4">
+                <div className="flex items-center justify-center mt-4 gap-4">
                     <span className={cn("text-sm font-medium transition-colors", billingInterval === 'monthly' ? "text-foreground" : "text-muted-foreground")}>
                         Monthly
                     </span>
@@ -170,7 +170,7 @@ export default function StepSubscription({ onNext, initialData }: StepSubscripti
                             </div>
 
                             <div className="mt-auto pt-4 border-t border-border/50">
-                                <ul className="space-y-2">
+                                <ul className="flex flex-col gap-2">
                                     {plan.features.slice(0, 4).map((feature, i) => (
                                         <li key={i} className="flex items-start text-sm text-muted-foreground">
                                             <div className={cn("mr-2 mt-0.5 rounded-full p-0.5", isSelected ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground")}>

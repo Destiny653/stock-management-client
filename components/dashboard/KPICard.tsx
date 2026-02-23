@@ -41,14 +41,14 @@ export default function KPICard({
       variants[variant]
     )}>
       <div className="flex items-start justify-between">
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3">
           <p className={cn(
             "text-sm font-medium tracking-wide uppercase",
             variant === "primary" ? "text-primary-foreground/90" : "text-muted-foreground"
           )}>
             {title}
           </p>
-          <div className="space-y-1">
+          <div className="flex flex-col gap-1">
             <h3 className={cn(
               "text-3xl font-bold tracking-tight",
               variant === "primary" ? "text-primary-foreground" : "text-foreground"

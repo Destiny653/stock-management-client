@@ -79,7 +79,7 @@ export default function CategoryDistribution({ data = [] }: CategoryDistribution
           </ResponsiveContainer>
         </div>
 
-        <div className="flex-1 space-y-2">
+        <div className="flex-1 flex flex-col gap-2">
           {dataWithTotal.slice(0, 5).map((item, index) => (
             <div key={item.name} className="flex items-center justify-between">
               <div className="flex items-center gap-2">

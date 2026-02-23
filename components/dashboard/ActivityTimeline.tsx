@@ -37,7 +37,7 @@ export default function ActivityTimeline({ activities = [] }: ActivityTimelinePr
     <div className="bg-white rounded-md border border-slate-200 p-6">
       <h3 className="text-lg font-semibold text-slate-900 mb-6">Recent Activity</h3>
 
-      <div className="space-y-1">
+      <div className="flex flex-col gap-1">
         {activities.length === 0 ? (
           <p className="text-sm text-slate-500 text-center py-8">No recent activity</p>
         ) : (

@@ -168,7 +168,7 @@ interface LayoutProps {
 
 function LayoutContent({ children, currentPageName }: LayoutProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const router = useRouter();
 
   // Load sidebar state from localStorage on mount
