@@ -50,7 +50,7 @@ export function ConfirmDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-sm">
-                <DialogHeader className="flex flex-col items-center text-center space-y-3">
+                <DialogHeader className="flex flex-col items-center text-center gap-3">
                     <div className={cn(
                         "h-12 w-12 rounded-full flex items-center justify-center",
                         bgMap[variant]

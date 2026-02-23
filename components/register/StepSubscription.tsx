@@ -68,7 +68,7 @@ export default function StepSubscription({ onNext, initialData }: StepSubscripti
 
     if (isLoading) {
         return (
-            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <div className="flex flex-col items-center justify-center py-12 gap-4">
                 <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 <p className="text-muted-foreground">Loading subscription plans...</p>
             </div>
@@ -77,7 +77,7 @@ export default function StepSubscription({ onNext, initialData }: StepSubscripti
 
     if (error) {
         return (
-            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <div className="flex flex-col items-center justify-center py-12 gap-4">
                 <AlertCircle className="h-8 w-8 text-destructive" />
                 <p className="text-destructive">{error}</p>
                 <Button onClick={() => window.location.reload()} variant="outline">
@@ -89,7 +89,7 @@ export default function StepSubscription({ onNext, initialData }: StepSubscripti
 
     if (plans.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-12 space-y-4">
+            <div className="flex flex-col items-center justify-center py-12 gap-4">
                 <AlertCircle className="h-8 w-8 text-primary/70" />
                 <p className="text-muted-foreground">No subscription plans available at the moment.</p>
             </div>

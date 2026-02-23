@@ -53,7 +53,7 @@ export function StatsCard({
         >
             <CardContent className="p-6">
                 <div className="flex items-start justify-between">
-                    <div className="space-y-2">
+                    <div className="flex flex-col gap-2">
                         <p className={cn(
                             "text-[11px] font-bold uppercase tracking-wider",
                             variant === "primary" ? "text-primary-foreground/90" : "text-muted-foreground"

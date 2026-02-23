@@ -292,7 +292,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
                     </div>
                   </div>
                 </div>
-                <nav className="p-4 space-y-1">
+                <nav className="p-4 flex flex-col gap-1">
                   {navigation.map((item) => (
                     <NavLink
                       key={item.name}
@@ -393,7 +393,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
       )}>
         <TooltipProvider>
           <nav className={cn(
-            "flex-1 space-y-1 overflow-y-auto sidebar-scrollbar transition-all duration-300",
+            "flex-1 flex flex-col gap-1 overflow-y-auto sidebar-scrollbar transition-all duration-300",
             sidebarCollapsed ? "p-2" : "p-4"
           )}>
             {navigation.map((item) => (

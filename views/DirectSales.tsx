@@ -473,7 +473,7 @@ export default function DirectSales() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -550,7 +550,7 @@ export default function DirectSales() {
                 </div>
               </div>
             )}
-            <div className="lg:col-span-2 space-y-4">
+            <div className="lg:col-span-2 flex flex-col gap-4">
               {/* Search & Filters */}
               <div className="flex flex-col md:flex-row gap-3">
                 <div className="relative flex-1">
@@ -675,13 +675,13 @@ export default function DirectSales() {
                             </div>
 
                             {/* Info Section */}
-                            <div className="p-4 space-y-4 flex-1 flex flex-col justify-between">
-                              <div className="space-y-1">
+                            <div className="p-4 flex flex-col gap-4 flex-1 justify-between">
+                              <div className="flex flex-col gap-1">
                                 <h4 className="font-extrabold text-slate-900 group-hover:text-primary transition-colors line-clamp-1 leading-tight text-[15px]">{product.name}</h4>
                                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">{product.category}</p>
                               </div>
 
-                              <div className="space-y-4">
+                              <div className="flex flex-col gap-4">
                                 <div className="flex items-end justify-between gap-2">
                                   <div className="flex flex-col">
                                     <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{t('price')}</span>
@@ -752,7 +752,7 @@ export default function DirectSales() {
                               </div>
 
                               {/* Scrollable variant list */}
-                              <div className="flex-1 overflow-y-auto p-1.5 space-y-1.5 custom-scrollbar">
+                              <div className="flex-1 overflow-y-auto p-1.5 flex flex-col gap-1.5 custom-scrollbar">
                                 {availableVariants.map((variant) => {
                                   const variantInCart = cart.find(
                                     c => c.product_id === product.id && c.variant_sku === variant.sku
@@ -821,7 +821,7 @@ export default function DirectSales() {
             </div>
 
             {/* Cart */}
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               <Card className="sticky py-5 top-4">
                 <CardHeader className="pb-3 border-b">
                   <CardTitle className="flex items-center gap-2">
@@ -832,7 +832,7 @@ export default function DirectSales() {
                     )}
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4 pt-4">
+                <CardContent className="flex flex-col gap-4 pt-4">
                   {cart.length === 0 ? (
                     <div className="text-center py-8">
                       <ShoppingCart className="h-12 w-12 text-slate-200 mx-auto mb-3" />
@@ -841,7 +841,7 @@ export default function DirectSales() {
                     </div>
                   ) : (
                     <>
-                      <div className="space-y-3 max-h-80 overflow-y-auto">
+                      <div className="flex flex-col gap-3 max-h-80 overflow-y-auto">
                         {cart.map((item, index) => (
                           <div key={`${item.product_id}-${item.variant_sku}`} className="flex items-start gap-3 p-3 bg-slate-50 rounded-md">
                             <div className="flex-1 min-w-0">
@@ -888,7 +888,7 @@ export default function DirectSales() {
                         ))}
                       </div>
 
-                      <div className="border-t pt-4 space-y-2">
+                      <div className="border-t pt-4 flex flex-col gap-2">
                         <div className="flex justify-between text-sm">
                           <span className="text-slate-600">{t('subtotal')}</span>
                           <span>${cartSubtotal.toFixed(2)}</span>
@@ -944,9 +944,9 @@ export default function DirectSales() {
             </DialogTitle>
           </DialogHeader>
 
-          <div className="space-y-4 py-4">
+          <div className="flex flex-col gap-4 py-4">
             {/* Vendor Info */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label className="flex items-center gap-2">
                 <User className="h-4 w-4 text-slate-400" />
                 {t('vendorName')} *
@@ -959,10 +959,10 @@ export default function DirectSales() {
             </div>
 
             {/* Client Info (Optional) */}
-            <div className="p-4 bg-slate-50 rounded-md space-y-3">
+            <div className="p-4 bg-slate-50 rounded-md flex flex-col gap-3">
               <p className="text-sm font-medium text-slate-700">{t('customerInformation')}</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="space-y-1">
+                <div className="flex flex-col gap-1">
                   <Label className="text-xs">{t('clientName')}</Label>
                   <Input
                     value={saleForm.client_name}
@@ -970,7 +970,7 @@ export default function DirectSales() {
                     placeholder={t('customerName')}
                   />
                 </div>
-                <div className="space-y-1">
+                <div className="flex flex-col gap-1">
                   <Label className="text-xs">{t('clientPhone')}</Label>
                   <Input
                     value={saleForm.client_phone}
@@ -979,7 +979,7 @@ export default function DirectSales() {
                   />
                 </div>
               </div>
-              <div className="space-y-1">
+              <div className="flex flex-col gap-1">
                 <Label className="text-xs">{t('clientEmail')}</Label>
                 <Input
                   type="email"
@@ -991,7 +991,7 @@ export default function DirectSales() {
             </div>
 
             {/* Payment Method */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>{t('paymentMethod')}</Label>
               <div className="grid grid-cols-4 gap-2">
                 {[
@@ -1019,7 +1019,7 @@ export default function DirectSales() {
             </div>
 
             {/* Discount */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>{t('discount')} ($)</Label>
               <Input
                 type="number"
@@ -1032,7 +1032,7 @@ export default function DirectSales() {
             </div>
 
             {/* Notes */}
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label>{t('notes')}</Label>
               <Textarea
                 value={saleForm.notes}
@@ -1043,7 +1043,7 @@ export default function DirectSales() {
             </div>
 
             {/* Order Summary */}
-            <div className="p-4 bg-slate-900 text-white rounded-md space-y-2">
+            <div className="p-4 bg-slate-900 text-white rounded-md flex flex-col gap-2">
               <div className="flex justify-between text-sm">
                 <span className="text-slate-400">{t('subtotal')}</span>
                 <span>${cartSubtotal.toFixed(2)}</span>
@@ -1087,7 +1087,7 @@ export default function DirectSales() {
       {/* Delete Sale Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="max-w-sm">
-          <DialogHeader className="flex flex-col items-center text-center space-y-3">
+          <DialogHeader className="flex flex-col items-center text-center gap-3">
             <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
               <AlertTriangle className="h-6 w-6 text-rose-600" />
             </div>

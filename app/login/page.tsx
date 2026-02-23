@@ -112,7 +112,7 @@ export default function LoginPage() {
                 </div>
 
                 {/* Main Content */}
-                <div className="relative z-10 space-y-8">
+                <div className="relative z-10 flex flex-col gap-8">
                     <div>
                         <h2 className="text-4xl font-bold text-sidebar-foreground leading-tight">
                             Manage your inventory<br />
@@ -126,7 +126,7 @@ export default function LoginPage() {
                     </div>
 
                     {/* Features */}
-                    <div className="space-y-4">
+                    <div className="flex flex-col gap-4">
                         <div className="flex items-center gap-3">
                             <div className="h-10 w-10 rounded-md bg-white/10 flex items-center justify-center">
                                 <Shield className="h-5 w-5 text-white" />
@@ -185,8 +185,8 @@ export default function LoginPage() {
                         )}
 
                         {/* Login Form */}
-                        <form onSubmit={handleSubmit} className="space-y-8 flex flex-col gap-10">
-                            <div className="space-y-3 flex flex-col gap-4">
+                        <form onSubmit={handleSubmit} className="flex flex-col gap-10">
+                            <div className="flex flex-col gap-4">
                                 <Label htmlFor="username" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">
                                     Username
                                 </Label>
@@ -201,7 +201,7 @@ export default function LoginPage() {
                                 />
                             </div>
 
-                            <div className="space-y-3 flex flex-col gap-4">
+                            <div className="flex flex-col gap-4">
                                 <Label htmlFor="password" className="text-foreground font-semibold text-sm tracking-wide uppercase opacity-70">
                                     Password
                                 </Label>

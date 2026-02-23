@@ -168,7 +168,7 @@ export default function InventoryFilters({
                             </Button>
                         </PopoverTrigger>
                         <PopoverContent className="w-56" align="end">
-                            <div className="space-y-2">
+                            <div className="flex flex-col gap-2">
                                 <p className="text-sm font-medium text-slate-900 mb-3">Show Columns</p>
                                 {defaultColumns.map((col: any) => (
                                     <label key={col.id} className="flex items-center gap-2 cursor-pointer">

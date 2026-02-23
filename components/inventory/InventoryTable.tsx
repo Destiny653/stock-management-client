@@ -153,7 +153,7 @@ export default function InventoryTable({
       accessorKey: 'name',
       sortable: true,
       cell: (product) => (
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-md bg-muted flex items-center justify-center overflow-hidden shadow-sm">
             {product.image_url ? (
               <img src={getImageUrl(product.image_url)} className="w-full h-full object-cover" alt={product.name} />
@@ -259,7 +259,7 @@ export default function InventoryTable({
       header: '',
       className: 'w-24 text-right',
       cell: (product) => (
-        <div className="flex justify-end space-x-1" onClick={(e) => e.stopPropagation()}>
+        <div className="flex justify-end gap-1" onClick={(e) => e.stopPropagation()}>
           <Link href={createPageUrl(`ProductDetail?id=${product.id}`)} className="p-1.5 text-muted-foreground hover:text-primary hover:bg-primary/10 rounded transition-all">
             <Eye size={16} />
           </Link>

@@ -360,7 +360,7 @@ export default function VendorDetail() {
   // User exists but no Vendor profile - show registration form
   if (!vendor) {
     return (
-      <div className="space-y-6">
+      <div className="flex flex-col gap-6">
         {/* Header */}
         <div className="flex items-center gap-4">
           <Link href={createPageUrl("VendorManagement")}>
@@ -399,9 +399,9 @@ export default function VendorDetail() {
           <CardHeader>
             <CardTitle className="text-lg">Vendor Profile Details</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="flex flex-col gap-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="store_name">Store Name *</Label>
                 <Input
                   id="store_name"
@@ -410,7 +410,7 @@ export default function VendorDetail() {
                   onChange={(e) => setRegistrationForm({ ...registrationForm, store_name: e.target.value })}
                 />
               </div>
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="name">Legal Business Name</Label>
                 <Input
                   id="name"
@@ -422,7 +422,7 @@ export default function VendorDetail() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label>Subscription Plan</Label>
                 <Select
                   value={registrationForm.subscription_plan || 'basic'}
@@ -438,7 +438,7 @@ export default function VendorDetail() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="commission_rate">Commission Rate (%)</Label>
                 <Input
                   id="commission_rate"
@@ -449,7 +449,7 @@ export default function VendorDetail() {
                   onChange={(e) => setRegistrationForm({ ...registrationForm, commission_rate: parseFloat(e.target.value) || 0 })}
                 />
               </div>
-              <div className="space-y-2">
+              <div className="flex flex-col gap-2">
                 <Label htmlFor="monthly_fee">Monthly Fee</Label>
                 <Input
                   id="monthly_fee"
@@ -461,7 +461,7 @@ export default function VendorDetail() {
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="flex flex-col gap-2">
               <Label htmlFor="notes">Notes</Label>
               <Textarea
                 id="notes"
@@ -491,7 +491,7 @@ export default function VendorDetail() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -525,9 +525,9 @@ export default function VendorDetail() {
               <DialogHeader>
                 <DialogTitle>Record Payment</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4">
+              <div className="flex flex-col gap-4">
                 {/* ... (dialog content same structure, just rely on Shadcn defaults which are themed) ... */}
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label>Amount ($)</Label>
                   <Input
                     type="number"
@@ -537,7 +537,7 @@ export default function VendorDetail() {
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label>Payment Type</Label>
                     <Select value={paymentForm.payment_type} onValueChange={(v) => setPaymentForm(prev => ({ ...prev, payment_type: v as VendorPayment['payment_type'] }))}>
                       <SelectTrigger>
@@ -550,7 +550,7 @@ export default function VendorDetail() {
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-2">
+                  <div className="flex flex-col gap-2">
                     <Label>Payment Method</Label>
                     <Select value={paymentForm.payment_method} onValueChange={(v) => setPaymentForm(prev => ({ ...prev, payment_method: v as VendorPayment['payment_method'] }))}>
                       <SelectTrigger>
@@ -565,7 +565,7 @@ export default function VendorDetail() {
                     </Select>
                   </div>
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label>Reference Number</Label>
                   <Input
                     value={paymentForm.reference_number}
@@ -573,7 +573,7 @@ export default function VendorDetail() {
                     placeholder="Transaction reference"
                   />
                 </div>
-                <div className="space-y-2">
+                <div className="flex flex-col gap-2">
                   <Label>Notes</Label>
                   <Textarea
                     value={paymentForm.notes}
@@ -667,7 +667,7 @@ export default function VendorDetail() {
           <CardHeader>
             <CardTitle>Vendor Information</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <Mail className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm">{linkedUser?.email || 'No email linked'}</span>
@@ -688,7 +688,7 @@ export default function VendorDetail() {
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm">Joined {vendor.join_date ? format(new Date(vendor.join_date), 'MMM d, yyyy') : 'N/A'}</span>
             </div>
-            <div className="pt-4 border-t space-y-2">
+            <div className="pt-4 border-t flex flex-col gap-2">
               <div className="flex justify-between">
                 <span className="text-sm text-muted-foreground">Subscription</span>
                 <Badge variant="outline" className="capitalize">{vendor.subscription_plan}</Badge>

@@ -336,7 +336,7 @@ export default function LandingPage() {
                             </motion.div>
 
                             <motion.div variants={fadeInUp} className="mt-12 flex items-center justify-center lg:justify-start gap-6">
-                                <div className="flex -space-x-2">
+                                <div className="flex gap-2">
                                     {[...Array(4)].map((_, i) => (
                                         <div key={i} className="h-10 w-10 rounded-full bg-primary-foreground border-2 border-primary flex items-center justify-center text-primary text-xs font-medium">
                                             {String.fromCharCode(65 + i)}
@@ -524,7 +524,7 @@ export default function LandingPage() {
                                 From the warehouse floor to the executive suite, StockFlow provides the tools your team needs to collaborate efficiently and keep inventory moving.
                             </p>
 
-                            <div className="space-y-4">
+                            <div className="flex flex-col gap-4">
                                 {[
                                     'Real-time synchronization across all devices',
                                     'Role-based access for secure team collaboration',
@@ -690,7 +690,7 @@ export default function LandingPage() {
                                     </span>
                                 </div>
 
-                                <ul className="space-y-3 mb-8">
+                                <ul className="flex flex-col gap-3 mb-8">
                                     {plan.features.map((feature, i) => (
                                         <li key={i} className="flex items-center gap-3 text-sm text-muted-foreground">
                                             <Check className="h-5 w-5 text-primary shrink-0" />
@@ -776,7 +776,7 @@ export default function LandingPage() {
 
                         <div>
                             <h4 className="font-semibold text-primary-foreground mb-4">Product</h4>
-                            <ul className="space-y-2 text-sm text-primary-foreground/70">
+                            <ul className="flex flex-col gap-2 text-sm text-primary-foreground/70">
                                 <li><a href="#features" className="hover:text-primary-foreground transition-colors">Features</a></li>
                                 <li><a href="#pricing" className="hover:text-primary-foreground transition-colors">Pricing</a></li>
                                 <li><a href="#" className="hover:text-primary-foreground transition-colors">Integrations</a></li>
@@ -786,7 +786,7 @@ export default function LandingPage() {
 
                         <div>
                             <h4 className="font-semibold text-primary-foreground mb-4">Company</h4>
-                            <ul className="space-y-2 text-sm text-primary-foreground/70">
+                            <ul className="flex flex-col gap-2 text-sm text-primary-foreground/70">
                                 <li><a href="#" className="hover:text-primary-foreground transition-colors">About Us</a></li>
                                 <li><a href="#" className="hover:text-primary-foreground transition-colors">Careers</a></li>
                                 <li><a href="#" className="hover:text-primary-foreground transition-colors">Blog</a></li>
@@ -796,7 +796,7 @@ export default function LandingPage() {
 
                         <div>
                             <h4 className="font-semibold text-primary-foreground mb-4">Legal</h4>
-                            <ul className="space-y-2 text-sm text-primary-foreground/70">
+                            <ul className="flex flex-col gap-2 text-sm text-primary-foreground/70">
                                 <li><a href="#" className="hover:text-primary-foreground transition-colors">Terms of Service</a></li>
                                 <li><a href="#" className="hover:text-primary-foreground transition-colors">Privacy Policy</a></li>
                                 <li><a href="#" className="hover:text-primary-foreground transition-colors">Cookie Policy</a></li>
