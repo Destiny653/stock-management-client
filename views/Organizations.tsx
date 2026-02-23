@@ -15,6 +15,14 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+    SheetFooter,
+} from "@/components/ui/sheet";
+import {
     Dialog,
     DialogContent,
     DialogHeader,
@@ -355,16 +363,22 @@ export default function Organizations() {
     return (
         <div className="flex flex-col gap-6">
             <PageHeader title={t('organizations') || 'Organizations'} subtitle="Manage organizations and their members">
-                <Dialog open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
-                    <DialogTrigger asChild>
+                <Sheet open={dialogOpen} onOpenChange={(open) => { setDialogOpen(open); if (!open) resetForm(); }}>
+                    <SheetTrigger asChild>
                         <Button className="bg-blue-600 hover:bg-blue-700">
                             <Plus className="h-4 w-4 mr-2" />
                             Add Organization
                         </Button>
-                    </DialogTrigger>
-                    <DialogContent className="max-w-lg">
-                        <DialogHeader><DialogTitle>{editingOrg ? 'Edit Organization' : 'Add New Organization'}</DialogTitle></DialogHeader>
-                        <div className="flex flex-col gap-4 py-4 max-h-[60vh] overflow-y-auto pr-2">
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-full sm:max-w-xl p-0 flex flex-col h-full">
+                        <SheetHeader className="p-6 border-b shrink-0">
+                            <SheetTitle className="flex items-center gap-2">
+                                {editingOrg ? <Edit2 className="h-5 w-5 text-blue-600" /> : <Building2 className="h-5 w-5 text-blue-600" />}
+                                {editingOrg ? 'Edit Organization' : 'Add New Organization'}
+                            </SheetTitle>
+                        </SheetHeader>
+
+                        <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="flex flex-col gap-2">
                                     <Label>Name *</Label>
@@ -375,28 +389,44 @@ export default function Organizations() {
                                     <Input value={formData.code} onChange={(e) => setFormData(p => ({ ...p, code: e.target.value.toUpperCase() }))} placeholder="ACME" />
                                 </div>
                             </div>
+
                             <div className="flex flex-col gap-2">
                                 <Label>Description</Label>
-                                <Textarea value={formData.description} onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))} rows={2} />
+                                <Textarea value={formData.description} onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))} rows={3} className="resize-none" />
                             </div>
+
                             <div className="grid grid-cols-2 gap-4">
-                                <div className="flex flex-col gap-2"><Label>Email</Label><Input type="email" value={formData.email} onChange={(e) => setFormData(p => ({ ...p, email: e.target.value }))} /></div>
-                                <div className="flex flex-col gap-2"><Label>Phone</Label><Input value={formData.phone} onChange={(e) => setFormData(p => ({ ...p, phone: e.target.value }))} /></div>
+                                <div className="flex flex-col gap-2">
+                                    <Label>Email</Label>
+                                    <Input type="email" value={formData.email} onChange={(e) => setFormData(p => ({ ...p, email: e.target.value }))} placeholder="contact@acme.com" />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label>Phone</Label>
+                                    <Input value={formData.phone} onChange={(e) => setFormData(p => ({ ...p, phone: e.target.value }))} placeholder="+1 (555) 000-0000" />
+                                </div>
                             </div>
-                            <div className="flex flex-col gap-2"><Label>Address</Label><Input value={formData.address} onChange={(e) => setFormData(p => ({ ...p, address: e.target.value }))} /></div>
-                            <LocationPicker
-                                latitude={formData.latitude || undefined}
-                                longitude={formData.longitude || undefined}
-                                onLocationChange={(lat, lng) => setFormData(p => ({ ...p, latitude: lat, longitude: lng }))}
-                                onAddressChange={(data) => setFormData(p => ({ ...p, address: data.address || p.address, city: data.city || p.city, country: data.country || p.country }))}
-                                label="Headquarters Location"
-                            />
+
+                            <div className="flex flex-col gap-2">
+                                <Label>Address</Label>
+                                <Input value={formData.address} onChange={(e) => setFormData(p => ({ ...p, address: e.target.value }))} placeholder="123 Business St, City" />
+                            </div>
+
+                            <div className="pt-2">
+                                <LocationPicker
+                                    latitude={formData.latitude || undefined}
+                                    longitude={formData.longitude || undefined}
+                                    onLocationChange={(lat, lng) => setFormData(p => ({ ...p, latitude: lat, longitude: lng }))}
+                                    onAddressChange={(data) => setFormData(p => ({ ...p, address: data.address || p.address, city: data.city || p.city, country: data.country || p.country }))}
+                                    label="Headquarters Location"
+                                />
+                            </div>
+
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="flex flex-col gap-2">
                                     <Label>Status</Label>
                                     <Select value={formData.status} onValueChange={(v) => setFormData(p => ({ ...p, status: v }))}>
                                         <SelectTrigger><SelectValue /></SelectTrigger>
-                                        <SelectContent>
+                                        <SelectContent className="bg-white">
                                             <SelectItem value="active">Active</SelectItem>
                                             <SelectItem value="inactive">Inactive</SelectItem>
                                             <SelectItem value="pending">Pending</SelectItem>
@@ -408,7 +438,7 @@ export default function Organizations() {
                                     <Label>Assign Owner</Label>
                                     <Select value={formData.owner_id || 'none'} onValueChange={(v) => setFormData(p => ({ ...p, owner_id: v === 'none' ? '' : v }))}>
                                         <SelectTrigger><SelectValue placeholder="Select owner" /></SelectTrigger>
-                                        <SelectContent>
+                                        <SelectContent className="bg-white">
                                             <SelectItem value="none">No owner assigned</SelectItem>
                                             {users.filter(u => u.user_type === 'platform-staff' || u.role === 'admin').map(u => (
                                                 <SelectItem key={u.id} value={u.id}>{u.full_name || u.email}</SelectItem>
@@ -417,30 +447,40 @@ export default function Organizations() {
                                     </Select>
                                 </div>
                             </div>
+
                             <div className="grid grid-cols-2 gap-4">
                                 <div className="flex flex-col gap-2">
-                                    <Label>Plan</Label>
+                                    <Label>Subscription Plan</Label>
                                     <Select value={formData.subscription_plan} onValueChange={(v) => setFormData(p => ({ ...p, subscription_plan: v }))}>
                                         <SelectTrigger><SelectValue /></SelectTrigger>
-                                        <SelectContent>
+                                        <SelectContent className="bg-white">
                                             <SelectItem value="starter">Starter</SelectItem>
                                             <SelectItem value="business">Business</SelectItem>
                                             <SelectItem value="enterprise">Enterprise</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <div className="flex flex-col gap-2"><Label>Max Vendors</Label><Input type="number" min={1} value={formData.max_vendors} onChange={(e) => setFormData(p => ({ ...p, max_vendors: parseInt(e.target.value) || 10 }))} /></div>
+                                <div className="flex flex-col gap-2">
+                                    <Label>Max Vendors</Label>
+                                    <Input type="number" min={1} value={formData.max_vendors} onChange={(e) => setFormData(p => ({ ...p, max_vendors: parseInt(e.target.value) || 10 }))} />
+                                </div>
                             </div>
-                            <div className="flex flex-col gap-2"><Label>Max Users</Label><Input type="number" min={1} value={formData.max_users} onChange={(e) => setFormData(p => ({ ...p, max_users: parseInt(e.target.value) || 5 }))} /></div>
+
+                            <div className="flex flex-col gap-2">
+                                <Label>Max Users</Label>
+                                <Input type="number" min={1} value={formData.max_users} onChange={(e) => setFormData(p => ({ ...p, max_users: parseInt(e.target.value) || 5 }))} />
+                            </div>
                         </div>
-                        <DialogFooter>
-                            <Button variant="outline" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
-                            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleSubmit} disabled={createOrgMutation.isPending || updateOrgMutation.isPending}>
-                                {(createOrgMutation.isPending || updateOrgMutation.isPending) ? <Loader2Icon className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />} Save
+
+                        <SheetFooter className="p-6 border-t shrink-0 sm:flex-row gap-3">
+                            <Button variant="ghost" className="flex-1 h-12" onClick={() => { setDialogOpen(false); resetForm(); }}>Cancel</Button>
+                            <Button className="flex-2 h-12 bg-blue-600 hover:bg-blue-700 text-white font-bold" onClick={handleSubmit} disabled={createOrgMutation.isPending || updateOrgMutation.isPending}>
+                                {(createOrgMutation.isPending || updateOrgMutation.isPending) ? <Loader2Icon className="h-5 w-5 animate-spin mr-3" /> : <Save className="h-5 w-5 mr-3" />}
+                                {editingOrg ? 'Update Organization' : 'Create Organization'}
                             </Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </Dialog>
+                        </SheetFooter>
+                    </SheetContent>
+                </Sheet>
             </PageHeader>
 
             {/* Stats Cards */}
@@ -490,7 +530,7 @@ export default function Organizations() {
                             return (
                                 <Card key={org.id} className="group  transition-all duration-300 border-slate-200 overflow-hidden bg-white">
                                     <div className="h-1.5 w-full bg-blue-500/10 group-hover:bg-blue-500 transition-colors" />
-                                    <CardHeader className="flex flex-row items-start justify-between flex flex-col gap-0 p-5 pb-2">
+                                    <CardHeader className="flex flex-row items-start justify-between p-5 pb-2">
                                         <div className="h-12 w-12 rounded-md bg-linear-to-br from-blue-500 to-blue-600 flex items-center justify-center text-white font-bold text-lg -500/20 uppercase">
                                             {org.name?.charAt(0) || 'O'}
                                         </div>

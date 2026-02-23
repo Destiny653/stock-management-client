@@ -9,6 +9,14 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DataTable, Column } from "@/components/ui/data-table";
 import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter,
+} from "@/components/ui/sheet";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -48,6 +56,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/components/i18n/LanguageContext";
+import { Textarea } from '@/components/ui/textarea';
 
 function useSafeLanguage() {
   try {
@@ -694,39 +703,42 @@ export default function Settings() {
               <h2 className="text-lg font-semibold text-slate-900">{t('warehousesAndLocations')}</h2>
               <p className="text-sm text-slate-500">{t('warehousesAndLocations')}</p>
             </div>
-            <Dialog open={warehouseDialogOpen} onOpenChange={(open) => { setWarehouseDialogOpen(open); if (!open) resetWarehouseForm(); }}>
-              <DialogTrigger asChild>
+            <Sheet open={warehouseDialogOpen} onOpenChange={(open) => { setWarehouseDialogOpen(open); if (!open) resetWarehouseForm(); }}>
+              <SheetTrigger asChild>
                 <Button className="bg-primary hover:bg-primary/90">
                   <Plus className="h-4 w-4 mr-2" /> {t('addWarehouse')}
                 </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>{editingWarehouse ? t('edit') : t('addWarehouse')}</DialogTitle>
-                </DialogHeader>
-                <div className="max-h-[80vh] overflow-y-auto pr-2 -mr-2">
-                  <div className="flex flex-col gap-4 py-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-2">
-                        <Label>{t('warehouseName')} *</Label>
-                        <Input value={warehouseForm.name} onChange={(e) => setWarehouseForm(p => ({ ...p, name: e.target.value }))} placeholder={t('warehouseName')} />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Label>{t('warehouseCode')} *</Label>
-                        <Input value={warehouseForm.code} onChange={(e) => setWarehouseForm(p => ({ ...p, code: e.target.value }))} placeholder="WH-001" />
-                      </div>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full sm:max-w-xl p-0 flex flex-col h-full">
+                <SheetHeader className="p-6 border-b shrink-0">
+                  <SheetTitle className="flex items-center gap-2">
+                    {editingWarehouse ? <Edit2 className="h-5 w-5 text-primary" /> : <Building2 className="h-5 w-5 text-primary" />}
+                    {editingWarehouse ? t('edit') : t('addWarehouse')}
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-2">
+                      <Label>{t('warehouseName')} *</Label>
+                      <Input value={warehouseForm.name} onChange={(e) => setWarehouseForm(p => ({ ...p, name: e.target.value }))} placeholder={t('warehouseName')} />
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-2">
-                        <Label>{t('city')}</Label>
-                        <Input value={warehouseForm.city} onChange={(e) => setWarehouseForm(p => ({ ...p, city: e.target.value }))} placeholder={t('city')} />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Label>{t('manager')}</Label>
-                        <Input value={warehouseForm.manager} onChange={(e) => setWarehouseForm(p => ({ ...p, manager: e.target.value }))} placeholder={t('manager')} />
-                      </div>
+                    <div className="flex flex-col gap-2">
+                      <Label>{t('warehouseCode')} *</Label>
+                      <Input value={warehouseForm.code} onChange={(e) => setWarehouseForm(p => ({ ...p, code: e.target.value }))} placeholder="WH-001" />
                     </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-2">
+                      <Label>{t('city')}</Label>
+                      <Input value={warehouseForm.city} onChange={(e) => setWarehouseForm(p => ({ ...p, city: e.target.value }))} placeholder={t('city')} />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label>{t('manager')}</Label>
+                      <Input value={warehouseForm.manager} onChange={(e) => setWarehouseForm(p => ({ ...p, manager: e.target.value }))} placeholder={t('manager')} />
+                    </div>
+                  </div>
 
+                  <div className="pt-2">
                     <LocationPicker
                       latitude={warehouseForm.latitude || undefined}
                       longitude={warehouseForm.longitude || undefined}
@@ -738,28 +750,28 @@ export default function Settings() {
                         country: data.country || p.country
                       }))}
                     />
+                  </div>
 
-                    <div className="flex flex-col gap-2">
-                      <Label>{t('status')}</Label>
-                      <Select value={warehouseForm.status} onValueChange={(v: any) => setWarehouseForm(p => ({ ...p, status: v }))}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="active">{t('active')}</SelectItem>
-                          <SelectItem value="inactive">{t('inactive')}</SelectItem>
-                          <SelectItem value="maintenance">{t('maintenance')}</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>{t('status')}</Label>
+                    <Select value={warehouseForm.status} onValueChange={(v: any) => setWarehouseForm(p => ({ ...p, status: v }))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent className="bg-white">
+                        <SelectItem value="active">{t('active')}</SelectItem>
+                        <SelectItem value="inactive">{t('inactive')}</SelectItem>
+                        <SelectItem value="maintenance">{t('maintenance')}</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => { setWarehouseDialogOpen(false); resetWarehouseForm(); }}>{t('cancel')}</Button>
-                  <Button className="bg-primary hover:bg-primary/90" onClick={handleSaveWarehouse}>
-                    <Save className="h-4 w-4 mr-2" /> {t('save')}
+                <SheetFooter className="p-6 border-t shrink-0 sm:flex-row gap-3">
+                  <Button variant="ghost" className="flex-1 h-12" onClick={() => { setWarehouseDialogOpen(false); resetWarehouseForm(); }}>{t('cancel')}</Button>
+                  <Button className="flex-2 h-12 bg-primary hover:bg-primary/90 text-white font-bold" onClick={handleSaveWarehouse}>
+                    <Save className="h-4 w-4 mr-3" /> {t('save')}
                   </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                </SheetFooter>
+              </SheetContent>
+            </Sheet>
           </div>
 
           <Card className="overflow-hidden">
@@ -779,53 +791,55 @@ export default function Settings() {
               <h2 className="text-lg font-semibold text-slate-900">{t('suppliers')}</h2>
               <p className="text-sm text-slate-500">{t('suppliers')}</p>
             </div>
-            <Dialog open={supplierDialogOpen} onOpenChange={(open) => { setSupplierDialogOpen(open); if (!open) resetSupplierForm(); }}>
-              <DialogTrigger asChild>
+            <Sheet open={supplierDialogOpen} onOpenChange={(open) => { setSupplierDialogOpen(open); if (!open) resetSupplierForm(); }}>
+              <SheetTrigger asChild>
                 <Button className="bg-primary hover:bg-primary/90">
                   <Plus className="h-4 w-4 mr-2" /> {t('add')} {t('supplier')}
                 </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-lg">
-                <DialogHeader>
-                  <DialogTitle>{editingSupplier ? t('edit') : t('add')} {t('supplier')}</DialogTitle>
-                </DialogHeader>
-                <div className="max-h-[80vh] overflow-y-auto pr-2 -mr-2">
-                  <div className="flex flex-col gap-4 py-4">
-                    <div className="flex flex-col gap-2">
-                      <Label>{t('businessName')} *</Label>
-                      <Input value={supplierForm.name} onChange={(e) => setSupplierForm(p => ({ ...p, name: e.target.value }))} placeholder={t('businessName')} />
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full sm:max-w-xl p-0 flex flex-col h-full">
+                <SheetHeader className="p-6 border-b shrink-0">
+                  <SheetTitle className="flex items-center gap-2">
+                    {editingSupplier ? <Edit2 className="h-5 w-5 text-primary" /> : <Truck className="h-5 w-5 text-primary" />}
+                    {editingSupplier ? t('edit') : t('add')} {t('supplier')}
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                  <div className="flex flex-col gap-2">
+                    <Label>{t('businessName')} *</Label>
+                    <Input value={supplierForm.name} onChange={(e) => setSupplierForm(p => ({ ...p, name: e.target.value }))} placeholder={t('businessName')} />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-2 col-span-2">
+                      <Label>Linked Contact Person</Label>
+                      <Select value={supplierForm.user_id || "none"} onValueChange={(v) => setSupplierForm(p => ({ ...p, user_id: v === "none" ? "" : v }))}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Link to user" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white">
+                          <SelectItem value="none">No User Account</SelectItem>
+                          {users.map((u: any) => (
+                            <SelectItem key={u.id} value={u.id}>{u.full_name} ({u.email})</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-2 col-span-2">
-                        <Label>Linked Contact Person</Label>
-                        <Select value={supplierForm.user_id || "none"} onValueChange={(v) => setSupplierForm(p => ({ ...p, user_id: v === "none" ? "" : v }))}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Link to user" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">No User Account</SelectItem>
-                            {users.map((u: any) => (
-                              <SelectItem key={u.id} value={u.id}>{u.full_name} ({u.email})</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-2 col-span-2">
-                        <Label>{t('paymentTerms')}</Label>
-                        <Select value={supplierForm.payment_terms} onValueChange={(v: any) => setSupplierForm(p => ({ ...p, payment_terms: v }))}>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Net 15">Net 15</SelectItem>
-                            <SelectItem value="Net 30">Net 30</SelectItem>
-                            <SelectItem value="Net 45">Net 45</SelectItem>
-                            <SelectItem value="Net 60">Net 60</SelectItem>
-                            <SelectItem value="COD">COD</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <Label>{t('paymentTerms')}</Label>
+                    <Select value={supplierForm.payment_terms} onValueChange={(v: any) => setSupplierForm(p => ({ ...p, payment_terms: v }))}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent className="bg-white">
+                        <SelectItem value="Net 15">Net 15</SelectItem>
+                        <SelectItem value="Net 30">Net 30</SelectItem>
+                        <SelectItem value="Net 45">Net 45</SelectItem>
+                        <SelectItem value="Net 60">Net 60</SelectItem>
+                        <SelectItem value="COD">COD</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="pt-2">
                     <LocationPicker
                       latitude={supplierForm.latitude || undefined}
                       longitude={supplierForm.longitude || undefined}
@@ -837,34 +851,34 @@ export default function Settings() {
                         country: data.country || p.country
                       }))}
                     />
+                  </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="flex flex-col gap-2">
-                        <Label>{t('leadTime')}</Label>
-                        <Input type="number" value={supplierForm.lead_time_days} onChange={(e) => setSupplierForm(p => ({ ...p, lead_time_days: parseInt(e.target.value) || 0 }))} />
-                      </div>
-                      <div className="flex flex-col gap-2">
-                        <Label>{t('status')}</Label>
-                        <Select value={supplierForm.status} onValueChange={(v: any) => setSupplierForm(p => ({ ...p, status: v }))}>
-                          <SelectTrigger><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="active">{t('active')}</SelectItem>
-                            <SelectItem value="inactive">{t('inactive')}</SelectItem>
-                            <SelectItem value="blocked">{t('blocked')}</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-2">
+                      <Label>{t('leadTime')} (Days)</Label>
+                      <Input type="number" value={supplierForm.lead_time_days} onChange={(e) => setSupplierForm(p => ({ ...p, lead_time_days: parseInt(e.target.value) || 0 }))} />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <Label>{t('status')}</Label>
+                      <Select value={supplierForm.status} onValueChange={(v: any) => setSupplierForm(p => ({ ...p, status: v }))}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent className="bg-white">
+                          <SelectItem value="active">{t('active')}</SelectItem>
+                          <SelectItem value="inactive">{t('inactive')}</SelectItem>
+                          <SelectItem value="blocked">{t('blocked')}</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => { setSupplierDialogOpen(false); resetSupplierForm(); }}>{t('cancel')}</Button>
-                  <Button className="bg-primary hover:bg-primary/90" onClick={handleSaveSupplier}>
-                    <Save className="h-4 w-4 mr-2" /> {t('save')}
+                <SheetFooter className="p-6 border-t shrink-0 sm:flex-row gap-3">
+                  <Button variant="ghost" className="flex-1 h-12" onClick={() => { setSupplierDialogOpen(false); resetSupplierForm(); }}>{t('cancel')}</Button>
+                  <Button className="flex-2 h-12 bg-primary hover:bg-primary/90 text-white font-bold" onClick={handleSaveSupplier}>
+                    <Save className="h-4 w-4 mr-3" /> {t('save')}
                   </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                </SheetFooter>
+              </SheetContent>
+            </Sheet>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -925,17 +939,20 @@ export default function Settings() {
               <h2 className="text-lg font-semibold text-slate-900">{t('userManagement')}</h2>
               <p className="text-sm text-slate-500">{t('manageOrganizationUsers')}</p>
             </div>
-            <Dialog open={userDialogOpen} onOpenChange={(open) => { setUserDialogOpen(open); if (!open) resetUserForm(); }}>
-              <DialogTrigger asChild>
+            <Sheet open={userDialogOpen} onOpenChange={(open) => { setUserDialogOpen(open); if (!open) resetUserForm(); }}>
+              <SheetTrigger asChild>
                 <Button className="bg-primary hover:bg-primary/90">
                   <UserPlus className="h-4 w-4 mr-2" /> {t('addUser')}
                 </Button>
-              </DialogTrigger>
-              <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                  <DialogTitle>{editingUserId ? t('editUser') : t('registerUser')}</DialogTitle>
-                </DialogHeader>
-                <div className="flex flex-col gap-4 py-4">
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full sm:max-w-xl p-0 flex flex-col h-full">
+                <SheetHeader className="p-6 border-b shrink-0">
+                  <SheetTitle className="flex items-center gap-2">
+                    {editingUserId ? <Edit2 className="h-5 w-5 text-primary" /> : <UserPlus className="h-5 w-5 text-primary" />}
+                    {editingUserId ? t('editUser') : t('registerUser')}
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col gap-2">
                       <Label>{t('email')} *</Label>
@@ -963,7 +980,7 @@ export default function Settings() {
                       <Label>{t('role')}</Label>
                       <Select value={userForm.role} onValueChange={(v: any) => setUserForm(p => ({ ...p, role: v }))}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white">
                           <SelectItem value="admin">Admin</SelectItem>
                           <SelectItem value="manager">Manager</SelectItem>
                           <SelectItem value="vendor">Vendor</SelectItem>
@@ -975,20 +992,9 @@ export default function Settings() {
                       <Label>{t('userType')}</Label>
                       <Select value={userForm.user_type} onValueChange={(v: any) => setUserForm(p => ({ ...p, user_type: v }))}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
+                        <SelectContent className="bg-white">
                           <SelectItem value="platform-staff">Platform Staff</SelectItem>
                           <SelectItem value="business-staff">Business Staff</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <Label>Status</Label>
-                      <Select value={userForm.status} onValueChange={(v: any) => setUserForm(p => ({ ...p, status: v }))}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="active">Active</SelectItem>
-                          <SelectItem value="inactive">Inactive</SelectItem>
-                          <SelectItem value="suspended">Suspended</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -996,18 +1002,31 @@ export default function Settings() {
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col gap-2">
+                      <Label>Status</Label>
+                      <Select value={userForm.status} onValueChange={(v: any) => setUserForm(p => ({ ...p, status: v }))}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent className="bg-white">
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="inactive">Inactive</SelectItem>
+                          <SelectItem value="suspended">Suspended</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="flex flex-col gap-2">
                       <Label>{t('phone')}</Label>
                       <Input value={userForm.phone} onChange={(e) => setUserForm(p => ({ ...p, phone: e.target.value }))} placeholder="+1234567890" />
                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col gap-2">
                       <Label>{t('department')}</Label>
                       <Input value={userForm.department} onChange={(e) => setUserForm(p => ({ ...p, department: e.target.value }))} placeholder="Sales / Logistics" />
                     </div>
-                  </div>
-
-                  <div className="flex flex-col gap-2">
-                    <Label>{t('jobTitle')}</Label>
-                    <Input value={userForm.job_title} onChange={(e) => setUserForm(p => ({ ...p, job_title: e.target.value }))} placeholder="Senior Manager" />
+                    <div className="flex flex-col gap-2">
+                      <Label>{t('jobTitle')}</Label>
+                      <Input value={userForm.job_title} onChange={(e) => setUserForm(p => ({ ...p, job_title: e.target.value }))} placeholder="Senior Manager" />
+                    </div>
                   </div>
 
                   {!editingUserId && (
@@ -1022,17 +1041,18 @@ export default function Settings() {
 
                   <div className="flex flex-col gap-2">
                     <Label>{t('bio')}</Label>
-                    <Input value={userForm.bio} onChange={(e) => setUserForm(p => ({ ...p, bio: e.target.value }))} placeholder="A short bio..." />
+                    <Textarea value={userForm.bio} onChange={(e) => setUserForm(p => ({ ...p, bio: e.target.value }))} placeholder="A short bio..." rows={3} className="resize-none" />
                   </div>
 
                   <div className="flex flex-col gap-2">
-                    <Label>{t('warehouseAccess')}</Label>
-                    <div className="grid grid-cols-2 gap-2 mt-1">
+                    <Label className="mb-2">{t('warehouseAccess')}</Label>
+                    <div className="grid grid-cols-2 gap-3 p-4 bg-slate-50 rounded-lg border border-slate-100">
                       {warehouses.map((wh: Warehouse) => (
                         <div key={wh.id} className="flex items-center space-x-2">
                           <input
                             type="checkbox"
-                            className="rounded border-slate-300 text-primary focus:ring-primary/50"
+                            id={`wh-${wh.id}`}
+                            className="h-4 w-4 rounded border-slate-300 text-primary focus:ring-primary/50"
                             checked={userForm.warehouse_access.includes(wh.id)}
                             onChange={(e) => {
                               const checked = e.target.checked;
@@ -1044,21 +1064,23 @@ export default function Settings() {
                               }));
                             }}
                           />
-                          <span className="text-sm text-slate-700">{wh.name}</span>
+                          <Label htmlFor={`wh-${wh.id}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                            {wh.name}
+                          </Label>
                         </div>
                       ))}
                     </div>
                   </div>
                 </div>
-                <DialogFooter>
-                  <Button variant="outline" onClick={() => { setUserDialogOpen(false); resetUserForm(); }}>{t('cancel')}</Button>
-                  <Button className="bg-primary hover:bg-primary/90" onClick={handleSaveUser} disabled={createUserMutation.isPending || updateUserMutation.isPending}>
-                    {(createUserMutation.isPending || updateUserMutation.isPending) ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                <SheetFooter className="p-6 border-t shrink-0 sm:flex-row gap-3">
+                  <Button variant="ghost" className="flex-1 h-12" onClick={() => { setUserDialogOpen(false); resetUserForm(); }}>{t('cancel')}</Button>
+                  <Button className="flex-2 h-12 bg-primary hover:bg-primary/90 text-white font-bold" onClick={handleSaveUser} disabled={createUserMutation.isPending || updateUserMutation.isPending}>
+                    {(createUserMutation.isPending || updateUserMutation.isPending) ? <Loader2 className="h-4 w-4 animate-spin mr-3" /> : <Save className="h-4 w-4 mr-3" />}
                     {t('save')}
                   </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+                </SheetFooter>
+              </SheetContent>
+            </Sheet>
           </div>
 
           <Card className="overflow-hidden">
@@ -1092,31 +1114,39 @@ export default function Settings() {
           </Card>
         </TabsContent>
       </Tabs>
-      {/* Delete Confirmation Dialog */}
-      <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader className="flex flex-col items-center text-center flex flex-col gap-3">
-            <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
+      {/* Delete Confirmation Sheet */}
+      <Sheet open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col h-full">
+          <SheetHeader className="p-6 border-b shrink-0">
+            <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center mb-4">
               <AlertTriangle className="h-6 w-6 text-rose-600" />
             </div>
-            <DialogTitle className="text-xl">
+            <SheetTitle className="text-xl">
               Delete {itemToDelete?.type === 'warehouse' ? 'Warehouse' : itemToDelete?.type === 'supplier' ? 'Supplier' : 'User'}?
-            </DialogTitle>
-            <p className="text-sm text-slate-500">
-              Are you sure you want to delete this {itemToDelete?.type}? This action cannot be undone and may affect inventory records.
+            </SheetTitle>
+          </SheetHeader>
+
+          <div className="flex-1 p-6">
+            <p className="text-sm text-slate-500 leading-relaxed">
+              Are you sure you want to delete this <span className="font-bold text-slate-900">{itemToDelete?.type}</span>?
+              This action cannot be undone and may affect inventory records.
+              <span className="block mt-4 p-3 bg-rose-50 border border-rose-100 rounded-md text-rose-700 font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+                This action is permanent.
+              </span>
             </p>
-          </DialogHeader>
-          <DialogFooter className="grid grid-cols-2 gap-3 mt-4">
-            <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
-              Cancel
+          </div>
+
+          <SheetFooter className="p-6 border-t shrink-0 sm:flex-row gap-3">
+            <Button variant="ghost" className="flex-1 h-12" onClick={() => setDeleteConfirmOpen(false)}>
+              {t('cancel')}
             </Button>
-            <Button variant="destructive" onClick={confirmDelete} disabled={deleteWarehouseMutation.isPending || deleteSupplierMutation.isPending}>
+            <Button variant="destructive" className="flex-2 h-12 font-bold" onClick={confirmDelete} disabled={deleteWarehouseMutation.isPending || deleteSupplierMutation.isPending}>
               {(deleteWarehouseMutation.isPending || deleteSupplierMutation.isPending) ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
-              Delete
+              {t('delete')}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

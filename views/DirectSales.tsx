@@ -14,6 +14,13 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+} from "@/components/ui/sheet";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -552,20 +559,20 @@ export default function DirectSales() {
             )}
             <div className="lg:col-span-2 flex flex-col gap-4">
               {/* Search & Filters */}
-              <div className="flex flex-col md:flex-row gap-3">
-                <div className="relative flex-1">
+              <div className="flex flex-col gap-3">
+                <div className="relative w-full">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <Input
                     placeholder={t('searchProducts')}
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 rounded-sm py-5 bg-white border-slate-200"
+                    className="pl-10 rounded-md py-6 bg-white border-slate-200 shadow-sm focus:ring-2 focus:ring-primary/20"
                   />
                 </div>
-                <div className="flex gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   <Select value={filters.category} onValueChange={(v) => setFilters(f => ({ ...f, category: v }))}>
-                    <SelectTrigger className="w-[140px] py-5">
-                      <Filter className="h-4 w-4 mr-2" />
+                    <SelectTrigger className="h-11 bg-white shadow-sm">
+                      <Filter className="h-4 w-4 mr-2 hidden sm:inline" />
                       <SelectValue placeholder={t('category')} />
                     </SelectTrigger>
                     <SelectContent>
@@ -576,7 +583,7 @@ export default function DirectSales() {
                     </SelectContent>
                   </Select>
                   <Select value={filters.status} onValueChange={(v) => setFilters(f => ({ ...f, status: v }))}>
-                    <SelectTrigger className="w-[130px] py-5">
+                    <SelectTrigger className="h-11 bg-white shadow-sm">
                       <SelectValue placeholder={t('status')} />
                     </SelectTrigger>
                     <SelectContent>
@@ -586,8 +593,8 @@ export default function DirectSales() {
                     </SelectContent>
                   </Select>
                   <Select value={filters.sortBy} onValueChange={(v) => setFilters(f => ({ ...f, sortBy: v }))}>
-                    <SelectTrigger className="w-[140px] py-5">
-                      <ArrowUpDown className="h-4 w-4 mr-2" />
+                    <SelectTrigger className="h-11 bg-white shadow-sm col-span-2 sm:col-span-1">
+                      <ArrowUpDown className="h-4 w-4 mr-2 hidden sm:inline" />
                       <SelectValue placeholder={t('sortBy')} />
                     </SelectTrigger>
                     <SelectContent>
@@ -611,7 +618,7 @@ export default function DirectSales() {
                   <p className="text-slate-400 text-sm">{t('tryAdjustingFilters')}</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                   {filteredProducts.map((product) => {
                     const priceRange = getProductPriceRange(product);
                     const totalStock = getProductTotalStock(product);
@@ -634,7 +641,7 @@ export default function DirectSales() {
                         >
                           <CardContent className="p-0 flex flex-col h-full bg-slate-50/20">
                             {/* Image Wrapper */}
-                            <div className="relative aspect-4/5 bg-slate-50 overflow-hidden">
+                            <div className="relative aspect-[4/5] bg-slate-50 overflow-hidden">
                               {product.image_url ? (
                                 <img
                                   src={getImageUrl(product.image_url)}
@@ -706,111 +713,96 @@ export default function DirectSales() {
 
                                 {isSingleVariant ? (
                                   <Button
-                                    className="w-full h-11 bg-primary hover:bg-primary/90 text-white  rounded-md font-black transition-all active:scale-95 text-xs uppercase tracking-widest"
+                                    className="w-full h-10 bg-primary hover:bg-primary/90 text-white rounded-md font-medium transition-all active:scale-95 text-xs px-2"
                                   >
-                                    <Plus className="h-4 w-4 mr-2" /> {t('addToCart')}
+                                    <Plus className="h-3.5 w-3.5 mr-1.5" /> {t('addToCart')}
                                   </Button>
                                 ) : (
                                   <Button
                                     variant="outline"
                                     className={cn(
-                                      "w-full h-11 rounded-md font-black transition-all border-slate-200 hover:bg-primary/10 hover:text-primary hover:border-primary/20 text-xs uppercase tracking-widest",
+                                      "w-full h-10 rounded-md font-medium transition-all border-slate-200 hover:bg-primary/10 hover:text-primary hover:border-primary/20 text-xs px-2",
                                       isExpanded && "bg-primary/10 border-primary/20 text-primary"
                                     )}
                                   >
-                                    {t('selectOptions')} <ChevronDown className={cn("h-4 w-4 ml-2 transition-transform duration-300", isExpanded && "rotate-180")} />
+                                    {t('selectOptions')} <ChevronDown className={cn("h-3.5 w-3.5 ml-1.5 transition-transform duration-300", isExpanded && "rotate-180")} />
                                   </Button>
                                 )}
                               </div>
                             </div>
 
-                            {/* Integration: Slide-up Variant Selector Overlay */}
-                            <div
-                              className={cn(
-                                "absolute inset-0 z-50 bg-white transition-transform duration-300 ease-out transform flex flex-col overflow-hidden",
-                                isExpanded && !isSingleVariant ? "translate-y-0" : "translate-y-full"
-                              )}
-                              onClick={(e) => e.stopPropagation()} // Prevent clicking selector from triggering card click
-                            >
-                              {/* Header with Close */}
-                              <div className="p-3 border-b flex items-center justify-between bg-primary/10 backdrop-blur-sm sticky top-0 z-10">
-                                <div className="flex flex-col min-w-0 pr-4">
-                                  <h5 className="font-black text-primary text-xs leading-none uppercase tracking-widest mb-1">{t('selectVariant')}</h5>
-                                  <p className="text-[10px] text-primary font-black uppercase tracking-tight truncate">{product.name}</p>
-                                </div>
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-8 w-8 rounded-full hover:bg-primary/20 text-primary shrink-0"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setExpandedProductId(null);
-                                  }}
-                                >
-                                  <X className="h-4 w-4" />
-                                </Button>
-                              </div>
+                            {/* Integration: Sheet Variant Selector Overlay */}
+                            <Sheet open={isExpanded && !isSingleVariant} onOpenChange={(open) => !open && setExpandedProductId(null)}>
+                              <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col h-full">
+                                <SheetHeader className="p-6 border-b shrink-0 bg-primary/5">
+                                  <div className="flex flex-col">
+                                    <SheetTitle className="flex items-center gap-2 text-primary uppercase tracking-widest text-sm font-black">
+                                      <Layers className="h-5 w-5" />
+                                      {t('selectVariant')}
+                                    </SheetTitle>
+                                    <p className="text-[11px] font-bold text-slate-500 mt-1 uppercase tracking-tight">{product.name}</p>
+                                  </div>
+                                </SheetHeader>
 
-                              {/* Scrollable variant list */}
-                              <div className="flex-1 overflow-y-auto p-1.5 flex flex-col gap-1.5 custom-scrollbar">
-                                {availableVariants.map((variant) => {
-                                  const variantInCart = cart.find(
-                                    c => c.product_id === product.id && c.variant_sku === variant.sku
-                                  );
-                                  const isVariantLowStock = variant.stock <= (product.reorder_point || 10);
+                                <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 custom-scrollbar">
+                                  {availableVariants.map((variant) => {
+                                    const variantInCart = cart.find(
+                                      c => c.product_id === product.id && c.variant_sku === variant.sku
+                                    );
+                                    const isVariantLowStock = variant.stock <= (product.reorder_point || 10);
 
-                                  return (
-                                    <button
-                                      key={variant.sku}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        addVariantToCart(product, variant);
-                                        toast.success(t('addedToCartSuccess'));
-                                      }}
-                                      className={cn(
-                                        "w-full flex items-center justify-between p-3 rounded-md hover:bg-primary/10 transition-all text-left group/v border border-slate-100",
-                                        variantInCart && "bg-primary/10 border-primary/20 ring-2 ring-primary/20"
-                                      )}
-                                    >
-                                      <div className="flex-1 min-w-0 pr-2">
-                                        <div className="flex items-center gap-2 mb-1.5">
-                                          <span className="text-[10px] font-black font-mono text-primary bg-primary/10 px-1.5 py-0.5 rounded uppercase tracking-wider">{variant.sku}</span>
-                                          {isVariantLowStock && (
-                                            <Badge className="bg-orange-100 text-orange-700 text-[9px] font-black px-1.5 h-4 border-0 uppercase">{t('low')}</Badge>
-                                          )}
-                                          {variantInCart && (
-                                            <CheckCircle className="h-3.5 w-3.5 text-primary" />
+                                    return (
+                                      <button
+                                        key={variant.sku}
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          addVariantToCart(product, variant);
+                                          toast.success(t('addedToCartSuccess'));
+                                        }}
+                                        className={cn(
+                                          "w-full flex items-center justify-between p-4 rounded-xl transition-all text-left border bg-white group/v",
+                                          variantInCart
+                                            ? "border-primary ring-1 ring-primary/20 bg-primary/5"
+                                            : "border-slate-100 hover:border-primary/30 hover:bg-slate-50 shadow-sm"
+                                        )}
+                                      >
+                                        <div className="flex-1 min-w-0">
+                                          <div className="flex items-center gap-2 mb-1">
+                                            <span className="text-[10px] font-black font-mono text-primary bg-primary/10 px-2 py-0.5 rounded tracking-wider uppercase">
+                                              {variant.sku}
+                                            </span>
+                                            {isVariantLowStock && (
+                                              <Badge className="bg-orange-100 text-orange-700 text-[9px] font-black px-1.5 h-4 border-0 uppercase">Low</Badge>
+                                            )}
+                                          </div>
+                                          {variant.attributes && Object.keys(variant.attributes).length > 0 && (
+                                            <p className="text-xs text-slate-600 font-bold uppercase tracking-tight">
+                                              {formatAttributes(variant.attributes)}
+                                            </p>
                                           )}
                                         </div>
-                                        {Object.keys(variant.attributes || {}).length > 0 && (
-                                          <p className="text-[11px] text-slate-500 font-black truncate uppercase tracking-tight">
-                                            {formatAttributes(variant.attributes)}
-                                          </p>
-                                        )}
-                                      </div>
-                                      <div className="text-right ml-2 shrink-0">
-                                        <p className="font-black text-sm text-slate-900 tabular-nums">${variant.unit_price.toFixed(2)}</p>
-                                        <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{variant.stock} {t('left')}</p>
-                                      </div>
-                                      <div className="ml-3 h-9 w-9 rounded-full bg-white border border-slate-200 flex items-center justify-center group-hover/v:bg-primary group-hover/v:text-white group-hover/v:border-primary transition-all">
-                                        <Plus className="h-4 w-4" />
-                                      </div>
-                                    </button>
-                                  );
-                                })}
-                              </div>
-
-                              {/* Inline Cart Summary */}
-                              {isInCart && (
-                                <div className="p-3 bg-primary text-white text-[10px] font-black flex items-center justify-between uppercase tracking-widest">
-                                  <span className="flex items-center gap-2">
-                                    <ShoppingCart className="h-3.5 w-3.5" />
-                                    {itemsInCart.length} {t('items')} {t('inCart')}
-                                  </span>
-                                  <CheckCircle className="h-3.5 w-3.5" />
+                                        <div className="text-right shrink-0 ml-4">
+                                          <p className="font-black text-lg text-slate-900 tabular-nums">${variant.unit_price.toFixed(2)}</p>
+                                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{variant.stock} {t('left')}</p>
+                                        </div>
+                                        <div className={cn(
+                                          "ml-4 h-8 w-8 rounded-full flex items-center justify-center transition-all",
+                                          variantInCart ? "bg-primary text-white" : "bg-slate-100 text-slate-400 group-hover/v:bg-primary group-hover/v:text-white"
+                                        )}>
+                                          {variantInCart ? <CheckCircle className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                                        </div>
+                                      </button>
+                                    );
+                                  })}
                                 </div>
-                              )}
-                            </div>
+
+                                <SheetFooter className="p-6 border-t shrink-0">
+                                  <Button className="w-full h-12 text-xs font-bold uppercase tracking-widest" onClick={() => setExpandedProductId(null)}>
+                                    {t('close')}
+                                  </Button>
+                                </SheetFooter>
+                              </SheetContent>
+                            </Sheet>
                           </CardContent>
                         </Card>
                       </div>
@@ -934,179 +926,201 @@ export default function DirectSales() {
         </TabsContent>
       </Tabs>
 
-      {/* Sale Dialog */}
-      <Dialog open={saleDialogOpen} onOpenChange={setSaleDialogOpen}>
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+      {/* Sale Sheet */}
+      <Sheet open={saleDialogOpen} onOpenChange={setSaleDialogOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-xl p-0 flex flex-col h-full">
+          <SheetHeader className="p-6 border-b shrink-0">
+            <SheetTitle className="flex items-center gap-2">
               <Receipt className="h-5 w-5 text-primary" />
               {t('completeSale')}
-            </DialogTitle>
-          </DialogHeader>
+            </SheetTitle>
+          </SheetHeader>
 
-          <div className="flex flex-col gap-4 py-4">
-            {/* Vendor Info */}
-            <div className="flex flex-col gap-2">
-              <Label className="flex items-center gap-2">
-                <User className="h-4 w-4 text-slate-400" />
-                {t('vendorName')} *
-              </Label>
-              <Input
-                value={saleForm.vendor_name}
-                onChange={(e) => setSaleForm({ ...saleForm, vendor_name: e.target.value })}
-                placeholder={t('vendorName')}
-              />
-            </div>
-
-            {/* Client Info (Optional) */}
-            <div className="p-4 bg-slate-50 rounded-md flex flex-col gap-3">
-              <p className="text-sm font-medium text-slate-700">{t('customerInformation')}</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs">{t('clientName')}</Label>
-                  <Input
-                    value={saleForm.client_name}
-                    onChange={(e) => setSaleForm({ ...saleForm, client_name: e.target.value })}
-                    placeholder={t('customerName')}
-                  />
-                </div>
-                <div className="flex flex-col gap-1">
-                  <Label className="text-xs">{t('clientPhone')}</Label>
-                  <Input
-                    value={saleForm.client_phone}
-                    onChange={(e) => setSaleForm({ ...saleForm, client_phone: e.target.value })}
-                    placeholder={t('phoneNumber')}
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col gap-1">
-                <Label className="text-xs">{t('clientEmail')}</Label>
+          <div className="flex-1 overflow-y-auto custom-scrollbar p-6">
+            <div className="flex flex-col gap-6">
+              {/* Vendor Info */}
+              <div className="flex flex-col gap-2">
+                <Label className="flex items-center gap-2 font-semibold">
+                  <User className="h-4 w-4 text-slate-400" />
+                  {t('vendorName')} *
+                </Label>
                 <Input
-                  type="email"
-                  value={saleForm.client_email}
-                  onChange={(e) => setSaleForm({ ...saleForm, client_email: e.target.value })}
-                  placeholder={t('emailAddress')}
+                  value={saleForm.vendor_name}
+                  onChange={(e) => setSaleForm({ ...saleForm, vendor_name: e.target.value })}
+                  placeholder={t('vendorName')}
+                  className="h-11"
                 />
               </div>
-            </div>
 
-            {/* Payment Method */}
-            <div className="flex flex-col gap-2">
-              <Label>{t('paymentMethod')}</Label>
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { value: 'cash', label: t('cash'), icon: Banknote },
-                  { value: 'card', label: t('card'), icon: CreditCard },
-                  { value: 'transfer', label: t('transfer'), icon: ArrowRightLeft },
-                  { value: 'other', label: t('other'), icon: Receipt },
-                ].map(({ value, label, icon: Icon }) => (
-                  <button
-                    key={value}
-                    type="button"
-                    onClick={() => setSaleForm({ ...saleForm, payment_method: value as SaleForm['payment_method'] })}
-                    className={cn(
-                      "flex flex-col items-center gap-1 p-3 rounded-md border-2 transition-all",
-                      saleForm.payment_method === value
-                        ? "border-primary bg-primary/10"
-                        : "border-slate-200 hover:border-slate-300"
-                    )}
-                  >
-                    <Icon className={cn("h-5 w-5", saleForm.payment_method === value ? "text-primary" : "text-slate-400")} />
-                    <span className="text-xs font-medium">{label}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Discount */}
-            <div className="flex flex-col gap-2">
-              <Label>{t('discount')} ($)</Label>
-              <Input
-                type="number"
-                min="0"
-                step="0.01"
-                value={saleForm.discount || ''}
-                onChange={(e) => setSaleForm({ ...saleForm, discount: parseFloat(e.target.value) || 0 })}
-                placeholder="0.00"
-              />
-            </div>
-
-            {/* Notes */}
-            <div className="flex flex-col gap-2">
-              <Label>{t('notes')}</Label>
-              <Textarea
-                value={saleForm.notes}
-                onChange={(e) => setSaleForm({ ...saleForm, notes: e.target.value })}
-                placeholder={t('anyAdditionalNotes')}
-                rows={2}
-              />
-            </div>
-
-            {/* Order Summary */}
-            <div className="p-4 bg-slate-900 text-white rounded-md flex flex-col gap-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-400">{t('subtotal')}</span>
-                <span>${cartSubtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-slate-400">{t('tax')} (10%)</span>
-                <span>${cartTax.toFixed(2)}</span>
-              </div>
-              {cartDiscount > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-400">{t('discount')}</span>
-                  <span className="text-primary">-${cartDiscount.toFixed(2)}</span>
+              {/* Client Info (Optional) */}
+              <div className="p-5 bg-slate-50 border border-slate-100 rounded-lg flex flex-col gap-4">
+                <p className="text-sm font-bold text-slate-800 flex items-center gap-2">
+                  <ShoppingCart className="h-4 w-4 text-primary" />
+                  {t('customerInformation')}
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-slate-500">{t('clientName')}</Label>
+                    <Input
+                      value={saleForm.client_name}
+                      onChange={(e) => setSaleForm({ ...saleForm, client_name: e.target.value })}
+                      placeholder={t('customerName')}
+                      className="bg-white"
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <Label className="text-xs font-medium text-slate-500">{t('clientPhone')}</Label>
+                    <Input
+                      value={saleForm.client_phone}
+                      onChange={(e) => setSaleForm({ ...saleForm, client_phone: e.target.value })}
+                      placeholder={t('phoneNumber')}
+                      className="bg-white"
+                    />
+                  </div>
                 </div>
-              )}
-              <div className="flex justify-between text-xl font-bold pt-2 border-t border-slate-700">
-                <span>{t('total')}</span>
-                <span className="text-primary">${cartTotal.toFixed(2)}</span>
+                <div className="flex flex-col gap-1.5">
+                  <Label className="text-xs font-medium text-slate-500">{t('clientEmail')}</Label>
+                  <Input
+                    type="email"
+                    value={saleForm.client_email}
+                    onChange={(e) => setSaleForm({ ...saleForm, client_email: e.target.value })}
+                    placeholder={t('emailAddress')}
+                    className="bg-white"
+                  />
+                </div>
+              </div>
+
+              {/* Payment Method */}
+              <div className="flex flex-col gap-3">
+                <Label className="font-semibold">{t('paymentMethod')}</Label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {[
+                    { value: 'cash', label: t('cash'), icon: Banknote },
+                    { value: 'card', label: t('card'), icon: CreditCard },
+                    { value: 'transfer', label: t('transfer'), icon: ArrowRightLeft },
+                    { value: 'other', label: t('other'), icon: Receipt },
+                  ].map(({ value, label, icon: Icon }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => setSaleForm({ ...saleForm, payment_method: value as SaleForm['payment_method'] })}
+                      className={cn(
+                        "flex flex-col items-center justify-center gap-2 p-3 rounded-lg border-2 transition-all",
+                        saleForm.payment_method === value
+                          ? "border-primary bg-primary/5 text-primary"
+                          : "border-slate-100 bg-white hover:border-slate-200 text-slate-500"
+                      )}
+                    >
+                      <Icon className={cn("h-5 w-5", saleForm.payment_method === value ? "text-primary" : "text-slate-400")} />
+                      <span className="text-xs font-bold">{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Discount & Notes */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="flex flex-col gap-2">
+                  <Label className="font-semibold">{t('discount')} ($)</Label>
+                  <div className="relative">
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                    <Input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      className="pl-9 h-11 font-mono"
+                      value={saleForm.discount || ''}
+                      onChange={(e) => setSaleForm({ ...saleForm, discount: parseFloat(e.target.value) || 0 })}
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  <Label className="font-semibold">{t('notes')}</Label>
+                  <Textarea
+                    value={saleForm.notes}
+                    onChange={(e) => setSaleForm({ ...saleForm, notes: e.target.value })}
+                    placeholder={t('anyAdditionalNotes')}
+                    rows={1}
+                    className="h-11 min-h-11 py-2.5 resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* Order Summary */}
+              <div className="p-6 bg-slate-900 text-white rounded-xl shadow-inner flex flex-col gap-3">
+                <div className="flex justify-between text-sm opacity-60">
+                  <span>{t('subtotal')}</span>
+                  <span className="font-mono">${cartSubtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-sm opacity-60">
+                  <span>{t('tax')} (10%)</span>
+                  <span className="font-mono">${cartTax.toFixed(2)}</span>
+                </div>
+                {cartDiscount > 0 && (
+                  <div className="flex justify-between text-sm text-primary">
+                    <span className="font-bold">{t('discount')}</span>
+                    <span className="font-mono">-${cartDiscount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-2xl font-black pt-3 border-t border-slate-800">
+                  <span>{t('total')}</span>
+                  <span className="text-primary font-mono">${cartTotal.toFixed(2)}</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setSaleDialogOpen(false)}>
+          <SheetFooter className="p-6 border-t shrink-0 flex-row gap-3">
+            <Button variant="ghost" onClick={() => setSaleDialogOpen(false)} className="flex-1 h-12 font-medium capitalize">
               {t('cancel')}
             </Button>
             <Button
-              className="bg-primary hover:bg-primary/90"
+              className="flex-[2] h-12 bg-primary hover:bg-primary/90 text-white font-bold capitalize"
               onClick={handleCompleteSale}
               disabled={createSaleMutation.isPending}
             >
               {createSaleMutation.isPending ? (
-                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                <Loader2 className="h-5 w-5 mr-3 animate-spin" />
               ) : (
-                <CheckCircle className="h-4 w-4 mr-2" />
+                <CheckCircle className="h-5 w-5 mr-3" />
               )}
               {t('completeSale')}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      {/* Delete Sale Confirmation Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="max-w-sm">
-          <DialogHeader className="flex flex-col items-center text-center gap-3">
-            <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
+      {/* Delete Sale Confirmation Sheet */}
+      <Sheet open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col h-full">
+          <SheetHeader className="p-6 border-b shrink-0">
+            <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center mb-4">
               <AlertTriangle className="h-6 w-6 text-rose-600" />
             </div>
-            <DialogTitle className="text-xl">Void Transaction?</DialogTitle>
-            <p className="text-sm text-slate-500">
-              Are you sure you want to void this sale? This will remove the record and cannot be reversed.
+            <SheetTitle className="text-xl font-black uppercase tracking-tight">Void Transaction?</SheetTitle>
+          </SheetHeader>
+
+          <div className="flex-1 p-6">
+            <p className="text-sm text-slate-500 leading-relaxed">
+              Are you sure you want to void this sale?
+              This will remove the record permanently and cannot be reversed.
+              <span className="block mt-4 p-3 bg-rose-50 border border-rose-100 rounded-lg text-rose-700 font-bold text-xs uppercase tracking-widest text-center">
+                This Action is Permanent
+              </span>
             </p>
-          </DialogHeader>
-          <DialogFooter className="grid grid-cols-2 gap-3 mt-4">
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-              Cancel
+          </div>
+
+          <SheetFooter className="p-6 border-t shrink-0 sm:flex-row gap-3">
+            <Button variant="ghost" className="flex-1 h-12 font-medium" onClick={() => setIsDeleteDialogOpen(false)}>
+              {t('cancel')}
             </Button>
-            <Button variant="destructive" onClick={confirmDeleteSale} disabled={deleteSaleMutation.isPending}>
+            <Button variant="destructive" className="flex-2 h-12 font-black uppercase tracking-widest" onClick={confirmDeleteSale} disabled={deleteSaleMutation.isPending}>
               {deleteSaleMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
               Confirm Void
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }

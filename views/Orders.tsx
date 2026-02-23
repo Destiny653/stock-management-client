@@ -16,6 +16,14 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetTrigger,
+    SheetFooter,
+} from "@/components/ui/sheet";
+import {
     Dialog,
     DialogContent,
     DialogHeader,
@@ -334,119 +342,147 @@ export default function Orders() {
                 </CardContent>
             </Card>
 
-            {/* Order Details Dialog */}
-            {selectedOrder && (
-                <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
-                    <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-                        <DialogHeader>
-                            <DialogTitle>Order Details - {selectedOrder.order_number}</DialogTitle>
-                        </DialogHeader>
-                        <div className="flex flex-col gap-6">
-                            {/* Client Info */}
-                            <div className="grid grid-cols-2 gap-4 p-4 bg-muted rounded-md">
-                                <div>
-                                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Client Name</Label>
-                                    <p className="font-medium text-foreground">{selectedOrder.client_name}</p>
-                                </div>
-                                <div>
-                                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Email</Label>
-                                    <p className="font-medium text-foreground">{selectedOrder.client_email}</p>
-                                </div>
-                                <div>
-                                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Phone</Label>
-                                    <p className="font-medium text-foreground">{selectedOrder.client_phone || '-'}</p>
-                                </div>
-                                <div>
-                                    <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Order Date</Label>
-                                    <p className="font-medium text-foreground">{format(new Date(selectedOrder.created_at), 'MMM d, yyyy HH:mm')}</p>
-                                </div>
-                            </div>
+            {/* Order Details Sheet */}
+            <Sheet open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
+                <SheetContent side="right" className="w-full sm:max-w-2xl p-0 flex flex-col h-full">
+                    <SheetHeader className="p-6 border-b shrink-0">
+                        <SheetTitle className="flex items-center gap-2">
+                            <ShoppingCart className="h-5 w-5 text-primary" />
+                            Order Details - {selectedOrder?.order_number}
+                        </SheetTitle>
+                    </SheetHeader>
 
-                            {/* Order Items */}
-                            <div>
-                                <h3 className="font-semibold mb-3 text-foreground">Order Items</h3>
-                                <div className="flex flex-col gap-3">
-                                    {selectedOrder.items?.map((item, idx) => (
-                                        <div key={idx} className="border border-border rounded-md p-4">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div>
-                                                    <p className="font-medium text-foreground">{item.product_name}</p>
-                                                    <p className="text-sm text-muted-foreground">SKU: {item.sku}</p>
-                                                </div>
-                                                <Badge className={availabilityColors[item.availability_status || 'in_stock']}>
-                                                    {item.availability_status || 'in_stock'}
-                                                </Badge>
-                                            </div>
-                                            {item.specifications && (
-                                                <div className="mt-2 p-2 bg-muted rounded text-sm">
-                                                    <p className="text-muted-foreground">
-                                                        {item.specifications.size && <span className="mr-3"><strong>Size:</strong> {item.specifications.size}</span>}
-                                                        {item.specifications.color && <span className="mr-3"><strong>Color:</strong> {item.specifications.color}</span>}
-                                                    </p>
-                                                </div>
-                                            )}
-                                            <div className="flex justify-between mt-2 text-sm text-foreground">
-                                                <span>Qty: {item.quantity} × ${item.unit_price?.toFixed(2)}</span>
-                                                <span className="font-medium">${item.total?.toFixed(2)}</span>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Order Summary */}
-                            <div className="border-t border-border pt-4">
-                                <div className="flex flex-col gap-2">
-                                    <div className="flex justify-between">
-                                        <span className="text-muted-foreground">Subtotal</span>
-                                        <span className="text-foreground">${selectedOrder.subtotal?.toFixed(2)}</span>
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                        {selectedOrder && (
+                            <>
+                                {/* Client Info */}
+                                <div className="grid grid-cols-2 gap-4 p-4 bg-muted rounded-md border border-border">
+                                    <div>
+                                        <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Client Name</Label>
+                                        <p className="font-semibold text-foreground">{selectedOrder.client_name}</p>
                                     </div>
-                                    {selectedOrder.discount && selectedOrder.discount > 0 && (
-                                        <div className="flex justify-between text-primary">
-                                            <span>Discount</span>
-                                            <span>-${selectedOrder.discount?.toFixed(2)}</span>
-                                        </div>
-                                    )}
-                                    {selectedOrder.tax && selectedOrder.tax > 0 && (
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">Tax</span>
-                                            <span className="text-foreground">${selectedOrder.tax?.toFixed(2)}</span>
-                                        </div>
-                                    )}
-                                    {selectedOrder.shipping && selectedOrder.shipping > 0 && (
-                                        <div className="flex justify-between">
-                                            <span className="text-muted-foreground">Shipping</span>
-                                            <span className="text-foreground">${selectedOrder.shipping?.toFixed(2)}</span>
-                                        </div>
-                                    )}
-                                    <div className="flex justify-between text-lg font-bold pt-2 border-t border-border text-foreground">
-                                        <span>Total</span>
-                                        <span>${selectedOrder.total?.toFixed(2)}</span>
+                                    <div>
+                                        <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Email</Label>
+                                        <p className="font-semibold text-foreground truncate">{selectedOrder.client_email}</p>
+                                    </div>
+                                    <div className="mt-2">
+                                        <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Phone</Label>
+                                        <p className="font-medium text-foreground">{selectedOrder.client_phone || '-'}</p>
+                                    </div>
+                                    <div className="mt-2 text-right">
+                                        <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">Order Date</Label>
+                                        <p className="font-medium text-foreground">{format(new Date(selectedOrder.created_at), 'MMM d, yyyy HH:mm')}</p>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Additional Info */}
-                            {(selectedOrder.shipping_address || selectedOrder.notes) && (
-                                <div className="flex flex-col gap-3">
-                                    {selectedOrder.shipping_address && (
-                                        <div>
-                                            <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Shipping Address</Label>
-                                            <p className="text-sm text-foreground bg-white/50 p-3 rounded-md border border-border mt-1">{selectedOrder.shipping_address}</p>
-                                        </div>
-                                    )}
-                                    {selectedOrder.notes && (
-                                        <div>
-                                            <Label className="text-xs text-muted-foreground uppercase tracking-wider font-bold">Notes</Label>
-                                            <p className="text-sm text-foreground bg-white/50 p-3 rounded-md border border-border mt-1">{selectedOrder.notes}</p>
-                                        </div>
-                                    )}
+                                {/* Order Items */}
+                                <div className="space-y-3">
+                                    <h3 className="font-bold text-sm text-foreground flex items-center gap-2">
+                                        <Package className="h-4 w-4" />
+                                        Order Items
+                                    </h3>
+                                    <div className="flex flex-col gap-3">
+                                        {selectedOrder.items?.map((item, idx) => (
+                                            <div key={idx} className="border border-border rounded-lg p-4 bg-card/50 hover:bg-card transition-colors">
+                                                <div className="flex justify-between items-start mb-2">
+                                                    <div>
+                                                        <p className="font-bold text-foreground">{item.product_name}</p>
+                                                        <p className="text-xs text-muted-foreground font-mono">SKU: {item.sku}</p>
+                                                    </div>
+                                                    <Badge className={cn("text-[10px] px-1.5 py-0", availabilityColors[item.availability_status || 'in_stock'])}>
+                                                        {item.availability_status?.replace('_', ' ') || 'in stock'}
+                                                    </Badge>
+                                                </div>
+                                                {item.specifications && (
+                                                    <div className="mt-2 p-2 bg-muted/50 rounded text-xs">
+                                                        <p className="text-muted-foreground flex gap-4">
+                                                            {item.specifications.size && <span><strong>Size:</strong> {item.specifications.size}</span>}
+                                                            {item.specifications.color && <span><strong>Color:</strong> {item.specifications.color}</span>}
+                                                        </p>
+                                                    </div>
+                                                )}
+                                                <div className="flex justify-between mt-3 text-sm">
+                                                    <span className="text-muted-foreground">Qty: {item.quantity} × ${item.unit_price?.toFixed(2)}</span>
+                                                    <span className="font-bold text-foreground">${item.total?.toFixed(2)}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
-                            )}
-                        </div>
-                    </DialogContent>
-                </Dialog>
-            )}
+
+                                {/* Order Summary */}
+                                <div className="border border-border rounded-lg p-4 bg-muted/30 space-y-3">
+                                    <h3 className="font-bold text-sm text-foreground flex items-center gap-2">
+                                        <DollarSign className="h-4 w-4" />
+                                        Payment Summary
+                                    </h3>
+                                    <div className="space-y-2">
+                                        <div className="flex justify-between text-sm">
+                                            <span className="text-muted-foreground">Subtotal</span>
+                                            <span className="text-foreground">${selectedOrder.subtotal?.toFixed(2)}</span>
+                                        </div>
+                                        {selectedOrder.discount && selectedOrder.discount > 0 && (
+                                            <div className="flex justify-between text-sm text-primary font-medium">
+                                                <span>Discount</span>
+                                                <span>-${selectedOrder.discount?.toFixed(2)}</span>
+                                            </div>
+                                        )}
+                                        {selectedOrder.tax && selectedOrder.tax > 0 && (
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-muted-foreground">Tax</span>
+                                                <span className="text-foreground">${selectedOrder.tax?.toFixed(2)}</span>
+                                            </div>
+                                        )}
+                                        {selectedOrder.shipping && selectedOrder.shipping > 0 && (
+                                            <div className="flex justify-between text-sm">
+                                                <span className="text-muted-foreground">Shipping</span>
+                                                <span className="text-foreground">${selectedOrder.shipping?.toFixed(2)}</span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between items-center text-lg font-black pt-3 border-t border-border text-primary uppercase">
+                                            <span>Total Amount</span>
+                                            <span>${selectedOrder.total?.toFixed(2)}</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Additional Info */}
+                                {(selectedOrder.shipping_address || selectedOrder.notes) && (
+                                    <div className="space-y-4">
+                                        {selectedOrder.shipping_address && (
+                                            <div className="space-y-1.5">
+                                                <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold flex items-center gap-1.5">
+                                                    <Truck className="h-3.5 w-3.5" />
+                                                    Shipping Address
+                                                </Label>
+                                                <div className="text-sm text-foreground bg-white/50 p-4 rounded-lg border border-border leading-relaxed shadow-sm">
+                                                    {selectedOrder.shipping_address}
+                                                </div>
+                                            </div>
+                                        )}
+                                        {selectedOrder.notes && (
+                                            <div className="space-y-1.5">
+                                                <Label className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold flex items-center gap-1.5">
+                                                    <AlertCircle className="h-3.5 w-3.5" />
+                                                    Order Notes
+                                                </Label>
+                                                <div className="text-sm text-foreground bg-white/50 p-4 rounded-lg border border-border leading-relaxed shadow-sm italic">
+                                                    "{selectedOrder.notes}"
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </>
+                        )}
+                    </div>
+                    <SheetFooter className="p-6 border-t shrink-0">
+                        <Button className="w-full h-12 text-sm font-bold uppercase tracking-wider" onClick={() => setSelectedOrder(null)}>
+                            Close Details
+                        </Button>
+                    </SheetFooter>
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }

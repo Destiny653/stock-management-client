@@ -21,6 +21,8 @@ import {
     SheetContent,
     SheetHeader,
     SheetTitle,
+    SheetFooter,
+    SheetTrigger,
 } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -1009,7 +1011,7 @@ export default function OrganizationMembers() {
 
                 <div className="flex items-center gap-3">
                     {isManagerOrAdmin && (
-                        <Dialog open={addMemberDialogOpen} onOpenChange={(open) => {
+                        <Sheet open={addMemberDialogOpen} onOpenChange={(open) => {
                             setAddMemberDialogOpen(open);
                             if (!open) {
                                 setEditingMemberId(null);
@@ -1020,20 +1022,23 @@ export default function OrganizationMembers() {
                                 });
                             }
                         }}>
-                            <DialogTrigger asChild>
+                            <SheetTrigger asChild>
                                 <Button className="bg-primary hover:bg-primary/90">
                                     <UserPlus className="h-4 w-4 mr-2" /> Add Member
                                 </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-md">
-                                <DialogHeader>
-                                    <DialogTitle>{editingMemberId ? 'Edit Member' : 'Add New Member'}</DialogTitle>
-                                </DialogHeader>
-                                <div className="flex flex-col gap-4 py-4">
+                            </SheetTrigger>
+                            <SheetContent side="right" className="w-full sm:max-w-xl p-0 flex flex-col h-full">
+                                <SheetHeader className="p-6 border-b shrink-0">
+                                    <SheetTitle className="flex items-center gap-2">
+                                        {editingMemberId ? <Edit2 className="h-5 w-5 text-primary" /> : <UserPlus className="h-5 w-5 text-primary" />}
+                                        {editingMemberId ? 'Edit Member' : 'Add New Member'}
+                                    </SheetTitle>
+                                </SheetHeader>
+                                <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
                                     <div className="flex flex-col gap-2">
-                                        <Label>Member Type</Label>
+                                        <Label className="font-semibold">Member Type</Label>
                                         <Select value={memberType} onValueChange={(v: 'user' | 'vendor') => setMemberType(v)} disabled={!!editingMemberId}>
-                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectTrigger className="h-11 bg-white"><SelectValue /></SelectTrigger>
                                             <SelectContent>
                                                 <SelectItem value="user">Internal User (Staff/Manager)</SelectItem>
                                                 <SelectItem value="vendor">External Vendor</SelectItem>
@@ -1042,30 +1047,30 @@ export default function OrganizationMembers() {
                                     </div>
 
                                     {memberType === 'user' ? (
-                                        <>
+                                        <div className="flex flex-col gap-6">
                                             <div className="flex flex-col gap-2">
-                                                <Label>Full Name</Label>
-                                                <Input value={memberForm.full_name} onChange={e => setMemberForm(p => ({ ...p, full_name: e.target.value }))} placeholder="John Doe" />
+                                                <Label className="font-semibold">Full Name</Label>
+                                                <Input value={memberForm.full_name} onChange={e => setMemberForm(p => ({ ...p, full_name: e.target.value }))} placeholder="John Doe" className="h-11 bg-white" />
                                             </div>
                                             <div className="flex flex-col gap-2">
-                                                <Label>Email</Label>
-                                                <Input type="email" value={memberForm.email} onChange={e => setMemberForm(p => ({ ...p, email: e.target.value }))} placeholder="john@example.com" />
+                                                <Label className="font-semibold">Email</Label>
+                                                <Input type="email" value={memberForm.email} onChange={e => setMemberForm(p => ({ ...p, email: e.target.value }))} placeholder="john@example.com" className="h-11 bg-white" />
                                             </div>
                                             {!editingMemberId && (
                                                 <div className="flex flex-col gap-2">
-                                                    <Label>Password</Label>
-                                                    <Input type="password" value={memberForm.password} onChange={e => setMemberForm(p => ({ ...p, password: e.target.value }))} placeholder="••••••••" />
+                                                    <Label className="font-semibold">Password</Label>
+                                                    <Input type="password" value={memberForm.password} onChange={e => setMemberForm(p => ({ ...p, password: e.target.value }))} placeholder="••••••••" className="h-11 bg-white" />
                                                 </div>
                                             )}
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 <div className="flex flex-col gap-2">
-                                                    <Label>Phone</Label>
-                                                    <Input value={memberForm.phone} onChange={e => setMemberForm(p => ({ ...p, phone: e.target.value }))} placeholder="+1..." />
+                                                    <Label className="font-semibold">Phone</Label>
+                                                    <Input value={memberForm.phone} onChange={e => setMemberForm(p => ({ ...p, phone: e.target.value }))} placeholder="+1..." className="h-11 bg-white" />
                                                 </div>
                                                 <div className="flex flex-col gap-2">
-                                                    <Label>Role</Label>
+                                                    <Label className="font-semibold">Role</Label>
                                                     <Select value={memberForm.role} onValueChange={v => setMemberForm(p => ({ ...p, role: v }))}>
-                                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                                                        <SelectTrigger className="h-11 bg-white"><SelectValue /></SelectTrigger>
                                                         <SelectContent>
                                                             <SelectItem value="admin">Admin</SelectItem>
                                                             <SelectItem value="manager">Manager</SelectItem>
@@ -1075,48 +1080,48 @@ export default function OrganizationMembers() {
                                                     </Select>
                                                 </div>
                                             </div>
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 <div className="flex flex-col gap-2">
-                                                    <Label>Job Title</Label>
-                                                    <Input value={memberForm.job_title} onChange={e => setMemberForm(p => ({ ...p, job_title: e.target.value }))} placeholder="Sale Associate" />
+                                                    <Label className="font-semibold">Job Title</Label>
+                                                    <Input value={memberForm.job_title} onChange={e => setMemberForm(p => ({ ...p, job_title: e.target.value }))} placeholder="Sale Associate" className="h-11 bg-white" />
                                                 </div>
                                                 <div className="flex flex-col gap-2">
-                                                    <Label>Department</Label>
-                                                    <Input value={memberForm.department} onChange={e => setMemberForm(p => ({ ...p, department: e.target.value }))} placeholder="Sales" />
+                                                    <Label className="font-semibold">Department</Label>
+                                                    <Input value={memberForm.department} onChange={e => setMemberForm(p => ({ ...p, department: e.target.value }))} placeholder="Sales" className="h-11 bg-white" />
                                                 </div>
                                             </div>
-                                        </>
+                                        </div>
                                     ) : (
-                                        <>
+                                        <div className="flex flex-col gap-6">
                                             <div className="flex flex-col gap-2">
-                                                <Label>Store/Display Name *</Label>
-                                                <Input value={memberForm.store_name} onChange={e => setMemberForm(p => ({ ...p, store_name: e.target.value }))} placeholder="Acme Store #12" />
+                                                <Label className="font-semibold">Store/Display Name *</Label>
+                                                <Input value={memberForm.store_name} onChange={e => setMemberForm(p => ({ ...p, store_name: e.target.value }))} placeholder="Acme Store #12" className="h-11 bg-white" />
                                             </div>
                                             <div className="flex flex-col gap-2">
-                                                <Label>Contact Person Name *</Label>
-                                                <Input value={memberForm.full_name} onChange={e => setMemberForm(p => ({ ...p, full_name: e.target.value }))} placeholder="John Doe" />
+                                                <Label className="font-semibold">Contact Person Name *</Label>
+                                                <Input value={memberForm.full_name} onChange={e => setMemberForm(p => ({ ...p, full_name: e.target.value }))} placeholder="John Doe" className="h-11 bg-white" />
                                             </div>
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 <div className="flex flex-col gap-2">
-                                                    <Label>Contact Email</Label>
-                                                    <Input type="email" value={memberForm.email} onChange={e => setMemberForm(p => ({ ...p, email: e.target.value }))} placeholder="contact@acme.com" />
+                                                    <Label className="font-semibold">Contact Email</Label>
+                                                    <Input type="email" value={memberForm.email} onChange={e => setMemberForm(p => ({ ...p, email: e.target.value }))} placeholder="contact@acme.com" className="h-11 bg-white" />
                                                 </div>
                                                 <div className="flex flex-col gap-2">
-                                                    <Label>Phone</Label>
-                                                    <Input value={memberForm.phone} onChange={e => setMemberForm(p => ({ ...p, phone: e.target.value }))} placeholder="+1..." />
+                                                    <Label className="font-semibold">Phone</Label>
+                                                    <Input value={memberForm.phone} onChange={e => setMemberForm(p => ({ ...p, phone: e.target.value }))} placeholder="+1..." className="h-11 bg-white" />
                                                 </div>
                                             </div>
                                             {!editingMemberId && (
                                                 <div className="flex flex-col gap-2">
-                                                    <Label>Login Password</Label>
-                                                    <Input type="password" value={memberForm.password} onChange={e => setMemberForm(p => ({ ...p, password: e.target.value }))} placeholder="••••••••" />
+                                                    <Label className="font-semibold">Login Password</Label>
+                                                    <Input type="password" value={memberForm.password} onChange={e => setMemberForm(p => ({ ...p, password: e.target.value }))} placeholder="••••••••" className="h-11 bg-white" />
                                                 </div>
                                             )}
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                                 <div className="flex flex-col gap-2">
-                                                    <Label>Location</Label>
+                                                    <Label className="font-semibold">Location</Label>
                                                     <Select value={memberForm.location_id} onValueChange={v => setMemberForm(p => ({ ...p, location_id: v }))}>
-                                                        <SelectTrigger><SelectValue placeholder="Select location" /></SelectTrigger>
+                                                        <SelectTrigger className="h-11 bg-white"><SelectValue placeholder="Select location" /></SelectTrigger>
                                                         <SelectContent>
                                                             <SelectItem value="no_location">None</SelectItem>
                                                             {locations.map((loc: any) => (
@@ -1126,26 +1131,26 @@ export default function OrganizationMembers() {
                                                     </Select>
                                                 </div>
                                                 <div className="flex flex-col gap-2">
-                                                    <Label>Commission Rate (%)</Label>
-                                                    <Input type="number" value={memberForm.commission_rate} onChange={e => setMemberForm(p => ({ ...p, commission_rate: parseFloat(e.target.value) || 0 }))} />
+                                                    <Label className="font-semibold">Commission Rate (%)</Label>
+                                                    <Input type="number" value={memberForm.commission_rate} onChange={e => setMemberForm(p => ({ ...p, commission_rate: parseFloat(e.target.value) || 0 }))} className="h-11 bg-white" />
                                                 </div>
                                             </div>
-                                        </>
+                                        </div>
                                     )}
                                 </div>
-                                <DialogFooter>
-                                    <Button variant="outline" onClick={() => setAddMemberDialogOpen(false)}>Cancel</Button>
-                                    <Button className="bg-primary hover:bg-primary/90" onClick={handleAddMember} disabled={createMemberMutation.isPending || updateMemberMutation.isPending}>
+                                <SheetFooter className="p-6 border-t shrink-0 flex-row gap-3">
+                                    <Button variant="ghost" className="flex-1 h-12" onClick={() => setAddMemberDialogOpen(false)}>Cancel</Button>
+                                    <Button className="flex-[2] h-12 bg-primary hover:bg-primary/90 text-white font-bold" onClick={handleAddMember} disabled={createMemberMutation.isPending || updateMemberMutation.isPending}>
                                         {(createMemberMutation.isPending || updateMemberMutation.isPending) ? (
-                                            <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                                            <Loader2 className="h-5 w-5 animate-spin mr-3" />
                                         ) : (
-                                            editingMemberId ? <Edit2 className="h-4 w-4 mr-2" /> : <Plus className="h-4 w-4 mr-2" />
+                                            editingMemberId ? <Edit2 className="h-5 w-5 mr-3" /> : <Plus className="h-5 w-5 mr-3" />
                                         )}
                                         {editingMemberId ? 'Update Member' : 'Create Member'}
                                     </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
+                                </SheetFooter>
+                            </SheetContent>
+                        </Sheet>
                     )}
                     {organization && (
                         <Badge className={cn("text-sm px-3 py-1", statusColors[organization.status])}>
@@ -1701,29 +1706,286 @@ export default function OrganizationMembers() {
                 </SheetContent>
             </Sheet>
 
-            {/* Delete Confirmation Dialog */}
-            <Dialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-                <DialogContent className="max-w-sm">
-                    <DialogHeader className="flex flex-col items-center text-center flex flex-col gap-3">
-                        <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center">
+            {/* Subscription Management Sheet */}
+            <Sheet open={isSubscriptionDialogOpen} onOpenChange={setIsSubscriptionDialogOpen}>
+                <SheetContent side="right" className="w-full sm:max-w-xl p-0 flex flex-col h-full">
+                    <SheetHeader className="p-6 border-b shrink-0">
+                        <SheetTitle className="flex items-center gap-2">
+                            <CreditCard className="h-5 w-5 text-primary" /> Edit Subscription
+                        </SheetTitle>
+                    </SheetHeader>
+
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                        <div className="flex flex-col gap-2">
+                            <Label className="font-semibold">Subscription Plan</Label>
+                            <Select
+                                value={datasetSubscriptionForm.subscription_plan}
+                                onValueChange={(v) => setSubscriptionForm(p => ({ ...p, subscription_plan: v }))}
+                            >
+                                <SelectTrigger className="h-11 bg-white">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="starter">Starter Plan ($50/mo)</SelectItem>
+                                    <SelectItem value="business">Business Plan ($150/mo)</SelectItem>
+                                    <SelectItem value="enterprise">Enterprise Plan ($500/mo)</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-2">
+                                <Label className="font-semibold">Billing Cycle</Label>
+                                <Select
+                                    value={datasetSubscriptionForm.billing_cycle}
+                                    onValueChange={(v: 'monthly' | 'yearly') => setSubscriptionForm(p => ({ ...p, billing_cycle: v }))}
+                                >
+                                    <SelectTrigger className="h-11 bg-white">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="monthly">Monthly</SelectItem>
+                                        <SelectItem value="yearly">Yearly</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <Label className="font-semibold">Status</Label>
+                                <Select
+                                    value={datasetSubscriptionForm.status}
+                                    onValueChange={(v: any) => setSubscriptionForm(p => ({ ...p, status: v }))}
+                                >
+                                    <SelectTrigger className="h-11 bg-white">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="active">Active</SelectItem>
+                                        <SelectItem value="inactive">Inactive</SelectItem>
+                                        <SelectItem value="suspended">Suspended</SelectItem>
+                                        <SelectItem value="pending">Pending</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-2">
+                                <Label className="font-semibold">Max Vendors</Label>
+                                <Input
+                                    type="number"
+                                    value={datasetSubscriptionForm.max_vendors}
+                                    onChange={e => setSubscriptionForm(p => ({ ...p, max_vendors: parseInt(e.target.value) || 0 }))}
+                                    className="h-11 bg-white"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <Label className="font-semibold">Max Users</Label>
+                                <Input
+                                    type="number"
+                                    value={datasetSubscriptionForm.max_users}
+                                    onChange={e => setSubscriptionForm(p => ({ ...p, max_users: parseInt(e.target.value) || 0 }))}
+                                    className="h-11 bg-white"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <Label className="font-semibold">Trial Ends At</Label>
+                            <Input
+                                type="date"
+                                value={datasetSubscriptionForm.trial_ends_at}
+                                onChange={e => setSubscriptionForm(p => ({ ...p, trial_ends_at: e.target.value }))}
+                                className="h-11 bg-white"
+                            />
+                        </div>
+
+                        <div className="p-4 bg-muted/30 rounded-lg border border-border text-sm text-muted-foreground italic flex flex-col gap-2">
+                            <p>Changing the plan will affect the next billing cycle. Manual overrides to limits take effect immediately.</p>
+                        </div>
+                    </div>
+
+                    <SheetFooter className="p-6 border-t shrink-0 flex-row gap-3">
+                        <Button variant="ghost" className="flex-1 h-12" onClick={() => setIsSubscriptionDialogOpen(false)}>Cancel</Button>
+                        <Button
+                            className="flex-[2] h-12 bg-primary hover:bg-primary/90 text-white font-bold"
+                            onClick={handleSaveSubscription}
+                            disabled={updateOrganizationMutation.isPending}
+                        >
+                            {updateOrganizationMutation.isPending ? (
+                                <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                            ) : (
+                                <CheckCircle className="h-5 w-5 mr-3" />
+                            )}
+                            Save Subscription
+                        </Button>
+                    </SheetFooter>
+                </SheetContent>
+            </Sheet>
+
+            {/* Record Payment Sheet */}
+            <Sheet open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+                <SheetContent side="right" className="w-full sm:max-w-xl p-0 flex flex-col h-full">
+                    <SheetHeader className="p-6 border-b shrink-0">
+                        <SheetTitle className="flex items-center gap-2">
+                            <DollarSign className="h-5 w-5 text-primary" /> Record Payment
+                        </SheetTitle>
+                    </SheetHeader>
+
+                    <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-2">
+                                <Label className="font-semibold">Amount</Label>
+                                <div className="relative">
+                                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+                                    <Input
+                                        type="number"
+                                        value={paymentForm.amount}
+                                        onChange={e => setPaymentForm(p => ({ ...p, amount: e.target.value }))}
+                                        className="pl-9 h-11 bg-white"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <Label className="font-semibold">Currency</Label>
+                                <Input
+                                    value={paymentForm.currency}
+                                    onChange={e => setPaymentForm(p => ({ ...p, currency: e.target.value }))}
+                                    className="h-11 bg-white uppercase"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-2">
+                                <Label className="font-semibold">Payment Method</Label>
+                                <Select
+                                    value={paymentForm.payment_method}
+                                    onValueChange={(v: any) => setPaymentForm(p => ({ ...p, payment_method: v }))}
+                                >
+                                    <SelectTrigger className="h-11 bg-white">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="bank_transfer">Bank Transfer</SelectItem>
+                                        <SelectItem value="card">Credit Card</SelectItem>
+                                        <SelectItem value="mobile_money">Mobile Money</SelectItem>
+                                        <SelectItem value="paypal">PayPal</SelectItem>
+                                        <SelectItem value="stripe">Stripe</SelectItem>
+                                        <SelectItem value="other">Other</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <Label className="font-semibold">Payment Type</Label>
+                                <Select
+                                    value={paymentForm.payment_type}
+                                    onValueChange={(v: any) => setPaymentForm(p => ({ ...p, payment_type: v }))}
+                                >
+                                    <SelectTrigger className="h-11 bg-white">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="subscription">Subscription</SelectItem>
+                                        <SelectItem value="addon">Add-on Service</SelectItem>
+                                        <SelectItem value="upgrade">Plan Upgrade</SelectItem>
+                                        <SelectItem value="renewal">Renewal</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-2">
+                                <Label className="font-semibold">Reference Number</Label>
+                                <Input
+                                    value={paymentForm.reference_number}
+                                    onChange={e => setPaymentForm(p => ({ ...p, reference_number: e.target.value }))}
+                                    placeholder="TXN-123..."
+                                    className="h-11 bg-white"
+                                />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <Label className="font-semibold">Invoice Number</Label>
+                                <Input
+                                    value={paymentForm.invoice_number}
+                                    onChange={e => setPaymentForm(p => ({ ...p, invoice_number: e.target.value }))}
+                                    placeholder="INV-123..."
+                                    className="h-11 bg-white"
+                                />
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <Label className="font-semibold">Payment Date</Label>
+                            <Input
+                                type="date"
+                                value={paymentForm.payment_date}
+                                onChange={e => setPaymentForm(p => ({ ...p, payment_date: e.target.value }))}
+                                className="h-11 bg-white"
+                            />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <Label className="font-semibold">Notes</Label>
+                            <Textarea
+                                value={paymentForm.notes}
+                                onChange={e => setPaymentForm(p => ({ ...p, notes: e.target.value }))}
+                                placeholder="Additional payment details..."
+                                rows={3}
+                                className="bg-white"
+                            />
+                        </div>
+                    </div>
+
+                    <SheetFooter className="p-6 border-t shrink-0 flex-row gap-3">
+                        <Button variant="ghost" className="flex-1 h-12" onClick={() => setIsPaymentDialogOpen(false)}>Cancel</Button>
+                        <Button
+                            className="flex-[2] h-12 bg-primary hover:bg-primary/90 text-white font-bold"
+                            onClick={handleRecordPayment}
+                            disabled={recordPaymentMutation.isPending}
+                        >
+                            {recordPaymentMutation.isPending ? (
+                                <Loader2 className="h-5 w-5 mr-3 animate-spin" />
+                            ) : (
+                                <CheckCircle className="h-5 w-5 mr-3" />
+                            )}
+                            Record Payment
+                        </Button>
+                    </SheetFooter>
+                </SheetContent>
+            </Sheet>
+
+            {/* Delete Confirmation Sheet */}
+            <Sheet open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+                <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col h-full">
+                    <SheetHeader className="p-6 border-b shrink-0">
+                        <div className="h-12 w-12 rounded-full bg-rose-100 flex items-center justify-center mb-4">
                             <AlertTriangle className="h-6 w-6 text-rose-600" />
                         </div>
-                        <DialogTitle className="text-xl">Delete {memberToDelete?.type === 'user' ? 'User' : 'Vendor'}?</DialogTitle>
-                        <p className="text-sm text-slate-500">
-                            Are you sure you want to remove this {memberToDelete?.type}? This action will permanently delete their account and associated profile data. This cannot be undone.
+                        <SheetTitle className="text-xl">Delete {memberToDelete?.type === 'user' ? 'User' : 'Vendor'}?</SheetTitle>
+                    </SheetHeader>
+
+                    <div className="flex-1 p-6">
+                        <p className="text-sm text-slate-500 leading-relaxed">
+                            Are you sure you want to remove this <span className="font-bold text-slate-900">{memberToDelete?.type}</span>?
+                            This action will permanently delete their account and associated profile data.
+                            <span className="block mt-4 p-3 bg-rose-50 border border-rose-100 rounded-md text-rose-700 font-medium whitespace-nowrap overflow-hidden text-ellipsis">
+                                This action cannot be undone.
+                            </span>
                         </p>
-                    </DialogHeader>
-                    <DialogFooter className="grid grid-cols-2 gap-3 mt-4">
-                        <Button variant="outline" onClick={() => setDeleteConfirmOpen(false)}>
+                    </div>
+
+                    <SheetFooter className="p-6 border-t shrink-0 sm:flex-row gap-3">
+                        <Button variant="ghost" className="flex-1 h-12" onClick={() => setDeleteConfirmOpen(false)}>
                             Cancel
                         </Button>
-                        <Button variant="destructive" onClick={confirmDelete} disabled={deleteMemberMutation.isPending}>
+                        <Button variant="destructive" className="flex-2 h-12 font-bold" onClick={confirmDelete} disabled={deleteMemberMutation.isPending}>
                             {deleteMemberMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Trash2 className="h-4 w-4 mr-2" />}
                             Delete Member
                         </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+                    </SheetFooter>
+                </SheetContent>
+            </Sheet>
         </div>
     );
 }

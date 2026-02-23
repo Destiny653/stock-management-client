@@ -57,8 +57,8 @@ export default function CategoryDistribution({ data = [] }: CategoryDistribution
         <p className="text-sm text-muted-foreground mt-0.5">Stock value by category</p>
       </div>
 
-      <div className="flex items-center gap-6">
-        <div className="h-48 w-48 shrink-0">
+      <div className="flex flex-col items-center sm:flex-row sm:items-center gap-6">
+        <div className="h-56 w-full sm:w-56 shrink-0">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
               <Pie

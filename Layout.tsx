@@ -59,8 +59,6 @@ const superAdminNavigation = [
   { name: "dashboard", href: "Dashboard", icon: LayoutDashboard },
   { name: "Organizations", href: "Organizations", icon: Building2 },
   { name: "Reports", href: "Reports", icon: BarChart3 },
-  { name: "Profile", href: "Profile", icon: User },
-  { name: "Settings", href: "Settings", icon: Settings },
 ];
 
 // Organization admin navigation - can manage vendors but not other orgs
@@ -75,8 +73,6 @@ const adminNavigation = [
   { name: "Payments", href: "VendorPayments", icon: CreditCard },
   { name: "Store Map", href: "StoreLocations", icon: MapPin },
   { name: "reports", href: "Reports", icon: BarChart3 },
-  { name: "Profile", href: "Profile", icon: User },
-  { name: "settings", href: "Settings", icon: Settings },
 ];
 
 const managerNavigation = [
@@ -87,15 +83,12 @@ const managerNavigation = [
   { name: "purchaseOrders", href: "PurchaseOrders", icon: FileText },
   { name: "Vendors", href: "VendorManagement", icon: Store },
   { name: "Reports", href: "Reports", icon: BarChart3 },
-  { name: "Profile", href: "Profile", icon: User },
-  { name: "Settings", href: "Settings", icon: Settings },
 ];
 
 const staffNavigation = [
   { name: "dashboard", href: "Dashboard", icon: LayoutDashboard },
   { name: "inventory", href: "Inventory", icon: Package },
   { name: "directSales", href: "DirectSales", icon: ShoppingCart },
-  { name: "Profile", href: "Profile", icon: User },
 ];
 
 // Vendor navigation - limited access, view-only inventory
@@ -103,7 +96,6 @@ const vendorNavigation = [
   { name: "My Dashboard", href: "VendorDashboard", icon: LayoutDashboard },
   { name: "directSales", href: "DirectSales", icon: ShoppingCart },
   { name: "inventory", href: "Inventory", icon: Package },
-  { name: "Profile", href: "Profile", icon: User },
 ];
 
 interface NavItem {
@@ -187,6 +179,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
   };
 
   const { user, logout } = useAuth();
+  const { t } = useLanguage();
 
   const { data: alerts = [] } = useQuery({
     queryKey: ['alerts'],
@@ -280,7 +273,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
                   <Menu className="h-5 w-5" />
                 </Button>
               </SheetTrigger>
-              <SheetContent side="left" className="w-72 p-0 bg-background">
+              <SheetContent side="left" className="w-[85%] max-w-72 p-0 bg-background flex flex-col">
                 <div className="p-6 border-b border-border">
                   <div className="flex items-center gap-3">
                     <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center ">
@@ -292,7 +285,7 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
                     </div>
                   </div>
                 </div>
-                <nav className="p-4 flex flex-col gap-1">
+                <nav className="p-4 flex-1 flex flex-col gap-1 overflow-y-auto">
                   {navigation.map((item) => (
                     <NavLink
                       key={item.name}
@@ -302,15 +295,50 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
                     />
                   ))}
                 </nav>
+                <div className="p-4 border-t border-border mt-auto bg-muted/20">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex gap-3 px-2">
+                      <div className="h-10 w-10 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold shrink-0">
+                        {user?.full_name?.charAt(0) || 'U'}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-foreground truncate">{user?.full_name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2 mt-1">
+                      <Button variant="outline" size="sm" asChild className="justify-start h-9 text-xs bg-white">
+                        <Link href={createPageUrl("Profile")} onClick={() => setMobileMenuOpen(false)}>
+                          <User className="h-3.5 w-3.5 mr-2" /> Profile
+                        </Link>
+                      </Button>
+                      <Button variant="outline" size="sm" asChild className="justify-start h-9 text-xs bg-white">
+                        <Link href={createPageUrl("Settings")} onClick={() => setMobileMenuOpen(false)}>
+                          <Settings className="h-3.5 w-3.5 mr-2" /> Settings
+                        </Link>
+                      </Button>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      className="w-full justify-start h-10 text-sm font-bold text-slate-700 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                      onClick={() => {
+                        logout();
+                        router.push('/login');
+                      }}
+                    >
+                      <LogOut className="h-4 w-4 mr-3 text-rose-500" /> Sign Out
+                    </Button>
+                  </div>
+                </div>
               </SheetContent>
             </Sheet>
 
-            <Link href={createPageUrl("Dashboard")} className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-md bg-primary flex items-center justify-center ">
-                <Package className="h-5 w-5 text-primary-foreground" />
+            <Link href={createPageUrl("Dashboard")} className="flex items-center gap-2">
+              <div className="h-9 w-9 rounded-md bg-primary flex items-center justify-center shrink-0">
+                <Package className="h-4.5 w-4.5 text-primary-foreground" />
               </div>
-              <div className="block sm:block">
-                <h1 className="font-bold text-sidebar-foreground text-lg tracking-tight">StockFlow</h1>
+              <div className="block">
+                <h1 className="font-bold text-sidebar-foreground text-base tracking-tight truncate max-w-[100px] xs:max-w-none">StockFlow</h1>
               </div>
             </Link>
           </div>
@@ -344,20 +372,20 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="gap-2 px-2 text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent">
-                  <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium ">
+                <Button variant="ghost" className="gap-2 px-1.5 sm:px-2 text-sidebar-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent">
+                  <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-medium shrink-0">
                     {user?.full_name?.charAt(0) || 'U'}
                   </div>
-                  <span className="hidden sm:block text-sm font-medium">
+                  <span className="hidden lg:block text-sm font-medium truncate max-w-[100px]">
                     {user?.full_name || 'User'}
                   </span>
-                  <ChevronDown className="h-4 w-4 text-sidebar-foreground/50" />
+                  <ChevronDown className="h-4 w-4 text-sidebar-foreground/50 hidden sm:block" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 bg-white">
                 <div className="px-2 py-1.5">
                   <p className="text-sm font-medium text-foreground">{user?.full_name}</p>
-                  <p className="text-xs text-muted-foreground">{user?.email}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                 </div>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
@@ -407,17 +435,88 @@ function LayoutContent({ children, currentPageName }: LayoutProps) {
           </nav>
         </TooltipProvider>
 
-        {!sidebarCollapsed && (
-          <div className="p-4 border-t border-sidebar-border">
-            <div className="rounded-md bg-primary p-4 text-primary-foreground ">
-              <p className="font-semibold text-sm">Need Help?</p>
-              <p className="text-xs text-primary-foreground/80 mt-1">Check our documentation or contact support.</p>
-              <Button size="sm" variant="secondary" className="mt-3 w-full bg-background text-primary hover:bg-muted">
-                View Docs
+        <div className="mt-auto border-t border-sidebar-border p-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className={cn(
+                  "w-full h-14 flex items-center gap-3 px-2 text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all",
+                  sidebarCollapsed ? "justify-center" : "justify-start"
+                )}
+              >
+                <div className="h-9 w-9 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-sm font-bold shrink-0 shadow-sm border border-primary/20">
+                  {user?.full_name?.charAt(0) || 'U'}
+                </div>
+                {!sidebarCollapsed && (
+                  <div className="flex flex-1 flex-col items-start min-w-0">
+                    <span className="text-sm font-bold truncate w-full text-sidebar-foreground">
+                      {user?.full_name || 'User Account'}
+                    </span>
+                    <span className="text-[10px] text-sidebar-foreground/50 truncate w-full">
+                      {user?.email}
+                    </span>
+                  </div>
+                )}
+                {!sidebarCollapsed && <ChevronDown className="h-4 w-4 text-sidebar-foreground/40" />}
               </Button>
-            </div>
-          </div>
-        )}
+            </DropdownMenuTrigger>
+            <DropdownMenuContent side="right" align="end" className="w-64 bg-white p-2 shadow-2xl border-sidebar-border/50 animate-in slide-in-from-left-2 duration-200">
+              <div className="px-3 py-4 flex items-center gap-3">
+                <div className="h-12 w-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground text-lg font-bold shrink-0 shadow-inner">
+                  {user?.full_name?.charAt(0) || 'U'}
+                </div>
+                <div className="flex flex-col min-w-0">
+                  <p className="text-sm font-black text-slate-900 truncate leading-none mb-1.5 uppercase tracking-tight">{user?.full_name}</p>
+                  <p className="text-[11px] text-slate-500 truncate font-medium">{user?.email}</p>
+                  <div className="flex items-center gap-1.5 mt-1.5">
+                    <Badge variant="outline" className="text-[9px] font-black h-4 px-1 bg-primary/5 text-primary border-primary/10 uppercase tracking-tighter">
+                      {user?.role || 'User'}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              <DropdownMenuSeparator className="my-1 bg-slate-100" />
+              <div className="grid grid-cols-2 gap-1 p-1">
+                <DropdownMenuItem asChild className="p-0">
+                  <Link
+                    href={createPageUrl("Profile")}
+                    className="flex flex-col items-center justify-center gap-2 p-3 rounded-md hover:bg-primary/5 hover:text-primary transition-all group border border-transparent hover:border-primary/10"
+                  >
+                    <div className="h-9 w-9 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                      <User className="h-4.5 w-4.5 text-slate-500 group-hover:text-primary" />
+                    </div>
+                    <span className="text-[11px] font-bold uppercase tracking-widest">Profile</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="p-0">
+                  <Link
+                    href={createPageUrl("Settings")}
+                    className="flex flex-col items-center justify-center gap-2 p-3 rounded-md hover:bg-primary/5 hover:text-primary transition-all group border border-transparent hover:border-primary/10"
+                  >
+                    <div className="h-9 w-9 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-primary/10 transition-colors">
+                      <Settings className="h-4.5 w-4.5 text-slate-500 group-hover:text-primary" />
+                    </div>
+                    <span className="text-[11px] font-bold uppercase tracking-widest">Settings</span>
+                  </Link>
+                </DropdownMenuItem>
+              </div>
+              <DropdownMenuSeparator className="my-1 bg-slate-100" />
+              <DropdownMenuItem
+                className="flex items-center gap-3 p-3 rounded-md text-rose-600 hover:bg-rose-50 hover:text-rose-700 transition-colors cursor-pointer group m-1"
+                onClick={() => {
+                  logout();
+                  router.push('/login');
+                }}
+              >
+                <div className="h-8 w-8 rounded-full bg-rose-100/50 flex items-center justify-center text-rose-500 group-hover:bg-rose-100">
+                  <LogOut className="h-4 w-4" />
+                </div>
+                <span className="text-sm font-black uppercase tracking-widest">Sign Out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </aside>
 
       {/* Main Content */}

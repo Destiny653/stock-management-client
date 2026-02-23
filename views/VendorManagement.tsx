@@ -16,12 +16,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter,
+} from "@/components/ui/sheet";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -512,27 +513,27 @@ export default function VendorManagement() {
               {t('viewMap')}
             </Button>
           </Link>
-          <Dialog open={isAddDialogOpen || editingVendor !== null} onOpenChange={(open) => {
+          <Sheet open={isAddDialogOpen || editingVendor !== null} onOpenChange={(open) => {
             if (!open) { setEditingVendor(null); resetForm(); }
             setIsAddDialogOpen(open);
           }}>
-            <DialogTrigger asChild>
+            <SheetTrigger asChild>
               <Button className="bg-primary hover:bg-primary/90">
                 <Plus className="h-4 w-4 mr-2" />
                 {t('addVendor')}
               </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>{editingVendor ? t('editVendor') : t('addVendor')}</DialogTitle>
-              </DialogHeader>
-              <div className="flex flex-col gap-4 max-h-[70vh] overflow-y-auto pr-2">
+            </SheetTrigger>
+            <SheetContent side="right" className="w-full sm:max-w-2xl p-0 flex flex-col h-full">
+              <SheetHeader className="p-6 border-b shrink-0">
+                <SheetTitle>{editingVendor ? t('editVendor') : t('addVendor')}</SheetTitle>
+              </SheetHeader>
+              <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
                 {isSuperAdmin && (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div className="flex flex-col gap-2">
-                      <Label>Organization</Label>
+                      <Label className="font-semibold">Organization</Label>
                       <Select value={formData.organization_id || "none"} onValueChange={(v) => setFormData(prev => ({ ...prev, organization_id: v === "none" ? "" : v }))}>
-                        <SelectTrigger>
+                        <SelectTrigger className="h-11 bg-white">
                           <SelectValue placeholder="Select organization" />
                         </SelectTrigger>
                         <SelectContent>
@@ -544,9 +545,9 @@ export default function VendorManagement() {
                       </Select>
                     </div>
                     <div className="flex flex-col gap-2">
-                      <Label>Linked User Account</Label>
+                      <Label className="font-semibold">Linked User Account</Label>
                       <Select value={formData.user_id || "none"} onValueChange={(v) => setFormData(prev => ({ ...prev, user_id: v === "none" ? "" : v }))}>
-                        <SelectTrigger>
+                        <SelectTrigger className="h-11 bg-white">
                           <SelectValue placeholder="Link to user" />
                         </SelectTrigger>
                         <SelectContent>
@@ -563,9 +564,9 @@ export default function VendorManagement() {
 
                 {!isSuperAdmin && (
                   <div className="flex flex-col gap-2">
-                    <Label>Linked User Account</Label>
+                    <Label className="font-semibold">Linked User Account</Label>
                     <Select value={formData.user_id || "none"} onValueChange={(v) => setFormData(prev => ({ ...prev, user_id: v === "none" ? "" : v }))}>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-11 bg-white">
                         <SelectValue placeholder="Link to user" />
                       </SelectTrigger>
                       <SelectContent>
@@ -579,76 +580,83 @@ export default function VendorManagement() {
                   </div>
                 )}
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-2 col-span-2">
-                    <Label>{t('businessNameRequired')}</Label>
+                <div className="grid grid-cols-1 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <Label className="font-semibold">{t('businessNameRequired')}</Label>
                     <Input
                       value={formData.name}
                       onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                       placeholder={t('businessName')}
+                      className="h-11 bg-white"
                     />
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label>{t('storeNameRequired')}</Label>
+                  <Label className="font-semibold">{t('storeNameRequired')}</Label>
                   <Input
                     value={formData.store_name}
                     onChange={(e) => setFormData(prev => ({ ...prev, store_name: e.target.value }))}
                     placeholder={t('storeName')}
+                    className="h-11 bg-white"
                   />
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label>{t('storeAddress')}</Label>
+                  <Label className="font-semibold">{t('storeAddress')}</Label>
                   <Input
                     value={formData.address}
                     onChange={(e) => setFormData(prev => ({ ...prev, address: e.target.value }))}
                     placeholder={t('storeAddress')}
+                    className="h-11 bg-white"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <Label>{t('city')}</Label>
+                    <Label className="font-semibold">{t('city')}</Label>
                     <Input
                       value={formData.city}
                       onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
                       placeholder={t('city')}
+                      className="h-11 bg-white"
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Label>{t('country')}</Label>
+                    <Label className="font-semibold">{t('country')}</Label>
                     <Input
                       value={formData.country}
                       onChange={(e) => setFormData(prev => ({ ...prev, country: e.target.value }))}
                       placeholder={t('country')}
+                      className="h-11 bg-white"
                     />
                   </div>
                 </div>
 
                 {/* Location Picker with Map */}
-                <VendorLocationPicker
-                  latitude={formData.latitude}
-                  longitude={formData.longitude}
-                  onLocationChange={(lat: number, lng: number) => setFormData(prev => ({
-                    ...prev,
-                    latitude: lat,
-                    longitude: lng
-                  }))}
-                  onAddressChange={(addressData: { address?: string; city?: string; country?: string }) => setFormData(prev => ({
-                    ...prev,
-                    address: addressData.address?.split(',').slice(0, 2).join(',') || prev.address,
-                    city: addressData.city || prev.city,
-                    country: addressData.country || prev.country
-                  }))}
-                />
+                <div className="border rounded-lg overflow-hidden">
+                  <VendorLocationPicker
+                    latitude={formData.latitude}
+                    longitude={formData.longitude}
+                    onLocationChange={(lat: number, lng: number) => setFormData(prev => ({
+                      ...prev,
+                      latitude: lat,
+                      longitude: lng
+                    }))}
+                    onAddressChange={(addressData: { address?: string; city?: string; country?: string }) => setFormData(prev => ({
+                      ...prev,
+                      address: addressData.address?.split(',').slice(0, 2).join(',') || prev.address,
+                      city: addressData.city || prev.city,
+                      country: addressData.country || prev.country
+                    }))}
+                  />
+                </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <Label>{t('status')}</Label>
+                    <Label className="font-semibold">{t('status')}</Label>
                     <Select value={formData.status} onValueChange={(v) => setFormData(prev => ({ ...prev, status: v as any }))}>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-11 bg-white">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -660,9 +668,9 @@ export default function VendorManagement() {
                     </Select>
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Label>{t('subscriptionPlan')}</Label>
+                    <Label className="font-semibold">{t('subscriptionPlan')}</Label>
                     <Select value={formData.subscription_plan} onValueChange={(v) => setFormData(prev => ({ ...prev, subscription_plan: v }))}>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-11 bg-white">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -674,56 +682,59 @@ export default function VendorManagement() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <Label>{t('monthlyFee')} ($)</Label>
+                    <Label className="font-semibold">{t('monthlyFee')} ($)</Label>
                     <Input
                       type="number"
                       min="0"
                       value={formData.monthly_fee}
                       onChange={(e) => setFormData(prev => ({ ...prev, monthly_fee: parseFloat(e.target.value) || 0 }))}
+                      className="h-11 bg-white"
                     />
                   </div>
                   <div className="flex flex-col gap-2">
-                    <Label>{t('commissionRate')} (%)</Label>
+                    <Label className="font-semibold">{t('commissionRate')} (%)</Label>
                     <Input
                       type="number"
                       min="0"
                       max="100"
                       value={formData.commission_rate}
                       onChange={(e) => setFormData(prev => ({ ...prev, commission_rate: parseFloat(e.target.value) || 0 }))}
+                      className="h-11 bg-white"
                     />
                   </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
-                  <Label>{t('notes')}</Label>
+                  <Label className="font-semibold">{t('notes')}</Label>
                   <Textarea
                     value={formData.notes}
                     onChange={(e) => setFormData(prev => ({ ...prev, notes: e.target.value }))}
                     placeholder={t('notes')}
                     rows={3}
+                    className="bg-white"
                   />
                 </div>
-
-                <div className="flex justify-end gap-3 pt-4">
-                  <Button variant="outline" onClick={() => { setEditingVendor(null); setIsAddDialogOpen(false); resetForm(); }}>
-                    {t('cancel')}
-                  </Button>
-                  <Button
-                    className="bg-primary hover:bg-primary/90"
-                    onClick={handleSubmit}
-                    disabled={createVendorMutation.isPending || updateVendorMutation.isPending}
-                  >
-                    {(createVendorMutation.isPending || updateVendorMutation.isPending) && (
-                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                    )}
-                    {editingVendor ? t('updateVendor') : t('addVendor')}
-                  </Button>
-                </div>
               </div>
-            </DialogContent>
-          </Dialog>
+
+              <SheetFooter className="p-6 border-t shrink-0 flex-row gap-3">
+                <Button variant="ghost" onClick={() => { setEditingVendor(null); setIsAddDialogOpen(false); resetForm(); }} className="flex-1">
+                  {t('cancel')}
+                </Button>
+                <Button
+                  className="flex-2 bg-primary hover:bg-primary/90 text-white font-bold"
+                  onClick={handleSubmit}
+                  disabled={createVendorMutation.isPending || updateVendorMutation.isPending}
+                >
+                  {(createVendorMutation.isPending || updateVendorMutation.isPending) && (
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  )}
+                  {editingVendor ? t('updateVendor') : t('addVendor')}
+                </Button>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
 
